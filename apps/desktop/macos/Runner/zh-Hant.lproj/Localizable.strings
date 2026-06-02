@@ -196,6 +196,12 @@
 "settings.providers.section.services_description" = "查看已設定提供商的可用服務，並依服務類型切換。";
 "settings.providers.title" = "提供者";
 "settings.services.button.add_service" = "新增服務...";
+"settings.services.detail.delete_dialog.message" = "此服務將從提供者中移除。";
+"settings.services.detail.delete_dialog.title" = "刪除「{}」？";
+"settings.services.detail.prompt_variables" = "可用變數：{{sourceLanguage}}、{{targetLanguage}}、{{text}}";
+"settings.services.detail.row.name" = "名稱";
+"settings.services.detail.row.provider" = "提供者";
+"settings.services.detail.row.type" = "類型";
 "settings.services.editor.coming_soon" = "🚧 即將推出";
 "settings.services.editor.coming_soon_description" = "服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。";
 "settings.services.section.available_services" = "可用服務";

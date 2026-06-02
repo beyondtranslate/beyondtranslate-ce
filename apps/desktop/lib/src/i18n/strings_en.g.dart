@@ -572,6 +572,8 @@ class TranslationsSettingsServicesEn {
       TranslationsSettingsServicesSectionEn.internal(_root);
   late final TranslationsSettingsServicesEditorEn editor =
       TranslationsSettingsServicesEditorEn.internal(_root);
+  late final TranslationsSettingsServicesDetailEn detail =
+      TranslationsSettingsServicesDetailEn.internal(_root);
 }
 
 // Path: settings.providers
@@ -1118,6 +1120,23 @@ class TranslationsSettingsServicesEditorEn {
       'Service configuration is not yet available. You can manage service providers from the providers tab.';
 }
 
+// Path: settings.services.detail
+class TranslationsSettingsServicesDetailEn {
+  TranslationsSettingsServicesDetailEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  late final TranslationsSettingsServicesDetailRowEn row =
+      TranslationsSettingsServicesDetailRowEn.internal(_root);
+  late final TranslationsSettingsServicesDetailDeleteDialogEn delete_dialog =
+      TranslationsSettingsServicesDetailDeleteDialogEn.internal(_root);
+
+  /// en: 'Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}'
+  String get prompt_variables =>
+      'Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}';
+}
+
 // Path: settings.providers.section
 class TranslationsSettingsProvidersSectionEn {
   TranslationsSettingsProvidersSectionEn.internal(this._root);
@@ -1325,6 +1344,39 @@ class TranslationsSettingsGeneralEditorRowEn {
 
   /// en: 'Target Language'
   String get target_language => 'Target Language';
+}
+
+// Path: settings.services.detail.row
+class TranslationsSettingsServicesDetailRowEn {
+  TranslationsSettingsServicesDetailRowEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Name'
+  String get name => 'Name';
+
+  /// en: 'Provider'
+  String get provider => 'Provider';
+
+  /// en: 'Type'
+  String get type => 'Type';
+}
+
+// Path: settings.services.detail.delete_dialog
+class TranslationsSettingsServicesDetailDeleteDialogEn {
+  TranslationsSettingsServicesDetailDeleteDialogEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Delete "{}"?'
+  String get title => 'Delete "{}"?';
+
+  /// en: 'This service will be removed from the provider.'
+  String get message => 'This service will be removed from the provider.';
 }
 
 // Path: settings.providers.editor.row
@@ -1645,6 +1697,14 @@ extension on Translations {
       'settings.services.editor.coming_soon' => '🚧 Coming Soon',
       'settings.services.editor.coming_soon_description' =>
         'Service configuration is not yet available. You can manage service providers from the providers tab.',
+      'settings.services.detail.row.name' => 'Name',
+      'settings.services.detail.row.provider' => 'Provider',
+      'settings.services.detail.row.type' => 'Type',
+      'settings.services.detail.delete_dialog.title' => 'Delete "{}"?',
+      'settings.services.detail.delete_dialog.message' =>
+        'This service will be removed from the provider.',
+      'settings.services.detail.prompt_variables' =>
+        'Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
       'settings.providers.title' => 'Providers',
       'settings.providers.section.services' => 'Available Services',
       'settings.providers.section.services_description' =>

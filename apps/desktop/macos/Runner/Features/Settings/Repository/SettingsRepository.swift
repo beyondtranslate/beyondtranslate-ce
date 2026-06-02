@@ -24,6 +24,16 @@ protocol SettingsRepository {
   ) async throws -> ProviderConfigEntry
   @discardableResult
   func deleteProvider(id: String) async throws -> ProviderConfigEntry?
+  @discardableResult
+  func updateService(
+    serviceId: String,
+    providerId: String,
+    serviceType: ServiceType,
+    name: String,
+    fields: [String: String]
+  ) async throws -> ServiceConfigEntry
+  @discardableResult
+  func deleteService(serviceId: String) async throws -> ServiceConfigEntry?
   func disabledProviderIDs() -> Set<String>
   func setProviderEnabled(_ id: String, isEnabled: Bool)
 }
@@ -101,6 +111,26 @@ final class DefaultSettingsRepository: SettingsRepository {
 
   func deleteProvider(id: String) async throws -> ProviderConfigEntry? {
     try await settings.deleteProvider(providerId: id)
+  }
+
+  func updateService(
+    serviceId: String,
+    providerId: String,
+    serviceType: ServiceType,
+    name: String,
+    fields: [String: String]
+  ) async throws -> ServiceConfigEntry {
+    try await settings.updateService(
+      serviceId: serviceId,
+      providerId: providerId,
+      serviceType: serviceType,
+      name: name,
+      fields: fields
+    )
+  }
+
+  func deleteService(serviceId: String) async throws -> ServiceConfigEntry? {
+    try await settings.deleteService(serviceId: serviceId)
   }
 
   func disabledProviderIDs() -> Set<String> {

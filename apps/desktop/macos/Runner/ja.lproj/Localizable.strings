@@ -196,6 +196,12 @@
 "settings.providers.section.services_description" = "設定済みプロバイダーで利用できるサービスを確認し、種類ごとに切り替えます。";
 "settings.providers.title" = "プロバイダー";
 "settings.services.button.add_service" = "サービスを追加...";
+"settings.services.detail.delete_dialog.message" = "このサービスはプロバイダーから削除されます。";
+"settings.services.detail.delete_dialog.title" = "「{}」を削除しますか？";
+"settings.services.detail.prompt_variables" = "利用可能な変数: {{sourceLanguage}}, {{targetLanguage}}, {{text}}";
+"settings.services.detail.row.name" = "名前";
+"settings.services.detail.row.provider" = "プロバイダー";
+"settings.services.detail.row.type" = "種類";
 "settings.services.editor.coming_soon" = "🚧 近日公開";
 "settings.services.editor.coming_soon_description" = "サービスの設定はまだ利用できません。プロバイダータブからサービスプロバイダーを管理できます。";
 "settings.services.section.available_services" = "利用可能なサービス";

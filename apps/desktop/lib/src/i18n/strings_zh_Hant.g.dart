@@ -590,6 +590,9 @@ class _TranslationsSettingsServicesZhHant
   @override
   late final _TranslationsSettingsServicesEditorZhHant editor =
       _TranslationsSettingsServicesEditorZhHant._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailZhHant detail =
+      _TranslationsSettingsServicesDetailZhHant._(_root);
 }
 
 // Path: settings.providers
@@ -1111,6 +1114,28 @@ class _TranslationsSettingsServicesEditorZhHant
   String get coming_soon_description => '服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。';
 }
 
+// Path: settings.services.detail
+class _TranslationsSettingsServicesDetailZhHant
+    extends TranslationsSettingsServicesDetailEn {
+  _TranslationsSettingsServicesDetailZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _TranslationsSettingsServicesDetailRowZhHant row =
+      _TranslationsSettingsServicesDetailRowZhHant._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailDeleteDialogZhHant
+      delete_dialog =
+      _TranslationsSettingsServicesDetailDeleteDialogZhHant._(_root);
+  @override
+  String get prompt_variables =>
+      '可用變數：{{sourceLanguage}}、{{targetLanguage}}、{{text}}';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionZhHant
     extends TranslationsSettingsProvidersSectionEn {
@@ -1336,6 +1361,41 @@ class _TranslationsSettingsGeneralEditorRowZhHant
   String get source_language => '源語言';
   @override
   String get target_language => '目標語言';
+}
+
+// Path: settings.services.detail.row
+class _TranslationsSettingsServicesDetailRowZhHant
+    extends TranslationsSettingsServicesDetailRowEn {
+  _TranslationsSettingsServicesDetailRowZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get name => '名稱';
+  @override
+  String get provider => '提供者';
+  @override
+  String get type => '類型';
+}
+
+// Path: settings.services.detail.delete_dialog
+class _TranslationsSettingsServicesDetailDeleteDialogZhHant
+    extends TranslationsSettingsServicesDetailDeleteDialogEn {
+  _TranslationsSettingsServicesDetailDeleteDialogZhHant._(
+      TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '刪除「{}」？';
+  @override
+  String get message => '此服務將從提供者中移除。';
 }
 
 // Path: settings.providers.editor.row
@@ -1638,6 +1698,13 @@ extension on TranslationsZhHant {
       'settings.services.editor.coming_soon' => '🚧 即將推出',
       'settings.services.editor.coming_soon_description' =>
         '服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。',
+      'settings.services.detail.row.name' => '名稱',
+      'settings.services.detail.row.provider' => '提供者',
+      'settings.services.detail.row.type' => '類型',
+      'settings.services.detail.delete_dialog.title' => '刪除「{}」？',
+      'settings.services.detail.delete_dialog.message' => '此服務將從提供者中移除。',
+      'settings.services.detail.prompt_variables' =>
+        '可用變數：{{sourceLanguage}}、{{targetLanguage}}、{{text}}',
       'settings.providers.title' => '提供者',
       'settings.providers.section.services' => '可用服務',
       'settings.providers.section.services_description' =>

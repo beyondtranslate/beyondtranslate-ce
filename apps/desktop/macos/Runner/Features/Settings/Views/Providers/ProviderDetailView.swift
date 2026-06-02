@@ -5,7 +5,8 @@ import beyondtranslate_runtime
 
 struct ProviderDetailView: View {
   let provider: ProviderConfigEntry
-  @ObservedObject var viewModel: ProvidersViewModel
+  @ObservedObject var viewModel: ProviderDetailViewModel
+  var providersViewModel: ProvidersViewModel?
   var isCreating: Bool = false
 
   @Environment(\.dismiss) private var dismiss
@@ -156,10 +157,23 @@ struct ProviderDetailView: View {
               .foregroundStyle(.secondary)
           } else {
             ForEach(currentServices) { service in
-              ServiceRowView(
-                service: service,
-                provider: currentProvider
-              )
+              if let providersViewModel {
+                NavigationLink {
+                  ServiceDetailView(service: service, viewModel: providersViewModel)
+                } label: {
+                  ServiceRowView(
+                    service: service,
+                    provider: currentProvider,
+                    showsProviderName: false
+                  )
+                }
+              } else {
+                ServiceRowView(
+                  service: service,
+                  provider: currentProvider,
+                  showsProviderName: false
+                )
+              }
             }
           }
         }

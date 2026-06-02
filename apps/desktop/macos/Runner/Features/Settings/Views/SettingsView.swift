@@ -2,8 +2,9 @@ import SwiftUI
 
 enum SettingsSection: String, CaseIterable, Identifiable {
   case general
-  case services
+  case appearance
   case shortcuts
+  case providers
   case advanced
   case about
 
@@ -12,7 +13,8 @@ enum SettingsSection: String, CaseIterable, Identifiable {
   var title: String {
     switch self {
     case .general: return LocaleKeys.settings.general.title.tr()
-    case .services: return LocaleKeys.settings.services.title.tr()
+    case .appearance: return LocaleKeys.settings.appearance.title.tr()
+    case .providers: return LocaleKeys.settings.providers.title.tr()
     case .shortcuts: return LocaleKeys.settings.shortcuts.title.tr()
     case .advanced: return LocaleKeys.settings.advanced.title.tr()
     case .about: return LocaleKeys.settings.about.title.tr()
@@ -22,7 +24,8 @@ enum SettingsSection: String, CaseIterable, Identifiable {
   var icon: String {
     switch self {
     case .general: return "gearshape"
-    case .services: return "bolt.horizontal.circle"
+    case .appearance: return "paintbrush"
+    case .providers: return "server.rack"
     case .shortcuts: return "keyboard"
     case .advanced: return "slider.horizontal.3"
     case .about: return "info.circle"
@@ -79,12 +82,14 @@ private struct SettingsSectionDetailView: View {
       GeneralView(
         viewModel: viewModel.general,
         onAddProvider: {
-          selectedSection = .services
-          viewModel.services.requestPresentProviderEditorSheet()
+          selectedSection = .providers
+          viewModel.providers.requestPresentProviderEditorSheet()
         }
       )
-    case .services:
-      ServicesView(viewModel: viewModel.services)
+    case .appearance:
+      AppearanceView(viewModel: viewModel.general)
+    case .providers:
+      ProvidersView(viewModel: viewModel.providers)
     case .shortcuts:
       ShortcutsView(viewModel: viewModel.shortcuts)
     case .advanced:

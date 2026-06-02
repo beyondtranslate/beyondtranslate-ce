@@ -196,6 +196,12 @@
 "settings.providers.section.services_description" = "Consultez les services disponibles des fournisseurs configurés et changez de type de service.";
 "settings.providers.title" = "Fournisseurs";
 "settings.services.button.add_service" = "Ajouter un service...";
+"settings.services.detail.delete_dialog.message" = "Ce service sera supprimé du fournisseur.";
+"settings.services.detail.delete_dialog.title" = "Supprimer \"{}\" ?";
+"settings.services.detail.prompt_variables" = "Variables disponibles : {{sourceLanguage}}, {{targetLanguage}}, {{text}}";
+"settings.services.detail.row.name" = "Nom";
+"settings.services.detail.row.provider" = "Fournisseur";
+"settings.services.detail.row.type" = "Type";
 "settings.services.editor.coming_soon" = "🚧 Prochainement";
 "settings.services.editor.coming_soon_description" = "La configuration du service n'est pas encore disponible. Vous pouvez gérer les fournisseurs de services depuis l'onglet fournisseurs.";
 "settings.services.section.available_services" = "Services disponibles";

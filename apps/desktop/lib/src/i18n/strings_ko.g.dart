@@ -583,6 +583,9 @@ class _TranslationsSettingsServicesKo extends TranslationsSettingsServicesEn {
   @override
   late final _TranslationsSettingsServicesEditorKo editor =
       _TranslationsSettingsServicesEditorKo._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailKo detail =
+      _TranslationsSettingsServicesDetailKo._(_root);
 }
 
 // Path: settings.providers
@@ -1098,6 +1101,27 @@ class _TranslationsSettingsServicesEditorKo
       '서비스 구성이 아직 제공되지 않습니다. 제공자 탭에서 서비스 제공자를 관리할 수 있습니다.';
 }
 
+// Path: settings.services.detail
+class _TranslationsSettingsServicesDetailKo
+    extends TranslationsSettingsServicesDetailEn {
+  _TranslationsSettingsServicesDetailKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _TranslationsSettingsServicesDetailRowKo row =
+      _TranslationsSettingsServicesDetailRowKo._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailDeleteDialogKo delete_dialog =
+      _TranslationsSettingsServicesDetailDeleteDialogKo._(_root);
+  @override
+  String get prompt_variables =>
+      '사용 가능한 변수: {{sourceLanguage}}, {{targetLanguage}}, {{text}}';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionKo
     extends TranslationsSettingsProvidersSectionEn {
@@ -1325,6 +1349,40 @@ class _TranslationsSettingsGeneralEditorRowKo
   String get source_language => '소스 언어';
   @override
   String get target_language => '대상 언어';
+}
+
+// Path: settings.services.detail.row
+class _TranslationsSettingsServicesDetailRowKo
+    extends TranslationsSettingsServicesDetailRowEn {
+  _TranslationsSettingsServicesDetailRowKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get name => '이름';
+  @override
+  String get provider => '제공자';
+  @override
+  String get type => '유형';
+}
+
+// Path: settings.services.detail.delete_dialog
+class _TranslationsSettingsServicesDetailDeleteDialogKo
+    extends TranslationsSettingsServicesDetailDeleteDialogEn {
+  _TranslationsSettingsServicesDetailDeleteDialogKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '"{}"을(를) 삭제할까요?';
+  @override
+  String get message => '이 서비스가 제공자에서 제거됩니다.';
 }
 
 // Path: settings.providers.editor.row
@@ -1630,6 +1688,13 @@ extension on TranslationsKo {
       'settings.services.editor.coming_soon' => '🚧 곧 출시 예정',
       'settings.services.editor.coming_soon_description' =>
         '서비스 구성이 아직 제공되지 않습니다. 제공자 탭에서 서비스 제공자를 관리할 수 있습니다.',
+      'settings.services.detail.row.name' => '이름',
+      'settings.services.detail.row.provider' => '제공자',
+      'settings.services.detail.row.type' => '유형',
+      'settings.services.detail.delete_dialog.title' => '"{}"을(를) 삭제할까요?',
+      'settings.services.detail.delete_dialog.message' => '이 서비스가 제공자에서 제거됩니다.',
+      'settings.services.detail.prompt_variables' =>
+        '사용 가능한 변수: {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
       'settings.providers.title' => '제공자',
       'settings.providers.section.services' => '사용 가능한 서비스',
       'settings.providers.section.services_description' =>

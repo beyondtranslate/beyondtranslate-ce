@@ -1,15 +1,13 @@
 import SwiftUI
 import beyondtranslate_runtime
 
-/// A unified row that displays a service with a colored type icon, name,
-/// type label, and an enable/disable toggle.
+/// A unified row that displays a service with a colored type icon and name.
 ///
 /// Used in both the Services settings page and the Provider detail page.
 struct ServiceRowView: View {
   let service: ServiceConfigEntry
   let provider: ProviderConfigEntry?
-
-  @State private var isEnabled = true
+  var showsProviderName = true
 
   var body: some View {
     HStack(spacing: 10) {
@@ -23,24 +21,22 @@ struct ServiceRowView: View {
       }
       .frame(width: 20, height: 20)
 
-      Text(serviceName)
+      Text(displayName)
         .font(.system(size: 13))
         .foregroundStyle(.primary)
         .lineLimit(1)
 
       Spacer()
-
-      Toggle("", isOn: $isEnabled)
-        .labelsHidden()
-        .toggleStyle(.switch)
     }
   }
 
   // MARK: - Service Type Helpers
 
-  private var serviceName: String {
-    let name = service.name.isEmpty ? service.id : service.name
-    return "\(name) · \(serviceTypeDisplayName)"
+  private var displayName: String {
+    guard showsProviderName else {
+      return serviceReadableName(service)
+    }
+    return serviceDisplayName(service, provider: provider)
   }
 
   private var serviceTypeColor: Color {
@@ -62,15 +58,34 @@ struct ServiceRowView: View {
   }
 
   private var serviceTypeDisplayName: String {
-    switch service.type {
-    case .translation:
-      return LocaleKeys.settings.providers.capability.translation.tr()
-    case .ocr:
-      return LocaleKeys.settings.providers.capability.ocr.tr()
-    case .llm:
-      return "AI"
-    default:
-      return ""
-    }
+    localizedServiceTypeName(service.type)
+  }
+}
+
+func serviceDisplayName(_ service: ServiceConfigEntry, provider: ProviderConfigEntry?) -> String {
+  let providerName = provider?.type.displayName ?? service.providerId
+  return "\(providerName)/\(serviceReadableName(service))"
+}
+
+func serviceReadableName(_ service: ServiceConfigEntry) -> String {
+  let trimmedName = service.name.trimmingCharacters(in: .whitespacesAndNewlines)
+  if !trimmedName.isEmpty && trimmedName != service.id && trimmedName != service.providerId {
+    return trimmedName
+  }
+  return localizedServiceTypeName(service.type)
+}
+
+func localizedServiceTypeName(_ type: ServiceType) -> String {
+  switch type {
+  case .translation:
+    return LocaleKeys.settings.providers.capability.translation.tr()
+  case .ocr:
+    return LocaleKeys.settings.providers.capability.ocr.tr()
+  case .llm:
+    return "AI"
+  case .dictionary:
+    return LocaleKeys.settings.providers.capability.dictionary.tr()
+  default:
+    return ""
   }
 }

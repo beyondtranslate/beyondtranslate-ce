@@ -7,8 +7,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use beyondtranslate_core::{
     ChatMessage, DetectLanguageRequest, DetectLanguageResponse, LanguageInfo, LanguagePair,
-    LookUpRequest, LookUpResponse, RecognizeTextRequest, RecognizeTextResponse, TranslateRequest,
-    TranslateResponse,
+    LookUpRequest, LookUpResponse, RecognizeTextRequest, RecognizeTextResponse, TextDetection,
+    TranslateRequest, TranslateResponse,
 };
 use struct_patch::Patch as ApplyPatch;
 use tokio::sync::{broadcast, Mutex as AsyncMutex, RwLock};
@@ -761,13 +761,6 @@ impl RuntimeSettings {
                         ServiceType::Ocr,
                     ));
                 }
-                if engine_provider.llm().is_some() {
-                    services.push(service_entry_for_provider_type(
-                        &format!("{provider_id}+llm"),
-                        &entry,
-                        ServiceType::Llm,
-                    ));
-                }
             }
         }
 
@@ -1105,7 +1098,7 @@ impl RuntimeTranslation {
             let resolved = runtime
                 .resolve_service(&service_id, ServiceType::Translation)
                 .await?;
-            let provider_id = resolved.provider_id;
+            let provider_id = resolved.provider_id.clone();
             let provider = {
                 let state = runtime.inner.state.read().await;
                 state
@@ -1114,14 +1107,74 @@ impl RuntimeTranslation {
                     .map_err(|error| error.to_string())?
                     .clone()
             };
-            let translation_service = provider
-                .translation()
-                .ok_or_else(|| format!("provider `{provider_id}` does not support translation"))?;
+            if let Some(translation_service) = provider.translation() {
+                translation_service
+                    .detect_language(DetectLanguageRequest { texts })
+                    .await
+                    .map_err(|error| error.to_string())
+            } else if let Some(llm_service) = provider.llm() {
+                // LLM-based language detection.
+                let model = resolved
+                    .field("model")
+                    .map(str::to_owned)
+                    .or_else(|| llm_service.available_models().into_iter().next())
+                    .ok_or_else(|| "llm default model must be configured".to_owned())?;
 
-            translation_service
-                .detect_language(DetectLanguageRequest { texts })
-                .await
-                .map_err(|error| error.to_string())
+                let text = texts.join(" ");
+                let system_prompt = format!(
+                    concat!(
+                        "You are a language detection expert. ",
+                        "Identify the language of the following text. ",
+                        "Return ONLY the ISO 639-1 language code (e.g. \"en\", \"zh\", \"ja\", \"fr\", \"de\", \"es\"). ",
+                        "If unsure, return \"auto\"."
+                    )
+                );
+                let user_prompt = format!("Detect the language of this text:\n\n{text}");
+
+                let response = llm_service
+                    .chat(beyondtranslate_core::ChatRequest {
+                        model,
+                        messages: vec![
+                            beyondtranslate_core::ChatMessage::system(system_prompt),
+                            beyondtranslate_core::ChatMessage::user(user_prompt),
+                        ],
+                        temperature: Some(0.0),
+                        max_tokens: Some(16),
+                        stream: None,
+                    })
+                    .await
+                    .map_err(|error| error.to_string())?;
+
+                let detected = response
+                    .choices
+                    .first()
+                    .map(|choice| choice.message.content.trim().to_lowercase())
+                    .filter(|code| !code.is_empty())
+                    .unwrap_or_else(|| "auto".to_string());
+
+                // Validate the detected code is a reasonable ISO 639-1 code
+                let code = if detected.len() == 2 && detected.chars().all(|c| c.is_ascii_alphabetic()) {
+                    detected
+                } else {
+                    "auto".to_string()
+                };
+
+                let detections: Vec<beyondtranslate_core::TextDetection> = texts
+                    .iter()
+                    .map(|t| beyondtranslate_core::TextDetection {
+                        detected_language: code.clone(),
+                        text: t.clone(),
+                    })
+                    .collect();
+
+                Ok(DetectLanguageResponse {
+                    detections: Some(detections),
+                })
+            } else {
+                Err(format!(
+                    "provider `{provider_id}` does not support translation"
+                ))
+            }
         })
         .await
     }
@@ -1787,8 +1840,21 @@ fn validate_provider_id(provider_id: String) -> Result<String, String> {
 
 fn validate_service_provider_id(provider_id: String, suffix: &str) -> Result<String, String> {
     let provider_id = validate_provider_id(provider_id)?;
+    // Try to strip the expected suffix first. If that doesn't match, also try
+    // common alternative suffixes for backward compatibility (e.g. a stored
+    // default service ID like "openai+llm" passed to translation()).
     Ok(provider_id
         .strip_suffix(suffix)
+        .or_else(|| {
+            let alternatives: &[&str] = match suffix {
+                "+translation" => &["+llm"],
+                "+llm" => &["+translation"],
+                _ => &[],
+            };
+            alternatives
+                .iter()
+                .find_map(|alt| provider_id.strip_suffix(alt))
+        })
         .unwrap_or(&provider_id)
         .to_owned())
 }

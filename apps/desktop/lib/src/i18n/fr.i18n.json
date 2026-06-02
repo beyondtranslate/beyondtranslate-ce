@@ -251,6 +251,18 @@
       "editor": {
         "coming_soon": "🚧 Prochainement",
         "coming_soon_description": "La configuration du service n'est pas encore disponible. Vous pouvez gérer les fournisseurs de services depuis l'onglet fournisseurs."
+      },
+      "detail": {
+        "row": {
+          "name": "Nom",
+          "provider": "Fournisseur",
+          "type": "Type"
+        },
+        "delete_dialog": {
+          "title": "Supprimer \"{}\" ?",
+          "message": "Ce service sera supprimé du fournisseur."
+        },
+        "prompt_variables": "Variables disponibles : {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
       }
     },
     "providers": {

@@ -251,6 +251,18 @@
       "editor": {
         "coming_soon": "🚧 近日公開",
         "coming_soon_description": "サービスの設定はまだ利用できません。プロバイダータブからサービスプロバイダーを管理できます。"
+      },
+      "detail": {
+        "row": {
+          "name": "名前",
+          "provider": "プロバイダー",
+          "type": "種類"
+        },
+        "delete_dialog": {
+          "title": "「{}」を削除しますか？",
+          "message": "このサービスはプロバイダーから削除されます。"
+        },
+        "prompt_variables": "利用可能な変数: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
       }
     },
     "providers": {

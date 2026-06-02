@@ -362,6 +362,18 @@ enum LocaleKeys {
       enum button {
         static let addService = LocaleKey("settings.services.button.add_service")
       }
+      enum detail {
+        enum deleteDialog {
+          static let message = LocaleKey("settings.services.detail.delete_dialog.message")
+          static let title = LocaleKey("settings.services.detail.delete_dialog.title")
+        }
+        static let promptVariables = LocaleKey("settings.services.detail.prompt_variables")
+        enum row {
+          static let name = LocaleKey("settings.services.detail.row.name")
+          static let provider = LocaleKey("settings.services.detail.row.provider")
+          static let type = LocaleKey("settings.services.detail.row.type")
+        }
+      }
       enum editor {
         static let comingSoon = LocaleKey("settings.services.editor.coming_soon")
         static let comingSoonDescription = LocaleKey(

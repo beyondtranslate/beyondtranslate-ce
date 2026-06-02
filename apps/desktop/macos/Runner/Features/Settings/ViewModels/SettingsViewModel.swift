@@ -47,7 +47,7 @@ final class SettingsViewModel: ObservableObject {
   let general: GeneralViewModel
   let shortcuts: ShortcutsViewModel
   let providers: ProvidersViewModel
-  let services: ServicesViewModel
+  let providerDetails: ProviderDetailViewModel
   let advanced: AdvancedViewModel
   let about: AboutViewModel
 
@@ -66,8 +66,8 @@ final class SettingsViewModel: ObservableObject {
     general = GeneralViewModel(repository: repository)
     shortcuts = ShortcutsViewModel(repository: repository)
     providers = ProvidersViewModel(repository: repository)
-    services = ServicesViewModel(repository: repository)
-    services.providersVM = providers
+    providerDetails = ProviderDetailViewModel(repository: repository)
+    providers.providerDetailViewModel = providerDetails
     advanced = AdvancedViewModel(repository: repository)
     about = AboutViewModel()
 
@@ -75,7 +75,7 @@ final class SettingsViewModel: ObservableObject {
       await general.load()
       await shortcuts.load()
       await providers.load()
-      await services.load()
+      await providerDetails.load()
       await advanced.load()
     }
 
@@ -121,7 +121,7 @@ final class SettingsViewModel: ObservableObject {
       // the local array in-place. This refresh is only needed for cross-process
       // synchronization (e.g. changes from the Flutter side).
       await providers.load()
-      await services.load()
+      await providerDetails.load()
       await general.load()
     case .advanced:
       await advanced.load()

@@ -118,7 +118,10 @@ final class GeneralViewModel: ObservableObject {
   var ocrServiceOptions: [ServiceOption] {
     services
       .filter { $0.type == .ocr }
-      .map { ServiceOption(id: $0.id, name: $0.name.isEmpty ? $0.id : $0.name) }
+      .map { service in
+        ServiceOption(
+          id: service.id, name: serviceDisplayName(service, provider: provider(for: service)))
+      }
   }
 
   var validDefaultOcrService: String {
@@ -129,7 +132,9 @@ final class GeneralViewModel: ObservableObject {
   // var dictionaryServiceOptions: [ServiceOption] {
   //   services
   //     .filter { $0.type == .dictionary }
-  //     .map { ServiceOption(id: $0.id, name: $0.name.isEmpty ? $0.id : $0.name) }
+  //     .map { service in
+  //       ServiceOption(id: service.id, name: serviceDisplayName(service, provider: provider(for: service)))
+  //     }
   // }
 
   // var validDefaultDirectoryService: String {
@@ -140,7 +145,10 @@ final class GeneralViewModel: ObservableObject {
   var translationServiceOptions: [ServiceOption] {
     services
       .filter { $0.type == .translation }
-      .map { ServiceOption(id: $0.id, name: $0.name.isEmpty ? $0.id : $0.name) }
+      .map { service in
+        ServiceOption(
+          id: service.id, name: serviceDisplayName(service, provider: provider(for: service)))
+      }
   }
 
   var validDefaultTranslationService: String {
@@ -160,6 +168,10 @@ final class GeneralViewModel: ObservableObject {
   private var isDefaultTranslationServiceValid: Bool {
     defaultTranslationService.isEmpty
       || translationServiceOptions.contains { $0.id == defaultTranslationService }
+  }
+
+  private func provider(for service: ServiceConfigEntry) -> ProviderConfigEntry? {
+    providers.first { $0.id == service.providerId }
   }
 
   func setLaunchAtLogin(_ value: Bool) {

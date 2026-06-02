@@ -251,6 +251,18 @@
       "editor": {
         "coming_soon": "🚧 即將推出",
         "coming_soon_description": "服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。"
+      },
+      "detail": {
+        "row": {
+          "name": "名稱",
+          "provider": "提供者",
+          "type": "類型"
+        },
+        "delete_dialog": {
+          "title": "刪除「{}」？",
+          "message": "此服務將從提供者中移除。"
+        },
+        "prompt_variables": "可用變數：{{sourceLanguage}}、{{targetLanguage}}、{{text}}"
       }
     },
     "providers": {

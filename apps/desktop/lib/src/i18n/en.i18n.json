@@ -251,6 +251,18 @@
       "editor": {
         "coming_soon": "🚧 Coming Soon",
         "coming_soon_description": "Service configuration is not yet available. You can manage service providers from the providers tab."
+      },
+      "detail": {
+        "row": {
+          "name": "Name",
+          "provider": "Provider",
+          "type": "Type"
+        },
+        "delete_dialog": {
+          "title": "Delete \"{}\"?",
+          "message": "This service will be removed from the provider."
+        },
+        "prompt_variables": "Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
       }
     },
     "providers": {

@@ -7,15 +7,26 @@ final class ProvidersViewModel: ObservableObject {
   @Published var services: [ServiceConfigEntry] = []
   @Published var errorMessage: String?
   @Published private(set) var pendingPresentProviderEditorSheetID: Int? = nil
-  @Published private(set) var modelsByProviderId: [String: [String]] = [:]
+
+  /// Translation services.
+  var translationServices: [ServiceConfigEntry] {
+    services.filter { $0.type == .translation }
+  }
+
+  /// OCR services.
+  var ocrServices: [ServiceConfigEntry] {
+    services.filter { $0.type == .ocr }
+  }
+
+  /// Shared ProviderDetailViewModel used for ProviderDetailView navigation.
+  /// Set by the parent (SettingsViewModel) after both VMs are initialized.
+  weak var providerDetailViewModel: ProviderDetailViewModel?
 
   private let repository: SettingsRepository
 
   init(repository: SettingsRepository) {
     self.repository = repository
   }
-
-  // MARK: - Load
 
   func load() async {
     do {
@@ -30,12 +41,21 @@ final class ProvidersViewModel: ObservableObject {
       services = try await repository.listServices()
         .sorted { $0.id < $1.id }
     } catch {
-      // Keep whatever state we have; errors are non-fatal for the list view.
       errorMessage = error.localizedDescription
     }
   }
 
-  // MARK: - Toggle
+  // MARK: - Provider actions (delegated to underlying repository)
+
+  func requestPresentProviderEditorSheet() {
+    pendingPresentProviderEditorSheetID = (pendingPresentProviderEditorSheetID ?? 0) + 1
+  }
+
+  func consumePresentProviderEditorSheet(_ id: Int) -> Bool {
+    guard pendingPresentProviderEditorSheetID == id else { return false }
+    pendingPresentProviderEditorSheetID = nil
+    return true
+  }
 
   func isProviderEnabled(_ id: String) -> Bool {
     !repository.disabledProviderIDs().contains(id)
@@ -46,22 +66,8 @@ final class ProvidersViewModel: ObservableObject {
     objectWillChange.send()
   }
 
-  // MARK: - Generate ID
-
   func generateProviderId(for providerType: ProviderType) async -> String {
     (try? await repository.generateProviderId(providerType: providerType)) ?? providerType.wireValue
-  }
-
-  // MARK: - Save (add or edit)
-
-  func requestPresentProviderEditorSheet() {
-    pendingPresentProviderEditorSheetID = (pendingPresentProviderEditorSheetID ?? 0) + 1
-  }
-
-  func consumePresentProviderEditorSheet(_ id: Int) -> Bool {
-    guard pendingPresentProviderEditorSheetID == id else { return false }
-    pendingPresentProviderEditorSheetID = nil
-    return true
   }
 
   func saveProvider(_ entry: ProviderConfigEntry) {
@@ -79,28 +85,42 @@ final class ProvidersViewModel: ObservableObject {
     }
   }
 
-  // MARK: - List Models
-
-  func listModels(for providerId: String) async -> [String] {
-    do {
-      let models = try await repository.listModels(providerId: providerId)
-      modelsByProviderId[providerId] = models
-      return models
-    } catch {
-      errorMessage = error.localizedDescription
-      return []
-    }
-  }
-
-  // MARK: - Delete
-
   func deleteProvider(_ id: String) {
     Task {
       do {
         _ = try await repository.deleteProvider(id: id)
         await load()
-        // Clean up disabled state so re-adding the same ID starts fresh.
         repository.setProviderEnabled(id, isEnabled: true)
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  // MARK: - Service actions
+
+  func saveService(_ entry: ServiceConfigEntry) {
+    Task {
+      do {
+        try await repository.updateService(
+          serviceId: entry.id,
+          providerId: entry.providerId,
+          serviceType: entry.type,
+          name: entry.name,
+          fields: entry.fields
+        )
+        await load()
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
+  }
+
+  func deleteService(_ id: String) {
+    Task {
+      do {
+        _ = try await repository.deleteService(serviceId: id)
+        await load()
       } catch {
         errorMessage = error.localizedDescription
       }

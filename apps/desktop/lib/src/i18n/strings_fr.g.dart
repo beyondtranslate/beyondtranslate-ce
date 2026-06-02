@@ -586,6 +586,9 @@ class _TranslationsSettingsServicesFr extends TranslationsSettingsServicesEn {
   @override
   late final _TranslationsSettingsServicesEditorFr editor =
       _TranslationsSettingsServicesEditorFr._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailFr detail =
+      _TranslationsSettingsServicesDetailFr._(_root);
 }
 
 // Path: settings.providers
@@ -1117,6 +1120,27 @@ class _TranslationsSettingsServicesEditorFr
       'La configuration du service n\'est pas encore disponible. Vous pouvez gérer les fournisseurs de services depuis l\'onglet fournisseurs.';
 }
 
+// Path: settings.services.detail
+class _TranslationsSettingsServicesDetailFr
+    extends TranslationsSettingsServicesDetailEn {
+  _TranslationsSettingsServicesDetailFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _TranslationsSettingsServicesDetailRowFr row =
+      _TranslationsSettingsServicesDetailRowFr._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailDeleteDialogFr delete_dialog =
+      _TranslationsSettingsServicesDetailDeleteDialogFr._(_root);
+  @override
+  String get prompt_variables =>
+      'Variables disponibles : {{sourceLanguage}}, {{targetLanguage}}, {{text}}';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionFr
     extends TranslationsSettingsProvidersSectionEn {
@@ -1349,6 +1373,40 @@ class _TranslationsSettingsGeneralEditorRowFr
   String get source_language => 'Langue source';
   @override
   String get target_language => 'Langue cible';
+}
+
+// Path: settings.services.detail.row
+class _TranslationsSettingsServicesDetailRowFr
+    extends TranslationsSettingsServicesDetailRowEn {
+  _TranslationsSettingsServicesDetailRowFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get name => 'Nom';
+  @override
+  String get provider => 'Fournisseur';
+  @override
+  String get type => 'Type';
+}
+
+// Path: settings.services.detail.delete_dialog
+class _TranslationsSettingsServicesDetailDeleteDialogFr
+    extends TranslationsSettingsServicesDetailDeleteDialogEn {
+  _TranslationsSettingsServicesDetailDeleteDialogFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Supprimer "{}" ?';
+  @override
+  String get message => 'Ce service sera supprimé du fournisseur.';
 }
 
 // Path: settings.providers.editor.row
@@ -1687,6 +1745,14 @@ extension on TranslationsFr {
       'settings.services.editor.coming_soon' => '🚧 Prochainement',
       'settings.services.editor.coming_soon_description' =>
         'La configuration du service n\'est pas encore disponible. Vous pouvez gérer les fournisseurs de services depuis l\'onglet fournisseurs.',
+      'settings.services.detail.row.name' => 'Nom',
+      'settings.services.detail.row.provider' => 'Fournisseur',
+      'settings.services.detail.row.type' => 'Type',
+      'settings.services.detail.delete_dialog.title' => 'Supprimer "{}" ?',
+      'settings.services.detail.delete_dialog.message' =>
+        'Ce service sera supprimé du fournisseur.',
+      'settings.services.detail.prompt_variables' =>
+        'Variables disponibles : {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
       'settings.providers.title' => 'Fournisseurs',
       'settings.providers.section.services' => 'Services disponibles',
       'settings.providers.section.services_description' =>

@@ -196,6 +196,12 @@
 "settings.providers.section.services_description" = "View available services from configured providers and switch between service types.";
 "settings.providers.title" = "Providers";
 "settings.services.button.add_service" = "Add Service...";
+"settings.services.detail.delete_dialog.message" = "This service will be removed from the provider.";
+"settings.services.detail.delete_dialog.title" = "Delete \"{}\"?";
+"settings.services.detail.prompt_variables" = "Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}";
+"settings.services.detail.row.name" = "Name";
+"settings.services.detail.row.provider" = "Provider";
+"settings.services.detail.row.type" = "Type";
 "settings.services.editor.coming_soon" = "🚧 Coming Soon";
 "settings.services.editor.coming_soon_description" = "Service configuration is not yet available. You can manage service providers from the providers tab.";
 "settings.services.section.available_services" = "Available Services";

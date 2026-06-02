@@ -251,6 +251,18 @@
       "editor": {
         "coming_soon": "🚧 Próximamente",
         "coming_soon_description": "La configuración del servicio aún no está disponible. Puede administrar los proveedores de servicios desde la pestaña de proveedores."
+      },
+      "detail": {
+        "row": {
+          "name": "Nombre",
+          "provider": "Proveedor",
+          "type": "Tipo"
+        },
+        "delete_dialog": {
+          "title": "¿Eliminar \"{}\"?",
+          "message": "Este servicio se eliminará del proveedor."
+        },
+        "prompt_variables": "Variables disponibles: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
       }
     },
     "providers": {

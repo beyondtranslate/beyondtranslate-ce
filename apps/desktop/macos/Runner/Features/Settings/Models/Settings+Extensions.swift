@@ -304,3 +304,55 @@ extension ProviderType {
 }
 
 extension ServiceConfigEntry: Identifiable {}
+
+// MARK: - Service Config Fields
+
+/// Configuration field definitions for service-level settings.
+/// These are service-specific parameters (not provider-level).
+struct ServiceConfigField: Identifiable {
+  let key: String
+  let label: String
+  let placeholder: String
+  let isSecret: Bool
+  let isOptional: Bool
+
+  var id: String { key }
+}
+
+extension ServiceType {
+  /// Service-level configuration fields for a given service type.
+  /// The actual fields depend on both the service type and the provider type.
+  static func configFields(for serviceType: ServiceType, providerIsLlm: Bool)
+    -> [ServiceConfigField]
+  {
+    switch serviceType {
+    case .llm:
+      return llmConfigFields()
+    case .translation:
+      // Translation services from LLM providers also expose LLM config fields.
+      if providerIsLlm {
+        return llmConfigFields()
+      }
+      return []
+    case .ocr:
+      return []
+    case .dictionary:
+      return []
+    }
+  }
+
+  private static func llmConfigFields() -> [ServiceConfigField] {
+    [
+      ServiceConfigField(
+        key: "temperature", label: "Temperature", placeholder: "0.7",
+        isSecret: false, isOptional: true),
+      ServiceConfigField(
+        key: "maxTokens", label: "Max Tokens", placeholder: "4096",
+        isSecret: false, isOptional: true),
+      ServiceConfigField(
+        key: "systemPrompt", label: "System Prompt",
+        placeholder: "You are a professional translator...",
+        isSecret: false, isOptional: true),
+    ]
+  }
+}

@@ -584,6 +584,9 @@ class _TranslationsSettingsServicesJa extends TranslationsSettingsServicesEn {
   @override
   late final _TranslationsSettingsServicesEditorJa editor =
       _TranslationsSettingsServicesEditorJa._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailJa detail =
+      _TranslationsSettingsServicesDetailJa._(_root);
 }
 
 // Path: settings.providers
@@ -1099,6 +1102,27 @@ class _TranslationsSettingsServicesEditorJa
       'サービスの設定はまだ利用できません。プロバイダータブからサービスプロバイダーを管理できます。';
 }
 
+// Path: settings.services.detail
+class _TranslationsSettingsServicesDetailJa
+    extends TranslationsSettingsServicesDetailEn {
+  _TranslationsSettingsServicesDetailJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _TranslationsSettingsServicesDetailRowJa row =
+      _TranslationsSettingsServicesDetailRowJa._(_root);
+  @override
+  late final _TranslationsSettingsServicesDetailDeleteDialogJa delete_dialog =
+      _TranslationsSettingsServicesDetailDeleteDialogJa._(_root);
+  @override
+  String get prompt_variables =>
+      '利用可能な変数: {{sourceLanguage}}, {{targetLanguage}}, {{text}}';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionJa
     extends TranslationsSettingsProvidersSectionEn {
@@ -1325,6 +1349,40 @@ class _TranslationsSettingsGeneralEditorRowJa
   String get source_language => 'ソース言語';
   @override
   String get target_language => 'ターゲット言語';
+}
+
+// Path: settings.services.detail.row
+class _TranslationsSettingsServicesDetailRowJa
+    extends TranslationsSettingsServicesDetailRowEn {
+  _TranslationsSettingsServicesDetailRowJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get name => '名前';
+  @override
+  String get provider => 'プロバイダー';
+  @override
+  String get type => '種類';
+}
+
+// Path: settings.services.detail.delete_dialog
+class _TranslationsSettingsServicesDetailDeleteDialogJa
+    extends TranslationsSettingsServicesDetailDeleteDialogEn {
+  _TranslationsSettingsServicesDetailDeleteDialogJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '「{}」を削除しますか？';
+  @override
+  String get message => 'このサービスはプロバイダーから削除されます。';
 }
 
 // Path: settings.providers.editor.row
@@ -1633,6 +1691,14 @@ extension on TranslationsJa {
       'settings.services.editor.coming_soon' => '🚧 近日公開',
       'settings.services.editor.coming_soon_description' =>
         'サービスの設定はまだ利用できません。プロバイダータブからサービスプロバイダーを管理できます。',
+      'settings.services.detail.row.name' => '名前',
+      'settings.services.detail.row.provider' => 'プロバイダー',
+      'settings.services.detail.row.type' => '種類',
+      'settings.services.detail.delete_dialog.title' => '「{}」を削除しますか？',
+      'settings.services.detail.delete_dialog.message' =>
+        'このサービスはプロバイダーから削除されます。',
+      'settings.services.detail.prompt_variables' =>
+        '利用可能な変数: {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
       'settings.providers.title' => 'プロバイダー',
       'settings.providers.section.services' => '利用可能なサービス',
       'settings.providers.section.services_description' =>

@@ -251,6 +251,18 @@
       "editor": {
         "coming_soon": "🚧 곧 출시 예정",
         "coming_soon_description": "서비스 구성이 아직 제공되지 않습니다. 제공자 탭에서 서비스 제공자를 관리할 수 있습니다."
+      },
+      "detail": {
+        "row": {
+          "name": "이름",
+          "provider": "제공자",
+          "type": "유형"
+        },
+        "delete_dialog": {
+          "title": "\"{}\"을(를) 삭제할까요?",
+          "message": "이 서비스가 제공자에서 제거됩니다."
+        },
+        "prompt_variables": "사용 가능한 변수: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
       }
     },
     "providers": {
