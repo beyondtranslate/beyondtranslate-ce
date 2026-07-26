@@ -62,6 +62,9 @@ class TranslationsKo extends Translations
   late final _TranslationsMiniTranslatorKo mini_translator =
       _TranslationsMiniTranslatorKo._(_root);
   @override
+  late final _TranslationsWorkbenchKo workbench =
+      _TranslationsWorkbenchKo._(_root);
+  @override
   late final _TranslationsSettingsKo settings =
       _TranslationsSettingsKo._(_root);
 }
@@ -131,6 +134,43 @@ class _TranslationsMiniTranslatorKo extends TranslationsMiniTranslatorEn {
   @override
   late final _TranslationsMiniTranslatorMessageKo message =
       _TranslationsMiniTranslatorMessageKo._(_root);
+}
+
+// Path: workbench
+class _TranslationsWorkbenchKo extends TranslationsWorkbenchEn {
+  _TranslationsWorkbenchKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get workspace => '작업 공간';
+  @override
+  String get translate => '번역';
+  @override
+  String get document => '문서 번역';
+  @override
+  String get history => '즐겨찾기 및 기록';
+  @override
+  String get glossary => '용어집';
+  @override
+  String get recent_languages => '최근 언어';
+  @override
+  String get not_configured => '설정되지 않음';
+  @override
+  late final _TranslationsWorkbenchSubtitleKo subtitle =
+      _TranslationsWorkbenchSubtitleKo._(_root);
+  @override
+  late final _TranslationsWorkbenchPlaceholderKo placeholder =
+      _TranslationsWorkbenchPlaceholderKo._(_root);
+  @override
+  late final _TranslationsWorkbenchTranslationKo translation =
+      _TranslationsWorkbenchTranslationKo._(_root);
+  @override
+  late final _TranslationsWorkbenchStatusKo status =
+      _TranslationsWorkbenchStatusKo._(_root);
 }
 
 // Path: settings
@@ -469,6 +509,102 @@ class _TranslationsMiniTranslatorMessageKo
       '기본 텍스트 인식 서비스가 설정되지 않았습니다. 설정에서 설정해주세요.';
   @override
   String get ocr_recognition_failed => '텍스트 인식 실패';
+}
+
+// Path: workbench.subtitle
+class _TranslationsWorkbenchSubtitleKo extends TranslationsWorkbenchSubtitleEn {
+  _TranslationsWorkbenchSubtitleKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translate => '워크벤치 · 엔진 비교';
+  @override
+  String get settings => '설정';
+}
+
+// Path: workbench.placeholder
+class _TranslationsWorkbenchPlaceholderKo
+    extends TranslationsWorkbenchPlaceholderEn {
+  _TranslationsWorkbenchPlaceholderKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get document => '문서 번역을 개발 중입니다';
+  @override
+  String get history => '즐겨찾기와 기록은 향후 버전에서 제공됩니다';
+  @override
+  String get glossary => '용어집 관리를 개발 중입니다';
+}
+
+// Path: workbench.translation
+class _TranslationsWorkbenchTranslationKo
+    extends TranslationsWorkbenchTranslationEn {
+  _TranslationsWorkbenchTranslationKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get source => '원문';
+  @override
+  String get target => '번역문';
+  @override
+  String get input_hint => '번역할 텍스트를 입력하거나 붙여넣으세요';
+  @override
+  String get button => '번역';
+  @override
+  String get auto_detected => '자동 감지됨';
+  @override
+  String get loading_services => '번역 서비스를 불러오는 중…';
+  @override
+  String get no_services => '먼저 설정에서 번역 서비스를 구성하세요';
+  @override
+  String get translating => '번역 중…';
+  @override
+  String get failed => '번역에 실패했습니다. 서비스 설정을 확인하세요.';
+  @override
+  String get empty => '번역문이 여기에 표시됩니다';
+  @override
+  String get engine_compare => '엔진 비교';
+  @override
+  String get main_translation => '기본 번역';
+  @override
+  String get service_unavailable => '서비스를 사용할 수 없음';
+  @override
+  String get waiting => '번역 대기';
+  @override
+  String get read => '읽기';
+  @override
+  String get copy => '복사';
+  @override
+  String get favorite_unavailable => '즐겨찾기는 향후 버전에서 제공됩니다';
+}
+
+// Path: workbench.status
+class _TranslationsWorkbenchStatusKo extends TranslationsWorkbenchStatusEn {
+  _TranslationsWorkbenchStatusKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get runtime_ready => '번역 런타임 준비 완료';
+  @override
+  String get settings_synced => '설정 동기화됨';
+  @override
+  String get shortcuts => '⌥Space 빠른 창 · ⌥⇧2 캡처';
 }
 
 // Path: settings.general
@@ -1331,8 +1467,6 @@ class _TranslationsAppTrayContextMenuDevToolsKo
   String get title => '개발자 도구';
   @override
   String get open_data_directory => '데이터 디렉터리 열기';
-  @override
-  String get use_native_settings => '네이티브 설정 페이지 사용';
 }
 
 // Path: settings.general.editor.row
@@ -1569,7 +1703,6 @@ extension on TranslationsKo {
       'app.tray.context_menu.show_window' => '창 보기',
       'app.tray.context_menu.dev_tools.title' => '개발자 도구',
       'app.tray.context_menu.dev_tools.open_data_directory' => '데이터 디렉터리 열기',
-      'app.tray.context_menu.dev_tools.use_native_settings' => '네이티브 설정 페이지 사용',
       'app.tray.context_menu.check_for_updates' => '업데이트 확인',
       'app.tray.context_menu.settings' => '설정',
       'app.tray.context_menu.quit' => '종료',
@@ -1612,6 +1745,38 @@ extension on TranslationsKo {
       'mini_translator.message.ocr_service_not_configured' =>
         '기본 텍스트 인식 서비스가 설정되지 않았습니다. 설정에서 설정해주세요.',
       'mini_translator.message.ocr_recognition_failed' => '텍스트 인식 실패',
+      'workbench.workspace' => '작업 공간',
+      'workbench.translate' => '번역',
+      'workbench.document' => '문서 번역',
+      'workbench.history' => '즐겨찾기 및 기록',
+      'workbench.glossary' => '용어집',
+      'workbench.recent_languages' => '최근 언어',
+      'workbench.not_configured' => '설정되지 않음',
+      'workbench.subtitle.translate' => '워크벤치 · 엔진 비교',
+      'workbench.subtitle.settings' => '설정',
+      'workbench.placeholder.document' => '문서 번역을 개발 중입니다',
+      'workbench.placeholder.history' => '즐겨찾기와 기록은 향후 버전에서 제공됩니다',
+      'workbench.placeholder.glossary' => '용어집 관리를 개발 중입니다',
+      'workbench.translation.source' => '원문',
+      'workbench.translation.target' => '번역문',
+      'workbench.translation.input_hint' => '번역할 텍스트를 입력하거나 붙여넣으세요',
+      'workbench.translation.button' => '번역',
+      'workbench.translation.auto_detected' => '자동 감지됨',
+      'workbench.translation.loading_services' => '번역 서비스를 불러오는 중…',
+      'workbench.translation.no_services' => '먼저 설정에서 번역 서비스를 구성하세요',
+      'workbench.translation.translating' => '번역 중…',
+      'workbench.translation.failed' => '번역에 실패했습니다. 서비스 설정을 확인하세요.',
+      'workbench.translation.empty' => '번역문이 여기에 표시됩니다',
+      'workbench.translation.engine_compare' => '엔진 비교',
+      'workbench.translation.main_translation' => '기본 번역',
+      'workbench.translation.service_unavailable' => '서비스를 사용할 수 없음',
+      'workbench.translation.waiting' => '번역 대기',
+      'workbench.translation.read' => '읽기',
+      'workbench.translation.copy' => '복사',
+      'workbench.translation.favorite_unavailable' => '즐겨찾기는 향후 버전에서 제공됩니다',
+      'workbench.status.runtime_ready' => '번역 런타임 준비 완료',
+      'workbench.status.settings_synced' => '설정 동기화됨',
+      'workbench.status.shortcuts' => '⌥Space 빠른 창 · ⌥⇧2 캡처',
       'settings.version' => 'v{} (Build {})',
       'settings.general.title' => '일반',
       'settings.general.section.permissions' => '권한',

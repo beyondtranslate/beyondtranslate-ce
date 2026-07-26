@@ -82,8 +82,7 @@
         "show_window": "창 보기",
         "dev_tools": {
           "title": "개발자 도구",
-          "open_data_directory": "데이터 디렉터리 열기",
-          "use_native_settings": "네이티브 설정 페이지 사용"
+          "open_data_directory": "데이터 디렉터리 열기"
         },
         "check_for_updates": "업데이트 확인",
         "settings": "설정",
@@ -143,6 +142,48 @@
       "capture_screen_area_canceled": "화면 영역 캡처가 취소되었습니다",
       "ocr_service_not_configured": "기본 텍스트 인식 서비스가 설정되지 않았습니다. 설정에서 설정해주세요.",
       "ocr_recognition_failed": "텍스트 인식 실패"
+    }
+  },
+  "workbench": {
+    "workspace": "작업 공간",
+    "translate": "번역",
+    "document": "문서 번역",
+    "history": "즐겨찾기 및 기록",
+    "glossary": "용어집",
+    "recent_languages": "최근 언어",
+    "not_configured": "설정되지 않음",
+    "subtitle": {
+      "translate": "워크벤치 · 엔진 비교",
+      "settings": "설정"
+    },
+    "placeholder": {
+      "document": "문서 번역을 개발 중입니다",
+      "history": "즐겨찾기와 기록은 향후 버전에서 제공됩니다",
+      "glossary": "용어집 관리를 개발 중입니다"
+    },
+    "translation": {
+      "source": "원문",
+      "target": "번역문",
+      "input_hint": "번역할 텍스트를 입력하거나 붙여넣으세요",
+      "button": "번역",
+      "auto_detected": "자동 감지됨",
+      "loading_services": "번역 서비스를 불러오는 중…",
+      "no_services": "먼저 설정에서 번역 서비스를 구성하세요",
+      "translating": "번역 중…",
+      "failed": "번역에 실패했습니다. 서비스 설정을 확인하세요.",
+      "empty": "번역문이 여기에 표시됩니다",
+      "engine_compare": "엔진 비교",
+      "main_translation": "기본 번역",
+      "service_unavailable": "서비스를 사용할 수 없음",
+      "waiting": "번역 대기",
+      "read": "읽기",
+      "copy": "복사",
+      "favorite_unavailable": "즐겨찾기는 향후 버전에서 제공됩니다"
+    },
+    "status": {
+      "runtime_ready": "번역 런타임 준비 완료",
+      "settings_synced": "설정 동기화됨",
+      "shortcuts": "⌥Space 빠른 창 · ⌥⇧2 캡처"
     }
   },
   "settings": {

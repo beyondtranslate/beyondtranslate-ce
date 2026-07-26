@@ -21,7 +21,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		2A0D6A402E0A100100A1B2C3 /* MacSettingsPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A3D2E0A100100A1B2C3 /* MacSettingsPlugin.swift */; };
 		2A0D6A422E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A412E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift */; };
 		2A0D6A452E0A100100A1B2C3 /* NativeTextFieldPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */; };
 		331C80D8294CF71000263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C80D7294CF71000263BE5 /* RunnerTests.swift */; };
@@ -64,7 +63,6 @@
 		F5F222582FB75C3C0025B9D4 /* ThemeAppearanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F222572FB75C3C0025B9D4 /* ThemeAppearanceController.swift */; };
 		F5F2225E2FB81BE70025B9D4 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F2225D2FB81BE70025B9D4 /* SettingsPage.swift */; };
 		F5F222602FB8ABB40025B9D4 /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F2225F2FB8ABB40025B9D4 /* ShortcutRecorderView.swift */; };
-		F5F222622FB900000025B9D4 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F222612FB900000025B9D4 /* SettingsWindowController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,7 +96,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2A0D6A3D2E0A100100A1B2C3 /* MacSettingsPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacSettingsPlugin.swift; sourceTree = "<group>"; };
 		2A0D6A412E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacWindowAppearancePlugin.swift; sourceTree = "<group>"; };
 		2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTextFieldPlugin.swift; sourceTree = "<group>"; };
 		331C80D5294CF71000263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -159,7 +156,6 @@
 		F5F222572FB75C3C0025B9D4 /* ThemeAppearanceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeAppearanceController.swift; sourceTree = "<group>"; };
 		F5F2225D2FB81BE70025B9D4 /* SettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPage.swift; sourceTree = "<group>"; };
 		F5F2225F2FB8ABB40025B9D4 /* ShortcutRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderView.swift; sourceTree = "<group>"; };
-		F5F222612FB900000025B9D4 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,7 +199,6 @@
 		2A0D6A3F2E0A100100A1B2C3 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				2A0D6A3D2E0A100100A1B2C3 /* MacSettingsPlugin.swift */,
 				2A0D6A412E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift */,
 				2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */,
 			);
@@ -409,7 +404,6 @@
 		A20000000000000000000020 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				F5F222612FB900000025B9D4 /* SettingsWindowController.swift */,
 				F5F222572FB75C3C0025B9D4 /* ThemeAppearanceController.swift */,
 				A11000000000000000000020 /* RuntimeProvider.swift */,
 			);
@@ -544,7 +538,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
-				A10000000000000000000011 /* Localizable.strings in Resources */,
 				33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -605,43 +598,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F59C04E92FCDD48700231C9B /* ProviderTypeIcon.swift in Sources */,
-				F5F222562FB75BFD0025B9D4 /* ThemeMode.swift in Sources */,
-				F5F222602FB8ABB40025B9D4 /* ShortcutRecorderView.swift in Sources */,
-				F562C6AE2FCC7AA900F83335 /* ProviderTypePickerSheet.swift in Sources */,
-				F562C6AF2FCC7AA900F83335 /* ProviderDetailView.swift in Sources */,
-				2A0D6A402E0A100100A1B2C3 /* MacSettingsPlugin.swift in Sources */,
 				2A0D6A422E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift in Sources */,
 				2A0D6A452E0A100100A1B2C3 /* NativeTextFieldPlugin.swift in Sources */,
-				8F10003C2E0A100100A1B2C3 /* ProviderConfigField.swift in Sources */,
-				A10000000000000000000021 /* Settings+Extensions.swift in Sources */,
-				8F1000032E0A100100A1B2C3 /* SettingsView.swift in Sources */,
-				8F1000042E0A100100A1B2C3 /* SettingsViewModel.swift in Sources */,
-				8F1000052E0A100100A1B2C3 /* SettingRow.swift in Sources */,
-				8F1000072E0A100100A1B2C3 /* SettingToggle.swift in Sources */,
-				A10000000000000000000001 /* SettingPicker.swift in Sources */,
-				A10000000000000000000002 /* GeneralView.swift in Sources */,
-				F5ACAED92FC271C500D1BCA8 /* TranslationTargetEditorSheet.swift in Sources */,
-				F59C04EB2FCDD64E00231C9B /* ServiceDetailView.swift in Sources */,
-				A10000000000000000000004 /* ShortcutsView.swift in Sources */,
-				A10000000000000000000006 /* AdvancedView.swift in Sources */,
-				A1000000000000000000000D /* AboutView.swift in Sources */,
-				A1000000000000000000000E /* AboutViewModel.swift in Sources */,
-				A10000000000000000000007 /* GeneralViewModel.swift in Sources */,
-				F5ACAEDB2FC2E16B00D1BCA8 /* CommonLanguagesEditorSheet.swift in Sources */,
-				A10000000000000000000009 /* ShortcutsViewModel.swift in Sources */,
-				A1000000000000000000000A /* ProviderDetailViewModel.swift in Sources */,
-				A1000000000000000000000B /* AdvancedViewModel.swift in Sources */,
-				F562C6A62FCBBF8900F83335 /* ProvidersViewModel.swift in Sources */,
-				F5F2225E2FB81BE70025B9D4 /* SettingsPage.swift in Sources */,
-				F562C6AA2FCBBF9700F83335 /* ProvidersView.swift in Sources */,
-				F5F222622FB900000025B9D4 /* SettingsWindowController.swift in Sources */,
-				F5F222582FB75C3C0025B9D4 /* ThemeAppearanceController.swift in Sources */,
-				F562C6B12FCC863000F83335 /* ServiceRowView.swift in Sources */,
-				A1000000000000000000000C /* SettingsRepository.swift in Sources */,
-				A10000000000000000000010 /* LocaleKeys.swift in Sources */,
-				A10000000000000000000012 /* AppLocale.swift in Sources */,
-				A10000000000000000000020 /* RuntimeProvider.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
 			);

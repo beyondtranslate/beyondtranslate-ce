@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
 import '../../widgets/settings_page.dart';
+import '../../widgets/ui/keycap.dart';
 import '../../widgets/ui/preference_list_item.dart';
 import '../../widgets/ui/preference_list_section.dart';
 
@@ -67,7 +68,6 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
     final shortcutsText = t.settings.shortcuts;
 
     return SettingsPage(
-      title: shortcutsText.title,
       actions: [
         IconButton(
           tooltip: shortcutsText.reset_dialog.title,
@@ -138,78 +138,35 @@ class _ShortcutBadge extends StatelessWidget {
 
   final String shortcut;
 
-  List<String> get _parts {
-    return shortcut
-        .split('+')
-        .map((p) => p.trim())
-        .where((p) => p.isNotEmpty)
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final parts = _parts;
-    if (parts.isEmpty) {
+    final label = _formatShortcut(shortcut);
+    if (label.isEmpty) {
       return Text(
         '—',
         style: Theme.of(context).textTheme.bodySmall,
       );
     }
-    return Wrap(
-      spacing: 4,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        for (var i = 0; i < parts.length; i++) ...[
-          if (i > 0)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2),
-              child: Text('+', style: TextStyle(fontFamily: 'Roboto Mono')),
-            ),
-          _KeyCap(label: parts[i]),
-        ],
-      ],
-    );
+    return Keycap(label);
   }
-}
 
-class _KeyCap extends StatelessWidget {
-  const _KeyCap({required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF666666) : const Color(0xFFF9FAFB),
-        border: Border(
-          left: BorderSide(
-            color: isDark ? const Color(0xFF7A7A7A) : const Color(0xFFD1D5DB),
-          ),
-          top: BorderSide(
-            color: isDark ? const Color(0xFF7A7A7A) : const Color(0xFFD1D5DB),
-          ),
-          right: BorderSide(
-            color: isDark ? const Color(0xFF7A7A7A) : const Color(0xFFD1D5DB),
-          ),
-          bottom: BorderSide(
-            width: 3,
-            color: isDark ? const Color(0xFF7A7A7A) : const Color(0xFFD1D5DB),
-          ),
-        ),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          fontFamily: 'Roboto Mono',
-          fontFamilyFallback: const ['Roboto'],
-          color: isDark ? const Color(0xFFF5F5F5) : const Color(0xFF374151),
-        ),
-      ),
-    );
+  String _formatShortcut(String value) {
+    const aliases = <String, String>{
+      'alt': '⌥',
+      'option': '⌥',
+      'shift': '⇧',
+      'control': '⌃',
+      'ctrl': '⌃',
+      'command': '⌘',
+      'cmd': '⌘',
+      'meta': '⌘',
+      'space': 'Space',
+    };
+    return value
+        .split('+')
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .map((part) => aliases[part.toLowerCase()] ?? part.toUpperCase())
+        .join(' ');
   }
 }

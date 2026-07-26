@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../i18n/i18n.dart';
-import '../../services/mac_settings.dart';
+import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
@@ -109,7 +109,6 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
     final hasTranslationServices = _translationServiceOptions.isNotEmpty;
 
     return SettingsPage(
-      title: general.title,
       children: [
         PreferenceListSection(
           children: [
@@ -137,8 +136,14 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
           PreferenceListSection(
             title: Text(general.section.permissions),
             children: [
-              _PermissionAccessRow(title: general.row.screen_capture_access),
-              _PermissionAccessRow(title: general.row.screen_selection_access),
+              _PermissionAccessRow(
+                title: general.row.screen_capture_access,
+                accessibility: false,
+              ),
+              _PermissionAccessRow(
+                title: general.row.screen_selection_access,
+                accessibility: true,
+              ),
             ],
           ),
         PreferenceListSection(
@@ -634,18 +639,61 @@ class _ServiceUnavailableItem extends StatelessWidget {
   }
 }
 
-class _PermissionAccessRow extends StatelessWidget {
-  const _PermissionAccessRow({required this.title});
+class _PermissionAccessRow extends StatefulWidget {
+  const _PermissionAccessRow({
+    required this.title,
+    required this.accessibility,
+  });
 
   final String title;
+  final bool accessibility;
+
+  @override
+  State<_PermissionAccessRow> createState() => _PermissionAccessRowState();
+}
+
+class _PermissionAccessRowState extends State<_PermissionAccessRow> {
+  bool? _granted;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  Future<void> _refresh() async {
+    final permission = runtime.permission();
+    final granted = widget.accessibility
+        ? await permission.isAccessibilityPermissionGranted()
+        : await permission.isScreenRecordingPermissionGranted();
+    if (mounted) setState(() => _granted = granted);
+  }
+
+  Future<void> _request() async {
+    final permission = runtime.permission();
+    if (widget.accessibility) {
+      await permission.requestAccessibilityPermission(
+        onlyOpenSystemSettings: false,
+      );
+    } else {
+      await permission.requestScreenRecordingPermission(
+        onlyOpenSystemSettings: false,
+      );
+    }
+    await _refresh();
+  }
 
   @override
   Widget build(BuildContext context) {
     return PreferenceListItem(
-      title: Text(title),
+      title: Text(widget.title),
       detailText: Button.outlined(
-        onPressed: MacSettings.showAndHighlightPermissions,
-        child: Text(t.settings.general.button.grant),
+        onPressed: _granted == true ? _refresh : _request,
+        child: Text(
+          _granted == true
+              ? t.settings.general.option.granted
+              : t.settings.general.button.grant,
+        ),
       ),
     );
   }

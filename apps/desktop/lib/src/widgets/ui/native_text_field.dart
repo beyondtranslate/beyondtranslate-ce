@@ -25,6 +25,9 @@ class NativeTextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.textInputAction,
+    this.expands = false,
+    this.submitOnEnter = false,
+    this.submitOnMetaEnter = false,
     this.textCapitalization = TextCapitalization.none,
     this.selectionHeightStyle = BoxHeightStyle.tight,
     this.onChanged,
@@ -46,6 +49,9 @@ class NativeTextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+  final bool expands;
+  final bool submitOnEnter;
+  final bool submitOnMetaEnter;
   final TextCapitalization textCapitalization;
   final BoxHeightStyle selectionHeightStyle;
   final ValueChanged<String>? onChanged;
@@ -94,6 +100,11 @@ class _NativeTextFieldState extends State<NativeTextField> {
         widget.placeholderStyle != oldWidget.placeholderStyle) {
       _updatePlaceholder();
     }
+    if (widget.submitOnEnter != oldWidget.submitOnEnter ||
+        widget.submitOnMetaEnter != oldWidget.submitOnMetaEnter ||
+        widget.textInputAction != oldWidget.textInputAction) {
+      _updateSubmitMode();
+    }
   }
 
   void _updatePlaceholder() {
@@ -109,6 +120,16 @@ class _NativeTextFieldState extends State<NativeTextField> {
       'style': _encodeTextStyle(placeholderStyle),
     });
   }
+
+  void _updateSubmitMode() {
+    _channel?.invokeMethod<void>('setSubmitMode', <String, Object?>{
+      'submitOnEnter': _submitsOnEnter,
+      'submitOnMetaEnter': widget.submitOnMetaEnter,
+    });
+  }
+
+  bool get _submitsOnEnter =>
+      widget.submitOnEnter || widget.textInputAction == TextInputAction.done;
 
   @override
   void dispose() {
@@ -209,28 +230,33 @@ class _NativeTextFieldState extends State<NativeTextField> {
       return const SizedBox.shrink();
     }
 
+    final nativeView = AppKitView(
+      viewType: _kViewType,
+      creationParams: <String, Object?>{
+        'text': widget.controller.text,
+        'placeholder': widget.placeholder,
+        'padding': _encodePadding(padding),
+        'style': _encodeTextStyle(textStyle),
+        'placeholderStyle': _encodeTextStyle(placeholderStyle),
+        'enabled': _enabled,
+        'readOnly': widget.readOnly,
+        'obscureText': widget.obscureText,
+        'maxLines': widget.maxLines,
+        'minLines': widget.minLines,
+        'submitOnEnter': _submitsOnEnter,
+        'submitOnMetaEnter': widget.submitOnMetaEnter,
+        'autofocus': widget.autofocus,
+      },
+      creationParamsCodec: const StandardMessageCodec(),
+      onPlatformViewCreated: _handlePlatformViewCreated,
+    );
+    if (widget.expands) {
+      return SizedBox.expand(child: nativeView);
+    }
     return SizedBox(
       height: height,
       width: double.infinity,
-      child: AppKitView(
-        viewType: _kViewType,
-        creationParams: <String, Object?>{
-          'text': widget.controller.text,
-          'placeholder': widget.placeholder,
-          'padding': _encodePadding(padding),
-          'style': _encodeTextStyle(textStyle),
-          'placeholderStyle': _encodeTextStyle(placeholderStyle),
-          'enabled': _enabled,
-          'readOnly': widget.readOnly,
-          'obscureText': widget.obscureText,
-          'maxLines': widget.maxLines,
-          'minLines': widget.minLines,
-          'submitOnEnter': widget.textInputAction == TextInputAction.done,
-          'autofocus': widget.autofocus,
-        },
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: _handlePlatformViewCreated,
-      ),
+      child: nativeView,
     );
   }
 

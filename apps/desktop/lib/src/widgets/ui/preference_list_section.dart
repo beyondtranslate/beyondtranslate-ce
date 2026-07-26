@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'themes/design_theme.dart';
+
 class PreferenceListSection extends StatelessWidget {
   const PreferenceListSection({
     Key? key,
@@ -16,81 +18,53 @@ class PreferenceListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return Center(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 12,
-          bottom: 12,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (title != null)
-              Container(
-                padding: const EdgeInsets.only(
-                  top: 0,
-                  bottom: 10,
-                  left: 12,
-                  right: 12,
-                ),
-                child: DefaultTextStyle(
-                  style: textTheme.bodySmall!,
-                  child: title!,
-                ),
-              ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor,
-                  ),
-                  child: Row(
-                    children: [
-                      if (leading != null) leading!,
-                      Expanded(
-                        child: Column(
-                          children: [
-                            for (var i = 0; i < children.length; i++)
-                              Builder(builder: (_) {
-                                Widget child = children[i];
-                                return Column(
-                                  children: [
-                                    child,
-                                    if (i < children.length - 1)
-                                      const Divider(
-                                        height: 0,
-                                        indent: 12,
-                                        endIndent: 12,
-                                      ),
-                                  ],
-                                );
-                              })
-                          ],
-                        ),
-                      ),
-                    ],
-                  )),
+    final colors = context.design;
+    final textTheme = Theme.of(context).textTheme;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var index = 0; index < children.length; index++) ...[
+          if (index > 0) const SizedBox(height: 11),
+          children[index],
+        ],
+      ],
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null) ...[
+          DefaultTextStyle(
+            style: context.eyebrowTextStyle.copyWith(
+              color: colors.quietText,
+              fontSize: 10,
             ),
-            if (description != null)
-              Container(
-                padding: const EdgeInsets.only(
-                  top: 6,
-                  bottom: 6,
-                  left: 12,
-                  right: 12,
-                ),
-                child: DefaultTextStyle(
-                  style: textTheme.bodySmall!,
-                  child: description!,
-                ),
-              ),
-          ],
-        ),
-      ),
+            child: title!,
+          ),
+          const SizedBox(height: 11),
+        ],
+        if (leading == null)
+          content
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              leading!,
+              const SizedBox(width: 11),
+              Expanded(child: content),
+            ],
+          ),
+        if (description != null) ...[
+          const SizedBox(height: 7),
+          DefaultTextStyle(
+            style: textTheme.bodySmall!.copyWith(
+              color: colors.quietText,
+              fontSize: 11.5,
+              height: 1.55,
+            ),
+            child: description!,
+          ),
+        ],
+      ],
     );
   }
 }

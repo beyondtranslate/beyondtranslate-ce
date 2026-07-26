@@ -82,8 +82,7 @@
         "show_window": "ウィンドウを表示",
         "dev_tools": {
           "title": "開発ツール",
-          "open_data_directory": "データディレクトリを開く",
-          "use_native_settings": "ネイティブ設定ページを使用"
+          "open_data_directory": "データディレクトリを開く"
         },
         "check_for_updates": "アップデートを確認",
         "settings": "設定",
@@ -143,6 +142,48 @@
       "capture_screen_area_canceled": "画面領域のキャプチャがキャンセルされました",
       "ocr_service_not_configured": "デフォルトのテキスト認識サービスが設定されていません。設定で設定してください。",
       "ocr_recognition_failed": "テキスト認識に失敗しました"
+    }
+  },
+  "workbench": {
+    "workspace": "ワークスペース",
+    "translate": "翻訳",
+    "document": "文書翻訳",
+    "history": "お気に入りと履歴",
+    "glossary": "用語集",
+    "recent_languages": "最近の言語",
+    "not_configured": "未設定",
+    "subtitle": {
+      "translate": "ワークベンチ · エンジン比較",
+      "settings": "設定"
+    },
+    "placeholder": {
+      "document": "文書翻訳は開発中です",
+      "history": "お気に入りと履歴は今後のリリースで提供します",
+      "glossary": "用語集管理は開発中です"
+    },
+    "translation": {
+      "source": "原文",
+      "target": "訳文",
+      "input_hint": "翻訳するテキストを入力または貼り付け",
+      "button": "翻訳",
+      "auto_detected": "自動検出",
+      "loading_services": "翻訳サービスを読み込み中…",
+      "no_services": "先に設定で翻訳サービスを構成してください",
+      "translating": "翻訳中…",
+      "failed": "翻訳に失敗しました。サービス設定を確認してください。",
+      "empty": "訳文がここに表示されます",
+      "engine_compare": "エンジン比較",
+      "main_translation": "メイン",
+      "service_unavailable": "サービスを利用できません",
+      "waiting": "翻訳待ち",
+      "read": "読み上げ",
+      "copy": "コピー",
+      "favorite_unavailable": "お気に入りは今後のリリースで提供します"
+    },
+    "status": {
+      "runtime_ready": "翻訳ランタイム準備完了",
+      "settings_synced": "設定を同期済み",
+      "shortcuts": "⌥Space クイックウィンドウ · ⌥⇧2 キャプチャ"
     }
   },
   "settings": {

@@ -63,6 +63,9 @@ class TranslationsZhHans extends Translations
   late final _TranslationsMiniTranslatorZhHans mini_translator =
       _TranslationsMiniTranslatorZhHans._(_root);
   @override
+  late final _TranslationsWorkbenchZhHans workbench =
+      _TranslationsWorkbenchZhHans._(_root);
+  @override
   late final _TranslationsSettingsZhHans settings =
       _TranslationsSettingsZhHans._(_root);
 }
@@ -134,6 +137,43 @@ class _TranslationsMiniTranslatorZhHans extends TranslationsMiniTranslatorEn {
   @override
   late final _TranslationsMiniTranslatorMessageZhHans message =
       _TranslationsMiniTranslatorMessageZhHans._(_root);
+}
+
+// Path: workbench
+class _TranslationsWorkbenchZhHans extends TranslationsWorkbenchEn {
+  _TranslationsWorkbenchZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get workspace => '工作区';
+  @override
+  String get translate => '翻译';
+  @override
+  String get document => '文档翻译';
+  @override
+  String get history => '收藏与历史';
+  @override
+  String get glossary => '术语表';
+  @override
+  String get recent_languages => '最近语言';
+  @override
+  String get not_configured => '尚未配置';
+  @override
+  late final _TranslationsWorkbenchSubtitleZhHans subtitle =
+      _TranslationsWorkbenchSubtitleZhHans._(_root);
+  @override
+  late final _TranslationsWorkbenchPlaceholderZhHans placeholder =
+      _TranslationsWorkbenchPlaceholderZhHans._(_root);
+  @override
+  late final _TranslationsWorkbenchTranslationZhHans translation =
+      _TranslationsWorkbenchTranslationZhHans._(_root);
+  @override
+  late final _TranslationsWorkbenchStatusZhHans status =
+      _TranslationsWorkbenchStatusZhHans._(_root);
 }
 
 // Path: settings
@@ -473,6 +513,103 @@ class _TranslationsMiniTranslatorMessageZhHans
   String get ocr_service_not_configured => '未配置默认文字识别服务，请在设置中配置。';
   @override
   String get ocr_recognition_failed => '文字识别失败';
+}
+
+// Path: workbench.subtitle
+class _TranslationsWorkbenchSubtitleZhHans
+    extends TranslationsWorkbenchSubtitleEn {
+  _TranslationsWorkbenchSubtitleZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translate => '工作台 · 多引擎对照';
+  @override
+  String get settings => '设置';
+}
+
+// Path: workbench.placeholder
+class _TranslationsWorkbenchPlaceholderZhHans
+    extends TranslationsWorkbenchPlaceholderEn {
+  _TranslationsWorkbenchPlaceholderZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get document => '文档翻译正在建设中';
+  @override
+  String get history => '收藏与历史将在后续版本中提供';
+  @override
+  String get glossary => '术语表管理正在建设中';
+}
+
+// Path: workbench.translation
+class _TranslationsWorkbenchTranslationZhHans
+    extends TranslationsWorkbenchTranslationEn {
+  _TranslationsWorkbenchTranslationZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get source => '原文';
+  @override
+  String get target => '译文';
+  @override
+  String get input_hint => '输入或粘贴需要翻译的文本';
+  @override
+  String get button => '翻译';
+  @override
+  String get auto_detected => '已自动检测';
+  @override
+  String get loading_services => '正在读取翻译服务…';
+  @override
+  String get no_services => '请先在设置中配置翻译服务';
+  @override
+  String get translating => '正在翻译…';
+  @override
+  String get failed => '翻译失败，请检查服务配置后重试';
+  @override
+  String get empty => '译文将在这里显示';
+  @override
+  String get engine_compare => '引擎对比';
+  @override
+  String get main_translation => '主译文';
+  @override
+  String get service_unavailable => '服务暂不可用';
+  @override
+  String get waiting => '等待翻译';
+  @override
+  String get read => '朗读';
+  @override
+  String get copy => '复制';
+  @override
+  String get favorite_unavailable => '收藏功能将在后续版本中提供';
+}
+
+// Path: workbench.status
+class _TranslationsWorkbenchStatusZhHans extends TranslationsWorkbenchStatusEn {
+  _TranslationsWorkbenchStatusZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get runtime_ready => '翻译运行时已就绪';
+  @override
+  String get settings_synced => '设置已同步';
+  @override
+  String get shortcuts => '⌥Space 小窗 · ⌥⇧2 截图';
 }
 
 // Path: settings.general
@@ -1343,8 +1480,6 @@ class _TranslationsAppTrayContextMenuDevToolsZhHans
   String get title => '开发工具';
   @override
   String get open_data_directory => '打开数据目录';
-  @override
-  String get use_native_settings => '使用原生设置页面';
 }
 
 // Path: settings.general.editor.row
@@ -1584,7 +1719,6 @@ extension on TranslationsZhHans {
       'app.tray.context_menu.show_window' => '显示窗口',
       'app.tray.context_menu.dev_tools.title' => '开发工具',
       'app.tray.context_menu.dev_tools.open_data_directory' => '打开数据目录',
-      'app.tray.context_menu.dev_tools.use_native_settings' => '使用原生设置页面',
       'app.tray.context_menu.check_for_updates' => '检查更新',
       'app.tray.context_menu.settings' => '设置',
       'app.tray.context_menu.quit' => '退出',
@@ -1624,6 +1758,38 @@ extension on TranslationsZhHans {
       'mini_translator.message.ocr_service_not_configured' =>
         '未配置默认文字识别服务，请在设置中配置。',
       'mini_translator.message.ocr_recognition_failed' => '文字识别失败',
+      'workbench.workspace' => '工作区',
+      'workbench.translate' => '翻译',
+      'workbench.document' => '文档翻译',
+      'workbench.history' => '收藏与历史',
+      'workbench.glossary' => '术语表',
+      'workbench.recent_languages' => '最近语言',
+      'workbench.not_configured' => '尚未配置',
+      'workbench.subtitle.translate' => '工作台 · 多引擎对照',
+      'workbench.subtitle.settings' => '设置',
+      'workbench.placeholder.document' => '文档翻译正在建设中',
+      'workbench.placeholder.history' => '收藏与历史将在后续版本中提供',
+      'workbench.placeholder.glossary' => '术语表管理正在建设中',
+      'workbench.translation.source' => '原文',
+      'workbench.translation.target' => '译文',
+      'workbench.translation.input_hint' => '输入或粘贴需要翻译的文本',
+      'workbench.translation.button' => '翻译',
+      'workbench.translation.auto_detected' => '已自动检测',
+      'workbench.translation.loading_services' => '正在读取翻译服务…',
+      'workbench.translation.no_services' => '请先在设置中配置翻译服务',
+      'workbench.translation.translating' => '正在翻译…',
+      'workbench.translation.failed' => '翻译失败，请检查服务配置后重试',
+      'workbench.translation.empty' => '译文将在这里显示',
+      'workbench.translation.engine_compare' => '引擎对比',
+      'workbench.translation.main_translation' => '主译文',
+      'workbench.translation.service_unavailable' => '服务暂不可用',
+      'workbench.translation.waiting' => '等待翻译',
+      'workbench.translation.read' => '朗读',
+      'workbench.translation.copy' => '复制',
+      'workbench.translation.favorite_unavailable' => '收藏功能将在后续版本中提供',
+      'workbench.status.runtime_ready' => '翻译运行时已就绪',
+      'workbench.status.settings_synced' => '设置已同步',
+      'workbench.status.shortcuts' => '⌥Space 小窗 · ⌥⇧2 截图',
       'settings.version' => 'v{} (Build {})',
       'settings.general.title' => '常规',
       'settings.general.section.permissions' => '权限',

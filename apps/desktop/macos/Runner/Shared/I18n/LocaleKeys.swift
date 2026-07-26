@@ -38,8 +38,6 @@ enum LocaleKeys {
           static let openDataDirectory = LocaleKey(
             "app.tray.context_menu.dev_tools.open_data_directory")
           static let title = LocaleKey("app.tray.context_menu.dev_tools.title")
-          static let useNativeSettings = LocaleKey(
-            "app.tray.context_menu.dev_tools.use_native_settings")
         }
         static let quit = LocaleKey("app.tray.context_menu.quit")
         static let settings = LocaleKey("app.tray.context_menu.settings")
@@ -408,5 +406,47 @@ enum LocaleKeys {
       static let title = LocaleKey("settings.shortcuts.title")
     }
     static let version = LocaleKey("settings.version")
+  }
+  enum workbench {
+    static let document = LocaleKey("workbench.document")
+    static let glossary = LocaleKey("workbench.glossary")
+    static let history = LocaleKey("workbench.history")
+    static let notConfigured = LocaleKey("workbench.not_configured")
+    enum placeholder {
+      static let document = LocaleKey("workbench.placeholder.document")
+      static let glossary = LocaleKey("workbench.placeholder.glossary")
+      static let history = LocaleKey("workbench.placeholder.history")
+    }
+    static let recentLanguages = LocaleKey("workbench.recent_languages")
+    enum status {
+      static let runtimeReady = LocaleKey("workbench.status.runtime_ready")
+      static let settingsSynced = LocaleKey("workbench.status.settings_synced")
+      static let shortcuts = LocaleKey("workbench.status.shortcuts")
+    }
+    enum subtitle {
+      static let settings = LocaleKey("workbench.subtitle.settings")
+      static let translate = LocaleKey("workbench.subtitle.translate")
+    }
+    static let translate = LocaleKey("workbench.translate")
+    enum translation {
+      static let autoDetected = LocaleKey("workbench.translation.auto_detected")
+      static let button = LocaleKey("workbench.translation.button")
+      static let copy = LocaleKey("workbench.translation.copy")
+      static let empty = LocaleKey("workbench.translation.empty")
+      static let engineCompare = LocaleKey("workbench.translation.engine_compare")
+      static let failed = LocaleKey("workbench.translation.failed")
+      static let favoriteUnavailable = LocaleKey("workbench.translation.favorite_unavailable")
+      static let inputHint = LocaleKey("workbench.translation.input_hint")
+      static let loadingServices = LocaleKey("workbench.translation.loading_services")
+      static let mainTranslation = LocaleKey("workbench.translation.main_translation")
+      static let noServices = LocaleKey("workbench.translation.no_services")
+      static let read = LocaleKey("workbench.translation.read")
+      static let serviceUnavailable = LocaleKey("workbench.translation.service_unavailable")
+      static let source = LocaleKey("workbench.translation.source")
+      static let target = LocaleKey("workbench.translation.target")
+      static let translating = LocaleKey("workbench.translation.translating")
+      static let waiting = LocaleKey("workbench.translation.waiting")
+    }
+    static let workspace = LocaleKey("workbench.workspace")
   }
 }

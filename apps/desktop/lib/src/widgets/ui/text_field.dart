@@ -35,6 +35,9 @@ class TextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.textInputAction,
+    this.expands = false,
+    this.submitOnEnter = false,
+    this.submitOnMetaEnter = false,
     this.textCapitalization = TextCapitalization.none,
     this.selectionHeightStyle = BoxHeightStyle.tight,
     this.onChanged,
@@ -56,6 +59,9 @@ class TextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+  final bool expands;
+  final bool submitOnEnter;
+  final bool submitOnMetaEnter;
   final TextCapitalization textCapitalization;
   final BoxHeightStyle selectionHeightStyle;
   final ValueChanged<String>? onChanged;
@@ -151,6 +157,9 @@ class _TextFieldState extends State<TextField> {
         obscureText: widget.obscureText,
         keyboardType: widget.keyboardType,
         textInputAction: widget.textInputAction,
+        expands: widget.expands,
+        submitOnEnter: widget.submitOnEnter,
+        submitOnMetaEnter: widget.submitOnMetaEnter,
         textCapitalization: widget.textCapitalization,
         selectionHeightStyle: widget.selectionHeightStyle,
         onChanged: widget.onChanged,
@@ -167,7 +176,7 @@ class _TextFieldState extends State<TextField> {
         !widget.obscureText &&
         _effectiveController.text.isEmpty;
 
-    return GestureDetector(
+    final editableText = GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: enabled ? _handleTap : null,
       child: Padding(
@@ -209,5 +218,9 @@ class _TextFieldState extends State<TextField> {
         ),
       ),
     );
+    if (widget.expands) {
+      return SizedBox.expand(child: editableText);
+    }
+    return editableText;
   }
 }

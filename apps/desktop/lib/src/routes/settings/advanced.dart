@@ -70,7 +70,6 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
     final address = apiInfo?.baseUrl ?? t.settings.advanced.disabled;
 
     return SettingsPage(
-      title: t.settings.advanced.title,
       children: [
         PreferenceListSection(
           title: Text(t.settings.advanced.api_server),

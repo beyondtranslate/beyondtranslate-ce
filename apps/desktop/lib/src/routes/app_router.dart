@@ -13,36 +13,44 @@ import 'package:path_provider/path_provider.dart';
 
 import '../extensions/window_controller.dart';
 import '../i18n/i18n.dart';
-import '../services/mac_settings.dart';
 import '../services/mac_window_appearance.dart';
 import '../services/settings_store.dart';
 import '../utils/language_util.dart';
 import '../utils/platform_util.dart';
 import '../widgets/ui/themes/dark_theme.dart';
+import '../widgets/ui/themes/design_theme.dart';
 import '../widgets/ui/themes/light_theme.dart';
 import '__root.dart';
+import 'debug/component_showcase.dart' as component_showcase_route;
 import 'debug/runtime.dart' as debug_runtime_route;
 import 'mini_translator/mini_translator.dart';
-import 'settings/index.dart' as settings_route;
-import 'settings/index.dart' show GeneralSettingsRoute;
+import 'workbench/index.dart' as workbench_route;
 
-const _kSettingsWindowTitle = 'Settings';
+const _kWorkbenchWindowTitle = 'BeyondTranslate';
 const _kMiniTranslatorAppTitle = 'Mini Translator';
-const _kSettingsWindowSize = Size(720, 532);
-const _kUseNativeSettingsPreferenceKey = 'use_native_settings';
+const _kWorkbenchWindowSize = Size(1080, 600);
+const _kWorkbenchWindowMinimumSize = Size(960, 560);
 const _kMiniTranslatorTrayGap = 10.0;
 
-extension PreferencesExtension on Preferences {
-  bool get useNativeSettings =>
-      get(_kUseNativeSettingsPreferenceKey, 'true') == 'true';
-
-  set useNativeSettings(bool value) {
-    set(_kUseNativeSettingsPreferenceKey, value.toString());
-  }
-}
-
-final Preferences _devToolsPreferences = Preferences.withScope('dev_tools');
 TrayIcon? _mainTrayIcon;
+GoRouter? _workbenchRouter;
+String _pendingWorkbenchLocation = '/translate';
+
+enum WorkbenchDestination {
+  translate('/translate'),
+  document('/document'),
+  history('/history'),
+  glossary('/glossary'),
+  settingsGeneral('/settings/general'),
+  settingsAppearance('/settings/appearance'),
+  settingsShortcuts('/settings/shortcuts'),
+  settingsProviders('/settings/providers'),
+  settingsAdvanced('/settings/advanced');
+
+  const WorkbenchDestination(this.location);
+
+  final String location;
+}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Window controllers
@@ -53,45 +61,53 @@ TrayIcon? _mainTrayIcon;
 class _HideOnCloseDelegate extends RegularWindowControllerDelegate {
   @override
   void onWindowCloseRequested(RegularWindowController controller) {
-    if (controller.window == settingsWindowController.window) {
+    if (controller.window == workbenchWindowController.window) {
       controller.window.hide();
     }
   }
 }
 
-final settingsWindowController = RegularWindowController(
-  preferredSize: _kSettingsWindowSize,
-  title: _kSettingsWindowTitle,
+final workbenchWindowController = RegularWindowController(
+  size: _kWorkbenchWindowSize,
+  title: _kWorkbenchWindowTitle,
   delegate: _HideOnCloseDelegate(),
 )..setWillShowHook((window) {
     if (window.isFirstShow) {
       window.titleBarStyle = TitleBarStyle.hidden;
       window.setMinimumSize(
-        _kSettingsWindowSize.width,
-        _kSettingsWindowSize.height,
+        _kWorkbenchWindowMinimumSize.width,
+        _kWorkbenchWindowMinimumSize.height,
       );
       window.setSize(
-        _kSettingsWindowSize.width,
-        _kSettingsWindowSize.height,
+        _kWorkbenchWindowSize.width,
+        _kWorkbenchWindowSize.height,
       );
       window.center();
-      return false;
+      return true;
     }
     return true;
   });
 
-// Shows the mini translator window.
-void showSettingsWindow() {
-  if (_devToolsPreferences.useNativeSettings) {
-    MacSettings.show();
-    return;
+void showWorkbenchWindow({
+  WorkbenchDestination destination = WorkbenchDestination.translate,
+  String? text,
+}) {
+  _pendingWorkbenchLocation = destination.location;
+  if (text != null) {
+    workbench_route.workbenchTextHandoff.value = text;
   }
-  settingsWindowController.window.center();
-  settingsWindowController.window.show();
+  _workbenchRouter?.go(_pendingWorkbenchLocation);
+  final window = workbenchWindowController.window;
+  window.show();
+  window.focus();
+}
+
+void showSettingsWindow() {
+  showWorkbenchWindow(destination: WorkbenchDestination.settingsGeneral);
 }
 
 final miniTranslatorWindowController = RegularWindowController(
-  preferredSize: const Size(380, 420),
+  size: const Size(380, 420),
   title: _kMiniTranslatorAppTitle,
 )..setWillShowHook((window) {
     if (window.isFirstShow) {
@@ -314,16 +330,17 @@ class _TrayAnchor {
 /// TanStack Start-inspired organization:
 /// - each route lives in its own module/file
 /// - this file is the composition root for router setup
-GoRouter createSettingsAppRouter({
+GoRouter createWorkbenchAppRouter({
   String? initialLocation,
 }) {
   return GoRouter(
     routes: <RouteBase>[
       ...$appRoutes,
       ...debug_runtime_route.$appRoutes,
-      ...settings_route.$appRoutes,
+      ...component_showcase_route.$appRoutes,
+      ...workbench_route.$appRoutes,
     ],
-    initialLocation: initialLocation ?? const RootRoute().location,
+    initialLocation: initialLocation ?? _pendingWorkbenchLocation,
     debugLogDiagnostics: false,
   );
 }
@@ -345,26 +362,28 @@ GoRouter createMiniTranslatorAppRouter() {
 // App widgets
 // ──────────────────────────────────────────────────────────────────────────────
 
-class SettingsApp extends StatefulWidget {
-  const SettingsApp({super.key});
+class WorkbenchApp extends StatefulWidget {
+  const WorkbenchApp({super.key});
 
   @override
-  State<SettingsApp> createState() => _SettingsAppState();
+  State<WorkbenchApp> createState() => _WorkbenchAppState();
 }
 
-class _SettingsAppState extends State<SettingsApp> {
-  late final GoRouter _router = createSettingsAppRouter(
-    initialLocation: const GeneralSettingsRoute().location,
-  );
+class _WorkbenchAppState extends State<WorkbenchApp> {
+  late final GoRouter _router = createWorkbenchAppRouter();
 
   @override
   void initState() {
     super.initState();
+    _workbenchRouter = _router;
     settingsStore.addListener(_onSettingsChanged);
   }
 
   @override
   void dispose() {
+    if (_workbenchRouter == _router) {
+      _workbenchRouter = null;
+    }
     settingsStore.removeListener(_onSettingsChanged);
     super.dispose();
   }
@@ -376,12 +395,12 @@ class _SettingsAppState extends State<SettingsApp> {
   @override
   Widget build(BuildContext context) {
     return RegularWindow(
-      controller: settingsWindowController,
+      controller: workbenchWindowController,
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: _kSettingsWindowTitle,
-        theme: lightThemeData,
-        darkTheme: darkThemeData,
+        title: _kWorkbenchWindowTitle,
+        theme: designTheme(lightThemeData),
+        darkTheme: designTheme(darkThemeData),
         themeMode: settingsStore.themeMode,
         builder: (context, child) {
           if (kIsLinux || kIsWindows) {
@@ -496,14 +515,15 @@ class _RootBodyViewState extends State<_RootBodyView> {
   late final TrayIcon _trayIcon;
   late bool _showInMenuBar;
 
-  bool get _useNativeSettings => _devToolsPreferences.useNativeSettings;
-
   @override
   void initState() {
     _showInMenuBar = settingsStore.general.showInMenuBar;
     settingsStore.addListener(_handleChanged);
     _setupTrayIcon();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showWorkbenchWindow();
+    });
   }
 
   @override
@@ -558,7 +578,7 @@ class _RootBodyViewState extends State<_RootBodyView> {
     menu.addItem(
       MenuItem(t.app.tray.context_menu.show_window)
         ..on<MenuItemClickedEvent>((_) {
-          showMiniTranslatorWindow(belowTray: kIsMacOS);
+          showWorkbenchWindow();
         }),
     );
 
@@ -576,26 +596,6 @@ class _RootBodyViewState extends State<_RootBodyView> {
             UrlOpener.instance.open('file://${dir.path}');
           }),
       );
-
-      // ☑ 使用原生设置页面 (checkbox, 仅 macOS 可用)
-      final nativeSettingsItem = MenuItem(
-        t.app.tray.context_menu.dev_tools.use_native_settings,
-        MenuItemType.checkbox,
-      );
-      void updateNativeSettingsItemState() {
-        nativeSettingsItem.state = _devToolsPreferences.useNativeSettings
-            ? MenuItemState.checked
-            : MenuItemState.unchecked;
-      }
-
-      updateNativeSettingsItemState();
-      nativeSettingsItem.enabled = Platform.isMacOS;
-      nativeSettingsItem.on<MenuItemClickedEvent>((_) {
-        _devToolsPreferences.useNativeSettings =
-            !_devToolsPreferences.useNativeSettings;
-        updateNativeSettingsItemState();
-      });
-      devToolsSubmenu.addItem(nativeSettingsItem);
 
       final devToolsItem = MenuItem(
         t.app.tray.context_menu.dev_tools.title,
@@ -633,10 +633,10 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
   @override
   Widget build(BuildContext context) {
-    return ViewCollection(
+    return const ViewCollection(
       views: [
-        if (!_useNativeSettings) const SettingsApp(),
-        const MiniTranslatorApp(),
+        WorkbenchApp(),
+        MiniTranslatorApp(),
       ],
     );
   }

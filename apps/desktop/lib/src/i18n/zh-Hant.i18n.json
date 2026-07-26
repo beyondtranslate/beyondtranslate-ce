@@ -82,8 +82,7 @@
         "show_window": "顯示視窗",
         "dev_tools": {
           "title": "開發工具",
-          "open_data_directory": "開啟資料目錄",
-          "use_native_settings": "使用原生設定頁面"
+          "open_data_directory": "開啟資料目錄"
         },
         "check_for_updates": "檢查更新",
         "settings": "設定",
@@ -143,6 +142,48 @@
       "capture_screen_area_canceled": "螢幕區域擷取已取消",
       "ocr_service_not_configured": "未配置預設文字辨識服務，請在設定中配置。",
       "ocr_recognition_failed": "文字辨識失敗"
+    }
+  },
+  "workbench": {
+    "workspace": "工作區",
+    "translate": "翻譯",
+    "document": "文件翻譯",
+    "history": "收藏與歷史",
+    "glossary": "術語表",
+    "recent_languages": "最近語言",
+    "not_configured": "尚未設定",
+    "subtitle": {
+      "translate": "工作台 · 多引擎對照",
+      "settings": "設定"
+    },
+    "placeholder": {
+      "document": "文件翻譯正在建置中",
+      "history": "收藏與歷史將在後續版本提供",
+      "glossary": "術語表管理正在建置中"
+    },
+    "translation": {
+      "source": "原文",
+      "target": "譯文",
+      "input_hint": "輸入或貼上需要翻譯的文字",
+      "button": "翻譯",
+      "auto_detected": "已自動偵測",
+      "loading_services": "正在載入翻譯服務…",
+      "no_services": "請先在設定中配置翻譯服務",
+      "translating": "正在翻譯…",
+      "failed": "翻譯失敗，請檢查服務設定後重試",
+      "empty": "譯文將顯示於此",
+      "engine_compare": "引擎比較",
+      "main_translation": "主譯文",
+      "service_unavailable": "服務暫不可用",
+      "waiting": "等待翻譯",
+      "read": "朗讀",
+      "copy": "複製",
+      "favorite_unavailable": "收藏功能將在後續版本提供"
+    },
+    "status": {
+      "runtime_ready": "翻譯執行環境已就緒",
+      "settings_synced": "設定已同步",
+      "shortcuts": "⌥Space 小窗 · ⌥⇧2 截圖"
     }
   },
   "settings": {

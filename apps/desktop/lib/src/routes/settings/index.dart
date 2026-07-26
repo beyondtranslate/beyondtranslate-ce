@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../i18n/i18n.dart';
 import '../../utils/utils.dart';
+import '../../widgets/navigation_item.dart';
+import '../../widgets/ui/themes/design_theme.dart';
 import 'advanced.dart';
 import 'appearance.dart';
 import 'general.dart';
@@ -26,8 +28,8 @@ class SettingsShellRoute extends ShellRouteData {
 
   @override
   Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
-    return _SettingsShellPage(
-      selectedCategory: _SettingsCategory.fromLocation(state.uri.path),
+    return SettingsTabsShell(
+      location: state.uri.path,
       child: navigator,
     );
   }
@@ -43,7 +45,7 @@ class GeneralSettingsRoute extends GoRouteData with $GeneralSettingsRoute {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return _buildFadeInPage(
+    return _buildSettingsPage(
       state: state,
       child: const GeneralSettingsPage(),
     );
@@ -61,7 +63,7 @@ class AppearanceSettingsRoute extends GoRouteData
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return _buildFadeInPage(
+    return _buildSettingsPage(
       state: state,
       child: const AppearanceSettingsPage(),
     );
@@ -78,7 +80,7 @@ class ShortcutsSettingsRoute extends GoRouteData with $ShortcutsSettingsRoute {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return _buildFadeInPage(
+    return _buildSettingsPage(
       state: state,
       child: const ShortcutsSettingsPage(),
     );
@@ -95,7 +97,7 @@ class AdvancedSettingsRoute extends GoRouteData with $AdvancedSettingsRoute {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return _buildFadeInPage(
+    return _buildSettingsPage(
       state: state,
       child: const AdvancedSettingsPage(),
     );
@@ -112,34 +114,24 @@ class ProvidersSettingsRoute extends GoRouteData with $ProvidersSettingsRoute {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return _buildFadeInPage(
+    return _buildSettingsPage(
       state: state,
       child: const ProvidersSettingsPage(),
     );
   }
 }
 
-Page<void> _buildFadeInPage({
+Page<void> _buildSettingsPage({
   required GoRouterState state,
   required Widget child,
 }) {
-  return CustomTransitionPage<void>(
+  return NoTransitionPage<void>(
     key: state.pageKey,
     child: child,
-    transitionDuration: const Duration(milliseconds: 180),
-    reverseTransitionDuration: const Duration(milliseconds: 120),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOut,
-        ),
-        child: child,
-      );
-    },
   );
 }
 
+// ignore: unused_element
 enum _SettingsCategory {
   general,
   appearance,
@@ -147,6 +139,7 @@ enum _SettingsCategory {
   providers,
   advanced;
 
+  // ignore: unused_element
   static _SettingsCategory fromLocation(String location) {
     if (location.startsWith('/settings/providers')) {
       return _SettingsCategory.providers;
@@ -164,6 +157,7 @@ enum _SettingsCategory {
   }
 }
 
+// ignore: unused_element
 class _SettingsShellPage extends StatelessWidget {
   const _SettingsShellPage({
     required this.selectedCategory,
@@ -194,42 +188,13 @@ class _SettingsShellPage extends StatelessWidget {
     required IconData icon,
     required String title,
   }) {
-    final isSelected = selectedCategory == category;
-    final colorScheme = Theme.of(context).colorScheme;
-    final backgroundColor = isSelected
-        ? colorScheme.primary.withValues(alpha: 0.10)
-        : Colors.transparent;
-    final foregroundColor =
-        isSelected ? colorScheme.primary : colorScheme.onSurface;
-
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Material(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => _navigateToCategory(context, category),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              children: [
-                Icon(icon, size: 20, color: foregroundColor),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: foregroundColor,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w500,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      padding: const EdgeInsets.only(bottom: 2),
+      child: NavigationItem(
+        label: title,
+        icon: icon,
+        selected: selectedCategory == category,
+        onTap: () => _navigateToCategory(context, category),
       ),
     );
   }
@@ -259,11 +224,43 @@ class _SettingsShellPage extends StatelessWidget {
     );
   }
 
+  Widget _buildComponentShowcaseItem(BuildContext context,
+      {bool compact = false}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final item = compact
+        ? ChoiceChip(
+            selected: false,
+            showCheckmark: false,
+            avatar: Icon(
+              FluentIcons.data_bar_vertical_20_regular,
+              size: 18,
+              color: colorScheme.onSurface,
+            ),
+            label: const Text('UI Components'),
+            onSelected: (_) => context.go('/debug/components'),
+          )
+        : NavigationItem(
+            label: 'UI Components',
+            icon: FluentIcons.data_bar_vertical_20_regular,
+            onTap: () => context.go('/debug/components'),
+          );
+
+    return compact
+        ? Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: item,
+          )
+        : Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: item,
+          );
+  }
+
   Widget _buildSidebar(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
       width: 210,
-      color: Theme.of(context).scaffoldBackgroundColor,
+      color: context.design.panel,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -271,7 +268,7 @@ class _SettingsShellPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
             child: Text(
               t.settings.layout.title,
-              style: textTheme.titleLarge,
+              style: context.eyebrowTextStyle.copyWith(fontSize: 12),
             ),
           ),
           Expanded(
@@ -308,6 +305,7 @@ class _SettingsShellPage extends StatelessWidget {
                   icon: FluentIcons.options_20_regular,
                   title: t.settings.advanced.title,
                 ),
+                _buildComponentShowcaseItem(context),
               ],
             ),
           ),
@@ -366,6 +364,7 @@ class _SettingsShellPage extends StatelessWidget {
             icon: FluentIcons.options_20_regular,
             title: t.settings.advanced.title,
           ),
+          _buildComponentShowcaseItem(context, compact: true),
         ],
       ),
     );
@@ -407,4 +406,155 @@ class _SettingsShellPage extends StatelessWidget {
       body: _buildBody(context),
     );
   }
+}
+
+class SettingsTabsShell extends StatelessWidget {
+  const SettingsTabsShell({
+    super.key,
+    required this.location,
+    required this.child,
+  });
+
+  final String location;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.design;
+    final tabs = <(String, String)>[
+      (t.settings.general.title, const GeneralSettingsRoute().location),
+      (t.settings.appearance.title, const AppearanceSettingsRoute().location),
+      (t.settings.shortcuts.title, const ShortcutsSettingsRoute().location),
+      (t.settings.providers.title, const ProvidersSettingsRoute().location),
+      (t.settings.advanced.title, const AdvancedSettingsRoute().location),
+    ];
+
+    return Theme(
+      data: _settingsTheme(context),
+      child: ColoredBox(
+        color: colors.paper,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: colors.border)),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (var index = 0; index < tabs.length; index++) ...[
+                      if (index > 0) const SizedBox(width: 14),
+                      Builder(
+                        builder: (context) {
+                          final tab = tabs[index];
+                          final selected = location.startsWith(tab.$2);
+                          return InkWell(
+                            onTap: () => context.go(tab.$2),
+                            splashColor: Colors.transparent,
+                            hoverColor: colors.accent.withValues(alpha: 0.08),
+                            child: Container(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: selected
+                                        ? colors.accent
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                tab.$1,
+                                style: TextStyle(
+                                  color: selected
+                                      ? colors.text
+                                      : colors.text.withValues(alpha: 0.55),
+                                  fontSize: 13,
+                                  fontWeight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            Expanded(child: child),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+ThemeData _settingsTheme(BuildContext context) {
+  final base = Theme.of(context);
+  final colors = context.design;
+  return base.copyWith(
+    inputDecorationTheme: InputDecorationTheme(
+      isDense: true,
+      filled: true,
+      fillColor: colors.translatedSurface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      labelStyle: TextStyle(fontSize: 12, color: colors.mutedText),
+      hintStyle: TextStyle(fontSize: 12.5, color: colors.quietText),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: colors.text.withValues(alpha: 0.28)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: colors.text.withValues(alpha: 0.28)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: colors.accent),
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: colors.paper,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide(color: colors.text.withValues(alpha: 0.40)),
+      ),
+      titleTextStyle: context.eyebrowTextStyle.copyWith(
+        color: colors.text,
+        fontSize: 12,
+      ),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: colors.paper,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide(color: colors.border),
+      ),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      side: BorderSide(color: colors.text.withValues(alpha: 0.30)),
+      fillColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? colors.accent
+            : Colors.transparent,
+      ),
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? colors.accent
+            : colors.text.withValues(alpha: 0.30),
+      ),
+    ),
+  );
 }

@@ -55,6 +55,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
   late final TranslationsAppEn app = TranslationsAppEn.internal(_root);
   late final TranslationsMiniTranslatorEn mini_translator =
       TranslationsMiniTranslatorEn.internal(_root);
+  late final TranslationsWorkbenchEn workbench =
+      TranslationsWorkbenchEn.internal(_root);
   late final TranslationsSettingsEn settings =
       TranslationsSettingsEn.internal(_root);
 }
@@ -106,6 +108,45 @@ class TranslationsMiniTranslatorEn {
       TranslationsMiniTranslatorLanguageEn.internal(_root);
   late final TranslationsMiniTranslatorMessageEn message =
       TranslationsMiniTranslatorMessageEn.internal(_root);
+}
+
+// Path: workbench
+class TranslationsWorkbenchEn {
+  TranslationsWorkbenchEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Workspace'
+  String get workspace => 'Workspace';
+
+  /// en: 'Translate'
+  String get translate => 'Translate';
+
+  /// en: 'Document Translation'
+  String get document => 'Document Translation';
+
+  /// en: 'Favorites & History'
+  String get history => 'Favorites & History';
+
+  /// en: 'Glossary'
+  String get glossary => 'Glossary';
+
+  /// en: 'Recent Languages'
+  String get recent_languages => 'Recent Languages';
+
+  /// en: 'Not configured'
+  String get not_configured => 'Not configured';
+
+  late final TranslationsWorkbenchSubtitleEn subtitle =
+      TranslationsWorkbenchSubtitleEn.internal(_root);
+  late final TranslationsWorkbenchPlaceholderEn placeholder =
+      TranslationsWorkbenchPlaceholderEn.internal(_root);
+  late final TranslationsWorkbenchTranslationEn translation =
+      TranslationsWorkbenchTranslationEn.internal(_root);
+  late final TranslationsWorkbenchStatusEn status =
+      TranslationsWorkbenchStatusEn.internal(_root);
 }
 
 // Path: settings
@@ -465,6 +506,120 @@ class TranslationsMiniTranslatorMessageEn {
 
   /// en: 'Text recognition failed'
   String get ocr_recognition_failed => 'Text recognition failed';
+}
+
+// Path: workbench.subtitle
+class TranslationsWorkbenchSubtitleEn {
+  TranslationsWorkbenchSubtitleEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Workbench · Engine comparison'
+  String get translate => 'Workbench · Engine comparison';
+
+  /// en: 'Settings'
+  String get settings => 'Settings';
+}
+
+// Path: workbench.placeholder
+class TranslationsWorkbenchPlaceholderEn {
+  TranslationsWorkbenchPlaceholderEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Document translation is being built'
+  String get document => 'Document translation is being built';
+
+  /// en: 'Favorites and history will be available in a future release'
+  String get history =>
+      'Favorites and history will be available in a future release';
+
+  /// en: 'Glossary management is being built'
+  String get glossary => 'Glossary management is being built';
+}
+
+// Path: workbench.translation
+class TranslationsWorkbenchTranslationEn {
+  TranslationsWorkbenchTranslationEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Source'
+  String get source => 'Source';
+
+  /// en: 'Translation'
+  String get target => 'Translation';
+
+  /// en: 'Enter or paste text to translate'
+  String get input_hint => 'Enter or paste text to translate';
+
+  /// en: 'Translate'
+  String get button => 'Translate';
+
+  /// en: 'Auto detected'
+  String get auto_detected => 'Auto detected';
+
+  /// en: 'Loading translation services…'
+  String get loading_services => 'Loading translation services…';
+
+  /// en: 'Configure a translation service in Settings first'
+  String get no_services => 'Configure a translation service in Settings first';
+
+  /// en: 'Translating…'
+  String get translating => 'Translating…';
+
+  /// en: 'Translation failed. Check the service configuration and try again.'
+  String get failed =>
+      'Translation failed. Check the service configuration and try again.';
+
+  /// en: 'The translation will appear here'
+  String get empty => 'The translation will appear here';
+
+  /// en: 'Engine comparison'
+  String get engine_compare => 'Engine comparison';
+
+  /// en: 'Primary'
+  String get main_translation => 'Primary';
+
+  /// en: 'Service unavailable'
+  String get service_unavailable => 'Service unavailable';
+
+  /// en: 'Waiting to translate'
+  String get waiting => 'Waiting to translate';
+
+  /// en: 'Read aloud'
+  String get read => 'Read aloud';
+
+  /// en: 'Copy'
+  String get copy => 'Copy';
+
+  /// en: 'Favorites will be available in a future release'
+  String get favorite_unavailable =>
+      'Favorites will be available in a future release';
+}
+
+// Path: workbench.status
+class TranslationsWorkbenchStatusEn {
+  TranslationsWorkbenchStatusEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Translation runtime ready'
+  String get runtime_ready => 'Translation runtime ready';
+
+  /// en: 'Settings synced'
+  String get settings_synced => 'Settings synced';
+
+  /// en: '⌥Space Quick window · ⌥⇧2 Capture'
+  String get shortcuts => '⌥Space Quick window · ⌥⇧2 Capture';
 }
 
 // Path: settings.general
@@ -1326,9 +1481,6 @@ class TranslationsAppTrayContextMenuDevToolsEn {
 
   /// en: 'Open Data Directory'
   String get open_data_directory => 'Open Data Directory';
-
-  /// en: 'Use Native Settings Page'
-  String get use_native_settings => 'Use Native Settings Page';
 }
 
 // Path: settings.general.editor.row
@@ -1557,8 +1709,6 @@ extension on Translations {
       'app.tray.context_menu.dev_tools.title' => 'Dev Tools',
       'app.tray.context_menu.dev_tools.open_data_directory' =>
         'Open Data Directory',
-      'app.tray.context_menu.dev_tools.use_native_settings' =>
-        'Use Native Settings Page',
       'app.tray.context_menu.check_for_updates' => 'Check for Updates',
       'app.tray.context_menu.settings' => 'Settings',
       'app.tray.context_menu.quit' => 'Quit',
@@ -1605,6 +1755,43 @@ extension on Translations {
         'No default text recognition service configured. Please set one in Settings.',
       'mini_translator.message.ocr_recognition_failed' =>
         'Text recognition failed',
+      'workbench.workspace' => 'Workspace',
+      'workbench.translate' => 'Translate',
+      'workbench.document' => 'Document Translation',
+      'workbench.history' => 'Favorites & History',
+      'workbench.glossary' => 'Glossary',
+      'workbench.recent_languages' => 'Recent Languages',
+      'workbench.not_configured' => 'Not configured',
+      'workbench.subtitle.translate' => 'Workbench · Engine comparison',
+      'workbench.subtitle.settings' => 'Settings',
+      'workbench.placeholder.document' => 'Document translation is being built',
+      'workbench.placeholder.history' =>
+        'Favorites and history will be available in a future release',
+      'workbench.placeholder.glossary' => 'Glossary management is being built',
+      'workbench.translation.source' => 'Source',
+      'workbench.translation.target' => 'Translation',
+      'workbench.translation.input_hint' => 'Enter or paste text to translate',
+      'workbench.translation.button' => 'Translate',
+      'workbench.translation.auto_detected' => 'Auto detected',
+      'workbench.translation.loading_services' =>
+        'Loading translation services…',
+      'workbench.translation.no_services' =>
+        'Configure a translation service in Settings first',
+      'workbench.translation.translating' => 'Translating…',
+      'workbench.translation.failed' =>
+        'Translation failed. Check the service configuration and try again.',
+      'workbench.translation.empty' => 'The translation will appear here',
+      'workbench.translation.engine_compare' => 'Engine comparison',
+      'workbench.translation.main_translation' => 'Primary',
+      'workbench.translation.service_unavailable' => 'Service unavailable',
+      'workbench.translation.waiting' => 'Waiting to translate',
+      'workbench.translation.read' => 'Read aloud',
+      'workbench.translation.copy' => 'Copy',
+      'workbench.translation.favorite_unavailable' =>
+        'Favorites will be available in a future release',
+      'workbench.status.runtime_ready' => 'Translation runtime ready',
+      'workbench.status.settings_synced' => 'Settings synced',
+      'workbench.status.shortcuts' => '⌥Space Quick window · ⌥⇧2 Capture',
       'settings.version' => 'v{} (Build {})',
       'settings.general.title' => 'General',
       'settings.general.section.permissions' => 'Permissions',

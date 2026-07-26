@@ -1,8 +1,8 @@
 import Cocoa
 import FlutterMacOS
-import SwiftUI
 import beyondtranslate_runtime
 
+@main
 class AppDelegate: FlutterAppDelegate {
   private var engine: FlutterEngine?
 
@@ -12,9 +12,6 @@ class AppDelegate: FlutterAppDelegate {
       return engine
     }
 
-    SettingsWindowController.shared.installPresentationGate()
-    ThemeAppearanceController.applySavedPreference()
-
     let engine = FlutterEngine(
       name: "beyondtranslate",
       project: nil,
@@ -22,9 +19,6 @@ class AppDelegate: FlutterAppDelegate {
     )
     engine.run(withEntrypoint: nil)
     RegisterGeneratedPlugins(registry: engine)
-    MacSettingsPlugin.register(
-      with: engine.registrar(forPlugin: "MacSettingsPlugin")
-    )
     MacWindowAppearancePlugin.register(
       with: engine.registrar(forPlugin: "MacWindowAppearancePlugin")
     )
@@ -54,18 +48,5 @@ class AppDelegate: FlutterAppDelegate {
       "[beyondtranslate_runtime] greet(name: \"AppDelegate\") = %@",
       greet(name: "AppDelegate")
     )
-  }
-}
-
-@main
-struct RunnerApp: App {
-  @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-
-  var body: some Scene {
-    let _ = appDelegate.flutterEngine
-
-    Window("Settings", id: "AppSettings") {
-      SettingsView()
-    }
   }
 }

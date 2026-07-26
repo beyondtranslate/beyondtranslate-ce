@@ -1,6 +1,8 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
+import 'themes/design_theme.dart';
+
 class PreferenceListItem extends StatelessWidget {
   const PreferenceListItem({
     Key? key,
@@ -29,10 +31,15 @@ class PreferenceListItem extends StatelessWidget {
     onTap?.call();
   }
 
+  bool get isInteractive => onTap != null;
+
   Widget buildDetailText(BuildContext context) {
     if (detailText != null) {
       return DefaultTextStyle(
-        style: Theme.of(context).textTheme.bodySmall!,
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: context.design.text.withValues(alpha: 0.60),
+              fontSize: 12.5,
+            ),
         child: detailText!,
       );
     } else {
@@ -43,7 +50,7 @@ class PreferenceListItem extends StatelessWidget {
   Widget buildAccessoryView(BuildContext context) {
     if (accessoryView != null) {
       return accessoryView!;
-    } else {
+    } else if (onTap != null) {
       return Padding(
         padding: const EdgeInsets.only(left: 4),
         child: Icon(
@@ -53,6 +60,7 @@ class PreferenceListItem extends StatelessWidget {
         ),
       );
     }
+    return const SizedBox.shrink();
   }
 
   Widget buildBottomView(BuildContext context) {
@@ -61,27 +69,33 @@ class PreferenceListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
+    final colors = context.design;
+    final textTheme = Theme.of(context).textTheme;
     return Material(
-      color: Theme.of(context).canvasColor,
+      color: Colors.transparent,
       child: InkWell(
         splashColor: Colors.transparent,
-        onTap: disabled ? null : _onTap,
+        hoverColor: colors.accent.withValues(alpha: 0.08),
+        highlightColor: colors.accent.withValues(alpha: 0.12),
+        onTap: disabled || !isInteractive ? null : _onTap,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: double.infinity,
-              constraints: const BoxConstraints(
-                minHeight: 48,
+              constraints: BoxConstraints(
+                minHeight: summary == null ? 24 : 38,
               ),
-              padding: padding ?? const EdgeInsets.fromLTRB(12, 0, 12, 0),
+              padding: padding ?? EdgeInsets.zero,
               child: Row(
                 children: [
                   if (icon != null)
                     Container(
                       margin: const EdgeInsets.only(right: 10),
-                      child: icon,
+                      child: IconTheme(
+                        data: IconThemeData(color: colors.accent, size: 18),
+                        child: icon!,
+                      ),
                     ),
                   if (title != null || summary != null)
                     Expanded(
@@ -91,12 +105,18 @@ class PreferenceListItem extends StatelessWidget {
                         children: [
                           if (title != null)
                             DefaultTextStyle(
-                              style: textTheme.bodyMedium!,
+                              style: textTheme.bodyMedium!.copyWith(
+                                color: colors.text,
+                                fontSize: 13,
+                              ),
                               child: title!,
                             ),
                           if (summary != null)
                             DefaultTextStyle(
-                              style: textTheme.bodySmall!,
+                              style: textTheme.bodySmall!.copyWith(
+                                color: colors.quietText,
+                                fontSize: 11.5,
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.only(
                                   top: 2,
@@ -149,6 +169,9 @@ class PreferenceListRadioItem<T> extends PreferenceListItem {
   final ValueChanged<T> onChanged;
 
   @override
+  bool get isInteractive => true;
+
+  @override
   void _onTap() {
     onChanged(value);
     super._onTap();
@@ -156,17 +179,30 @@ class PreferenceListRadioItem<T> extends PreferenceListItem {
 
   @override
   Widget buildAccessoryView(BuildContext context) {
-    if (value != null && value == groupValue) {
-      return Container(
-        margin: EdgeInsets.zero,
-        child: Icon(
-          FluentIcons.checkmark_circle_20_filled,
-          size: 22,
-          color: Theme.of(context).primaryColor,
+    final selected = value != null && value == groupValue;
+    final colors = context.design;
+    return Container(
+      width: 15,
+      height: 15,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: selected ? colors.accent : colors.text.withValues(alpha: 0.28),
         ),
-      );
-    }
-    return Container();
+      ),
+      child: selected
+          ? Center(
+              child: Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: colors.accent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            )
+          : null,
+    );
   }
 }
 
@@ -196,6 +232,9 @@ class PreferenceListSwitchItem extends PreferenceListItem {
   final ValueChanged<bool> onChanged;
 
   @override
+  bool get isInteractive => true;
+
+  @override
   void _onTap() {
     if (onTap == null) {
       onChanged(!value);
@@ -205,16 +244,41 @@ class PreferenceListSwitchItem extends PreferenceListItem {
 
   @override
   Widget buildAccessoryView(BuildContext context) {
-    return SizedBox(
-      height: 22,
-      width: 34,
-      child: Transform.scale(
-        scale: 0.68,
-        child: Switch(
-          value: value,
-          onChanged: disabled ? null : onChanged,
-          activeTrackColor: Theme.of(context).primaryColor,
-        ),
+    final colors = context.design;
+    final trackColor = disabled
+        ? colors.text.withValues(alpha: 0.10)
+        : value
+            ? colors.accent
+            : Colors.transparent;
+    final borderColor = disabled
+        ? colors.text.withValues(alpha: 0.16)
+        : value
+            ? colors.accent
+            : colors.text.withValues(alpha: 0.28);
+    final knobColor = disabled
+        ? colors.text.withValues(alpha: 0.24)
+        : value
+            ? colors.paper
+            : colors.text.withValues(alpha: 0.40);
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 160),
+      curve: Curves.easeOut,
+      width: 38,
+      height: 18,
+      decoration: BoxDecoration(
+        color: trackColor,
+        border: Border.all(color: borderColor),
+      ),
+      child: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 160),
+            curve: const Cubic(0.32, 0.72, 0, 1),
+            top: 2,
+            left: value ? 22 : 2,
+            child: Container(width: 12, height: 12, color: knobColor),
+          ),
+        ],
       ),
     );
   }

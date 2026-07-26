@@ -14,7 +14,6 @@ import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
 import '../../routes/settings/general.dart' show GeneralSettingsPage;
 import '../../services/llm_stream.dart';
-import '../../services/mac_settings.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
 import '../../services/shortcut_service/shortcut_service.dart';
@@ -25,6 +24,7 @@ import '../app_router.dart'
     show
         miniTranslatorPositionAtCursorScreenTopRight,
         miniTranslatorWindowController,
+        showWorkbenchWindow,
         showSettingsWindow;
 import 'limited_functionality_banner.dart';
 import 'translation_input_view.dart';
@@ -168,8 +168,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         _window.setPosition(position.dx, position.dy);
       }
     }
-    await Future.delayed(const Duration(milliseconds: 100));
-    await _windowShow();
     _setStateAndScheduleWindowResize(() {});
   }
 
@@ -667,21 +665,13 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   }
 
   void _handleManageCommonLanguages() {
-    if (kIsMacOS) {
-      MacSettings.showAndOpenCommonLanguages();
-    } else {
-      showSettingsWindow();
-      GeneralSettingsPage.pendingOpenCommonLanguages = true;
-    }
+    GeneralSettingsPage.pendingOpenCommonLanguages = true;
+    showSettingsWindow();
   }
 
   void _handleAddTarget() {
-    if (kIsMacOS) {
-      MacSettings.showAndOpenAddTarget();
-    } else {
-      showSettingsWindow();
-      GeneralSettingsPage.pendingOpenAddTarget = true;
-    }
+    GeneralSettingsPage.pendingOpenAddTarget = true;
+    showSettingsWindow();
   }
 
   void _handleTextChanged(
@@ -976,29 +966,41 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           // macOS 26 style: center area kept empty for a clean, floating look
           const Spacer(),
           SizedBox(
-            width: 52,
+            width: 60,
             height: 24,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Button(
-                minSize: 0,
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  showSettingsWindow();
-                },
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Button(
+                  minSize: 0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () => showWorkbenchWindow(text: _text),
                   child: Icon(
-                    FluentIcons.settings_20_regular,
+                    FluentIcons.open_20_regular,
                     size: 18,
                     color: theme.iconTheme.color?.withValues(alpha: 0.6),
                   ),
                 ),
-              ),
+                Button(
+                  minSize: 0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    showSettingsWindow();
+                  },
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      FluentIcons.settings_20_regular,
+                      size: 18,
+                      color: theme.iconTheme.color?.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

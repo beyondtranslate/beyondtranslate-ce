@@ -62,6 +62,9 @@ class TranslationsJa extends Translations
   late final _TranslationsMiniTranslatorJa mini_translator =
       _TranslationsMiniTranslatorJa._(_root);
   @override
+  late final _TranslationsWorkbenchJa workbench =
+      _TranslationsWorkbenchJa._(_root);
+  @override
   late final _TranslationsSettingsJa settings =
       _TranslationsSettingsJa._(_root);
 }
@@ -131,6 +134,43 @@ class _TranslationsMiniTranslatorJa extends TranslationsMiniTranslatorEn {
   @override
   late final _TranslationsMiniTranslatorMessageJa message =
       _TranslationsMiniTranslatorMessageJa._(_root);
+}
+
+// Path: workbench
+class _TranslationsWorkbenchJa extends TranslationsWorkbenchEn {
+  _TranslationsWorkbenchJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get workspace => 'ワークスペース';
+  @override
+  String get translate => '翻訳';
+  @override
+  String get document => '文書翻訳';
+  @override
+  String get history => 'お気に入りと履歴';
+  @override
+  String get glossary => '用語集';
+  @override
+  String get recent_languages => '最近の言語';
+  @override
+  String get not_configured => '未設定';
+  @override
+  late final _TranslationsWorkbenchSubtitleJa subtitle =
+      _TranslationsWorkbenchSubtitleJa._(_root);
+  @override
+  late final _TranslationsWorkbenchPlaceholderJa placeholder =
+      _TranslationsWorkbenchPlaceholderJa._(_root);
+  @override
+  late final _TranslationsWorkbenchTranslationJa translation =
+      _TranslationsWorkbenchTranslationJa._(_root);
+  @override
+  late final _TranslationsWorkbenchStatusJa status =
+      _TranslationsWorkbenchStatusJa._(_root);
 }
 
 // Path: settings
@@ -469,6 +509,102 @@ class _TranslationsMiniTranslatorMessageJa
       'デフォルトのテキスト認識サービスが設定されていません。設定で設定してください。';
   @override
   String get ocr_recognition_failed => 'テキスト認識に失敗しました';
+}
+
+// Path: workbench.subtitle
+class _TranslationsWorkbenchSubtitleJa extends TranslationsWorkbenchSubtitleEn {
+  _TranslationsWorkbenchSubtitleJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translate => 'ワークベンチ · エンジン比較';
+  @override
+  String get settings => '設定';
+}
+
+// Path: workbench.placeholder
+class _TranslationsWorkbenchPlaceholderJa
+    extends TranslationsWorkbenchPlaceholderEn {
+  _TranslationsWorkbenchPlaceholderJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get document => '文書翻訳は開発中です';
+  @override
+  String get history => 'お気に入りと履歴は今後のリリースで提供します';
+  @override
+  String get glossary => '用語集管理は開発中です';
+}
+
+// Path: workbench.translation
+class _TranslationsWorkbenchTranslationJa
+    extends TranslationsWorkbenchTranslationEn {
+  _TranslationsWorkbenchTranslationJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get source => '原文';
+  @override
+  String get target => '訳文';
+  @override
+  String get input_hint => '翻訳するテキストを入力または貼り付け';
+  @override
+  String get button => '翻訳';
+  @override
+  String get auto_detected => '自動検出';
+  @override
+  String get loading_services => '翻訳サービスを読み込み中…';
+  @override
+  String get no_services => '先に設定で翻訳サービスを構成してください';
+  @override
+  String get translating => '翻訳中…';
+  @override
+  String get failed => '翻訳に失敗しました。サービス設定を確認してください。';
+  @override
+  String get empty => '訳文がここに表示されます';
+  @override
+  String get engine_compare => 'エンジン比較';
+  @override
+  String get main_translation => 'メイン';
+  @override
+  String get service_unavailable => 'サービスを利用できません';
+  @override
+  String get waiting => '翻訳待ち';
+  @override
+  String get read => '読み上げ';
+  @override
+  String get copy => 'コピー';
+  @override
+  String get favorite_unavailable => 'お気に入りは今後のリリースで提供します';
+}
+
+// Path: workbench.status
+class _TranslationsWorkbenchStatusJa extends TranslationsWorkbenchStatusEn {
+  _TranslationsWorkbenchStatusJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get runtime_ready => '翻訳ランタイム準備完了';
+  @override
+  String get settings_synced => '設定を同期済み';
+  @override
+  String get shortcuts => '⌥Space クイックウィンドウ · ⌥⇧2 キャプチャ';
 }
 
 // Path: settings.general
@@ -1331,8 +1467,6 @@ class _TranslationsAppTrayContextMenuDevToolsJa
   String get title => '開発ツール';
   @override
   String get open_data_directory => 'データディレクトリを開く';
-  @override
-  String get use_native_settings => 'ネイティブ設定ページを使用';
 }
 
 // Path: settings.general.editor.row
@@ -1569,7 +1703,6 @@ extension on TranslationsJa {
       'app.tray.context_menu.show_window' => 'ウィンドウを表示',
       'app.tray.context_menu.dev_tools.title' => '開発ツール',
       'app.tray.context_menu.dev_tools.open_data_directory' => 'データディレクトリを開く',
-      'app.tray.context_menu.dev_tools.use_native_settings' => 'ネイティブ設定ページを使用',
       'app.tray.context_menu.check_for_updates' => 'アップデートを確認',
       'app.tray.context_menu.settings' => '設定',
       'app.tray.context_menu.quit' => '終了',
@@ -1612,6 +1745,38 @@ extension on TranslationsJa {
       'mini_translator.message.ocr_service_not_configured' =>
         'デフォルトのテキスト認識サービスが設定されていません。設定で設定してください。',
       'mini_translator.message.ocr_recognition_failed' => 'テキスト認識に失敗しました',
+      'workbench.workspace' => 'ワークスペース',
+      'workbench.translate' => '翻訳',
+      'workbench.document' => '文書翻訳',
+      'workbench.history' => 'お気に入りと履歴',
+      'workbench.glossary' => '用語集',
+      'workbench.recent_languages' => '最近の言語',
+      'workbench.not_configured' => '未設定',
+      'workbench.subtitle.translate' => 'ワークベンチ · エンジン比較',
+      'workbench.subtitle.settings' => '設定',
+      'workbench.placeholder.document' => '文書翻訳は開発中です',
+      'workbench.placeholder.history' => 'お気に入りと履歴は今後のリリースで提供します',
+      'workbench.placeholder.glossary' => '用語集管理は開発中です',
+      'workbench.translation.source' => '原文',
+      'workbench.translation.target' => '訳文',
+      'workbench.translation.input_hint' => '翻訳するテキストを入力または貼り付け',
+      'workbench.translation.button' => '翻訳',
+      'workbench.translation.auto_detected' => '自動検出',
+      'workbench.translation.loading_services' => '翻訳サービスを読み込み中…',
+      'workbench.translation.no_services' => '先に設定で翻訳サービスを構成してください',
+      'workbench.translation.translating' => '翻訳中…',
+      'workbench.translation.failed' => '翻訳に失敗しました。サービス設定を確認してください。',
+      'workbench.translation.empty' => '訳文がここに表示されます',
+      'workbench.translation.engine_compare' => 'エンジン比較',
+      'workbench.translation.main_translation' => 'メイン',
+      'workbench.translation.service_unavailable' => 'サービスを利用できません',
+      'workbench.translation.waiting' => '翻訳待ち',
+      'workbench.translation.read' => '読み上げ',
+      'workbench.translation.copy' => 'コピー',
+      'workbench.translation.favorite_unavailable' => 'お気に入りは今後のリリースで提供します',
+      'workbench.status.runtime_ready' => '翻訳ランタイム準備完了',
+      'workbench.status.settings_synced' => '設定を同期済み',
+      'workbench.status.shortcuts' => '⌥Space クイックウィンドウ · ⌥⇧2 キャプチャ',
       'settings.version' => 'v{} (Build {})',
       'settings.general.title' => '一般',
       'settings.general.section.permissions' => '権限',

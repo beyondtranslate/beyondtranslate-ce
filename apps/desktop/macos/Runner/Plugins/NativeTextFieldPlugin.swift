@@ -41,7 +41,8 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   private let padding: NSEdgeInsets
   private let isMultiline: Bool
   private let obscureText: Bool
-  private let submitOnEnter: Bool
+  private var submitOnEnter: Bool
+  private var submitOnMetaEnter: Bool
   private var placeholder: String
   private let textStyle: NativeTextStyle
   private var placeholderStyle: NativeTextStyle
@@ -67,6 +68,7 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     padding = NativeTextFieldView.decodePadding(args["padding"])
     obscureText = args["obscureText"] as? Bool ?? false
     submitOnEnter = args["submitOnEnter"] as? Bool ?? false
+    submitOnMetaEnter = args["submitOnMetaEnter"] as? Bool ?? false
     let maxLines = NativeTextFieldView.decodeInt(args["maxLines"]) ?? 1
     isMultiline = !obscureText && maxLines != 1
     placeholder = args["placeholder"] as? String ?? ""
@@ -177,9 +179,14 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   }
 
   func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-    guard commandSelector == #selector(NSResponder.insertNewline(_:)), submitOnEnter else {
+    guard commandSelector == #selector(NSResponder.insertNewline(_:)) else {
       return false
     }
+    let modifiers =
+      NSApp.currentEvent?.modifierFlags.intersection(.deviceIndependentFlagsMask) ?? []
+    let shouldSubmit =
+      submitOnEnter || (submitOnMetaEnter && modifiers.contains(.command))
+    guard shouldSubmit else { return false }
     channel.invokeMethod("submitted", arguments: currentText())
     return true
   }
@@ -288,6 +295,11 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
           enabled: args["enabled"] as? Bool ?? true,
           readOnly: args["readOnly"] as? Bool ?? false
         )
+        result(nil)
+      case "setSubmitMode":
+        let args = call.arguments as? [String: Any] ?? [:]
+        self.submitOnEnter = args["submitOnEnter"] as? Bool ?? false
+        self.submitOnMetaEnter = args["submitOnMetaEnter"] as? Bool ?? false
         result(nil)
       default:
         result(FlutterMethodNotImplemented)

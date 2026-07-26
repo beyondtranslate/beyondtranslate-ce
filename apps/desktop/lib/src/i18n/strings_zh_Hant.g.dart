@@ -63,6 +63,9 @@ class TranslationsZhHant extends Translations
   late final _TranslationsMiniTranslatorZhHant mini_translator =
       _TranslationsMiniTranslatorZhHant._(_root);
   @override
+  late final _TranslationsWorkbenchZhHant workbench =
+      _TranslationsWorkbenchZhHant._(_root);
+  @override
   late final _TranslationsSettingsZhHant settings =
       _TranslationsSettingsZhHant._(_root);
 }
@@ -134,6 +137,43 @@ class _TranslationsMiniTranslatorZhHant extends TranslationsMiniTranslatorEn {
   @override
   late final _TranslationsMiniTranslatorMessageZhHant message =
       _TranslationsMiniTranslatorMessageZhHant._(_root);
+}
+
+// Path: workbench
+class _TranslationsWorkbenchZhHant extends TranslationsWorkbenchEn {
+  _TranslationsWorkbenchZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get workspace => '工作區';
+  @override
+  String get translate => '翻譯';
+  @override
+  String get document => '文件翻譯';
+  @override
+  String get history => '收藏與歷史';
+  @override
+  String get glossary => '術語表';
+  @override
+  String get recent_languages => '最近語言';
+  @override
+  String get not_configured => '尚未設定';
+  @override
+  late final _TranslationsWorkbenchSubtitleZhHant subtitle =
+      _TranslationsWorkbenchSubtitleZhHant._(_root);
+  @override
+  late final _TranslationsWorkbenchPlaceholderZhHant placeholder =
+      _TranslationsWorkbenchPlaceholderZhHant._(_root);
+  @override
+  late final _TranslationsWorkbenchTranslationZhHant translation =
+      _TranslationsWorkbenchTranslationZhHant._(_root);
+  @override
+  late final _TranslationsWorkbenchStatusZhHant status =
+      _TranslationsWorkbenchStatusZhHant._(_root);
 }
 
 // Path: settings
@@ -473,6 +513,103 @@ class _TranslationsMiniTranslatorMessageZhHant
   String get ocr_service_not_configured => '未配置預設文字辨識服務，請在設定中配置。';
   @override
   String get ocr_recognition_failed => '文字辨識失敗';
+}
+
+// Path: workbench.subtitle
+class _TranslationsWorkbenchSubtitleZhHant
+    extends TranslationsWorkbenchSubtitleEn {
+  _TranslationsWorkbenchSubtitleZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translate => '工作台 · 多引擎對照';
+  @override
+  String get settings => '設定';
+}
+
+// Path: workbench.placeholder
+class _TranslationsWorkbenchPlaceholderZhHant
+    extends TranslationsWorkbenchPlaceholderEn {
+  _TranslationsWorkbenchPlaceholderZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get document => '文件翻譯正在建置中';
+  @override
+  String get history => '收藏與歷史將在後續版本提供';
+  @override
+  String get glossary => '術語表管理正在建置中';
+}
+
+// Path: workbench.translation
+class _TranslationsWorkbenchTranslationZhHant
+    extends TranslationsWorkbenchTranslationEn {
+  _TranslationsWorkbenchTranslationZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get source => '原文';
+  @override
+  String get target => '譯文';
+  @override
+  String get input_hint => '輸入或貼上需要翻譯的文字';
+  @override
+  String get button => '翻譯';
+  @override
+  String get auto_detected => '已自動偵測';
+  @override
+  String get loading_services => '正在載入翻譯服務…';
+  @override
+  String get no_services => '請先在設定中配置翻譯服務';
+  @override
+  String get translating => '正在翻譯…';
+  @override
+  String get failed => '翻譯失敗，請檢查服務設定後重試';
+  @override
+  String get empty => '譯文將顯示於此';
+  @override
+  String get engine_compare => '引擎比較';
+  @override
+  String get main_translation => '主譯文';
+  @override
+  String get service_unavailable => '服務暫不可用';
+  @override
+  String get waiting => '等待翻譯';
+  @override
+  String get read => '朗讀';
+  @override
+  String get copy => '複製';
+  @override
+  String get favorite_unavailable => '收藏功能將在後續版本提供';
+}
+
+// Path: workbench.status
+class _TranslationsWorkbenchStatusZhHant extends TranslationsWorkbenchStatusEn {
+  _TranslationsWorkbenchStatusZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get runtime_ready => '翻譯執行環境已就緒';
+  @override
+  String get settings_synced => '設定已同步';
+  @override
+  String get shortcuts => '⌥Space 小窗 · ⌥⇧2 截圖';
 }
 
 // Path: settings.general
@@ -1343,8 +1480,6 @@ class _TranslationsAppTrayContextMenuDevToolsZhHant
   String get title => '開發工具';
   @override
   String get open_data_directory => '開啟資料目錄';
-  @override
-  String get use_native_settings => '使用原生設定頁面';
 }
 
 // Path: settings.general.editor.row
@@ -1584,7 +1719,6 @@ extension on TranslationsZhHant {
       'app.tray.context_menu.show_window' => '顯示視窗',
       'app.tray.context_menu.dev_tools.title' => '開發工具',
       'app.tray.context_menu.dev_tools.open_data_directory' => '開啟資料目錄',
-      'app.tray.context_menu.dev_tools.use_native_settings' => '使用原生設定頁面',
       'app.tray.context_menu.check_for_updates' => '檢查更新',
       'app.tray.context_menu.settings' => '設定',
       'app.tray.context_menu.quit' => '結束',
@@ -1624,6 +1758,38 @@ extension on TranslationsZhHant {
       'mini_translator.message.ocr_service_not_configured' =>
         '未配置預設文字辨識服務，請在設定中配置。',
       'mini_translator.message.ocr_recognition_failed' => '文字辨識失敗',
+      'workbench.workspace' => '工作區',
+      'workbench.translate' => '翻譯',
+      'workbench.document' => '文件翻譯',
+      'workbench.history' => '收藏與歷史',
+      'workbench.glossary' => '術語表',
+      'workbench.recent_languages' => '最近語言',
+      'workbench.not_configured' => '尚未設定',
+      'workbench.subtitle.translate' => '工作台 · 多引擎對照',
+      'workbench.subtitle.settings' => '設定',
+      'workbench.placeholder.document' => '文件翻譯正在建置中',
+      'workbench.placeholder.history' => '收藏與歷史將在後續版本提供',
+      'workbench.placeholder.glossary' => '術語表管理正在建置中',
+      'workbench.translation.source' => '原文',
+      'workbench.translation.target' => '譯文',
+      'workbench.translation.input_hint' => '輸入或貼上需要翻譯的文字',
+      'workbench.translation.button' => '翻譯',
+      'workbench.translation.auto_detected' => '已自動偵測',
+      'workbench.translation.loading_services' => '正在載入翻譯服務…',
+      'workbench.translation.no_services' => '請先在設定中配置翻譯服務',
+      'workbench.translation.translating' => '正在翻譯…',
+      'workbench.translation.failed' => '翻譯失敗，請檢查服務設定後重試',
+      'workbench.translation.empty' => '譯文將顯示於此',
+      'workbench.translation.engine_compare' => '引擎比較',
+      'workbench.translation.main_translation' => '主譯文',
+      'workbench.translation.service_unavailable' => '服務暫不可用',
+      'workbench.translation.waiting' => '等待翻譯',
+      'workbench.translation.read' => '朗讀',
+      'workbench.translation.copy' => '複製',
+      'workbench.translation.favorite_unavailable' => '收藏功能將在後續版本提供',
+      'workbench.status.runtime_ready' => '翻譯執行環境已就緒',
+      'workbench.status.settings_synced' => '設定已同步',
+      'workbench.status.shortcuts' => '⌥Space 小窗 · ⌥⇧2 截圖',
       'settings.version' => 'v{} (Build {})',
       'settings.general.title' => '一般',
       'settings.general.section.permissions' => '權限',

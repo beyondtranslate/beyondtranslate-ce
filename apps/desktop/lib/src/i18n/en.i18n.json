@@ -82,8 +82,7 @@
         "show_window": "Show Window",
         "dev_tools": {
           "title": "Dev Tools",
-          "open_data_directory": "Open Data Directory",
-          "use_native_settings": "Use Native Settings Page"
+          "open_data_directory": "Open Data Directory"
         },
         "check_for_updates": "Check for Updates",
         "settings": "Settings",
@@ -143,6 +142,48 @@
       "capture_screen_area_canceled": "Capture screen area has been canceled",
       "ocr_service_not_configured": "No default text recognition service configured. Please set one in Settings.",
       "ocr_recognition_failed": "Text recognition failed"
+    }
+  },
+  "workbench": {
+    "workspace": "Workspace",
+    "translate": "Translate",
+    "document": "Document Translation",
+    "history": "Favorites & History",
+    "glossary": "Glossary",
+    "recent_languages": "Recent Languages",
+    "not_configured": "Not configured",
+    "subtitle": {
+      "translate": "Workbench · Engine comparison",
+      "settings": "Settings"
+    },
+    "placeholder": {
+      "document": "Document translation is being built",
+      "history": "Favorites and history will be available in a future release",
+      "glossary": "Glossary management is being built"
+    },
+    "translation": {
+      "source": "Source",
+      "target": "Translation",
+      "input_hint": "Enter or paste text to translate",
+      "button": "Translate",
+      "auto_detected": "Auto detected",
+      "loading_services": "Loading translation services…",
+      "no_services": "Configure a translation service in Settings first",
+      "translating": "Translating…",
+      "failed": "Translation failed. Check the service configuration and try again.",
+      "empty": "The translation will appear here",
+      "engine_compare": "Engine comparison",
+      "main_translation": "Primary",
+      "service_unavailable": "Service unavailable",
+      "waiting": "Waiting to translate",
+      "read": "Read aloud",
+      "copy": "Copy",
+      "favorite_unavailable": "Favorites will be available in a future release"
+    },
+    "status": {
+      "runtime_ready": "Translation runtime ready",
+      "settings_synced": "Settings synced",
+      "shortcuts": "⌥Space Quick window · ⌥⇧2 Capture"
     }
   },
   "settings": {

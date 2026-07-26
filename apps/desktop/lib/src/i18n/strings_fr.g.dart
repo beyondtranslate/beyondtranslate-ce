@@ -62,6 +62,9 @@ class TranslationsFr extends Translations
   late final _TranslationsMiniTranslatorFr mini_translator =
       _TranslationsMiniTranslatorFr._(_root);
   @override
+  late final _TranslationsWorkbenchFr workbench =
+      _TranslationsWorkbenchFr._(_root);
+  @override
   late final _TranslationsSettingsFr settings =
       _TranslationsSettingsFr._(_root);
 }
@@ -131,6 +134,43 @@ class _TranslationsMiniTranslatorFr extends TranslationsMiniTranslatorEn {
   @override
   late final _TranslationsMiniTranslatorMessageFr message =
       _TranslationsMiniTranslatorMessageFr._(_root);
+}
+
+// Path: workbench
+class _TranslationsWorkbenchFr extends TranslationsWorkbenchEn {
+  _TranslationsWorkbenchFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get workspace => 'Espace de travail';
+  @override
+  String get translate => 'Traduire';
+  @override
+  String get document => 'Traduction de documents';
+  @override
+  String get history => 'Favoris et historique';
+  @override
+  String get glossary => 'Glossaire';
+  @override
+  String get recent_languages => 'Langues récentes';
+  @override
+  String get not_configured => 'Non configuré';
+  @override
+  late final _TranslationsWorkbenchSubtitleFr subtitle =
+      _TranslationsWorkbenchSubtitleFr._(_root);
+  @override
+  late final _TranslationsWorkbenchPlaceholderFr placeholder =
+      _TranslationsWorkbenchPlaceholderFr._(_root);
+  @override
+  late final _TranslationsWorkbenchTranslationFr translation =
+      _TranslationsWorkbenchTranslationFr._(_root);
+  @override
+  late final _TranslationsWorkbenchStatusFr status =
+      _TranslationsWorkbenchStatusFr._(_root);
 }
 
 // Path: settings
@@ -471,6 +511,107 @@ class _TranslationsMiniTranslatorMessageFr
       'Aucun service de reconnaissance de texte par défaut configuré. Veuillez en définir un dans les Paramètres.';
   @override
   String get ocr_recognition_failed => 'La reconnaissance de texte a échoué';
+}
+
+// Path: workbench.subtitle
+class _TranslationsWorkbenchSubtitleFr extends TranslationsWorkbenchSubtitleEn {
+  _TranslationsWorkbenchSubtitleFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translate => 'Atelier · Comparaison des moteurs';
+  @override
+  String get settings => 'Réglages';
+}
+
+// Path: workbench.placeholder
+class _TranslationsWorkbenchPlaceholderFr
+    extends TranslationsWorkbenchPlaceholderEn {
+  _TranslationsWorkbenchPlaceholderFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get document =>
+      'La traduction de documents est en cours de développement';
+  @override
+  String get history =>
+      'Les favoris et l’historique seront disponibles ultérieurement';
+  @override
+  String get glossary =>
+      'La gestion du glossaire est en cours de développement';
+}
+
+// Path: workbench.translation
+class _TranslationsWorkbenchTranslationFr
+    extends TranslationsWorkbenchTranslationEn {
+  _TranslationsWorkbenchTranslationFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get source => 'Source';
+  @override
+  String get target => 'Traduction';
+  @override
+  String get input_hint => 'Saisissez ou collez le texte à traduire';
+  @override
+  String get button => 'Traduire';
+  @override
+  String get auto_detected => 'Détecté automatiquement';
+  @override
+  String get loading_services => 'Chargement des services de traduction…';
+  @override
+  String get no_services => 'Configurez d’abord un service de traduction';
+  @override
+  String get translating => 'Traduction…';
+  @override
+  String get failed =>
+      'Échec de la traduction. Vérifiez la configuration du service.';
+  @override
+  String get empty => 'La traduction apparaîtra ici';
+  @override
+  String get engine_compare => 'Comparaison des moteurs';
+  @override
+  String get main_translation => 'Principale';
+  @override
+  String get service_unavailable => 'Service indisponible';
+  @override
+  String get waiting => 'En attente';
+  @override
+  String get read => 'Lire';
+  @override
+  String get copy => 'Copier';
+  @override
+  String get favorite_unavailable =>
+      'Les favoris seront disponibles ultérieurement';
+}
+
+// Path: workbench.status
+class _TranslationsWorkbenchStatusFr extends TranslationsWorkbenchStatusEn {
+  _TranslationsWorkbenchStatusFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get runtime_ready => 'Moteur de traduction prêt';
+  @override
+  String get settings_synced => 'Réglages synchronisés';
+  @override
+  String get shortcuts => '⌥Space Fenêtre rapide · ⌥⇧2 Capture';
 }
 
 // Path: settings.general
@@ -1355,8 +1496,6 @@ class _TranslationsAppTrayContextMenuDevToolsFr
   String get title => 'Outils de développement';
   @override
   String get open_data_directory => 'Ouvrir le répertoire de données';
-  @override
-  String get use_native_settings => 'Utiliser la page de paramètres native';
 }
 
 // Path: settings.general.editor.row
@@ -1596,8 +1735,6 @@ extension on TranslationsFr {
       'app.tray.context_menu.dev_tools.title' => 'Outils de développement',
       'app.tray.context_menu.dev_tools.open_data_directory' =>
         'Ouvrir le répertoire de données',
-      'app.tray.context_menu.dev_tools.use_native_settings' =>
-        'Utiliser la page de paramètres native',
       'app.tray.context_menu.check_for_updates' => 'Vérifier les mises à jour',
       'app.tray.context_menu.settings' => 'Paramètres',
       'app.tray.context_menu.quit' => 'Quitter',
@@ -1646,6 +1783,46 @@ extension on TranslationsFr {
         'Aucun service de reconnaissance de texte par défaut configuré. Veuillez en définir un dans les Paramètres.',
       'mini_translator.message.ocr_recognition_failed' =>
         'La reconnaissance de texte a échoué',
+      'workbench.workspace' => 'Espace de travail',
+      'workbench.translate' => 'Traduire',
+      'workbench.document' => 'Traduction de documents',
+      'workbench.history' => 'Favoris et historique',
+      'workbench.glossary' => 'Glossaire',
+      'workbench.recent_languages' => 'Langues récentes',
+      'workbench.not_configured' => 'Non configuré',
+      'workbench.subtitle.translate' => 'Atelier · Comparaison des moteurs',
+      'workbench.subtitle.settings' => 'Réglages',
+      'workbench.placeholder.document' =>
+        'La traduction de documents est en cours de développement',
+      'workbench.placeholder.history' =>
+        'Les favoris et l’historique seront disponibles ultérieurement',
+      'workbench.placeholder.glossary' =>
+        'La gestion du glossaire est en cours de développement',
+      'workbench.translation.source' => 'Source',
+      'workbench.translation.target' => 'Traduction',
+      'workbench.translation.input_hint' =>
+        'Saisissez ou collez le texte à traduire',
+      'workbench.translation.button' => 'Traduire',
+      'workbench.translation.auto_detected' => 'Détecté automatiquement',
+      'workbench.translation.loading_services' =>
+        'Chargement des services de traduction…',
+      'workbench.translation.no_services' =>
+        'Configurez d’abord un service de traduction',
+      'workbench.translation.translating' => 'Traduction…',
+      'workbench.translation.failed' =>
+        'Échec de la traduction. Vérifiez la configuration du service.',
+      'workbench.translation.empty' => 'La traduction apparaîtra ici',
+      'workbench.translation.engine_compare' => 'Comparaison des moteurs',
+      'workbench.translation.main_translation' => 'Principale',
+      'workbench.translation.service_unavailable' => 'Service indisponible',
+      'workbench.translation.waiting' => 'En attente',
+      'workbench.translation.read' => 'Lire',
+      'workbench.translation.copy' => 'Copier',
+      'workbench.translation.favorite_unavailable' =>
+        'Les favoris seront disponibles ultérieurement',
+      'workbench.status.runtime_ready' => 'Moteur de traduction prêt',
+      'workbench.status.settings_synced' => 'Réglages synchronisés',
+      'workbench.status.shortcuts' => '⌥Space Fenêtre rapide · ⌥⇧2 Capture',
       'settings.version' => 'v{} (Build {})',
       'settings.general.title' => 'Général',
       'settings.general.section.permissions' => 'Autorisations',

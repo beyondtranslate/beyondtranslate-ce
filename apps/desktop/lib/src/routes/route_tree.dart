@@ -16,7 +16,17 @@ library route_tree;
 abstract final class RouteTree {
   static const String root = '/';
   static const DebugRouteTree debug = DebugRouteTree();
+  static const WorkbenchRouteTree workbench = WorkbenchRouteTree();
   static const SettingsRouteTree settings = SettingsRouteTree();
+}
+
+class WorkbenchRouteTree {
+  const WorkbenchRouteTree();
+
+  final String translate = '/translate';
+  final String document = '/document';
+  final String history = '/history';
+  final String glossary = '/glossary';
 }
 
 class DebugRouteTree {
@@ -24,6 +34,7 @@ class DebugRouteTree {
 
   final String path = '/debug';
   final String runtime = '/debug/runtime';
+  final String components = '/debug/components';
 }
 
 class SettingsRouteTree {
@@ -59,11 +70,36 @@ final List<RouteNode> routeNodes = <RouteNode>[
     parentId: 'root',
   ),
   RouteNode(
+    id: 'debug-components',
+    path: RouteTree.debug.components,
+    parentId: 'debug',
+  ),
+  RouteNode(
     id: 'debug-runtime',
     path: RouteTree.debug.runtime,
     parentId: 'debug',
   ),
   const RouteNode(id: 'root', path: RouteTree.root),
+  RouteNode(
+    id: 'workbench-document',
+    path: RouteTree.workbench.document,
+    parentId: 'root',
+  ),
+  RouteNode(
+    id: 'workbench-glossary',
+    path: RouteTree.workbench.glossary,
+    parentId: 'root',
+  ),
+  RouteNode(
+    id: 'workbench-history',
+    path: RouteTree.workbench.history,
+    parentId: 'root',
+  ),
+  RouteNode(
+    id: 'workbench-translate',
+    path: RouteTree.workbench.translate,
+    parentId: 'root',
+  ),
   RouteNode(
     id: 'settings',
     path: RouteTree.settings.path,

@@ -82,8 +82,7 @@
         "show_window": "Afficher la fenêtre",
         "dev_tools": {
           "title": "Outils de développement",
-          "open_data_directory": "Ouvrir le répertoire de données",
-          "use_native_settings": "Utiliser la page de paramètres native"
+          "open_data_directory": "Ouvrir le répertoire de données"
         },
         "check_for_updates": "Vérifier les mises à jour",
         "settings": "Paramètres",
@@ -143,6 +142,48 @@
       "capture_screen_area_canceled": "La capture de la zone d'écran a été annulée",
       "ocr_service_not_configured": "Aucun service de reconnaissance de texte par défaut configuré. Veuillez en définir un dans les Paramètres.",
       "ocr_recognition_failed": "La reconnaissance de texte a échoué"
+    }
+  },
+  "workbench": {
+    "workspace": "Espace de travail",
+    "translate": "Traduire",
+    "document": "Traduction de documents",
+    "history": "Favoris et historique",
+    "glossary": "Glossaire",
+    "recent_languages": "Langues récentes",
+    "not_configured": "Non configuré",
+    "subtitle": {
+      "translate": "Atelier · Comparaison des moteurs",
+      "settings": "Réglages"
+    },
+    "placeholder": {
+      "document": "La traduction de documents est en cours de développement",
+      "history": "Les favoris et l’historique seront disponibles ultérieurement",
+      "glossary": "La gestion du glossaire est en cours de développement"
+    },
+    "translation": {
+      "source": "Source",
+      "target": "Traduction",
+      "input_hint": "Saisissez ou collez le texte à traduire",
+      "button": "Traduire",
+      "auto_detected": "Détecté automatiquement",
+      "loading_services": "Chargement des services de traduction…",
+      "no_services": "Configurez d’abord un service de traduction",
+      "translating": "Traduction…",
+      "failed": "Échec de la traduction. Vérifiez la configuration du service.",
+      "empty": "La traduction apparaîtra ici",
+      "engine_compare": "Comparaison des moteurs",
+      "main_translation": "Principale",
+      "service_unavailable": "Service indisponible",
+      "waiting": "En attente",
+      "read": "Lire",
+      "copy": "Copier",
+      "favorite_unavailable": "Les favoris seront disponibles ultérieurement"
+    },
+    "status": {
+      "runtime_ready": "Moteur de traduction prêt",
+      "settings_synced": "Réglages synchronisés",
+      "shortcuts": "⌥Space Fenêtre rapide · ⌥⇧2 Capture"
     }
   },
   "settings": {

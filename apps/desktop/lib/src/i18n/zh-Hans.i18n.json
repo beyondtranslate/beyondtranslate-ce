@@ -82,8 +82,7 @@
         "show_window": "显示窗口",
         "dev_tools": {
           "title": "开发工具",
-          "open_data_directory": "打开数据目录",
-          "use_native_settings": "使用原生设置页面"
+          "open_data_directory": "打开数据目录"
         },
         "check_for_updates": "检查更新",
         "settings": "设置",
@@ -143,6 +142,48 @@
       "capture_screen_area_canceled": "截取屏幕区域已取消",
       "ocr_service_not_configured": "未配置默认文字识别服务，请在设置中配置。",
       "ocr_recognition_failed": "文字识别失败"
+    }
+  },
+  "workbench": {
+    "workspace": "工作区",
+    "translate": "翻译",
+    "document": "文档翻译",
+    "history": "收藏与历史",
+    "glossary": "术语表",
+    "recent_languages": "最近语言",
+    "not_configured": "尚未配置",
+    "subtitle": {
+      "translate": "工作台 · 多引擎对照",
+      "settings": "设置"
+    },
+    "placeholder": {
+      "document": "文档翻译正在建设中",
+      "history": "收藏与历史将在后续版本中提供",
+      "glossary": "术语表管理正在建设中"
+    },
+    "translation": {
+      "source": "原文",
+      "target": "译文",
+      "input_hint": "输入或粘贴需要翻译的文本",
+      "button": "翻译",
+      "auto_detected": "已自动检测",
+      "loading_services": "正在读取翻译服务…",
+      "no_services": "请先在设置中配置翻译服务",
+      "translating": "正在翻译…",
+      "failed": "翻译失败，请检查服务配置后重试",
+      "empty": "译文将在这里显示",
+      "engine_compare": "引擎对比",
+      "main_translation": "主译文",
+      "service_unavailable": "服务暂不可用",
+      "waiting": "等待翻译",
+      "read": "朗读",
+      "copy": "复制",
+      "favorite_unavailable": "收藏功能将在后续版本中提供"
+    },
+    "status": {
+      "runtime_ready": "翻译运行时已就绪",
+      "settings_synced": "设置已同步",
+      "shortcuts": "⌥Space 小窗 · ⌥⇧2 截图"
     }
   },
   "settings": {

@@ -169,13 +169,12 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
     final providersText = t.settings.providers;
 
     return SettingsPage(
-      title: providersText.title,
       children: [
         PreferenceListSection(
           title: const Text('Providers'),
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: const EdgeInsets.only(bottom: 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -218,7 +217,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
                       : () => _deleteService(service),
                 ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.only(top: 8),
               child: Row(
                 children: [
                   const Spacer(),
@@ -235,7 +234,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
           children: [
             if (_isLoading)
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.zero,
                 child: Row(
                   children: [
                     const SizedBox(
@@ -258,7 +257,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
                   onDelete: () => _deleteProvider(provider),
                 ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.only(top: 8),
               child: Row(
                 children: [
                   const Spacer(),
@@ -275,7 +274,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
           PreferenceListSection(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.zero,
                 child: SelectableText(
                   _errorMessage!,
                   style: TextStyle(

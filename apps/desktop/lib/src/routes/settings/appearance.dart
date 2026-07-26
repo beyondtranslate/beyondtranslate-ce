@@ -46,7 +46,6 @@ class _AppearanceSettingsPageState extends State<AppearanceSettingsPage> {
     final appearanceText = t.settings.appearance;
 
     return SettingsPage(
-      title: appearanceText.title,
       children: [
         PreferenceListSection(
           title: Text(appearanceText.section.app_language),

@@ -1,53 +1,36 @@
 import 'package:flutter/material.dart';
 
-import 'ui/preference_list.dart';
+import 'ui/themes/design_theme.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
     super.key,
-    required this.title,
     required this.children,
     this.actions = const [],
   });
 
-  final String title;
   final List<Widget> children;
   final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          height: 56,
-          padding: const EdgeInsetsDirectional.only(start: 28, end: 20),
-          alignment: Alignment.center,
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              ...actions,
-            ],
-          ),
+    final colors = context.design;
+    final blocks = <Widget>[
+      if (actions.isNotEmpty)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: actions,
         ),
-        Expanded(
-          child: PreferenceList(
-            padding: const EdgeInsets.only(top: 0, bottom: 16),
-            children: children,
-          ),
-        ),
-      ],
+      ...children,
+    ];
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      itemCount: blocks.length,
+      itemBuilder: (_, index) => blocks[index],
+      separatorBuilder: (_, __) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        child: Divider(height: 1, color: colors.border),
+      ),
     );
   }
 }

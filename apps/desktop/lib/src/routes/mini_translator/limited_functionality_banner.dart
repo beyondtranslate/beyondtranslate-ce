@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../i18n/i18n.dart';
-import '../../services/mac_settings.dart';
 import '../../utils/platform_util.dart';
 import '../../utils/utils.dart';
 import '../../widgets/ui/button.dart';
+import '../app_router.dart' show showSettingsWindow;
 
 class LimitedFunctionalityBanner extends StatelessWidget {
   const LimitedFunctionalityBanner({
@@ -101,7 +101,7 @@ class LimitedFunctionalityBanner extends StatelessWidget {
                           text: limitedBanner.action.app_settings,
                           style: linkStyle,
                           recognizer: TapGestureRecognizer()
-                            ..onTap = MacSettings.showAndHighlightPermissions,
+                            ..onTap = showSettingsWindow,
                         ),
                         TextSpan(text: instruction.follow_guide_prefix),
                         TextSpan(
