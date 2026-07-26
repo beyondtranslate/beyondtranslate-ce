@@ -6,3 +6,10 @@ analyzer:
     # The only Dart files under the Rust crate are uniffi-dart fixture tests
     # copied into a temp directory by `uniffi_dart::testing::run_test`.
     - rust/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

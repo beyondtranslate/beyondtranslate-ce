@@ -6,7 +6,7 @@ environment:
   sdk: ">=3.6.0 <4.0.0"
 
 workspace:
-  - apps/desktop
+  - apps/desktop/flutter
   - packages/runtime
 
 dev_dependencies:
