@@ -132,6 +132,26 @@ ThemeData designTheme(ThemeData base) {
       surface: colors.paper,
       onSurface: colors.text,
     ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: colors.paper,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide(color: colors.text.withValues(alpha: 0.40)),
+      ),
+      titleTextStyle: TextStyle(
+        color: colors.text,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        fontFamily: 'MiSans',
+      ),
+      contentTextStyle: TextStyle(
+        color: colors.text,
+        fontSize: 13,
+        fontFamily: 'MiSans',
+      ),
+    ),
     extensions: <ThemeExtension<dynamic>>[colors],
     textTheme: base.textTheme.apply(
       fontFamily: 'MiSans',

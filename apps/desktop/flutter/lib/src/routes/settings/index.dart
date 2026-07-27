@@ -523,13 +523,20 @@ ThemeData _settingsTheme(BuildContext context) {
     dialogTheme: DialogThemeData(
       backgroundColor: colors.paper,
       surfaceTintColor: Colors.transparent,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.zero,
         side: BorderSide(color: colors.text.withValues(alpha: 0.40)),
       ),
       titleTextStyle: context.eyebrowTextStyle.copyWith(
         color: colors.text,
-        fontSize: 12,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+      contentTextStyle: TextStyle(
+        color: colors.text,
+        fontSize: 13,
+        fontFamily: 'MiSans',
       ),
     ),
     popupMenuTheme: PopupMenuThemeData(

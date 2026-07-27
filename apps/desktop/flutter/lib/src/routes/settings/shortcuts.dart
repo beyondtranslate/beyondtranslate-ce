@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
+import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui/keycap.dart';
 import '../../widgets/ui/preference_list_item.dart';
@@ -40,7 +41,7 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
   }
 
   Future<void> _resetToDefaults() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showDialogInCurrentWindow<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t.settings.shortcuts.reset_dialog.title),

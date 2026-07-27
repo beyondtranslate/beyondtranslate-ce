@@ -9,6 +9,7 @@ import '../../models/translation_result_record.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
 import '../ai_action_bar.dart';
+import '../custom_alert_dialog/show_dialog.dart';
 import '../ui/card.dart' as ui;
 import '../ui/loading_indicator.dart';
 import 'translation_engine_tag.dart';
@@ -577,7 +578,7 @@ class TranslationResultRecordView extends StatelessWidget {
   }
 
   void _showResultDialog(BuildContext context, String title, String content) {
-    showDialog(
+    showDialogInCurrentWindow(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),

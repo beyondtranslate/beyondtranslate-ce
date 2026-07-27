@@ -1,12 +1,14 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
+import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui/button.dart';
 import '../../widgets/ui/preference_list_item.dart';
@@ -300,7 +302,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
     String source = kAutoSource;
     String target = defaultTargetLanguage;
 
-    final result = await showDialog<bool>(
+    final result = await showDialogInCurrentWindow<bool>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -310,31 +312,23 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DropdownButtonFormField<String>(
-                    initialValue: source,
+                  _LanguageField(
+                    value: source,
                     decoration:
-                        const InputDecoration(labelText: 'Source Language'),
-                    items: buildLanguageDropdownItems(
-                      commonLanguageCodes: _general.commonLanguages,
-                      showAutoDetect: true,
-                      showNative: true,
-                    ),
-                    onChanged: (v) {
-                      if (v != null) setDialogState(() => source = v);
-                    },
+                        InputDecoration(labelText: t.settings.general.editor.row.source_language),
+                    commonLanguageCodes: _general.commonLanguages,
+                    showAutoDetect: true,
+                    showNative: true,
+                    onChanged: (v) => setDialogState(() => source = v),
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: target,
+                  _LanguageField(
+                    value: target,
                     decoration:
-                        const InputDecoration(labelText: 'Target Language'),
-                    items: buildLanguageDropdownItems(
-                      commonLanguageCodes: _general.commonLanguages,
-                      showNative: true,
-                    ),
-                    onChanged: (v) {
-                      if (v != null) setDialogState(() => target = v);
-                    },
+                        InputDecoration(labelText: t.settings.general.editor.row.target_language),
+                    commonLanguageCodes: _general.commonLanguages,
+                    showNative: true,
+                    onChanged: (v) => setDialogState(() => target = v),
                   ),
                 ],
               ),
@@ -377,7 +371,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
     String source = target.source;
     String targetLang = target.target;
 
-    final result = await showDialog<String>(
+    final result = await showDialogInCurrentWindow<String>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -387,31 +381,23 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DropdownButtonFormField<String>(
-                    initialValue: source,
+                  _LanguageField(
+                    value: source,
                     decoration:
-                        const InputDecoration(labelText: 'Source Language'),
-                    items: buildLanguageDropdownItems(
-                      commonLanguageCodes: _general.commonLanguages,
-                      showAutoDetect: true,
-                      showNative: true,
-                    ),
-                    onChanged: (v) {
-                      if (v != null) setDialogState(() => source = v);
-                    },
+                        InputDecoration(labelText: t.settings.general.editor.row.source_language),
+                    commonLanguageCodes: _general.commonLanguages,
+                    showAutoDetect: true,
+                    showNative: true,
+                    onChanged: (v) => setDialogState(() => source = v),
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: targetLang,
+                  _LanguageField(
+                    value: targetLang,
                     decoration:
-                        const InputDecoration(labelText: 'Target Language'),
-                    items: buildLanguageDropdownItems(
-                      commonLanguageCodes: _general.commonLanguages,
-                      showNative: true,
-                    ),
-                    onChanged: (v) {
-                      if (v != null) setDialogState(() => targetLang = v);
-                    },
+                        InputDecoration(labelText: t.settings.general.editor.row.target_language),
+                    commonLanguageCodes: _general.commonLanguages,
+                    showNative: true,
+                    onChanged: (v) => setDialogState(() => targetLang = v),
                   ),
                 ],
               ),
@@ -461,7 +447,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
     final selected = Set<String>.from(_general.commonLanguages);
     final available = supportedLanguages;
 
-    final result = await showDialog<List<String>>(
+    final result = await showDialogInCurrentWindow<List<String>>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -530,6 +516,185 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
   }
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Native dropdown helpers
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// A language picker field that opens a native menu with grouped languages.
+class _LanguageField extends StatelessWidget {
+  const _LanguageField({
+    required this.value,
+    required this.decoration,
+    required this.commonLanguageCodes,
+    this.showAutoDetect = false,
+    this.showNative = false,
+    required this.onChanged,
+  });
+
+  final String value;
+  final InputDecoration decoration;
+  final List<String> commonLanguageCodes;
+  final bool showAutoDetect;
+  final bool showNative;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final label = _selectedLabel();
+
+    return InputDecorator(
+      decoration: decoration.copyWith(
+        suffixIcon: Icon(
+          Icons.arrow_drop_down_rounded,
+          color: colors.onSurface.withValues(alpha: 0.6),
+          size: 20,
+        ),
+      ),
+      child: GestureDetector(
+        onTap: () => _openLanguageMenu(context),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 28),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 13, color: colors.onSurface),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _selectedLabel() {
+    if (showAutoDetect && value == kAutoSource) {
+      return t.mini_translator.language.auto_detect;
+    }
+    return getLanguageName(value, showNative: showNative);
+  }
+
+  void _openLanguageMenu(BuildContext context) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null || !renderBox.hasSize) return;
+
+    final position = renderBox.localToGlobal(Offset.zero);
+    final offset = Offset(position.dx, position.dy + renderBox.size.height);
+
+    final window = nativeapi.WindowManager.instance.getCurrent();
+    if (window == null) return;
+
+    final menu = nativeapi.Menu();
+    final menuItems = <nativeapi.MenuItem>[];
+    final itemIds = <int, String>{};
+
+    // Auto detect
+    if (showAutoDetect) {
+      final item = nativeapi.MenuItem(t.mini_translator.language.auto_detect);
+      menuItems.add(item);
+      itemIds[item.id] = kAutoSource;
+      item.on<nativeapi.MenuItemClickedEvent>((e) {
+        final v = itemIds[e.menuItemId];
+        if (v != null) onChanged(v);
+      });
+      menu.addItem(item);
+    }
+
+    // Common languages
+    final common = getCommonLanguages(commonLanguageCodes);
+    for (final lang in common) {
+      final item = nativeapi.MenuItem(
+        getLanguageName(lang, showNative: showNative),
+      );
+      menuItems.add(item);
+      itemIds[item.id] = lang;
+      item.on<nativeapi.MenuItemClickedEvent>((e) {
+        final v = itemIds[e.menuItemId];
+        if (v != null) onChanged(v);
+      });
+      menu.addItem(item);
+    }
+
+    // Other languages
+    final other = getOtherLanguages(commonLanguageCodes);
+    if (other.isNotEmpty && common.isNotEmpty) {
+      menu.addSeparator();
+    }
+    for (final lang in other) {
+      final item = nativeapi.MenuItem(
+        getLanguageName(lang, showNative: showNative),
+      );
+      menuItems.add(item);
+      itemIds[item.id] = lang;
+      item.on<nativeapi.MenuItemClickedEvent>((e) {
+        final v = itemIds[e.menuItemId];
+        if (v != null) onChanged(v);
+      });
+      menu.addItem(item);
+    }
+
+    // Clean up after close
+    late int closeListenerId;
+    closeListenerId = menu.on<nativeapi.MenuClosedEvent>((_) {
+      menu.off(closeListenerId);
+      for (final mi in menuItems) {
+        mi.dispose();
+      }
+      menu.dispose();
+    });
+
+    menu.open(
+      nativeapi.PositioningStrategy.relativeToWindow(window, offset),
+      nativeapi.Placement.bottomStart,
+    );
+  }
+}
+
+/// Opens a native menu for service selection.
+void _openServiceMenu(
+  BuildContext context, {
+  required List<String> items,
+  required Map<String, String> labels,
+  required String currentValue,
+  required ValueChanged<String> onSelected,
+}) {
+  final renderBox = context.findRenderObject() as RenderBox?;
+  if (renderBox == null || !renderBox.hasSize) return;
+
+  final position = renderBox.localToGlobal(Offset.zero);
+  final offset = Offset(position.dx, position.dy + renderBox.size.height);
+
+  final window = nativeapi.WindowManager.instance.getCurrent();
+  if (window == null) return;
+
+  final menu = nativeapi.Menu();
+  final menuItems = <nativeapi.MenuItem>[];
+  final itemIds = <int, String>{};
+
+  for (final item in items) {
+    final menuItem = nativeapi.MenuItem(labels[item] ?? item);
+    menuItems.add(menuItem);
+    itemIds[menuItem.id] = item;
+    menuItem.on<nativeapi.MenuItemClickedEvent>((e) {
+      final v = itemIds[e.menuItemId];
+      if (v != null) onSelected(v);
+    });
+    menu.addItem(menuItem);
+  }
+
+  late int closeListenerId;
+  closeListenerId = menu.on<nativeapi.MenuClosedEvent>((_) {
+    menu.off(closeListenerId);
+    for (final mi in menuItems) {
+      mi.dispose();
+    }
+    menu.dispose();
+  });
+
+  menu.open(
+    nativeapi.PositioningStrategy.relativeToWindow(window, offset),
+    nativeapi.Placement.bottomStart,
+  );
+}
+
 String _providerId(String serviceId) {
   for (final suffix in const ['+translation', '+dictionary', '+ocr']) {
     if (serviceId.endsWith(suffix)) {
@@ -569,43 +734,36 @@ class _ServicePickerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isEmpty = options.isEmpty;
-    final items = <DropdownMenuItem<String>>[
-      DropdownMenuItem<String>(
-        value: '',
-        child: Text(t.settings.general.option.none),
-      ),
-      for (final opt in options)
-        DropdownMenuItem<String>(
-          value: opt.id,
-          child: Text(opt.name),
-        ),
-    ];
+    final items = <String>[''];
+    final labels = <String, String>{'': t.settings.general.option.none};
+    for (final opt in options) {
+      items.add(opt.id);
+      labels[opt.id] = opt.name;
+    }
 
-    // If the persisted value is not present in the options, keep it as a
-    // leading item so the picker still reflects the current selection.
+    // If the persisted value is not present in the options, keep it
     final hasValue = value.isEmpty || options.any((o) => o.id == value);
     if (!hasValue) {
-      items.add(
-        DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        ),
-      );
+      items.add(value);
+      labels[value] = value;
     }
 
     return PreferenceListItem(
       title: Text(title),
-      detailText: isEmpty
+      detailText: options.isEmpty
           ? Text(t.settings.general.option.no_services_available)
-          : DropdownButton<String>(
-              value: hasValue ? value : value,
-              underline: const SizedBox.shrink(),
-              items: items,
-              onChanged: (v) {
-                if (v == null) return;
-                onChanged(v);
-              },
+          : GestureDetector(
+              onTap: () => _openServiceMenu(
+                context,
+                items: items,
+                labels: labels,
+                currentValue: value,
+                onSelected: onChanged,
+              ),
+              child: Text(
+                labels[value] ?? value,
+                style: const TextStyle(fontSize: 12.5),
+              ),
             ),
     );
   }

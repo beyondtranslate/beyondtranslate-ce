@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/runtime.dart';
+import 'custom_alert_dialog/show_dialog.dart';
 import 'translation_chat_dialog.dart';
 
 /// A row of AI-powered action buttons shown alongside a translation result.
@@ -166,7 +167,7 @@ class AiActionBar extends StatelessWidget {
   }
 
   void _handleChat(BuildContext context) {
-    showDialog(
+    showDialogInCurrentWindow(
       context: context,
       builder: (_) => TranslationChatDialog(
         sourceText: sourceText,

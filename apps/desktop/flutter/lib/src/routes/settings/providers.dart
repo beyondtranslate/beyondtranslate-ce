@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
+import '../../widgets/custom_alert_dialog/show_dialog.dart';
+import '../../widgets/native_dropdown_field.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/translation_engine_icon/translation_engine_icon.dart';
 import '../../widgets/ui/button.dart';
@@ -60,7 +62,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   }
 
   Future<void> _openEditor({ProviderConfigEntry? existing}) async {
-    final draft = await showDialog<_ProviderDraft>(
+    final draft = await showDialogInCurrentWindow<_ProviderDraft>(
       context: context,
       builder: (_) => _ProviderEditorDialog(existing: existing),
     );
@@ -85,7 +87,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   }
 
   Future<void> _deleteProvider(ProviderConfigEntry entry) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showDialogInCurrentWindow<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
@@ -127,7 +129,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   }
 
   Future<void> _openServiceEditor({ServiceConfigEntry? existing}) async {
-    final draft = await showDialog<_ServiceDraft>(
+    final draft = await showDialogInCurrentWindow<_ServiceDraft>(
       context: context,
       builder: (_) => _ServiceEditorDialog(existing: existing),
     );
@@ -552,46 +554,30 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
                 ),
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: _providerId.isEmpty ? null : _providerId,
+              NativeDropdownField<String>(
+                value: _providerId,
+                items: providers.map((p) => p.id).toList(),
+                itemLabel: (id) => id,
                 decoration: const InputDecoration(
                   labelText: 'AI Provider',
                   border: OutlineInputBorder(),
                 ),
-                items: [
-                  for (final provider in providers)
-                    DropdownMenuItem<String>(
-                      value: provider.id,
-                      child: Text(provider.id),
-                    ),
-                ],
-                onChanged: isEditing
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          setState(() => _providerId = value);
-                        }
-                      },
+                disabled: isEditing,
+                onChanged: (value) {
+                  setState(() => _providerId = value);
+                },
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<ServiceType>(
-                initialValue: _type,
+              NativeDropdownField<ServiceType>(
+                value: _type,
+                items: const [ServiceType.translation, ServiceType.dictionary],
+                itemLabel: (t) => _serviceTypeLabel(t),
                 decoration: const InputDecoration(
                   labelText: 'Service Type',
                   border: OutlineInputBorder(),
                 ),
-                items: const [
-                  DropdownMenuItem<ServiceType>(
-                    value: ServiceType.translation,
-                    child: Text('Translation'),
-                  ),
-                  DropdownMenuItem<ServiceType>(
-                    value: ServiceType.dictionary,
-                    child: Text('Dictionary'),
-                  ),
-                ],
                 onChanged: (value) {
-                  if (value != null) setState(() => _type = value);
+                  setState(() => _type = value);
                 },
               ),
               const SizedBox(height: 12),
@@ -780,22 +766,16 @@ class _ProviderEditorDialogState extends State<_ProviderEditorDialog> {
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<ProviderType>(
-                  initialValue: _selectedType,
-                  hint: const Text('Select a provider type...'),
-                  items: [
-                    for (final type in _knownProviderTypes)
-                      DropdownMenuItem<ProviderType>(
-                        value: type,
-                        child: Text(_providerTypeDisplayName(type)),
-                      ),
-                  ],
+                NativeDropdownField<ProviderType>(
+                  value: _selectedType,
+                  items: _knownProviderTypes,
+                  itemLabel: (t) => _providerTypeDisplayName(t),
                   decoration: const InputDecoration(
                     labelText: 'Provider Type',
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (v) {
-                    if (v != null) _changeType(v);
+                    _changeType(v);
                   },
                 ),
                 const SizedBox(height: 16),
