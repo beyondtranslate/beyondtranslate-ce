@@ -1,9 +1,7 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unused_element
 
 import 'dart:async';
-
 import 'package:bot_toast/bot_toast.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
@@ -19,7 +17,6 @@ import '../../services/settings_store.dart';
 import '../../services/shortcut_service/shortcut_service.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
-import '../../widgets/ui/button.dart';
 import '../app_router.dart'
     show
         miniTranslatorPositionAtCursorScreenTopRight,
@@ -45,8 +42,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   final ScrollController _scrollController = ScrollController();
 
   final GlobalKey _bannersViewKey = GlobalKey();
-  final GlobalKey _inputViewKey = GlobalKey();
-  final GlobalKey _resultsViewKey = GlobalKey();
+  final GlobalKey _contentViewKey = GlobalKey();
   final GlobalKey _toolbarViewKey = GlobalKey();
 
   Brightness _brightness = Brightness.light;
@@ -70,8 +66,9 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   bool _querySubmitted = false;
   String _text = '';
   String? _detectedLanguage;
-  bool _isTextDetecting = false;
+  bool _isTextDetecting = false; // ignore: unused_field
   List<TranslationResult> _translationResultList = [];
+  bool _showCompare = false;
 
   Timer? _resizeSettledTimer;
   bool _isWindowResizeScheduled = false;
@@ -318,14 +315,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   double _measureWindowHeight() {
     final toolbarViewHeight = _renderBoxHeight(_toolbarViewKey);
-    final bannersViewHeight = _renderBoxHeight(_bannersViewKey);
-    final inputViewHeight = _renderBoxHeight(_inputViewKey);
-    final resultsViewHeight = _renderBoxHeight(_resultsViewKey);
+    final contentViewHeight = _renderBoxHeight(_contentViewKey);
 
     return toolbarViewHeight +
-        bannersViewHeight +
-        inputViewHeight +
-        resultsViewHeight +
+        contentViewHeight +
         (kIsWindows ? 5 : 0);
   }
 
@@ -781,17 +774,12 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     bool isNoAllowedAllAccess =
         !(_isAllowedScreenCaptureAccess && _isAllowedScreenSelectionAccess);
 
-    return Container(
+    if (!isNoAllowedAllAccess) return const SizedBox.shrink();
+
+    return SizedBox(
       key: _bannersViewKey,
       width: double.infinity,
-      margin: EdgeInsets.only(
-        bottom: isNoAllowedAllAccess ? 8 : 0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isNoAllowedAllAccess)
-            LimitedFunctionalityBanner(
+      child: LimitedFunctionalityBanner(
               isAllowedScreenCaptureAccess: _isAllowedScreenCaptureAccess,
               isAllowedScreenSelectionAccess: _isAllowedScreenSelectionAccess,
               onTappedRecheckIsAllowedAllAccess: () async {
@@ -819,207 +807,90 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 }
               },
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputView(BuildContext context) {
-    return SizedBox(
-      key: _inputViewKey,
-      width: double.infinity,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TranslationInputView(
-            focusNode: _focusNode,
-            controller: _textEditingController,
-            onChanged: (newValue) => _handleTextChanged(newValue),
-            isTextDetecting: _isTextDetecting,
-            inputSubmitMode: settingsStore.inputSubmitMode,
-            onClickExtractTextFromScreenCapture:
-                _handleExtractTextFromScreenCapture,
-            onClickExtractTextFromClipboard: _handleExtractTextFromClipboard,
-            onButtonTappedClear: _handleButtonTappedClear,
-            onButtonTappedTrans: _handleButtonTappedTrans,
-          ),
-          const SizedBox(height: 8),
-          TranslationTargetSelectView(
-            sourceLanguage: _sourceLanguage,
-            selectedTargetLanguage: _selectedTargetLanguage,
-            activeConfigIndex: _activeConfigIndex,
-            persistentTargets: settingsStore.general.translationTargets,
-            commonLanguageCodes: settingsStore.general.commonLanguages,
-            onSourceChanged: _handleSourceChanged,
-            onTargetLanguageChanged: _handleTargetLanguageChanged,
-            onConfigTargetSelected: _handleConfigTargetSelected,
-            onManageTargets: _handleManageTargets,
-            onManageCommonLanguages: _handleManageCommonLanguages,
-            onAddTarget: _handleAddTarget,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultsView(BuildContext context) {
-    return TranslationResultsView(
-      viewKey: _resultsViewKey,
-      controller: _scrollController,
-      querySubmitted: _querySubmitted,
-      text: _text,
-      textDetectedLanguage: _detectedLanguage,
-      translationResultList: _translationResultList,
-      onTextTapped: (word) {
-        _handleTextChanged(word, isRequery: true);
-      },
     );
   }
 
   Widget _buildBody(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SizedBox(
-          height: constraints.maxHeight,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: constraints.maxHeight,
-                ),
-                child: SingleChildScrollView(
-                  primary: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildBannersView(context),
-                      _buildInputView(context),
-                    ],
-                  ),
-                ),
-              ),
-              _buildResultsView(context),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// macOS 26 style inline toolbar — integrated into the window chrome area
-  Widget _buildToolBar(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      key: _toolbarViewKey,
-      padding: const EdgeInsets.only(top: 8, bottom: 4, left: 12, right: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // macOS-style traffic light area simulation via spacing
-          SizedBox(
-            width: 52,
-            height: 24,
-            child: Row(
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: _isAlwaysOnTop
-                        ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Button(
-                    minSize: 0,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      setState(() {
-                        _isAlwaysOnTop = !_isAlwaysOnTop;
-                      });
-                      _window.isAlwaysOnTop = _isAlwaysOnTop;
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.fastOutSlowIn,
-                      transformAlignment: Alignment.center,
-                      transform: Matrix4.rotationZ(
-                        _isAlwaysOnTop ? 0 : -0.78,
-                      ),
-                      child: Icon(
-                        _isAlwaysOnTop
-                            ? FluentIcons.pin_20_filled
-                            : FluentIcons.pin_20_regular,
-                        size: 18,
-                        color: _isAlwaysOnTop
-                            ? theme.colorScheme.primary
-                            : theme.iconTheme.color?.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // macOS 26 style: center area kept empty for a clean, floating look
-          const Spacer(),
-          SizedBox(
-            width: 60,
-            height: 24,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Button(
-                  minSize: 0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () => showWorkbenchWindow(text: _text),
-                  child: Icon(
-                    FluentIcons.open_20_regular,
-                    size: 18,
-                    color: theme.iconTheme.color?.withValues(alpha: 0.6),
-                  ),
-                ),
-                Button(
-                  minSize: 0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    showSettingsWindow();
-                  },
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      FluentIcons.settings_20_regular,
-                      size: 18,
-                      color: theme.iconTheme.color?.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      key: _contentViewKey,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildBannersView(context),
+        MiniTranslatorLanguageBar(
+          sourceLanguage: _sourceLanguage,
+          selectedTargetLanguage: _selectedTargetLanguage,
+          detectedLanguage: _detectedLanguage,
+          activeConfigIndex: _activeConfigIndex,
+          persistentTargets: settingsStore.general.translationTargets,
+          commonLanguageCodes: settingsStore.general.commonLanguages.isNotEmpty
+              ? settingsStore.general.commonLanguages
+              : defaultCommonLanguages(),
+          onSourceChanged: _handleSourceChanged,
+          onTargetLanguageChanged: _handleTargetLanguageChanged,
+          onConfigTargetSelected: _handleConfigTargetSelected,
+          onManageCommonLanguages: _handleManageCommonLanguages,
+          onAddTarget: _handleAddTarget,
+          onManageTargets: _handleManageTargets,
+        ),
+        MiniTranslatorInput(
+          focusNode: _focusNode,
+          controller: _textEditingController,
+          text: _text,
+          inputSubmitMode: settingsStore.inputSubmitMode,
+          onChanged: (v) => _handleTextChanged(v),
+          onSubmitted: _handleButtonTappedTrans,
+          onClear: _handleButtonTappedClear,
+        ),
+        MiniTranslatorTranslation(
+          querySubmitted: _querySubmitted,
+          translationResultList: _translationResultList,
+          showCompare: _showCompare,
+          onToggleCompare: () {
+            _setStateAndScheduleWindowResize(() {
+              _showCompare = !_showCompare;
+            });
+          },
+        ),
+        MiniTranslatorWordDefinition(
+          translationResultList: _translationResultList,
+        ),
+        MiniTranslatorActionButtons(
+          hasContent:
+              (_querySubmitted && _translationResultList.isNotEmpty),
+          onRead: () {},
+          onCopy: () {},
+          onBookmark: () {},
+          onTranslate: _handleButtonTappedTrans,
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildToolBar(context),
-          Expanded(
-            child: _buildBody(context),
-          ),
-        ],
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MiniTranslatorToolbar(
+              key: _toolbarViewKey,
+              isAlwaysOnTop: _isAlwaysOnTop,
+              onTogglePin: () {
+                setState(() {
+                  _isAlwaysOnTop = !_isAlwaysOnTop;
+                });
+                _window.isAlwaysOnTop = _isAlwaysOnTop;
+              },
+              onExtractScreenCapture: _handleExtractTextFromScreenCapture,
+              onExtractClipboard: _handleExtractTextFromClipboard,
+              onOpenWorkbench: () => showWorkbenchWindow(text: _text),
+              onOpenSettings: showSettingsWindow,
+            ),
+            _buildBody(context),
+          ],
+        ),
       ),
     );
   }

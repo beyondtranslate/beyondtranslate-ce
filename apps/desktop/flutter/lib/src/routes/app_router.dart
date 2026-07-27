@@ -13,7 +13,6 @@ import 'package:path_provider/path_provider.dart';
 
 import '../extensions/window_controller.dart';
 import '../i18n/i18n.dart';
-import '../services/mac_window_appearance.dart';
 import '../services/settings_store.dart';
 import '../utils/language_util.dart';
 import '../utils/platform_util.dart';
@@ -114,7 +113,7 @@ final miniTranslatorWindowController = RegularWindowController(
       window.titleBarStyle = TitleBarStyle.hidden;
       window.windowControlButtonsVisible = false;
       if (kIsMacOS) {
-        unawaited(MacWindowAppearance.apply(_kMiniTranslatorAppTitle));
+        // Mini translator uses solid background, no transparency needed.
       }
       return false;
     }
@@ -458,9 +457,8 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: _kMiniTranslatorAppTitle,
-        color: Colors.transparent,
-        theme: _miniTranslatorTheme(lightThemeData),
-        darkTheme: _miniTranslatorTheme(darkThemeData),
+        theme: designTheme(lightThemeData),
+        darkTheme: designTheme(darkThemeData),
         themeMode: settingsStore.themeMode,
         builder: (context, child) {
           if (kIsLinux || kIsWindows) {
@@ -479,15 +477,6 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
         localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
         locale: context.locale,
-      ),
-    );
-  }
-
-  ThemeData _miniTranslatorTheme(ThemeData baseTheme) {
-    return baseTheme.copyWith(
-      scaffoldBackgroundColor: Colors.transparent,
-      appBarTheme: baseTheme.appBarTheme.copyWith(
-        backgroundColor: Colors.transparent,
       ),
     );
   }
