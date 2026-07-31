@@ -1,0 +1,21 @@
+name: beyondtranslate_ui
+description: Flutter port of the BeyondTranslate design system — a 1:1 replica of the React `@beyondtranslate/ui` atoms.
+version: 0.1.0
+publish_to: "none"
+resolution: workspace
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: false

@@ -8,6 +8,7 @@ environment:
 workspace:
   - apps/desktop/flutter
   - packages/runtime
+  - packages/ui_flutter
 
 dev_dependencies:
   flutter_lints: ^2.0.0
