@@ -1,6 +1,7 @@
 import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
 import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:beyondtranslate_ui/src/widgets/label.dart';
+import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:flutter/widgets.dart';
 
 /// A compact title/subtitle card for a sidebar column.
@@ -85,6 +86,7 @@ class DetailBlock extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.trailing,
+    this.onTitlePressed,
     required this.child,
   });
 
@@ -95,6 +97,9 @@ class DetailBlock extends StatelessWidget {
 
   /// Right-aligned tag — 术语表.
   final Widget? trailing;
+
+  /// Makes the title a link — opens the glossary at this entry.
+  final VoidCallback? onTitlePressed;
   final Widget child;
 
   @override
@@ -121,15 +126,35 @@ class DetailBlock extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              DefaultTextStyle(
-                style: tokens.typography.displayStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  height: 1,
-                  color: colors.fg,
+              if (onTitlePressed != null)
+                Pressable(
+                  onPressed: onTitlePressed,
+                  builder: (context, state) => DefaultTextStyle(
+                    style: tokens.typography
+                        .displayStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          height: 1,
+                          color: state.hovered ? colors.accentText : colors.fg,
+                        )
+                        .copyWith(
+                          decoration:
+                              state.hovered ? TextDecoration.underline : null,
+                          decorationColor: colors.accentText,
+                        ),
+                    child: title,
+                  ),
+                )
+              else
+                DefaultTextStyle(
+                  style: tokens.typography.displayStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                    color: colors.fg,
+                  ),
+                  child: title,
                 ),
-                child: title,
-              ),
               if (subtitle != null) ...[
                 const SizedBox(width: 10),
                 DefaultTextStyle(

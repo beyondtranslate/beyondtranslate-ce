@@ -36,6 +36,16 @@ void main() {
     // in as its own family and is reached through the fallback lists below,
     // so it never outranks the CJK face.
     await _loadFont('Symbols', '/System/Library/Fonts/Apple Symbols.ttf');
+    // The Fluent icon glyphs the kit draws. Icon fonts from packages are not
+    // loaded by `flutter test` on their own, so they come in via the bundle.
+    await _loadBundledFont(
+      'packages/fluentui_system_icons/FluentSystemIcons-Regular',
+      'packages/fluentui_system_icons/fonts/FluentSystemIcons-Regular.ttf',
+    );
+    await _loadBundledFont(
+      'packages/fluentui_system_icons/FluentSystemIcons-Filled',
+      'packages/fluentui_system_icons/fonts/FluentSystemIcons-Filled.ttf',
+    );
   });
 
   for (final theme in DesignThemeName.values) {
@@ -61,6 +71,11 @@ void main() {
       );
     });
   }
+}
+
+Future<void> _loadBundledFont(String family, String asset) async {
+  final loader = FontLoader(family)..addFont(rootBundle.load(asset));
+  await loader.load();
 }
 
 Future<void> _loadFont(String family, String path) async {

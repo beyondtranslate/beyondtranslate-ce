@@ -1,4 +1,5 @@
 import 'package:beyondtranslate_ui/beyondtranslate_ui.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
 
 void main() => runApp(const GalleryApp());
@@ -144,6 +145,8 @@ class _AtomsState extends State<_Atoms> {
   String _model = 'sonnet';
   int _page = 2;
   bool _unfocused = false;
+  bool _pinned = true;
+  String _targetLanguage = '简体中文';
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
@@ -169,6 +172,11 @@ class _AtomsState extends State<_Atoms> {
                   ),
                   Button(onPressed: () {}, child: const Text('复制')),
                   Button(
+                    variant: ButtonVariant.tint,
+                    onPressed: () {},
+                    child: const Text('对比 3 个引擎'),
+                  ),
+                  Button(
                     variant: ButtonVariant.quiet,
                     onPressed: () {},
                     child: const Text('设为首选'),
@@ -187,6 +195,7 @@ class _AtomsState extends State<_Atoms> {
                     variant: ButtonVariant.primary,
                     child: Text('已禁用'),
                   ),
+                  const Button(child: Text('已禁用')),
                 ]),
                 _Row([
                   Button(
@@ -208,6 +217,88 @@ class _AtomsState extends State<_Atoms> {
                     size: ButtonSize.lg,
                     onPressed: () {},
                     child: const Text('lg'),
+                  ),
+                ]),
+              ],
+            ),
+            _Section(
+              title: 'IconButton · Menu · SwapPair',
+              children: [
+                _Row([
+                  IconButton(
+                    label: '固定窗口',
+                    active: _pinned,
+                    icon: Icon(
+                      _pinned
+                          ? FluentIcons.pin_20_filled
+                          : FluentIcons.pin_20_regular,
+                    ),
+                    onPressed: () => setState(() => _pinned = !_pinned),
+                  ),
+                  IconButton(
+                    label: '截图翻译',
+                    icon: const Icon(FluentIcons.crop_20_regular),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    label: '设置',
+                    icon: const Icon(FluentIcons.settings_20_regular),
+                    onPressed: () {},
+                  ),
+                  Menu(
+                    items: [
+                      MenuItem(
+                        label: '朗读译文',
+                        icon: const Icon(FluentIcons.speaker_2_20_regular),
+                        shortcut: '⌥S',
+                        onSelect: () {},
+                      ),
+                      MenuItem(
+                        label: '复制译文',
+                        icon: const Icon(FluentIcons.copy_20_regular),
+                        shortcut: '⌘C',
+                        onSelect: () {},
+                      ),
+                      MenuItem(
+                        label: '收藏本段',
+                        icon: const Icon(FluentIcons.star_20_regular),
+                        onSelect: () {},
+                      ),
+                    ],
+                    trigger: (context, open, toggle) => IconButton(
+                      label: '更多操作',
+                      active: open,
+                      icon: const Icon(
+                        FluentIcons.more_horizontal_20_regular,
+                      ),
+                      onPressed: toggle,
+                    ),
+                  ),
+                ]),
+                _Row([
+                  Menu(
+                    items: [
+                      for (final language in const ['简体中文', '繁體中文', '日本語'])
+                        MenuItem(
+                          label: language,
+                          checked: language == _targetLanguage,
+                          onSelect: () =>
+                              setState(() => _targetLanguage = language),
+                        ),
+                    ],
+                    trigger: (context, open, toggle) => SwapPair(
+                      start: 'English',
+                      end: _targetLanguage,
+                      onSwap: () {},
+                      onEndPressed: toggle,
+                      endOpen: open,
+                    ),
+                  ),
+                  SwapPair(
+                    start: 'English',
+                    end: '简体中文',
+                    onSwap: () {},
+                    size: SwapPairSize.sm,
                   ),
                 ]),
               ],
@@ -625,7 +716,18 @@ class _AtomsState extends State<_Atoms> {
                               TextSpan(
                                 children: [
                                   const TextSpan(text: '模型每次只产生一个'),
-                                  markSpan(context.tokens, '词元'),
+                                  markSpan(
+                                    context.tokens,
+                                    '词元',
+                                    detail: const MarkDetail(
+                                      term: 'token',
+                                      translation: '词元',
+                                      forbidden: '标记',
+                                      book: '机器学习 · 术语表',
+                                      hits: 42,
+                                    ),
+                                    onActivate: () {},
+                                  ),
                                   const TextSpan(text: '，每一步'),
                                   markSpan(
                                     context.tokens,
@@ -863,11 +965,12 @@ class _AtomsState extends State<_Atoms> {
                               onSwap: () {},
                             ),
                           ),
-                          const DetailBlock(
-                            title: Text('inference'),
-                            subtitle: Text('/ˈɪnf(ə)rəns/'),
-                            trailing: Badge(child: Text('术语表')),
-                            child: Text('名词 · 推理。'),
+                          DetailBlock(
+                            title: const Text('inference'),
+                            subtitle: const Text('/ˈɪnf(ə)rəns/'),
+                            trailing: const Badge(child: Text('术语表')),
+                            onTitlePressed: () {},
+                            child: const Text('名词 · 推理。'),
                           ),
                         ],
                       ),

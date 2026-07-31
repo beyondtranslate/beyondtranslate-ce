@@ -4,8 +4,8 @@ import 'package:flutter/widgets.dart';
 /// BeyondTranslate design tokens — the Dart mirror of `tokens.css`.
 ///
 /// Every visual decision a component makes reads from a token, so an
-/// alternative palette (Studio Dark, Bright Light) is a pure token swap: no
-/// widget needs to know which theme is active.
+/// alternative palette (Studio Dark, Bright Light, Bright Dark) is a pure
+/// token swap: no widget needs to know which theme is active.
 ///
 /// The default value of every field is the **Studio Light** value. That
 /// mirrors the CSS exactly: `:root` declares the baseline and each
@@ -186,15 +186,15 @@ class DesignColors {
 @immutable
 class DesignRadii {
   const DesignRadii({
-    this.backdrop = 24,
-    this.window = 16,
-    this.popover = 14,
-    this.card = 10,
-    this.box = 10,
-    this.control = 8,
-    this.controlSm = 7,
-    this.chip = 6,
-    this.avatar = 7,
+    this.backdrop = 26,
+    this.window = 18,
+    this.popover = 16,
+    this.card = 12,
+    this.box = 12,
+    this.control = 10,
+    this.controlSm = 8,
+    this.chip = 7,
+    this.avatar = 8,
     this.pill = 999,
   });
 

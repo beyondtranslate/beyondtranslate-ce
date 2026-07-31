@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  fluentui_system_icons: ^1.1.255
 
 dev_dependencies:
   flutter_lints: ^2.0.0
