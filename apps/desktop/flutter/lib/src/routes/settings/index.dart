@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -5,7 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../i18n/i18n.dart';
 import '../../utils/utils.dart';
 import '../../widgets/navigation_item.dart';
-import '../../widgets/ui/themes/design_theme.dart';
+import '../../widgets/ui.dart'
+    show DesignThemeContext, DesignTypographyStyles, TabItem, Tabs;
+import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import 'advanced.dart';
 import 'appearance.dart';
 import 'general.dart';
@@ -260,7 +263,7 @@ class _SettingsShellPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Container(
       width: 210,
-      color: context.design.panel,
+      color: context.colors.chrome,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -268,7 +271,9 @@ class _SettingsShellPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
             child: Text(
               t.settings.layout.title,
-              style: context.eyebrowTextStyle.copyWith(fontSize: 12),
+              style: context.typography
+                  .labelStyle(color: context.colors.accentText)
+                  .copyWith(fontSize: 12),
             ),
           ),
           Expanded(
@@ -420,148 +425,58 @@ class SettingsTabsShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    final tabs = <(String, String)>[
-      (t.settings.general.title, const GeneralSettingsRoute().location),
-      (t.settings.appearance.title, const AppearanceSettingsRoute().location),
-      (t.settings.shortcuts.title, const ShortcutsSettingsRoute().location),
-      (t.settings.providers.title, const ProvidersSettingsRoute().location),
-      (t.settings.advanced.title, const AdvancedSettingsRoute().location),
+    final colors = context.colors;
+    final tabs = <TabItem<String>>[
+      TabItem(
+        value: const GeneralSettingsRoute().location,
+        label: Text(t.settings.general.title),
+      ),
+      TabItem(
+        value: const AppearanceSettingsRoute().location,
+        label: Text(t.settings.appearance.title),
+      ),
+      TabItem(
+        value: const ShortcutsSettingsRoute().location,
+        label: Text(t.settings.shortcuts.title),
+      ),
+      TabItem(
+        value: const ProvidersSettingsRoute().location,
+        label: Text(t.settings.providers.title),
+      ),
+      TabItem(
+        value: const AdvancedSettingsRoute().location,
+        label: Text(t.settings.advanced.title),
+      ),
     ];
+    final active =
+        tabs.firstWhereOrNull((tab) => location.startsWith(tab.value))?.value ??
+            tabs.first.value;
 
-    return Theme(
-      data: _settingsTheme(context),
-      child: ColoredBox(
-        color: colors.paper,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: colors.border)),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (var index = 0; index < tabs.length; index++) ...[
-                      if (index > 0) const SizedBox(width: 14),
-                      Builder(
-                        builder: (context) {
-                          final tab = tabs[index];
-                          final selected = location.startsWith(tab.$2);
-                          return InkWell(
-                            onTap: () => context.go(tab.$2),
-                            splashColor: Colors.transparent,
-                            hoverColor: colors.accent.withValues(alpha: 0.08),
-                            child: Container(
-                              padding: const EdgeInsets.only(bottom: 2),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: selected
-                                        ? colors.accent
-                                        : Colors.transparent,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                              child: Text(
-                                tab.$1,
-                                style: TextStyle(
-                                  color: selected
-                                      ? colors.text
-                                      : colors.text.withValues(alpha: 0.55),
-                                  fontSize: 13,
-                                  fontWeight: selected
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ],
+    return ColoredBox(
+      color: colors.window,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          WorkbenchToolbar(
+            title: t.settings.layout.title,
+            children: [
+              const SizedBox(width: 4),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Tabs<String>(
+                    items: tabs,
+                    value: active,
+                    onChanged: context.go,
+                    semanticsLabel: t.settings.layout.title,
+                  ),
                 ),
               ),
-            ),
-            Expanded(child: child),
-          ],
-        ),
+            ],
+          ),
+          Expanded(child: child),
+        ],
       ),
     );
   }
-}
-
-ThemeData _settingsTheme(BuildContext context) {
-  final base = Theme.of(context);
-  final colors = context.design;
-  return base.copyWith(
-    inputDecorationTheme: InputDecorationTheme(
-      isDense: true,
-      filled: true,
-      fillColor: colors.translatedSurface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      labelStyle: TextStyle(fontSize: 12, color: colors.mutedText),
-      hintStyle: TextStyle(fontSize: 12.5, color: colors.quietText),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: colors.text.withValues(alpha: 0.28)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: colors.text.withValues(alpha: 0.28)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: colors.accent),
-      ),
-    ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: colors.paper,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: colors.text.withValues(alpha: 0.40)),
-      ),
-      titleTextStyle: context.eyebrowTextStyle.copyWith(
-        color: colors.text,
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-      ),
-      contentTextStyle: TextStyle(
-        color: colors.text,
-        fontSize: 13,
-        fontFamily: 'MiSans',
-      ),
-    ),
-    popupMenuTheme: PopupMenuThemeData(
-      color: colors.paper,
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: colors.border),
-      ),
-    ),
-    checkboxTheme: CheckboxThemeData(
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      side: BorderSide(color: colors.text.withValues(alpha: 0.30)),
-      fillColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? colors.accent
-            : Colors.transparent,
-      ),
-    ),
-    radioTheme: RadioThemeData(
-      fillColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? colors.accent
-            : colors.text.withValues(alpha: 0.30),
-      ),
-    ),
-  );
 }

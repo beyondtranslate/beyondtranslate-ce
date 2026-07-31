@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/ext_translation_engine_config.dart';
 import '../../models/translation_engine_config.dart';
+import '../ui.dart' show DesignThemeContext;
 
 class TranslationEngineName extends StatelessWidget {
   const TranslationEngineName(
@@ -19,9 +20,9 @@ class TranslationEngineName extends StatelessWidget {
         children: [
           TextSpan(
             text: ' (${translationEngineConfig.identifier})',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: context.colors.fgSubtle,
             ),
           )
         ],

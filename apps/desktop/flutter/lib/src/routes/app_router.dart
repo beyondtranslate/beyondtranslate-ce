@@ -14,11 +14,10 @@ import 'package:path_provider/path_provider.dart';
 import '../extensions/window_controller.dart';
 import '../i18n/i18n.dart';
 import '../services/settings_store.dart';
+import '../theme/app_theme.dart';
 import '../utils/language_util.dart';
 import '../utils/platform_util.dart';
-import '../widgets/ui/themes/dark_theme.dart';
-import '../widgets/ui/themes/design_theme.dart';
-import '../widgets/ui/themes/light_theme.dart';
+import '../widgets/ui.dart' show DesignThemeProvider;
 import '__root.dart';
 import 'debug/component_showcase.dart' as component_showcase_route;
 import 'debug/runtime.dart' as debug_runtime_route;
@@ -398,8 +397,12 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: _kWorkbenchWindowTitle,
-        theme: designTheme(lightThemeData),
-        darkTheme: designTheme(darkThemeData),
+        theme: appThemeData(
+          tokensFor(Brightness.light, family: settingsStore.themeFamily),
+        ),
+        darkTheme: appThemeData(
+          tokensFor(Brightness.dark, family: settingsStore.themeFamily),
+        ),
         themeMode: settingsStore.themeMode,
         builder: (context, child) {
           if (kIsLinux || kIsWindows) {
@@ -411,7 +414,7 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
               child: child,
             );
           }
-          return child!;
+          return _withDesignTokens(context, child!);
         },
         routerConfig: _router,
         localizationsDelegates: context.localizationDelegates,
@@ -420,6 +423,18 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
       ),
     );
   }
+}
+
+/// Publishes the token set matching the resolved Material brightness, so every
+/// `ui` widget below reads the same palette [appThemeData] was built from.
+Widget _withDesignTokens(BuildContext context, Widget child) {
+  return DesignThemeProvider(
+    tokens: tokensFor(
+      Theme.of(context).brightness,
+      family: settingsStore.themeFamily,
+    ),
+    child: child,
+  );
 }
 
 class MiniTranslatorApp extends StatefulWidget {
@@ -457,8 +472,12 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: _kMiniTranslatorAppTitle,
-        theme: designTheme(lightThemeData),
-        darkTheme: designTheme(darkThemeData),
+        theme: appThemeData(
+          tokensFor(Brightness.light, family: settingsStore.themeFamily),
+        ),
+        darkTheme: appThemeData(
+          tokensFor(Brightness.dark, family: settingsStore.themeFamily),
+        ),
         themeMode: settingsStore.themeMode,
         builder: (context, child) {
           if (kIsLinux || kIsWindows) {
@@ -471,7 +490,7 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
             );
           }
           child = botToastBuilder(context, child);
-          return child;
+          return _withDesignTokens(context, child);
         },
         routerConfig: _router,
         localizationsDelegates: context.localizationDelegates,

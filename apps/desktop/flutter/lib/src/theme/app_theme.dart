@@ -1,0 +1,128 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../widgets/ui.dart'
+    show DesignThemeName, DesignTokens, DesignTypographyStyles;
+
+/// The palette family the design system paints with.
+///
+/// Each family carries its own light and dark pair, so this is orthogonal to
+/// [Brightness]: the family picks the character, the brightness picks the pair.
+enum DesignThemeFamily {
+  /// Muted violet on near-white / near-black — the default.
+  studio('studio'),
+
+  /// Higher-contrast palette with a separate highlight hue.
+  bright('bright');
+
+  const DesignThemeFamily(this.id);
+
+  /// The value persisted in `appearance.theme`.
+  final String id;
+
+  static DesignThemeFamily fromId(String id) => DesignThemeFamily.values
+      .firstWhere((family) => family.id == id, orElse: () => studio);
+
+  DesignThemeName themeFor(Brightness brightness) => switch (this) {
+        DesignThemeFamily.studio => brightness == Brightness.dark
+            ? DesignThemeName.studioDark
+            : DesignThemeName.studioLight,
+        DesignThemeFamily.bright => brightness == Brightness.dark
+            ? DesignThemeName.brightDark
+            : DesignThemeName.brightLight,
+      };
+}
+
+/// The design tokens behind a family / brightness pair.
+///
+/// Everything visual in the app comes from `beyondtranslate_ui`; this only
+/// picks which token set a Material [Brightness] maps to.
+DesignTokens tokensFor(
+  Brightness brightness, {
+  DesignThemeFamily family = DesignThemeFamily.studio,
+}) =>
+    family.themeFor(brightness).tokens;
+
+/// Projects a design token set onto Material's [ThemeData].
+///
+/// The app still hosts its pages in a `MaterialApp`, so the Material widgets it
+/// leans on — [Scaffold], [InkWell], dialogs, the default text styles — need to
+/// read the same palette the `ui` widgets paint themselves with. This is that
+/// bridge, and the only place Material colours are decided.
+ThemeData appThemeData(DesignTokens tokens) {
+  final colors = tokens.colors;
+  final typography = tokens.typography;
+  final isDark = tokens.brightness == Brightness.dark;
+
+  TextStyle text(double size, [FontWeight? weight, Color? color]) =>
+      typography.sansStyle(
+        fontSize: size,
+        fontWeight: weight,
+        color: color ?? colors.fg,
+      );
+
+  return ThemeData(
+    brightness: tokens.brightness,
+    colorScheme: ColorScheme(
+      brightness: tokens.brightness,
+      primary: colors.accent,
+      onPrimary: colors.onAccent,
+      secondary: colors.highlight,
+      onSecondary: colors.onAccent,
+      error: colors.danger,
+      onError: colors.onAccent,
+      surface: colors.window,
+      onSurface: colors.fg,
+      surfaceContainerHighest: colors.card,
+      onSurfaceVariant: colors.fgSubtle,
+      outline: colors.borderStrong,
+      outlineVariant: colors.border,
+      shadow: const Color(0xFF000000),
+    ),
+    primaryColor: colors.accent,
+    canvasColor: colors.card,
+    scaffoldBackgroundColor: colors.window,
+    dividerColor: colors.border,
+    disabledColor: colors.fgFaint,
+    fontFamily: typography.sans.family,
+    fontFamilyFallback: typography.sans.fallback,
+    iconTheme: IconThemeData(color: colors.fg),
+    dividerTheme: DividerThemeData(
+      color: colors.border,
+      space: 1,
+      thickness: 1,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: colors.panel,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(tokens.radii.popover),
+        side: BorderSide(color: colors.borderStrong),
+      ),
+      titleTextStyle: text(typography.body, FontWeight.w600),
+      contentTextStyle: text(typography.body),
+    ),
+    textTheme: TextTheme(
+      titleLarge: text(typography.title, FontWeight.w600),
+      titleMedium: text(typography.emphasis, FontWeight.w600),
+      titleSmall: text(typography.body, FontWeight.w600),
+      bodyLarge: text(typography.emphasis),
+      bodyMedium: text(typography.body),
+      bodySmall: text(typography.caption, null, colors.fgSubtle),
+      labelLarge: text(typography.body),
+      labelMedium: text(typography.small),
+      labelSmall: text(10, null, colors.fgSubtle),
+    ),
+    appBarTheme: AppBarTheme(
+      systemOverlayStyle:
+          isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      backgroundColor: colors.chrome,
+      foregroundColor: colors.fg,
+      elevation: 0,
+      iconTheme: IconThemeData(color: colors.fg, size: 20),
+      actionsIconTheme: IconThemeData(color: colors.fg, size: 20),
+      titleTextStyle: text(typography.body, FontWeight.w600),
+    ),
+  );
+}

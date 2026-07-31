@@ -1,5 +1,6 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
-import 'package:flutter/material.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart' hide Checkbox;
 import 'package:go_router/go_router.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
@@ -8,11 +9,22 @@ import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
+import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
+import '../../widgets/preference_list/preference_list_item.dart';
+import '../../widgets/preference_list/preference_list_section.dart';
 import '../../widgets/settings_page.dart';
-import '../../widgets/ui/button.dart';
-import '../../widgets/ui/preference_list_item.dart';
-import '../../widgets/ui/preference_list_section.dart';
+import '../../widgets/ui.dart'
+    show
+        Button,
+        ButtonVariant,
+        Checkbox,
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Field,
+        FieldState,
+        Pressable,
+        controlDecoration;
 
 /// Mirrors macOS `GeneralView.swift`.
 class GeneralSettingsPage extends StatefulWidget {
@@ -257,20 +269,24 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                       Text(getLanguageName(target.target)),
                     ],
                   ),
-                  detailText: TextButton(
+                  detailText: Button(
+                    variant: ButtonVariant.quiet,
                     onPressed: () => _showEditTargetDialog(context, target),
                     child: Text(t.common.ui.button.edit),
                   ),
                 ),
               if (_general.translationTargets.isEmpty)
-                const PreferenceListItem(
+                PreferenceListItem(
                   title: Text(
                     'No translation targets configured.',
-                    style: TextStyle(color: Colors.grey),
+                    style: context.typography.sansStyle(
+                      color: context.colors.fgSubtle,
+                    ),
                   ),
                 ),
               PreferenceListItem(
-                title: TextButton(
+                title: Button(
+                  variant: ButtonVariant.quiet,
                   onPressed: () => _showAddTargetDialog(context),
                   child: Text(general.button.add_target),
                 ),
@@ -307,15 +323,15 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
+            return AppDialog(
               title: Text(t.settings.general.button.add_target),
               content: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _LanguageField(
                     value: source,
-                    decoration:
-                        InputDecoration(labelText: t.settings.general.editor.row.source_language),
+                    label: t.settings.general.editor.row.source_language,
                     commonLanguageCodes: _general.commonLanguages,
                     showAutoDetect: true,
                     showNative: true,
@@ -324,8 +340,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                   const SizedBox(height: 12),
                   _LanguageField(
                     value: target,
-                    decoration:
-                        InputDecoration(labelText: t.settings.general.editor.row.target_language),
+                    label: t.settings.general.editor.row.target_language,
                     commonLanguageCodes: _general.commonLanguages,
                     showNative: true,
                     onChanged: (v) => setDialogState(() => target = v),
@@ -333,11 +348,13 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                 ],
               ),
               actions: [
-                TextButton(
+                Button(
+                  variant: ButtonVariant.secondary,
                   onPressed: () => Navigator.pop(context, false),
                   child: Text(t.common.ui.button.cancel),
                 ),
-                TextButton(
+                Button(
+                  variant: ButtonVariant.primary,
                   onPressed: () => Navigator.pop(context, true),
                   child: Text(t.common.ui.button.ok),
                 ),
@@ -376,15 +393,15 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
+            return AppDialog(
               title: Text(t.common.ui.button.edit),
               content: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _LanguageField(
                     value: source,
-                    decoration:
-                        InputDecoration(labelText: t.settings.general.editor.row.source_language),
+                    label: t.settings.general.editor.row.source_language,
                     commonLanguageCodes: _general.commonLanguages,
                     showAutoDetect: true,
                     showNative: true,
@@ -393,8 +410,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                   const SizedBox(height: 12),
                   _LanguageField(
                     value: targetLang,
-                    decoration:
-                        InputDecoration(labelText: t.settings.general.editor.row.target_language),
+                    label: t.settings.general.editor.row.target_language,
                     commonLanguageCodes: _general.commonLanguages,
                     showNative: true,
                     onChanged: (v) => setDialogState(() => targetLang = v),
@@ -402,7 +418,8 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                 ],
               ),
               actions: [
-                TextButton(
+                Button(
+                  variant: ButtonVariant.warning,
                   onPressed: () async {
                     final newTargets = [..._general.translationTargets];
                     newTargets.removeAt(index);
@@ -411,15 +428,15 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                     );
                     if (context.mounted) Navigator.pop(context);
                   },
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
                   child: Text(t.common.ui.button.delete),
                 ),
-                const Spacer(),
-                TextButton(
+                Button(
+                  variant: ButtonVariant.secondary,
                   onPressed: () => Navigator.pop(context),
                   child: Text(t.common.ui.button.cancel),
                 ),
-                TextButton(
+                Button(
+                  variant: ButtonVariant.primary,
                   onPressed: () => Navigator.pop(context, 'save'),
                   child: Text(t.common.ui.button.save),
                 ),
@@ -452,52 +469,42 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
+            return AppDialog(
+              width: 380,
               title: Text(t.settings.general.row.common_languages),
+              subtitle: Text(t.settings.general.row.common_languages_hint),
               content: SizedBox(
-                width: 320,
-                height: 400,
+                height: 360,
                 child: ListView(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        t.settings.general.row.common_languages_hint,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.color
-                                  ?.withValues(alpha: 0.6),
-                            ),
+                    for (final lang in available)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Checkbox(
+                          checked: selected.contains(lang),
+                          onChanged: (checked) {
+                            setDialogState(() {
+                              if (checked) {
+                                selected.add(lang);
+                              } else {
+                                selected.remove(lang);
+                              }
+                            });
+                          },
+                          child: Text(getLanguageName(lang, showNative: true)),
+                        ),
                       ),
-                    ),
-                    ...available.map((lang) {
-                      return CheckboxListTile(
-                        dense: true,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        value: selected.contains(lang),
-                        title: Text(getLanguageName(lang, showNative: true)),
-                        onChanged: (checked) {
-                          setDialogState(() {
-                            if (checked == true) {
-                              selected.add(lang);
-                            } else {
-                              selected.remove(lang);
-                            }
-                          });
-                        },
-                      );
-                    }),
                   ],
                 ),
               ),
               actions: [
-                TextButton(
+                Button(
+                  variant: ButtonVariant.secondary,
                   onPressed: () => Navigator.pop(context),
                   child: Text(t.common.ui.button.cancel),
                 ),
-                TextButton(
+                Button(
+                  variant: ButtonVariant.primary,
                   onPressed: () => Navigator.pop(context, selected.toList()),
                   child: Text(t.common.ui.button.save),
                 ),
@@ -524,7 +531,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
 class _LanguageField extends StatelessWidget {
   const _LanguageField({
     required this.value,
-    required this.decoration,
+    required this.label,
     required this.commonLanguageCodes,
     this.showAutoDetect = false,
     this.showNative = false,
@@ -532,7 +539,7 @@ class _LanguageField extends StatelessWidget {
   });
 
   final String value;
-  final InputDecoration decoration;
+  final String label;
   final List<String> commonLanguageCodes;
   final bool showAutoDetect;
   final bool showNative;
@@ -540,25 +547,43 @@ class _LanguageField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final label = _selectedLabel();
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final radius = BorderRadius.circular(tokens.radii.control);
 
-    return InputDecorator(
-      decoration: decoration.copyWith(
-        suffixIcon: Icon(
-          Icons.arrow_drop_down_rounded,
-          color: colors.onSurface.withValues(alpha: 0.6),
-          size: 20,
-        ),
-      ),
-      child: GestureDetector(
-        onTap: () => _openLanguageMenu(context),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 28),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            label,
-            style: TextStyle(fontSize: 13, color: colors.onSurface),
+    return Field(
+      label: Text(label),
+      child: Pressable(
+        onPressed: () => _openLanguageMenu(context),
+        borderRadius: radius,
+        semanticsLabel: label,
+        builder: (context, state) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: controlDecoration(
+            tokens,
+            state: FieldState.standard,
+            focused: state.focused,
+            hairline: context.hairlineWidth,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _selectedLabel(),
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.typography.sansStyle(
+                    fontSize: 12,
+                    height: 1,
+                    color: colors.fg,
+                  ),
+                ),
+              ),
+              Icon(
+                FluentIcons.chevron_down_20_regular,
+                size: 13,
+                color: colors.fgSubtle,
+              ),
+            ],
           ),
         ),
       ),
@@ -787,7 +812,8 @@ class _ServiceUnavailableItem extends StatelessWidget {
         children: [
           Text(t.settings.general.option.no_services_available),
           const SizedBox(width: 8),
-          Button.outlined(
+          Button(
+            variant: ButtonVariant.secondary,
             onPressed: onAddProvider,
             child: Text(t.settings.general.button.add_provider),
           ),
@@ -845,7 +871,8 @@ class _PermissionAccessRowState extends State<_PermissionAccessRow> {
   Widget build(BuildContext context) {
     return PreferenceListItem(
       title: Text(widget.title),
-      detailText: Button.outlined(
+      detailText: Button(
+        variant: ButtonVariant.secondary,
         onPressed: _granted == true ? _refresh : _request,
         child: Text(
           _granted == true

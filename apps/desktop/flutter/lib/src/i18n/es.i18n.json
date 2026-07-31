@@ -57,6 +57,10 @@
       "dark": "Oscuro",
       "system": "Sistema"
     },
+    "theme_style": {
+      "studio": "Studio",
+      "bright": "Bright"
+    },
     "provider": {
       "anthropic": "Anthropic",
       "baidu": "Baidu",
@@ -249,7 +253,8 @@
       "title": "Apariencia",
       "section": {
         "app_language": "Idioma de la interfaz",
-        "theme_mode": "Modo de tema"
+        "theme_mode": "Modo de tema",
+        "theme_style": "Estilo del tema"
       }
     },
     "shortcuts": {

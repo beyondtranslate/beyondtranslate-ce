@@ -2777,12 +2777,25 @@ public func FfiConverterTypeApiServerInfo_lower(_ value: ApiServerInfo) -> RustB
 public struct AppearanceSettings: Equatable, Hashable {
   public var language: String
   public var themeMode: String
+  /**
+   * Which palette family the design system paints with: `studio` or
+   * `bright`. Independent of [`theme_mode`], which only picks light vs dark.
+   */
+  public var theme: String
 
   // Default memberwise initializers are never public by default, so we
   // declare one manually.
-  public init(language: String, themeMode: String) {
+  public init(
+    language: String, themeMode: String,
+    /**
+     * Which palette family the design system paints with: `studio` or
+     * `bright`. Independent of [`theme_mode`], which only picks light vs dark.
+     */
+    theme: String
+  ) {
     self.language = language
     self.themeMode = themeMode
+    self.theme = theme
   }
 
 }
@@ -2801,13 +2814,15 @@ public struct FfiConverterTypeAppearanceSettings: FfiConverterRustBuffer {
     return
       try AppearanceSettings(
         language: FfiConverterString.read(from: &buf),
-        themeMode: FfiConverterString.read(from: &buf)
+        themeMode: FfiConverterString.read(from: &buf),
+        theme: FfiConverterString.read(from: &buf)
       )
   }
 
   public static func write(_ value: AppearanceSettings, into buf: inout [UInt8]) {
     FfiConverterString.write(value.language, into: &buf)
     FfiConverterString.write(value.themeMode, into: &buf)
+    FfiConverterString.write(value.theme, into: &buf)
   }
 }
 
@@ -2829,12 +2844,14 @@ public func FfiConverterTypeAppearanceSettings_lower(_ value: AppearanceSettings
 public struct AppearanceSettingsPatch: Equatable, Hashable {
   public var language: String?
   public var themeMode: String?
+  public var theme: String?
 
   // Default memberwise initializers are never public by default, so we
   // declare one manually.
-  public init(language: String?, themeMode: String?) {
+  public init(language: String?, themeMode: String?, theme: String?) {
     self.language = language
     self.themeMode = themeMode
+    self.theme = theme
   }
 
 }
@@ -2853,13 +2870,15 @@ public struct FfiConverterTypeAppearanceSettingsPatch: FfiConverterRustBuffer {
     return
       try AppearanceSettingsPatch(
         language: FfiConverterOptionString.read(from: &buf),
-        themeMode: FfiConverterOptionString.read(from: &buf)
+        themeMode: FfiConverterOptionString.read(from: &buf),
+        theme: FfiConverterOptionString.read(from: &buf)
       )
   }
 
   public static func write(_ value: AppearanceSettingsPatch, into buf: inout [UInt8]) {
     FfiConverterOptionString.write(value.language, into: &buf)
     FfiConverterOptionString.write(value.themeMode, into: &buf)
+    FfiConverterOptionString.write(value.theme, into: &buf)
   }
 }
 

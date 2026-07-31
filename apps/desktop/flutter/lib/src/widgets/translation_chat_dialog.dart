@@ -2,6 +2,9 @@ import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/material.dart';
 
 import '../services/runtime.dart';
+import 'app_dialog.dart';
+import 'ui.dart'
+    show Button, ButtonVariant, DesignThemeContext, Input, Spinner, SpinnerSize;
 
 /// A chat dialog for discussing a translation with the LLM.
 ///
@@ -144,11 +147,11 @@ Be concise and helpful. Respond in the same language as the user's question.''';
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return AlertDialog(
+    return AppDialog(
+      width: 520,
       title: const Text('Discuss Translation'),
       content: SizedBox(
-        width: 500,
-        height: 450,
+        height: 430,
         child: Column(
           children: [
             // Context section
@@ -156,7 +159,7 @@ Be concise and helpful. Respond in the same language as the user's question.''';
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(context.radii.box),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,22 +214,17 @@ Be concise and helpful. Respond in the same language as the user's question.''';
             Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: Input(
                     controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: 'Ask about this translation...',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    ),
+                    placeholder: 'Ask about this translation...',
                     onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton(
+                Button(
+                  variant: ButtonVariant.primary,
                   onPressed: _isLoading ? null : _sendMessage,
-                  icon: const Icon(Icons.send),
+                  child: const Icon(Icons.send, size: 14),
                 ),
               ],
             ),
@@ -234,7 +232,8 @@ Be concise and helpful. Respond in the same language as the user's question.''';
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          variant: ButtonVariant.secondary,
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Close'),
         ),
@@ -295,11 +294,7 @@ class _LoadingBubble extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+          Spinner(size: SpinnerSize.sm),
           SizedBox(width: 8),
           Text('Thinking...'),
         ],

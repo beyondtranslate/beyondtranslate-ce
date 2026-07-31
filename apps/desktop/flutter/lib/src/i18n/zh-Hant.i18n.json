@@ -57,6 +57,10 @@
       "dark": "深色",
       "system": "跟隨系統"
     },
+    "theme_style": {
+      "studio": "Studio",
+      "bright": "Bright"
+    },
     "provider": {
       "anthropic": "Anthropic",
       "baidu": "百度",
@@ -249,7 +253,8 @@
       "title": "外觀",
       "section": {
         "app_language": "顯示語言",
-        "theme_mode": "主題模式"
+        "theme_mode": "主題模式",
+        "theme_style": "主題風格"
       }
     },
     "shortcuts": {

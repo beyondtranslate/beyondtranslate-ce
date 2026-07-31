@@ -87,6 +87,9 @@ class _TranslationsCommonJa extends TranslationsCommonEn {
   late final _TranslationsCommonThemeModeJa theme_mode =
       _TranslationsCommonThemeModeJa._(_root);
   @override
+  late final _TranslationsCommonThemeStyleJa theme_style =
+      _TranslationsCommonThemeStyleJa._(_root);
+  @override
   late final _TranslationsCommonProviderJa provider =
       _TranslationsCommonProviderJa._(_root);
   @override
@@ -323,6 +326,21 @@ class _TranslationsCommonThemeModeJa extends TranslationsCommonThemeModeEn {
   String get dark => 'ダーク';
   @override
   String get system => 'システム';
+}
+
+// Path: common.theme_style
+class _TranslationsCommonThemeStyleJa extends TranslationsCommonThemeStyleEn {
+  _TranslationsCommonThemeStyleJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get studio => 'Studio';
+  @override
+  String get bright => 'Bright';
 }
 
 // Path: common.provider
@@ -1133,6 +1151,8 @@ class _TranslationsSettingsAppearanceSectionJa
   String get app_language => '表示言語';
   @override
   String get theme_mode => 'テーマモード';
+  @override
+  String get theme_style => 'テーマスタイル';
 }
 
 // Path: settings.shortcuts.section
@@ -1686,6 +1706,8 @@ extension on TranslationsJa {
       'common.theme_mode.light' => 'ライト',
       'common.theme_mode.dark' => 'ダーク',
       'common.theme_mode.system' => 'システム',
+      'common.theme_style.studio' => 'Studio',
+      'common.theme_style.bright' => 'Bright',
       'common.provider.anthropic' => 'Anthropic',
       'common.provider.baidu' => 'Baidu',
       'common.provider.caiyun' => 'Caiyun',
@@ -1826,6 +1848,7 @@ extension on TranslationsJa {
       'settings.appearance.title' => '外観',
       'settings.appearance.section.app_language' => '表示言語',
       'settings.appearance.section.theme_mode' => 'テーマモード',
+      'settings.appearance.section.theme_style' => 'テーマスタイル',
       'settings.shortcuts.title' => 'ショートカット',
       'settings.shortcuts.section.text_extraction' => 'テキスト抽出',
       'settings.shortcuts.section.input_assist' => '入力補助機能',

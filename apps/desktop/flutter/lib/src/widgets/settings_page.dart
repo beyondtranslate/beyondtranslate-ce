@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/themes/design_theme.dart';
-
+/// The scrolling body of a settings pane. Each block is its own bordered card,
+/// so the blocks are separated by space rather than a rule.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
     super.key,
@@ -14,23 +14,16 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
     final blocks = <Widget>[
       if (actions.isNotEmpty)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: actions,
-        ),
+        Row(mainAxisAlignment: MainAxisAlignment.end, children: actions),
       ...children,
     ];
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       itemCount: blocks.length,
       itemBuilder: (_, index) => blocks[index],
-      separatorBuilder: (_, __) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 11),
-        child: Divider(height: 1, color: colors.border),
-      ),
+      separatorBuilder: (_, __) => const SizedBox(height: 22),
     );
   }
 }

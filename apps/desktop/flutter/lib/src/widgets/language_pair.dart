@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/themes/design_theme.dart';
+import 'ui.dart' show Badge, BadgeSize, BadgeTone, SwapPair;
 
+/// The language capsule that anchors a translation view, with a badge naming
+/// how the source was chosen.
 class LanguagePair extends StatelessWidget {
   const LanguagePair({
     super.key,
@@ -19,38 +21,15 @@ class LanguagePair extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          color: context.design.accent.withValues(alpha: 0.16),
-          child: Text(
-            note,
-            style: context.eyebrowTextStyle.copyWith(fontSize: 10),
-          ),
+        Badge(
+          tone: BadgeTone.accent,
+          size: BadgeSize.xs,
+          child: Text(note),
         ),
-        const SizedBox(width: UiSpace.sm),
-        Text(
-          source,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        ),
-        Semantics(
-          button: true,
-          label: '交换语言',
-          child: InkWell(
-            onTap: onSwap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: UiSpace.sm),
-              child: Text(
-                '→',
-                style: TextStyle(fontSize: 12, color: context.design.quietText),
-              ),
-            ),
-          ),
-        ),
-        Text(
-          target,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        ),
+        const SizedBox(width: 12),
+        SwapPair(start: source, end: target, onSwap: onSwap),
       ],
     );
   }

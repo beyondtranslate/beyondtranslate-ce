@@ -317,9 +317,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     final toolbarViewHeight = _renderBoxHeight(_toolbarViewKey);
     final contentViewHeight = _renderBoxHeight(_contentViewKey);
 
-    return toolbarViewHeight +
-        contentViewHeight +
-        (kIsWindows ? 5 : 0);
+    return toolbarViewHeight + contentViewHeight + (kIsWindows ? 5 : 0);
   }
 
   double _renderBoxHeight(GlobalKey key) {
@@ -780,33 +778,30 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       key: _bannersViewKey,
       width: double.infinity,
       child: LimitedFunctionalityBanner(
-              isAllowedScreenCaptureAccess: _isAllowedScreenCaptureAccess,
-              isAllowedScreenSelectionAccess: _isAllowedScreenSelectionAccess,
-              onTappedRecheckIsAllowedAllAccess: () async {
-                _isAllowedScreenCaptureAccess = await runtime
-                    .permission()
-                    .isScreenRecordingPermissionGranted();
-                _isAllowedScreenSelectionAccess = await runtime
-                    .permission()
-                    .isAccessibilityPermissionGranted();
+        isAllowedScreenCaptureAccess: _isAllowedScreenCaptureAccess,
+        isAllowedScreenSelectionAccess: _isAllowedScreenSelectionAccess,
+        onTappedRecheckIsAllowedAllAccess: () async {
+          _isAllowedScreenCaptureAccess =
+              await runtime.permission().isScreenRecordingPermissionGranted();
+          _isAllowedScreenSelectionAccess =
+              await runtime.permission().isAccessibilityPermissionGranted();
 
-                _setStateAndScheduleWindowResize(() {});
+          _setStateAndScheduleWindowResize(() {});
 
-                if (_isAllowedScreenCaptureAccess &&
-                    _isAllowedScreenSelectionAccess) {
-                  BotToast.showText(
-                    text: t.mini_translator.limited_banner.feedback.enabled,
-                    align: Alignment.center,
-                  );
-                } else {
-                  BotToast.showText(
-                    text:
-                        t.mini_translator.limited_banner.feedback.still_missing,
-                    align: Alignment.center,
-                  );
-                }
-              },
-            ),
+          if (_isAllowedScreenCaptureAccess &&
+              _isAllowedScreenSelectionAccess) {
+            BotToast.showText(
+              text: t.mini_translator.limited_banner.feedback.enabled,
+              align: Alignment.center,
+            );
+          } else {
+            BotToast.showText(
+              text: t.mini_translator.limited_banner.feedback.still_missing,
+              align: Alignment.center,
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -855,8 +850,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           translationResultList: _translationResultList,
         ),
         MiniTranslatorActionButtons(
-          hasContent:
-              (_querySubmitted && _translationResultList.isNotEmpty),
+          hasContent: (_querySubmitted && _translationResultList.isNotEmpty),
           onRead: () {},
           onCopy: () {},
           onBookmark: () {},

@@ -123,7 +123,6 @@ List<String> getOtherLanguages(List<String> commonLanguageCodes) {
   return supportedLanguages.where((l) => !commonSet.contains(l)).toList();
 }
 
-
 Locale languageToLocale(String language) {
   final parts = language.split('-');
   if (parts.length >= 2 && parts[1].length == 4) {

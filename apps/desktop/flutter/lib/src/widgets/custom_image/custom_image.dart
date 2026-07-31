@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../ui.dart' show DesignThemeContext, Spinner, SpinnerSize;
+
 class CustomImage extends StatelessWidget {
   const CustomImage(
     this.url, {
@@ -24,20 +26,13 @@ class CustomImage extends StatelessWidget {
       loadingBuilder: (context, child, progress) {
         return progress == null
             ? child
-            : Center(
-                child: CircularProgressIndicator(
-                  value: progress.expectedTotalBytes != null
-                      ? progress.cumulativeBytesLoaded /
-                          (progress.expectedTotalBytes ?? 0)
-                      : null,
-                ),
-              );
+            : const Center(child: Spinner(size: SpinnerSize.sm));
       },
       errorBuilder: (ctx, error, stackTrace) {
         return Container(
           width: width,
           height: height,
-          color: Colors.red,
+          color: context.colors.dangerSurface,
         );
       },
     );

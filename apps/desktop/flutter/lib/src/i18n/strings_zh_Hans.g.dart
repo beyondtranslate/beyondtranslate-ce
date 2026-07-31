@@ -89,6 +89,9 @@ class _TranslationsCommonZhHans extends TranslationsCommonEn {
   late final _TranslationsCommonThemeModeZhHans theme_mode =
       _TranslationsCommonThemeModeZhHans._(_root);
   @override
+  late final _TranslationsCommonThemeStyleZhHans theme_style =
+      _TranslationsCommonThemeStyleZhHans._(_root);
+  @override
   late final _TranslationsCommonProviderZhHans provider =
       _TranslationsCommonProviderZhHans._(_root);
   @override
@@ -326,6 +329,22 @@ class _TranslationsCommonThemeModeZhHans extends TranslationsCommonThemeModeEn {
   String get dark => '深色';
   @override
   String get system => '跟随系统';
+}
+
+// Path: common.theme_style
+class _TranslationsCommonThemeStyleZhHans
+    extends TranslationsCommonThemeStyleEn {
+  _TranslationsCommonThemeStyleZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get studio => 'Studio';
+  @override
+  String get bright => 'Bright';
 }
 
 // Path: common.provider
@@ -1147,6 +1166,8 @@ class _TranslationsSettingsAppearanceSectionZhHans
   String get app_language => '显示语言';
   @override
   String get theme_mode => '主题模式';
+  @override
+  String get theme_style => '主题风格';
 }
 
 // Path: settings.shortcuts.section
@@ -1702,6 +1723,8 @@ extension on TranslationsZhHans {
       'common.theme_mode.light' => '浅色',
       'common.theme_mode.dark' => '深色',
       'common.theme_mode.system' => '跟随系统',
+      'common.theme_style.studio' => 'Studio',
+      'common.theme_style.bright' => 'Bright',
       'common.provider.anthropic' => 'Anthropic',
       'common.provider.baidu' => '百度',
       'common.provider.caiyun' => '彩云小译',
@@ -1837,6 +1860,7 @@ extension on TranslationsZhHans {
       'settings.appearance.title' => '外观',
       'settings.appearance.section.app_language' => '显示语言',
       'settings.appearance.section.theme_mode' => '主题模式',
+      'settings.appearance.section.theme_style' => '主题风格',
       'settings.shortcuts.title' => '快捷键',
       'settings.shortcuts.section.text_extraction' => '文字提取',
       'settings.shortcuts.section.input_assist' => '输入辅助功能',

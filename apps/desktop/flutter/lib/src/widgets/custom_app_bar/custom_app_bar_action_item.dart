@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../ui/button.dart';
+import '../ui.dart' show Button, ButtonVariant, DesignThemeContext;
 
 class CustomAppBarActionItem extends StatelessWidget {
   const CustomAppBarActionItem({
@@ -21,41 +21,33 @@ class CustomAppBarActionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Button(
-      minSize: 0,
+    return Padding(
       padding: padding ?? const EdgeInsets.only(right: 12),
-      onPressed: () {
-        if (onPressed != null) {
-          onPressed!();
-          return;
-        }
-        if (context.canPop()) {
-          context.pop();
-        }
-      },
-      child: child ??
-          Row(
-            children: [
-              if (icon != null)
-                Icon(
-                  icon,
-                  size: 20,
-                  color: Theme.of(context).appBarTheme.iconTheme!.color,
-                ),
-              if (text != null)
-                Padding(
-                  padding: EdgeInsets.only(left: icon != null ? 4 : 0),
-                  child: Text(
-                    text!,
-                    style: TextStyle(
-                      color:
-                          Theme.of(context).appBarTheme.actionsIconTheme!.color,
-                      fontSize: 14,
-                    ),
+      child: Button(
+        variant: ButtonVariant.quiet,
+        onPressed: () {
+          if (onPressed != null) {
+            onPressed!();
+            return;
+          }
+          if (context.canPop()) {
+            context.pop();
+          }
+        },
+        child: child ??
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null)
+                  Icon(icon, size: 20, color: context.colors.fg),
+                if (text != null)
+                  Padding(
+                    padding: EdgeInsets.only(left: icon != null ? 4 : 0),
+                    child: Text(text!),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
+      ),
     );
   }
 }

@@ -1947,6 +1947,7 @@ mod tests {
                     .update_appearance(AppearanceSettingsPatch {
                         language: Some("en".to_owned()),
                         theme_mode: None,
+                        theme: None,
                     })
                     .await
                     .expect("failed to update appearance");
@@ -2209,6 +2210,7 @@ mod tests {
                     .update_appearance(AppearanceSettingsPatch {
                         language: Some("en".to_owned()),
                         theme_mode: None,
+                        theme: None,
                     })
                     .await
                     .expect("update_appearance failed");
@@ -2271,6 +2273,7 @@ mod tests {
                     .update_appearance(AppearanceSettingsPatch {
                         language: Some("zh-Hans".to_owned()),
                         theme_mode: None,
+                        theme: None,
                     })
                     .await
                     .expect("update_appearance failed");
@@ -2309,6 +2312,7 @@ mod tests {
                     .update_appearance(AppearanceSettingsPatch {
                         language: Some("zh-Hans".to_owned()),
                         theme_mode: None,
+                        theme: None,
                     })
                     .await
                     .expect("writer update_appearance failed");
@@ -2338,6 +2342,7 @@ mod tests {
                     .update_appearance(AppearanceSettingsPatch {
                         language: Some("zh-Hans".to_owned()),
                         theme_mode: None,
+                        theme: None,
                     })
                     .await
                     .expect("failed to update appearance via writer");

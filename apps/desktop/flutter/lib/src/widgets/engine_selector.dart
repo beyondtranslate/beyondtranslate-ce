@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/themes/design_theme.dart';
+import 'ui.dart' show Badge, BadgeTone, OptionCard;
 
 class EngineSelector extends StatelessWidget {
   const EngineSelector({
@@ -16,55 +16,37 @@ class EngineSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: engines.map((engine) {
-        final selected = engine.id == selectedId;
-        return InkWell(
-          onTap: () => onSelected(engine.id),
-          child: Container(
-            padding: const EdgeInsets.all(UiSpace.sm),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: colors.border)),
-              color: selected ? colors.accent.withValues(alpha: 0.12) : null,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        engine.name,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                        ),
+      children: [
+        for (var index = 0; index < engines.length; index++) ...[
+          if (index > 0) const SizedBox(height: 8),
+          Builder(
+            builder: (context) {
+              final engine = engines[index];
+              return OptionCard(
+                selected: engine.id == selectedId,
+                onSelect: () => onSelected(engine.id),
+                title: Row(
+                  children: [
+                    Expanded(child: Text(engine.name)),
+                    if (engine.tag != null)
+                      Badge(
+                        tone: BadgeTone.accent,
+                        child: Text(engine.tag!),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        engine.preview,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: colors.quietText,
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
-                if (engine.tag != null)
-                  Text(
-                    engine.tag!,
-                    style: context.eyebrowTextStyle.copyWith(fontSize: 9),
-                  ),
-              ],
-            ),
+                description: Text(
+                  engine.preview,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            },
           ),
-        );
-      }).toList(),
+        ],
+      ],
     );
   }
 }

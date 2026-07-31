@@ -87,6 +87,9 @@ class _TranslationsCommonKo extends TranslationsCommonEn {
   late final _TranslationsCommonThemeModeKo theme_mode =
       _TranslationsCommonThemeModeKo._(_root);
   @override
+  late final _TranslationsCommonThemeStyleKo theme_style =
+      _TranslationsCommonThemeStyleKo._(_root);
+  @override
   late final _TranslationsCommonProviderKo provider =
       _TranslationsCommonProviderKo._(_root);
   @override
@@ -323,6 +326,21 @@ class _TranslationsCommonThemeModeKo extends TranslationsCommonThemeModeEn {
   String get dark => '다크';
   @override
   String get system => '시스템';
+}
+
+// Path: common.theme_style
+class _TranslationsCommonThemeStyleKo extends TranslationsCommonThemeStyleEn {
+  _TranslationsCommonThemeStyleKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get studio => 'Studio';
+  @override
+  String get bright => 'Bright';
 }
 
 // Path: common.provider
@@ -1132,6 +1150,8 @@ class _TranslationsSettingsAppearanceSectionKo
   String get app_language => '표시 언어';
   @override
   String get theme_mode => '테마 모드';
+  @override
+  String get theme_style => '테마 스타일';
 }
 
 // Path: settings.shortcuts.section
@@ -1686,6 +1706,8 @@ extension on TranslationsKo {
       'common.theme_mode.light' => '라이트',
       'common.theme_mode.dark' => '다크',
       'common.theme_mode.system' => '시스템',
+      'common.theme_style.studio' => 'Studio',
+      'common.theme_style.bright' => 'Bright',
       'common.provider.anthropic' => 'Anthropic',
       'common.provider.baidu' => 'Baidu',
       'common.provider.caiyun' => 'Caiyun',
@@ -1825,6 +1847,7 @@ extension on TranslationsKo {
       'settings.appearance.title' => '외관',
       'settings.appearance.section.app_language' => '표시 언어',
       'settings.appearance.section.theme_mode' => '테마 모드',
+      'settings.appearance.section.theme_style' => '테마 스타일',
       'settings.shortcuts.title' => '단축키',
       'settings.shortcuts.section.text_extraction' => '텍스트 추출',
       'settings.shortcuts.section.input_assist' => '입력 보조 기능',

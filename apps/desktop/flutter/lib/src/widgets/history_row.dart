@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/themes/design_theme.dart';
+import 'ui.dart' show ListCard;
 
 class HistoryRow extends StatelessWidget {
   const HistoryRow({
@@ -18,44 +18,16 @@ class HistoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: UiSpace.sm),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    term,
-                    style: const TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    translation,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: colors.mutedText,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              timestamp,
-              style: TextStyle(fontSize: 11, color: colors.quietText),
-            ),
-          ],
-        ),
+    return ListCard(
+      eyebrow: Text(term),
+      meta: Text(timestamp),
+      primary: const SizedBox.shrink(),
+      secondary: Text(
+        translation,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
+      onPressed: onTap,
     );
   }
 }

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../utils/platform_util.dart';
+import '../utils/platform_util.dart';
 import 'native_text_field.dart';
 
 const EdgeInsets _kDefaultPadding = EdgeInsets.symmetric(

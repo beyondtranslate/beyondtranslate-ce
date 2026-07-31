@@ -217,9 +217,11 @@ class FfiConverterAdvancedSettingsPatch {
 class AppearanceSettings {
   final String language;
   final String themeMode;
+  final String theme;
   AppearanceSettings({
     required this.language,
     required this.themeMode,
+    required this.theme,
   });
 }
 
@@ -238,10 +240,15 @@ class FfiConverterAppearanceSettings {
         FfiConverterString.read(Uint8List.view(buf.buffer, new_offset));
     final themeMode = themeMode_lifted.value;
     new_offset += themeMode_lifted.bytesRead;
+    final theme_lifted =
+        FfiConverterString.read(Uint8List.view(buf.buffer, new_offset));
+    final theme = theme_lifted.value;
+    new_offset += theme_lifted.bytesRead;
     return LiftRetVal(
         AppearanceSettings(
           language: language,
           themeMode: themeMode,
+          theme: theme,
         ),
         new_offset - buf.offsetInBytes);
   }
@@ -249,6 +256,7 @@ class FfiConverterAppearanceSettings {
   static RustBuffer lower(AppearanceSettings value) {
     final total_length = FfiConverterString.allocationSize(value.language) +
         FfiConverterString.allocationSize(value.themeMode) +
+        FfiConverterString.allocationSize(value.theme) +
         0;
     final buf = Uint8List(total_length);
     write(value, buf);
@@ -261,12 +269,15 @@ class FfiConverterAppearanceSettings {
         value.language, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterString.write(
         value.themeMode, Uint8List.view(buf.buffer, new_offset));
+    new_offset += FfiConverterString.write(
+        value.theme, Uint8List.view(buf.buffer, new_offset));
     return new_offset - buf.offsetInBytes;
   }
 
   static int allocationSize(AppearanceSettings value) {
     return FfiConverterString.allocationSize(value.language) +
         FfiConverterString.allocationSize(value.themeMode) +
+        FfiConverterString.allocationSize(value.theme) +
         0;
   }
 }
@@ -274,9 +285,11 @@ class FfiConverterAppearanceSettings {
 class AppearanceSettingsPatch {
   final String? language;
   final String? themeMode;
+  final String? theme;
   AppearanceSettingsPatch({
     this.language,
     this.themeMode,
+    this.theme,
   });
 }
 
@@ -295,10 +308,15 @@ class FfiConverterAppearanceSettingsPatch {
         FfiConverterOptionalString.read(Uint8List.view(buf.buffer, new_offset));
     final themeMode = themeMode_lifted.value;
     new_offset += themeMode_lifted.bytesRead;
+    final theme_lifted =
+        FfiConverterOptionalString.read(Uint8List.view(buf.buffer, new_offset));
+    final theme = theme_lifted.value;
+    new_offset += theme_lifted.bytesRead;
     return LiftRetVal(
         AppearanceSettingsPatch(
           language: language,
           themeMode: themeMode,
+          theme: theme,
         ),
         new_offset - buf.offsetInBytes);
   }
@@ -307,6 +325,7 @@ class FfiConverterAppearanceSettingsPatch {
     final total_length =
         FfiConverterOptionalString.allocationSize(value.language) +
             FfiConverterOptionalString.allocationSize(value.themeMode) +
+            FfiConverterOptionalString.allocationSize(value.theme) +
             0;
     final buf = Uint8List(total_length);
     write(value, buf);
@@ -319,12 +338,15 @@ class FfiConverterAppearanceSettingsPatch {
         value.language, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterOptionalString.write(
         value.themeMode, Uint8List.view(buf.buffer, new_offset));
+    new_offset += FfiConverterOptionalString.write(
+        value.theme, Uint8List.view(buf.buffer, new_offset));
     return new_offset - buf.offsetInBytes;
   }
 
   static int allocationSize(AppearanceSettingsPatch value) {
     return FfiConverterOptionalString.allocationSize(value.language) +
         FfiConverterOptionalString.allocationSize(value.themeMode) +
+        FfiConverterOptionalString.allocationSize(value.theme) +
         0;
   }
 }

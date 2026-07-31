@@ -73,6 +73,8 @@ class TranslationsCommonEn {
       TranslationsCommonLanguageEn.internal(_root);
   late final TranslationsCommonThemeModeEn theme_mode =
       TranslationsCommonThemeModeEn.internal(_root);
+  late final TranslationsCommonThemeStyleEn theme_style =
+      TranslationsCommonThemeStyleEn.internal(_root);
   late final TranslationsCommonProviderEn provider =
       TranslationsCommonProviderEn.internal(_root);
   late final TranslationsCommonWordPronunciationEn word_pronunciation =
@@ -321,6 +323,21 @@ class TranslationsCommonThemeModeEn {
 
   /// en: 'System'
   String get system => 'System';
+}
+
+// Path: common.theme_style
+class TranslationsCommonThemeStyleEn {
+  TranslationsCommonThemeStyleEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Studio'
+  String get studio => 'Studio';
+
+  /// en: 'Bright'
+  String get bright => 'Bright';
 }
 
 // Path: common.provider
@@ -1170,6 +1187,9 @@ class TranslationsSettingsAppearanceSectionEn {
 
   /// en: 'Theme Mode'
   String get theme_mode => 'Theme Mode';
+
+  /// en: 'Theme style'
+  String get theme_style => 'Theme style';
 }
 
 // Path: settings.shortcuts.section
@@ -1691,6 +1711,8 @@ extension on Translations {
       'common.theme_mode.light' => 'Light',
       'common.theme_mode.dark' => 'Dark',
       'common.theme_mode.system' => 'System',
+      'common.theme_style.studio' => 'Studio',
+      'common.theme_style.bright' => 'Bright',
       'common.provider.anthropic' => 'Anthropic',
       'common.provider.baidu' => 'Baidu',
       'common.provider.caiyun' => 'Caiyun',
@@ -1854,6 +1876,7 @@ extension on Translations {
       'settings.appearance.title' => 'Appearance',
       'settings.appearance.section.app_language' => 'Display Language',
       'settings.appearance.section.theme_mode' => 'Theme Mode',
+      'settings.appearance.section.theme_style' => 'Theme style',
       'settings.shortcuts.title' => 'Shortcuts',
       'settings.shortcuts.section.text_extraction' => 'Text Extraction',
       'settings.shortcuts.section.input_assist' => 'Input Assist Function',

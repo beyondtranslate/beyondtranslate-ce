@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide TextField;
 
-import 'ui/text_field.dart' as app_ui;
-import 'ui/themes/design_theme.dart';
+import 'text_field.dart' show TextField;
+import 'ui.dart'
+    show DesignThemeContext, DesignTypographyStyles, Label, LabelTone;
 
 class TranslationPane extends StatelessWidget {
   const TranslationPane({
@@ -39,31 +40,42 @@ class TranslationPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
+    final tokens = context.tokens;
+    final colors = tokens.colors;
     return ColoredBox(
-      color: highlighted ? colors.translatedSurface : colors.paper,
+      // The preferred pane carries the accent surface, the way a
+      // HighlightBlock marks the answer a view is pointing at.
+      color: highlighted ? colors.accentSurface : colors.window,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: UiSpace.md,
-              vertical: 9,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: colors.text.withValues(alpha: 0.10),
+                  color: highlighted ? colors.accentBorder : colors.border,
+                  width: context.hairlineWidth,
                 ),
               ),
             ),
             child: Row(
               children: [
-                Text(
-                  '$label · $language',
-                  style: context.eyebrowTextStyle.copyWith(
-                    color: highlighted ? colors.accent : colors.quietText,
+                if (highlighted) ...[
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: colors.highlight,
+                      shape: BoxShape.circle,
+                      boxShadow: tokens.highlightGlow,
+                    ),
                   ),
+                  const SizedBox(width: 10),
+                ],
+                Label(
+                  tone: highlighted ? LabelTone.accent : LabelTone.subtle,
+                  child: Text('$label · $language'),
                 ),
                 const Spacer(),
                 if (trailing != null) trailing!,
@@ -72,9 +84,12 @@ class TranslationPane extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(UiSpace.md),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 22,
+                vertical: 16,
+              ),
               child: editable
-                  ? app_ui.TextField(
+                  ? TextField(
                       controller: controller,
                       focusNode: focusNode,
                       minLines: null,
@@ -85,26 +100,18 @@ class TranslationPane extends StatelessWidget {
                       onChanged: onChanged,
                       onSubmitted: onSubmitted,
                       placeholder: hintText,
-                      placeholderStyle: TextStyle(
-                        fontSize: 14,
-                        height: 1.85,
-                        color: colors.quietText,
-                      ),
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.85,
-                        color: colors.text,
-                      ),
+                      placeholderStyle:
+                          tokens.typography.sourceStyle(color: colors.fgFaint),
+                      style: tokens.typography.sourceStyle(color: colors.fg),
                       padding: EdgeInsets.zero,
                     )
                   : SingleChildScrollView(
                       child: SelectableText(
                         text,
-                        style: TextStyle(
-                          fontSize: 14,
-                          height: 1.7,
-                          color: colors.text,
-                        ),
+                        style: highlighted
+                            ? tokens.typography
+                                .translationStyle(color: colors.fg)
+                            : tokens.typography.sourceStyle(color: colors.fg),
                       ),
                     ),
             ),
@@ -113,13 +120,14 @@ class TranslationPane extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(
-                horizontal: UiSpace.md,
-                vertical: 11,
+                horizontal: 22,
+                vertical: 14,
               ),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: colors.text.withValues(alpha: 0.12),
+                    color: highlighted ? colors.accentBorder : colors.border,
+                    width: context.hairlineWidth,
                   ),
                 ),
               ),

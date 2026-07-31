@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
+import '../../theme/app_theme.dart' show DesignThemeFamily;
 import '../../utils/language_util.dart';
+import '../../widgets/preference_list/preference_list_item.dart';
+import '../../widgets/preference_list/preference_list_section.dart';
 import '../../widgets/settings_page.dart';
-import '../../widgets/ui/preference_list_item.dart';
-import '../../widgets/ui/preference_list_section.dart';
 
 /// Mirrors macOS `AppearanceView.swift`.
 class AppearanceSettingsPage extends StatefulWidget {
@@ -21,6 +22,11 @@ class _AppearanceSettingsPageState extends State<AppearanceSettingsPage> {
     _ThemeOption(value: 'light'),
     _ThemeOption(value: 'dark'),
     _ThemeOption(value: 'system'),
+  ];
+
+  static const _themeStyles = <_ThemeStyleOption>[
+    _ThemeStyleOption(family: DesignThemeFamily.studio),
+    _ThemeStyleOption(family: DesignThemeFamily.bright),
   ];
 
   @override
@@ -80,6 +86,22 @@ class _AppearanceSettingsPageState extends State<AppearanceSettingsPage> {
               ),
           ],
         ),
+        PreferenceListSection(
+          title: Text(appearanceText.section.theme_style),
+          children: [
+            for (final style in _themeStyles)
+              PreferenceListRadioItem<String>(
+                title: Text(style.title),
+                value: style.family.id,
+                groupValue: appearance.theme,
+                onChanged: (v) async {
+                  await settingsStore.updateAppearance(
+                    AppearanceSettingsPatch(theme: v),
+                  );
+                },
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -92,6 +114,17 @@ class _LanguageOption {
   String get title {
     return getLanguageName(code);
   }
+}
+
+class _ThemeStyleOption {
+  const _ThemeStyleOption({required this.family});
+
+  final DesignThemeFamily family;
+
+  String get title => switch (family) {
+        DesignThemeFamily.studio => t.common.theme_style.studio,
+        DesignThemeFamily.bright => t.common.theme_style.bright,
+      };
 }
 
 class _ThemeOption {

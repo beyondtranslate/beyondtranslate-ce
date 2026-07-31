@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import '../../widgets/ui/themes/design_theme.dart';
+import '../../widgets/ui.dart' show EmptyState;
+import '../../widgets/workbench.dart' show WorkbenchToolbar;
 
 class WorkbenchPlaceholderPage extends StatelessWidget {
   const WorkbenchPlaceholderPage({
@@ -16,24 +17,17 @@ class WorkbenchPlaceholderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 42, color: colors.accent),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        WorkbenchToolbar(title: title),
+        Expanded(
+          child: EmptyState(
+            title: Text(title),
+            description: Text(message),
           ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: TextStyle(fontSize: 13, color: colors.mutedText),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

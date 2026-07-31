@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
+import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
+import '../../widgets/preference_list/preference_list_item.dart';
+import '../../widgets/preference_list/preference_list_section.dart';
 import '../../widgets/settings_page.dart';
-import '../../widgets/ui/keycap.dart';
-import '../../widgets/ui/preference_list_item.dart';
-import '../../widgets/ui/preference_list_section.dart';
+import '../../widgets/ui.dart' show Button, ButtonVariant, Kbd, KbdVariant;
 
 /// Mirrors macOS `ShortcutsView.swift`.
 ///
@@ -43,15 +44,17 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
   Future<void> _resetToDefaults() async {
     final confirmed = await showDialogInCurrentWindow<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AppDialog(
         title: Text(t.settings.shortcuts.reset_dialog.title),
         content: Text(t.settings.shortcuts.reset_dialog.message),
         actions: [
-          TextButton(
+          Button(
+            variant: ButtonVariant.secondary,
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(t.settings.shortcuts.reset_dialog.cancel),
           ),
-          FilledButton.tonal(
+          Button(
+            variant: ButtonVariant.primary,
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(t.settings.shortcuts.reset_dialog.confirm),
           ),
@@ -148,7 +151,7 @@ class _ShortcutBadge extends StatelessWidget {
         style: Theme.of(context).textTheme.bodySmall,
       );
     }
-    return Keycap(label);
+    return Kbd(label, variant: KbdVariant.key);
   }
 
   String _formatShortcut(String value) {

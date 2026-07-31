@@ -1,78 +1,72 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/panel.dart';
-import 'ui/themes/design_theme.dart';
+import 'ui.dart'
+    show Sidebar, WindowBody, WindowFooter, WindowMain, WindowTitlebar;
 
+/// The workbench shell in the Finder/Mail layout: the sidebar runs the full
+/// height of the window and the toolbar spans only the content pane.
+///
+/// The sidebar's header strip is what lines its top up with that toolbar, so it
+/// is always present. In the design deck it holds the traffic lights; here they
+/// are the window's own, so the strip stays empty and only reserves the height —
+/// on macOS the real lights sit in it, elsewhere it is blank chrome.
+///
+/// The toolbar belongs to the view, not to the shell — each page renders its
+/// own [WorkbenchToolbar] as the first thing in [child].
 class Workbench extends StatelessWidget {
   const Workbench({
     super.key,
     required this.sidebar,
     required this.child,
-    this.subtitle,
     this.footer,
   });
 
   final List<Widget> sidebar;
   final Widget child;
-  final String? subtitle;
   final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    final isMacOS = Theme.of(context).platform == TargetPlatform.macOS;
-    return Panel(
-      padding: EdgeInsets.zero,
-      elevated: true,
-      child: Column(
-        children: [
-          Container(
-            height: 38,
-            padding: EdgeInsets.only(
-              left: isMacOS ? 78 : UiSpace.sm,
-              right: UiSpace.sm,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        WindowBody(
+          children: [
+            Sidebar(
+              header: const SizedBox.shrink(),
+              children: sidebar,
             ),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: colors.border)),
-            ),
-            child: Row(
-              children: [
-                if (subtitle != null) ...[
-                  Expanded(
-                    child: Text(
-                      subtitle!,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: colors.quietText),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 172,
-                  child: ColoredBox(
-                    color: colors.panel,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: UiSpace.sm),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: sidebar,
-                      ),
-                    ),
-                  ),
-                ),
-                VerticalDivider(width: 1, color: colors.border),
-                Expanded(child: child),
-              ],
-            ),
-          ),
-          if (footer != null) footer!,
-        ],
-      ),
+            WindowMain(children: [Expanded(child: child)]),
+          ],
+        ),
+        if (footer != null) WindowFooter(children: [Expanded(child: footer!)]),
+      ],
+    );
+  }
+}
+
+/// A view's toolbar band, at the same height as the sidebar's header strip.
+class WorkbenchToolbar extends StatelessWidget {
+  const WorkbenchToolbar({
+    super.key,
+    this.title,
+    this.subtitle,
+    this.children = const [],
+  });
+
+  final String? title;
+  final String? subtitle;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return WindowTitlebar(
+      lights: false,
+      title: title == null ? null : Text(title!),
+      subtitle: subtitle == null
+          ? null
+          : Text(subtitle!, overflow: TextOverflow.ellipsis),
+      children: children,
     );
   }
 }

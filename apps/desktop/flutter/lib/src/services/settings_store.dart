@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:nativeapi/nativeapi.dart';
 
+import '../theme/app_theme.dart' show DesignThemeFamily;
 import '../utils/language_util.dart';
 import '../utils/platform_util.dart';
 import 'runtime.dart' as runtime_service;
@@ -52,6 +53,7 @@ class SettingsStore extends ChangeNotifier {
   AppearanceSettings _appearance = AppearanceSettings(
     language: 'zh-Hans',
     themeMode: 'system',
+    theme: 'studio',
   );
   ShortcutSettings _shortcuts = ShortcutSettings(
     toggleMiniTranslator: '',
@@ -86,6 +88,11 @@ class SettingsStore extends ChangeNotifier {
         return ThemeMode.system;
     }
   }
+
+  /// The palette family the design system paints with. Orthogonal to
+  /// [themeMode], which only decides light vs dark.
+  DesignThemeFamily get themeFamily =>
+      DesignThemeFamily.fromId(_appearance.theme);
 
   InputSubmitMode get inputSubmitMode => _general.inputSubmitMode;
   bool get autoCopyDetectedText => _general.autoCopyDetectedText;

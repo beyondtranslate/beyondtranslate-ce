@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/themes/design_theme.dart';
+import 'ui.dart' show TextArea;
 
 class TranslationTextArea extends StatelessWidget {
   const TranslationTextArea({
@@ -22,30 +22,13 @@ class TranslationTextArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: colors.border),
-    );
-    return TextField(
+    return TextArea(
       controller: controller,
-      readOnly: readOnly,
+      placeholder: hintText,
+      enabled: !readOnly,
       minLines: minLines,
       maxLines: maxLines,
       onChanged: onChanged,
-      style: TextStyle(color: colors.text, fontSize: 14, height: 1.65),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: colors.quietText),
-        filled: true,
-        fillColor: colors.paper,
-        contentPadding: const EdgeInsets.all(UiSpace.sm),
-        border: border,
-        enabledBorder: border,
-        focusedBorder: border.copyWith(
-          borderSide: BorderSide(color: colors.accent, width: 2),
-        ),
-      ),
     );
   }
 }

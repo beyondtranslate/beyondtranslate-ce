@@ -7,7 +7,14 @@ import '../../services/runtime.dart' show TranslationTarget;
 import '../../services/settings_store.dart';
 import '../../utils/language_util.dart';
 import '../../widgets/navigation_item.dart';
-import '../../widgets/ui/themes/design_theme.dart';
+import '../../widgets/ui.dart'
+    show
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Label,
+        LabelTone,
+        SidebarCard,
+        SidebarGroup;
 import '../../widgets/workbench.dart';
 import '../settings/advanced.dart';
 import '../settings/appearance.dart';
@@ -138,61 +145,49 @@ class WorkbenchShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Workbench(
-        subtitle: _subtitle,
         footer: _StatusBar(location: location),
         sidebar: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
-            child: Text(
-              t.workbench.workspace,
-              style: context.eyebrowTextStyle.copyWith(fontSize: 9),
-            ),
+          SidebarGroup(
+            first: true,
+            label: Text(t.workbench.workspace),
+            children: [
+              NavigationItem(
+                label: t.workbench.translate,
+                icon: FluentIcons.translate_20_regular,
+                selected: _selected('/translate'),
+                onTap: () => context.go('/translate'),
+              ),
+              NavigationItem(
+                label: t.workbench.document,
+                icon: FluentIcons.document_20_regular,
+                selected: _selected('/document'),
+                onTap: () => context.go('/document'),
+              ),
+              NavigationItem(
+                label: t.workbench.history,
+                icon: FluentIcons.bookmark_20_regular,
+                selected: _selected('/history'),
+                onTap: () => context.go('/history'),
+              ),
+              NavigationItem(
+                label: t.workbench.glossary,
+                icon: FluentIcons.book_open_20_regular,
+                selected: _selected('/glossary'),
+                onTap: () => context.go('/glossary'),
+              ),
+              NavigationItem(
+                label: t.settings.layout.title,
+                icon: FluentIcons.settings_20_regular,
+                selected: _selected('/settings'),
+                onTap: () => context.go('/settings/general'),
+              ),
+            ],
           ),
-          NavigationItem(
-            label: t.workbench.translate,
-            icon: FluentIcons.translate_20_regular,
-            selected: _selected('/translate'),
-            onTap: () => context.go('/translate'),
-          ),
-          NavigationItem(
-            label: t.workbench.document,
-            icon: FluentIcons.document_20_regular,
-            selected: _selected('/document'),
-            onTap: () => context.go('/document'),
-          ),
-          NavigationItem(
-            label: t.workbench.history,
-            icon: FluentIcons.bookmark_20_regular,
-            selected: _selected('/history'),
-            onTap: () => context.go('/history'),
-          ),
-          NavigationItem(
-            label: t.workbench.glossary,
-            icon: FluentIcons.book_open_20_regular,
-            selected: _selected('/glossary'),
-            onTap: () => context.go('/glossary'),
-          ),
-          NavigationItem(
-            label: t.settings.layout.title,
-            icon: FluentIcons.settings_20_regular,
-            selected: _selected('/settings'),
-            onTap: () => context.go('/settings/general'),
-          ),
-          const Spacer(),
           _RecentLanguages(targets: settingsStore.general.translationTargets),
         ],
         child: child,
       ),
     );
-  }
-
-  String? get _subtitle {
-    if (_selected('/translate')) return t.workbench.subtitle.translate;
-    if (_selected('/settings')) return t.workbench.subtitle.settings;
-    if (_selected('/document')) return t.workbench.document;
-    if (_selected('/history')) return t.workbench.history;
-    if (_selected('/glossary')) return t.workbench.glossary;
-    return null;
   }
 }
 
@@ -203,43 +198,31 @@ class _RecentLanguages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
     final visible = targets.take(3).toList(growable: false);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: colors.border)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return SidebarCard(
+      label: Text(t.workbench.recent_languages),
+      children: [
+        if (visible.isEmpty)
           Text(
-            t.workbench.recent_languages,
-            style: context.eyebrowTextStyle.copyWith(
-              color: colors.quietText,
-              fontSize: 9,
+            t.workbench.not_configured,
+            style: context.typography.sansStyle(
+              fontSize: 11,
+              color: context.colors.fgSubtle,
             ),
-          ),
-          const SizedBox(height: 5),
-          if (visible.isEmpty)
+          )
+        else
+          for (final target in visible)
             Text(
-              t.workbench.not_configured,
-              style: TextStyle(fontSize: 12, color: colors.quietText),
-            )
-          else
-            for (final target in visible)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: Text(
-                  '${getSourceDisplayName(target.source)} → '
-                  '${getLanguageName(target.target)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: colors.mutedText),
-                ),
+              '${getSourceDisplayName(target.source)} → '
+              '${getLanguageName(target.target)}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.typography.sansStyle(
+                fontSize: 11,
+                color: context.colors.fgMuted,
               ),
-        ],
-      ),
+            ),
+      ],
     );
   }
 }
@@ -251,35 +234,22 @@ class _StatusBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    return Container(
-      height: 29,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: colors.panel,
-        border: Border(top: BorderSide(color: colors.border)),
-      ),
-      child: Row(
-        children: [
-          Text(
+    return Row(
+      children: [
+        Label(
+          tone: LabelTone.faint,
+          child: Text(
             location.startsWith('/settings')
                 ? t.workbench.status.settings_synced
                 : t.workbench.status.runtime_ready,
-            style: context.eyebrowTextStyle.copyWith(
-              color: colors.quietText,
-              fontSize: 9,
-            ),
           ),
-          const Spacer(),
-          Text(
-            t.workbench.status.shortcuts,
-            style: context.eyebrowTextStyle.copyWith(
-              color: colors.quietText,
-              fontSize: 9,
-            ),
-          ),
-        ],
-      ),
+        ),
+        const Spacer(),
+        Label(
+          tone: LabelTone.faint,
+          child: Text(t.workbench.status.shortcuts),
+        ),
+      ],
     );
   }
 }

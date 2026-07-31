@@ -87,6 +87,9 @@ class _TranslationsCommonFr extends TranslationsCommonEn {
   late final _TranslationsCommonThemeModeFr theme_mode =
       _TranslationsCommonThemeModeFr._(_root);
   @override
+  late final _TranslationsCommonThemeStyleFr theme_style =
+      _TranslationsCommonThemeStyleFr._(_root);
+  @override
   late final _TranslationsCommonProviderFr provider =
       _TranslationsCommonProviderFr._(_root);
   @override
@@ -323,6 +326,21 @@ class _TranslationsCommonThemeModeFr extends TranslationsCommonThemeModeEn {
   String get dark => 'Sombre';
   @override
   String get system => 'Système';
+}
+
+// Path: common.theme_style
+class _TranslationsCommonThemeStyleFr extends TranslationsCommonThemeStyleEn {
+  _TranslationsCommonThemeStyleFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get studio => 'Studio';
+  @override
+  String get bright => 'Bright';
 }
 
 // Path: common.provider
@@ -1152,6 +1170,8 @@ class _TranslationsSettingsAppearanceSectionFr
   String get app_language => 'Langue d\'affichage';
   @override
   String get theme_mode => 'Mode du thème';
+  @override
+  String get theme_style => 'Style de thème';
 }
 
 // Path: settings.shortcuts.section
@@ -1717,6 +1737,8 @@ extension on TranslationsFr {
       'common.theme_mode.light' => 'Clair',
       'common.theme_mode.dark' => 'Sombre',
       'common.theme_mode.system' => 'Système',
+      'common.theme_style.studio' => 'Studio',
+      'common.theme_style.bright' => 'Bright',
       'common.provider.anthropic' => 'Anthropic',
       'common.provider.baidu' => 'Baidu',
       'common.provider.caiyun' => 'Caiyun',
@@ -1890,6 +1912,7 @@ extension on TranslationsFr {
       'settings.appearance.title' => 'Apparence',
       'settings.appearance.section.app_language' => 'Langue d\'affichage',
       'settings.appearance.section.theme_mode' => 'Mode du thème',
+      'settings.appearance.section.theme_style' => 'Style de thème',
       'settings.shortcuts.title' => 'Raccourcis',
       'settings.shortcuts.section.text_extraction' => 'Extraction de texte',
       'settings.shortcuts.section.input_assist' =>

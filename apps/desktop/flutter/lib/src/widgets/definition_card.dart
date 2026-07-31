@@ -1,7 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/panel.dart';
-import 'ui/themes/design_theme.dart';
+import 'ui.dart'
+    show
+        Badge,
+        BadgeTone,
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Surface,
+        SurfacePadding;
 
 class DefinitionCard extends StatelessWidget {
   const DefinitionCard({
@@ -21,33 +27,49 @@ class DefinitionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          term,
-          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                term,
+                style: tokens.typography.displayStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  height: 1,
+                  color: colors.fg,
+                ),
+              ),
+            ),
+            Badge(tone: BadgeTone.neutral, child: Text(tag)),
+          ],
         ),
-        const SizedBox(height: 3),
+        const SizedBox(height: 5),
         Text(
-          '$pronunciation · $tag',
-          style: TextStyle(
-            fontFamily: 'Roboto Mono',
-            fontSize: 10.5,
-            color: context.design.quietText,
+          pronunciation,
+          style: tokens.typography.monoStyle(
+            fontSize: 11,
+            height: 1,
+            color: colors.fgSubtle,
           ),
         ),
-        const SizedBox(height: UiSpace.xs),
+        const SizedBox(height: 9),
         Text(
           definition,
-          style: const TextStyle(fontSize: 13, height: 1.55),
+          style: tokens.typography.sansStyle(
+            fontSize: 12,
+            height: 1.6,
+            color: colors.fgSecondary,
+          ),
         ),
       ],
     );
     if (!outlined) return content;
-    return Panel(
-      padding: const EdgeInsets.all(UiSpace.sm),
-      child: content,
-    );
+    return Surface(padding: SurfacePadding.sm, child: content);
   }
 }

@@ -1,15 +1,20 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Badge;
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../extensions/window_controller.dart';
 import '../../i18n/i18n.dart';
 import '../../utils/language_util.dart';
-import '../../widgets/ui/button.dart';
-import '../../widgets/ui/themes/design_theme.dart';
-import '../app_router.dart'
-    show miniTranslatorWindowController;
+import '../../widgets/icon_action_button.dart';
+import '../../widgets/ui.dart'
+    show
+        Badge,
+        BadgeTone,
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Pressable;
+import '../app_router.dart' show miniTranslatorWindowController;
 
 /// Opens a native context menu anchored near [buttonKey].
 void _openMenu(
@@ -18,8 +23,7 @@ void _openMenu(
   nativeapi.Placement placement = nativeapi.Placement.bottom,
   double anchorX = 0.5,
 }) {
-  final renderBox =
-      buttonKey.currentContext?.findRenderObject() as RenderBox?;
+  final renderBox = buttonKey.currentContext?.findRenderObject() as RenderBox?;
   if (renderBox == null || !renderBox.hasSize) return;
 
   final localPosition = renderBox.localToGlobal(Offset.zero);
@@ -247,144 +251,165 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final design = context.design;
+    final tokens = context.tokens;
+    final colors = tokens.colors;
     final sourceName = getSourceDisplayName(sourceLanguage);
     final targetName = selectedTargetLanguage == null
         ? t.mini_translator.language.auto_match
         : getLanguageName(selectedTargetLanguage!);
-    final isDetected = detectedLanguage != null &&
-        !isAutoSource(sourceLanguage);
+    final isDetected =
+        detectedLanguage != null && !isAutoSource(sourceLanguage);
+    final canSwap = !isAutoSource(sourceLanguage);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: design.border),
+          bottom: BorderSide(
+            color: colors.border,
+            width: context.hairlineWidth,
+          ),
         ),
       ),
       child: Row(
         children: [
-          // Auto-detect badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: design.accent.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(3),
-            ),
+          Badge(
+            tone: BadgeTone.accent,
             child: Text(
               isDetected
                   ? getLanguageName(detectedLanguage!)
                   : t.mini_translator.language.auto_detect,
-              style: TextStyle(
-                fontFamily: 'Barlow Condensed',
-                fontWeight: FontWeight.w600,
-                fontSize: 10,
-                height: 1.4,
-                letterSpacing: 0.12,
-                color: design.accentDark,
-              ),
             ),
           ),
-          const SizedBox(width: 6),
-          // Source language (clickable)
-          Button(
-            key: _sourceButtonKey,
-            minSize: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            onPressed: _showSourceMenu,
+          const SizedBox(width: 8),
+          // The language capsule, shaped like the design system's SwapPair —
+          // but each end opens a native menu, so the labels are pressable.
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+            decoration: BoxDecoration(
+              color: colors.control,
+              borderRadius: BorderRadius.circular(tokens.radii.control),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  sourceName,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12.5,
-                  ),
+                _LanguageChip(
+                  key: _sourceButtonKey,
+                  label: sourceName,
+                  onPressed: _showSourceMenu,
                 ),
-                const SizedBox(width: 2),
-                Icon(
-                  FluentIcons.chevron_down_20_regular,
-                  size: 12,
-                  color: design.mutedText,
+                const SizedBox(width: 4),
+                _SwapButton(
+                  onPressed: !canSwap
+                      ? null
+                      : () {
+                          onSourceChanged(
+                            selectedTargetLanguage ?? defaultTargetLanguage,
+                          );
+                          onTargetLanguageChanged(sourceLanguage);
+                        },
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 4),
-          // Swap button
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: Button(
-              borderRadius: BorderRadius.zero,
-              minSize: 0,
-              padding: EdgeInsets.zero,
-              onPressed: isAutoSource(sourceLanguage)
-                  ? null
-                  : () {
-                      onSourceChanged(
-                        selectedTargetLanguage ?? defaultTargetLanguage,
-                      );
-                      onTargetLanguageChanged(
-                        sourceLanguage,
-                      );
-                    },
-              child: Icon(
-                FluentIcons.arrow_swap_20_regular,
-                size: 14,
-                color: isAutoSource(sourceLanguage)
-                    ? design.quietText
-                    : design.mutedText,
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          // Target language (clickable)
-          Button(
-            key: _targetButtonKey,
-            minSize: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            onPressed: _showTargetMenu,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  targetName,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12.5,
-                  ),
-                ),
-                const SizedBox(width: 2),
-                Icon(
-                  FluentIcons.chevron_down_20_regular,
-                  size: 12,
-                  color: design.mutedText,
+                const SizedBox(width: 4),
+                _LanguageChip(
+                  key: _targetButtonKey,
+                  label: targetName,
+                  onPressed: _showTargetMenu,
                 ),
               ],
             ),
           ),
           const Spacer(),
-          // Config button
-          SizedBox(
-            width: 24,
-            height: 24,
-            child: Button(
-              key: _configButtonKey,
-              minSize: 0,
-              padding: EdgeInsets.zero,
-              borderRadius: BorderRadius.zero,
-              onPressed: _showConfigMenu,
-              child: Icon(
-                FluentIcons.options_20_regular,
-                size: 16,
-                color: design.mutedText,
-              ),
-            ),
+          IconActionButton(
+            key: _configButtonKey,
+            icon: FluentIcons.options_20_regular,
+            onPressed: _showConfigMenu,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// One end of the language capsule: a label with a disclosure chevron.
+class _LanguageChip extends StatelessWidget {
+  const _LanguageChip({super.key, required this.label, this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final radius = BorderRadius.circular(tokens.radii.chip);
+
+    return Pressable(
+      onPressed: onPressed,
+      borderRadius: radius,
+      semanticsLabel: label,
+      builder: (context, state) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: state.hovered ? colors.window : null,
+          borderRadius: radius,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: tokens.typography.sansStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1,
+                color: colors.fg,
+              ),
+            ),
+            const SizedBox(width: 3),
+            Icon(
+              FluentIcons.chevron_down_20_regular,
+              size: 11,
+              color: colors.fgTertiary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The capsule's centre swap control, matching SwapPair's raised square.
+class _SwapButton extends StatelessWidget {
+  const _SwapButton({this.onPressed});
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final radius = BorderRadius.circular(tokens.radii.chip);
+
+    return Pressable(
+      onPressed: onPressed,
+      enabled: onPressed != null,
+      borderRadius: radius,
+      semanticsLabel: '交换语言',
+      builder: (context, state) => Container(
+        width: 20,
+        height: 20,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: colors.window,
+          borderRadius: radius,
+        ),
+        child: Icon(
+          FluentIcons.arrow_swap_20_regular,
+          size: 13,
+          color: onPressed == null
+              ? colors.fgFaint
+              : (state.hovered ? colors.fg : colors.fgTertiary),
+        ),
       ),
     );
   }

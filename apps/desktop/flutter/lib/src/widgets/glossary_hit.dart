@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'ui/themes/design_theme.dart';
+import 'ui.dart' show Callout, CalloutTone, Mark;
 
+/// A term the glossary matched, shown as an accent aside beside the text.
 class GlossaryHit extends StatelessWidget {
   const GlossaryHit({
     super.key,
@@ -16,27 +17,17 @@ class GlossaryHit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    return Container(
-      padding: const EdgeInsets.all(UiSpace.sm),
-      decoration: BoxDecoration(
-        color: colors.accent.withValues(alpha: 0.08),
-        border: Border(left: BorderSide(color: colors.accent, width: 2)),
-      ),
+    return Callout(
+      tone: CalloutTone.accent,
       child: Wrap(
-        spacing: UiSpace.xs,
-        runSpacing: 2,
+        spacing: 8,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
-            '命中术语表',
-            style: context.eyebrowTextStyle.copyWith(fontSize: 9),
-          ),
-          Text('$source → $target', style: const TextStyle(fontSize: 12.5)),
-          if (collection != null)
-            Text(
-              collection!,
-              style: TextStyle(fontSize: 12, color: colors.quietText),
-            ),
+          Mark(text: source),
+          const Text('→'),
+          Text(target),
+          if (collection != null) Text('· $collection'),
         ],
       ),
     );

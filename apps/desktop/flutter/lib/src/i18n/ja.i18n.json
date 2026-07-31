@@ -57,6 +57,10 @@
       "dark": "ダーク",
       "system": "システム"
     },
+    "theme_style": {
+      "studio": "Studio",
+      "bright": "Bright"
+    },
     "provider": {
       "anthropic": "Anthropic",
       "baidu": "Baidu",
@@ -249,7 +253,8 @@
       "title": "外観",
       "section": {
         "app_language": "表示言語",
-        "theme_mode": "テーマモード"
+        "theme_mode": "テーマモード",
+        "theme_style": "テーマスタイル"
       }
     },
     "shortcuts": {

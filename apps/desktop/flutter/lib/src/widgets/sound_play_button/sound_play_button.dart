@@ -5,7 +5,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/global_audio_player.dart';
-import '../ui/button.dart';
+import '../ui.dart' show Button, ButtonVariant;
 
 const _kIconSize = 16.0;
 
@@ -86,8 +86,7 @@ class _SoundPlayButtonState extends State<SoundPlayButton>
       width: 20,
       height: 20,
       child: Button(
-        minSize: 0,
-        padding: EdgeInsets.zero,
+        variant: ButtonVariant.quiet,
         onPressed: () {
           if (!_playing) {
             _handleClickPlay();

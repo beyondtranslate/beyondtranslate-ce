@@ -6,9 +6,10 @@ import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' as runtime_service;
 import '../../services/runtime.dart' show AdvancedSettingsPatch;
 import '../../services/settings_store.dart';
+import '../../widgets/preference_list/preference_list_item.dart';
+import '../../widgets/preference_list/preference_list_section.dart';
 import '../../widgets/settings_page.dart';
-import '../../widgets/ui/preference_list_item.dart';
-import '../../widgets/ui/preference_list_section.dart';
+import '../../widgets/ui.dart' show Input;
 
 /// Mirrors macOS `AdvancedView.swift`.
 class AdvancedSettingsPage extends StatefulWidget {
@@ -165,27 +166,18 @@ class _CompactTextFieldItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     return PreferenceListItem(
       title: Text(title),
       detailText: SizedBox(
-        width: 80,
-        child: TextField(
+        width: 96,
+        child: Input(
           controller: controller,
-          textAlign: TextAlign.end,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 6,
-            ),
-            border: const OutlineInputBorder(),
-            hintText: placeholder,
-          ),
-          style: textTheme.bodyMedium,
-          onSubmitted: onSubmitted,
-          onEditingComplete: onEditingComplete,
+          placeholder: placeholder,
+          mono: true,
+          onSubmitted: (value) {
+            onEditingComplete?.call();
+            onSubmitted?.call(value);
+          },
         ),
       ),
       accessoryView: const SizedBox.shrink(),

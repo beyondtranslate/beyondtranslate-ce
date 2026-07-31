@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../ui/button.dart';
+import '../ui.dart'
+    show Button, ButtonSize, ButtonVariant, Spinner, SpinnerSize;
 
 const kDialogActionTypePrimary = 'primary';
 const kDialogActionTypeSecondary = 'secondary';
@@ -27,12 +28,16 @@ class CustomDialogAction extends StatelessWidget {
     return Container(
       margin: EdgeInsets.zero,
       height: 38,
-      child: Button.filled(
-        borderRadius: const BorderRadius.all(Radius.circular(2.0)),
-        padding: EdgeInsets.zero,
-        processing: processing,
-        onPressed: onPressed,
-        child: child,
+      child: Button(
+        variant: type == kDialogActionTypeSecondary
+            ? ButtonVariant.secondary
+            : ButtonVariant.primary,
+        size: ButtonSize.lg,
+        fullWidth: true,
+        onPressed: processing ? null : onPressed,
+        child: processing
+            ? const Spinner(size: SpinnerSize.sm, onAccent: true)
+            : child,
       ),
     );
   }

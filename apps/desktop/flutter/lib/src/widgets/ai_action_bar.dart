@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-
 import '../services/runtime.dart';
 import 'custom_alert_dialog/show_dialog.dart';
 import 'translation_chat_dialog.dart';
+import 'ui.dart' show Button, ButtonSize, ButtonVariant, DesignThemeContext;
 
 /// A row of AI-powered action buttons shown alongside a translation result.
 ///
@@ -193,16 +193,17 @@ class _AiButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return TextButton.icon(
+    return Button(
+      variant: ButtonVariant.ghost,
+      size: ButtonSize.xs,
       onPressed: onTap,
-      icon: Icon(icon, size: 14),
-      label: Text(label, style: theme.textTheme.labelSmall),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: VisualDensity.compact,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: context.colors.fgControl),
+          const SizedBox(width: 5),
+          Text(label),
+        ],
       ),
     );
   }

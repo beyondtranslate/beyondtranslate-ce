@@ -9,9 +9,17 @@ import '../../models/translation_result_record.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
 import '../ai_action_bar.dart';
+import '../app_dialog.dart';
 import '../custom_alert_dialog/show_dialog.dart';
-import '../ui/card.dart' as ui;
-import '../ui/loading_indicator.dart';
+import '../ui.dart'
+    show
+        Button,
+        ButtonVariant,
+        DesignThemeContext,
+        Spinner,
+        SpinnerSize,
+        Surface,
+        SurfacePadding;
 import 'translation_engine_tag.dart';
 import 'word_pronunciation_view.dart';
 import 'word_tag_view.dart';
@@ -58,25 +66,29 @@ class TranslationResultRecordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ui.Card(
-      width: double.infinity,
-      margin: margin,
-      child: Stack(
-        children: [
-          if (_isLoading)
-            _buildRequestLoading(context)
-          else if (_isErrorOccurred)
-            _buildRequestError(context)
-          else
-            _buildBody(context),
-          Positioned(
-            right: 0,
-            top: 0,
-            child: TranslationEngineTag(
-              translationResultRecord: translationResultRecord,
+    return Padding(
+      padding: margin,
+      child: Surface(
+        width: double.infinity,
+        padding: SurfacePadding.none,
+        clip: true,
+        child: Stack(
+          children: [
+            if (_isLoading)
+              _buildRequestLoading(context)
+            else if (_isErrorOccurred)
+              _buildRequestError(context)
+            else
+              _buildBody(context),
+            Positioned(
+              right: 0,
+              top: 0,
+              child: TranslationEngineTag(
+                translationResultRecord: translationResultRecord,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -384,7 +396,7 @@ class TranslationResultRecordView extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: SelectableText(
         error.message,
-        style: const TextStyle(color: Colors.red),
+        style: TextStyle(color: context.colors.danger),
       ),
     );
   }
@@ -398,14 +410,11 @@ class TranslationResultRecordView extends StatelessWidget {
         left: 12,
         right: 12,
       ),
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          LoadingIndicator.threeBounce(
-            color: Theme.of(context).textTheme.bodySmall!.color,
-            size: 12.0,
-          ),
+          Spinner(size: SpinnerSize.sm),
         ],
       ),
     );
@@ -580,16 +589,17 @@ class TranslationResultRecordView extends StatelessWidget {
   void _showResultDialog(BuildContext context, String title, String content) {
     showDialogInCurrentWindow(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AppDialog(
         title: Text(title),
-        content: SizedBox(
-          width: 400,
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 360),
           child: SingleChildScrollView(
             child: SelectableText(content),
           ),
         ),
         actions: [
-          TextButton(
+          Button(
+            variant: ButtonVariant.secondary,
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Close'),
           ),

@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../services/runtime.dart';
 import '../../utils/platform_util.dart';
 import '../../widgets/custom_app_bar/custom_app_bar.dart';
-import '../../widgets/ui/button.dart';
+import '../../widgets/ui.dart'
+    show Button, ButtonVariant, Field, Input, Spinner, SpinnerSize, TextArea;
 
 List<RouteBase> get $appRoutes => <RouteBase>[
       GoRoute(
@@ -135,19 +136,9 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
     }
   }
 
-  InputDecoration _decoration(BuildContext context, String label) {
-    return InputDecoration(
-      labelText: label,
-      alignLabelWithHint: true,
-      border: const OutlineInputBorder(),
-      filled: true,
-      fillColor: Theme.of(context).canvasColor,
-    );
-  }
-
   Widget _buildProviderPicker(BuildContext context) {
     if (_loadingProviders) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: Spinner());
     }
     if (_providers.isEmpty) {
       return Text(
@@ -269,58 +260,38 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 12),
-          TextFormField(
-            controller: _sourceLanguageController,
-            decoration: _decoration(
-              context,
-              'Source language (optional)',
-            ),
-            validator: (value) {
-              return null;
-            },
+          Field(
+            label: const Text('Source language (optional)'),
+            child: Input(controller: _sourceLanguageController),
           ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _targetLanguageController,
-            decoration: _decoration(
-              context,
-              'Target language',
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Target language is required';
-              }
-              return null;
-            },
+          const SizedBox(height: 14),
+          Field(
+            label: const Text('Target language'),
+            child: Input(controller: _targetLanguageController),
           ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _textController,
-            minLines: 4,
-            maxLines: 8,
-            decoration: _decoration(
-              context,
-              'Text',
+          const SizedBox(height: 14),
+          Field(
+            label: const Text('Text'),
+            child: TextArea(
+              controller: _textController,
+              minLines: 4,
+              maxLines: 8,
             ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Text is required';
-              }
-              return null;
-            },
           ),
           const SizedBox(height: 20),
           Row(
             children: [
-              Button.filled(
-                processing: _submitting,
+              Button(
+                variant: ButtonVariant.primary,
                 onPressed:
                     _submitting || _loadingProviders || _providerId == null
                         ? null
                         : _submit,
-                child: const Text(
-                  'Translate with Rust runtime',
-                ),
+                child: _submitting
+                    ? const Spinner(size: SpinnerSize.sm, onAccent: true)
+                    : const Text(
+                        'Translate with Rust runtime',
+                      ),
               ),
             ],
           ),

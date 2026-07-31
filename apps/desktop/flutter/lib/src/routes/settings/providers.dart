@@ -3,13 +3,24 @@ import 'package:flutter/material.dart';
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
+import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
-import '../../widgets/native_dropdown_field.dart';
+import '../../widgets/preference_list/preference_list_item.dart';
+import '../../widgets/preference_list/preference_list_section.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/translation_engine_icon/translation_engine_icon.dart';
-import '../../widgets/ui/button.dart';
-import '../../widgets/ui/preference_list_item.dart';
-import '../../widgets/ui/preference_list_section.dart';
+import '../../widgets/ui.dart'
+    show
+        Button,
+        ButtonVariant,
+        DialogTone,
+        Spinner,
+        SpinnerSize,
+        Field,
+        Input,
+        Select,
+        SelectItem,
+        TextArea;
 
 /// Mirrors macOS `ProvidersView.swift`.
 class ProvidersSettingsPage extends StatefulWidget {
@@ -89,7 +100,8 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   Future<void> _deleteProvider(ProviderConfigEntry entry) async {
     final confirmed = await showDialogInCurrentWindow<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AppDialog(
+        tone: DialogTone.danger,
         title: Text(
           formatTranslation(
             t.settings.providers.delete_dialog.title,
@@ -98,14 +110,13 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
         ),
         content: Text(t.settings.providers.delete_dialog.message),
         actions: [
-          TextButton(
+          Button(
+            variant: ButtonVariant.secondary,
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(t.common.ui.button.cancel),
           ),
-          FilledButton.tonal(
-            style: FilledButton.styleFrom(
-              foregroundColor: Theme.of(ctx).colorScheme.error,
-            ),
+          Button(
+            variant: ButtonVariant.warning,
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(t.common.ui.button.delete),
           ),
@@ -223,7 +234,8 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
               child: Row(
                 children: [
                   const Spacer(),
-                  Button.outlined(
+                  Button(
+                    variant: ButtonVariant.secondary,
                     onPressed: () => _openServiceEditor(),
                     child: const Text('Add a Service...'),
                   ),
@@ -239,11 +251,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
                 padding: EdgeInsets.zero,
                 child: Row(
                   children: [
-                    const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+                    const Spinner(size: SpinnerSize.sm),
                     const SizedBox(width: 12),
                     Text(providersText.item.loading),
                   ],
@@ -263,7 +271,8 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
               child: Row(
                 children: [
                   const Spacer(),
-                  Button.outlined(
+                  Button(
+                    variant: ButtonVariant.secondary,
                     onPressed: () => _openEditor(),
                     child: Text(providersText.button.add),
                   ),
@@ -526,79 +535,86 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
     final isEditing = widget.existing != null;
     final providers = _aiProviders;
 
-    return AlertDialog(
+    return AppDialog(
+      width: 520,
       title: Text(isEditing ? 'Edit Service' : 'Add Service'),
-      content: SizedBox(
-        width: 520,
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 420),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: _idController,
-                enabled: !isEditing,
-                decoration: const InputDecoration(
-                  labelText: 'Service ID',
-                  hintText: 'e.g. openai-formal',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Display Name',
-                  hintText: 'e.g. Formal translation',
-                  border: OutlineInputBorder(),
+              Field(
+                label: const Text('Service ID'),
+                child: Input(
+                  controller: _idController,
+                  enabled: !isEditing,
+                  placeholder: 'e.g. openai-formal',
+                  mono: true,
+                  onChanged: (_) => setState(() {}),
                 ),
               ),
-              const SizedBox(height: 12),
-              NativeDropdownField<String>(
-                value: _providerId,
-                items: providers.map((p) => p.id).toList(),
-                itemLabel: (id) => id,
-                decoration: const InputDecoration(
-                  labelText: 'AI Provider',
-                  border: OutlineInputBorder(),
-                ),
-                disabled: isEditing,
-                onChanged: (value) {
-                  setState(() => _providerId = value);
-                },
-              ),
-              const SizedBox(height: 12),
-              NativeDropdownField<ServiceType>(
-                value: _type,
-                items: const [ServiceType.translation, ServiceType.dictionary],
-                itemLabel: (t) => _serviceTypeLabel(t),
-                decoration: const InputDecoration(
-                  labelText: 'Service Type',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() => _type = value);
-                },
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _modelController,
-                decoration: const InputDecoration(
-                  labelText: 'Model Override',
-                  hintText: 'Optional',
-                  border: OutlineInputBorder(),
+              const SizedBox(height: 14),
+              Field(
+                label: const Text('Display Name'),
+                child: Input(
+                  controller: _nameController,
+                  placeholder: 'e.g. Formal translation',
                 ),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _systemPromptController,
-                minLines: 4,
-                maxLines: 8,
-                decoration: const InputDecoration(
-                  labelText: 'System Prompt',
-                  hintText:
-                      'Use {{sourceLanguage}}, {{targetLanguage}}, {{text}} if needed.',
-                  border: OutlineInputBorder(),
+              const SizedBox(height: 14),
+              Field(
+                label: const Text('AI Provider'),
+                child: Select<String>(
+                  value: _providerId,
+                  enabled: !isEditing,
+                  items: [
+                    for (final provider in providers)
+                      SelectItem(value: provider.id, label: provider.id),
+                  ],
+                  onChanged: (value) => setState(() => _providerId = value),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Field(
+                label: const Text('Service Type'),
+                child: Select<ServiceType>(
+                  value: _type,
+                  items: const [
+                    ServiceType.translation,
+                    ServiceType.dictionary,
+                  ]
+                      .map(
+                        (type) => SelectItem(
+                          value: type,
+                          label: _serviceTypeLabel(type),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: (value) => setState(() => _type = value),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Field(
+                label: const Text('Model Override'),
+                child: Input(
+                  controller: _modelController,
+                  placeholder: 'Optional',
+                  mono: true,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Field(
+                label: const Text('System Prompt'),
+                hint: const Text(
+                  'Use {{sourceLanguage}}, {{targetLanguage}}, {{text}} '
+                  'if needed.',
+                ),
+                child: TextArea(
+                  controller: _systemPromptController,
+                  minLines: 4,
+                  maxLines: 8,
                 ),
               ),
             ],
@@ -606,11 +622,13 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          variant: ButtonVariant.secondary,
           onPressed: () => Navigator.of(context).pop(),
           child: Text(t.common.ui.button.cancel),
         ),
-        FilledButton(
+        Button(
+          variant: ButtonVariant.primary,
           onPressed: _canSave
               ? () {
                   Navigator.of(context).pop(
@@ -746,74 +764,76 @@ class _ProviderEditorDialogState extends State<_ProviderEditorDialog> {
   Widget build(BuildContext context) {
     final isEditing = widget.existing != null;
 
-    return AlertDialog(
+    return AppDialog(
+      width: 440,
       title: Text(isEditing ? 'Edit Provider' : 'Add Provider'),
-      content: SizedBox(
-        width: 420,
+      subtitle: isEditing
+          ? Text(
+              '${widget.existing!.id} \u00b7 '
+              '${_providerTypeDisplayName(widget.existing!.type)}',
+            )
+          : null,
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 420),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!isEditing) ...[
-                TextField(
-                  controller: _idController,
-                  decoration: const InputDecoration(
-                    labelText: 'Provider ID',
-                    hintText: 'e.g. my-provider',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => setState(() {}),
-                ),
-                const SizedBox(height: 12),
-                NativeDropdownField<ProviderType>(
-                  value: _selectedType,
-                  items: _knownProviderTypes,
-                  itemLabel: (t) => _providerTypeDisplayName(t),
-                  decoration: const InputDecoration(
-                    labelText: 'Provider Type',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (v) {
-                    _changeType(v);
-                  },
-                ),
-                const SizedBox(height: 16),
-              ] else ...[
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    '${widget.existing!.id} \u00b7 ${_providerTypeDisplayName(widget.existing!.type)}',
-                    style: Theme.of(context).textTheme.titleMedium,
+                Field(
+                  label: const Text('Provider ID'),
+                  child: Input(
+                    controller: _idController,
+                    placeholder: 'e.g. my-provider',
+                    mono: true,
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
+                const SizedBox(height: 14),
+                Field(
+                  label: const Text('Provider Type'),
+                  child: Select<ProviderType?>(
+                    value: _selectedType,
+                    items: [
+                      for (final type in _knownProviderTypes)
+                        SelectItem(
+                          value: type,
+                          label: _providerTypeDisplayName(type),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) _changeType(value);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 14),
               ],
               for (final entry in _fieldControllers.entries) ...[
-                TextField(
-                  controller: entry.value,
-                  decoration: InputDecoration(
-                    labelText: entry.key,
-                    border: const OutlineInputBorder(),
+                Field(
+                  label: Text(entry.key),
+                  child: Input(
+                    controller: entry.value,
+                    obscureText: _isSecretField(entry.key),
+                    mono: !_isSecretField(entry.key),
                   ),
-                  obscureText: _isSecretField(entry.key),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
               ],
               if (_fieldControllers.isEmpty)
-                Text(
-                  'No configuration fields required.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                const Text('No configuration fields required.'),
             ],
           ),
         ),
       ),
       actions: [
-        TextButton(
+        Button(
+          variant: ButtonVariant.secondary,
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
+        Button(
+          variant: ButtonVariant.primary,
           onPressed: _canSave
               ? () {
                   final draft = _ProviderDraft(

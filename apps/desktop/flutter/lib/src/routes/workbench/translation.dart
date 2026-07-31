@@ -1,6 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Divider;
 import 'package:flutter/services.dart';
 
 import '../../i18n/i18n.dart';
@@ -11,12 +11,20 @@ import '../../utils/global_audio_player.dart';
 import '../../utils/language_util.dart';
 import '../../widgets/definition_card.dart';
 import '../../widgets/engine_selector.dart';
+import '../../widgets/icon_action_button.dart';
 import '../../widgets/language_pair.dart';
 import '../../widgets/translation_pane.dart';
-import '../../widgets/ui/button.dart';
-import '../../widgets/ui/icon_action_button.dart';
-import '../../widgets/ui/section_divider.dart';
-import '../../widgets/ui/themes/design_theme.dart';
+import '../../widgets/ui.dart'
+    show
+        Aside,
+        Button,
+        ButtonVariant,
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Label,
+        Spinner,
+        SpinnerSize;
+import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import 'index.dart' show workbenchTextHandoff;
 
 class WorkbenchTranslationPage extends StatefulWidget {
@@ -108,7 +116,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                     detected == null ? null : getLanguageName(detected),
                 onTranslate: _controller.submit,
               ),
-              const SectionDivider(),
               Expanded(
                 child: Row(
                   children: [
@@ -211,40 +218,29 @@ class _Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: UiSpace.md),
-      child: Row(
-        children: [
-          LanguagePair(
-            source: detectedLanguage ??
-                getSourceDisplayName(controller.sourceLanguage),
-            target: getLanguageName(controller.targetLanguage),
-          ),
-          if (detectedLanguage != null) ...[
-            const SizedBox(width: UiSpace.sm),
-            Text(
-              t.workbench.translation.auto_detected,
-              style: TextStyle(fontSize: 11.5, color: colors.quietText),
-            ),
-          ],
-          const Spacer(),
-          Button.filled(
-            processing: controller.submitting,
-            minSize: 30,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            borderRadius: BorderRadius.zero,
-            onPressed: controller.text.trim().isEmpty || controller.submitting
-                ? null
-                : onTranslate,
-            child: Text(
-              t.workbench.translation.button,
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-        ],
-      ),
+    return WorkbenchToolbar(
+      title: t.workbench.subtitle.translate,
+      children: [
+        const SizedBox(width: 4),
+        LanguagePair(
+          source: detectedLanguage ??
+              getSourceDisplayName(controller.sourceLanguage),
+          target: getLanguageName(controller.targetLanguage),
+          note: detectedLanguage != null
+              ? t.workbench.translation.auto_detected
+              : t.mini_translator.language.auto_detect,
+        ),
+        const Spacer(),
+        Button(
+          variant: ButtonVariant.primary,
+          onPressed: controller.submitting || controller.text.trim().isEmpty
+              ? null
+              : onTranslate,
+          child: controller.submitting
+              ? const Spinner(size: SpinnerSize.sm, onAccent: true)
+              : Text(t.workbench.translation.button),
+        ),
+      ],
     );
   }
 }
@@ -294,7 +290,6 @@ class _EngineRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.design;
     final options = controller.results
         .map(
           (result) => EngineOption(
@@ -316,56 +311,27 @@ class _EngineRail extends StatelessWidget {
         )
         .toList(growable: false);
 
-    return Container(
-      width: 250,
-      decoration: BoxDecoration(
-        color: colors.panel,
-        border: Border(left: BorderSide(color: colors.border)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
+    return Aside(
+      children: [
+        Label(child: Text(t.workbench.translation.engine_compare)),
+        if (controller.loadingServices)
+          const Center(child: Spinner())
+        else if (options.isEmpty)
+          Text(
+            t.workbench.translation.no_services,
+            textAlign: TextAlign.center,
+            style: context.typography.sansStyle(
+              fontSize: 11,
+              color: context.colors.fgSubtle,
             ),
-            child: Text(
-              t.workbench.translation.engine_compare,
-              style: context.eyebrowTextStyle.copyWith(
-                color: colors.quietText,
-                fontSize: 9,
-              ),
-            ),
+          )
+        else
+          EngineSelector(
+            engines: options,
+            selectedId: controller.selectedEngineId ?? options.first.id,
+            onSelected: controller.selectEngine,
           ),
-          Divider(height: 1, color: colors.border),
-          if (controller.loadingServices)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
-          else if (options.isEmpty)
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    t.workbench.translation.no_services,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: colors.quietText),
-                  ),
-                ),
-              ),
-            )
-          else
-            Expanded(
-              child: SingleChildScrollView(
-                child: EngineSelector(
-                  engines: options,
-                  selectedId: controller.selectedEngineId ?? options.first.id,
-                  onSelected: controller.selectEngine,
-                ),
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 }
