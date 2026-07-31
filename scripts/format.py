@@ -105,8 +105,26 @@ def format_rust(check: bool, ignored_files: set[Path]) -> int:
     return run(command)
 
 
+def swift_format_command() -> list[str] | None:
+    if shutil.which("swift-format"):
+        return ["swift-format", "format"]
+    if shutil.which("swift"):
+        completed = subprocess.run(
+            ["swift", "format", "--version"],
+            cwd=ROOT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if completed.returncode == 0:
+            return ["swift", "format"]
+
+    print("error: required command not found: swift-format", file=sys.stderr)
+    return None
+
+
 def format_swift(check: bool, ignored_files: set[Path]) -> int:
-    if not require_command("swift-format"):
+    formatter = swift_format_command()
+    if formatter is None:
         return 127
 
     files = source_files("swift", ignored_files)
@@ -115,11 +133,11 @@ def format_swift(check: bool, ignored_files: set[Path]) -> int:
         return 0
 
     if check:
-        print("$ swift-format format <swift files>", flush=True)
+        print(f"$ {' '.join(formatter)} <swift files>", flush=True)
         exit_code = 0
         for path in files:
             completed = subprocess.run(
-                ["swift-format", "format", str(path)],
+                [*formatter, str(path)],
                 cwd=ROOT,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -135,7 +153,7 @@ def format_swift(check: bool, ignored_files: set[Path]) -> int:
 
         return exit_code
 
-    command = ["swift-format", "format", "--in-place", "--parallel"]
+    command = [*formatter, "--in-place", "--parallel"]
     command.extend(str(path) for path in files)
 
     return run(command)
