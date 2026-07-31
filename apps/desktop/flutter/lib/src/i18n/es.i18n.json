@@ -120,17 +120,31 @@
     },
     "input": {
       "hint": "Escribe la palabra o texto aquí",
-      "extracting_text": "Extrayendo texto..."
+      "extracting_text": "Extrayendo texto...",
+      "hint_translate_to": "Escribe una palabra o texto para traducir al $language"
     },
     "toolbar": {
       "tooltip": {
         "extract_text_from_screen_capture": "Capturar área de la pantalla y reconocer texto",
-        "extract_text_from_clipboard": "Leer contenido del portapapeles"
+        "extract_text_from_clipboard": "Leer contenido del portapapeles",
+        "pin": "Fijar ventana",
+        "more_actions": "Más acciones"
+      },
+      "menu": {
+        "extract_from_screen_capture": "Capturar de pantalla",
+        "extract_from_clipboard": "Desde el portapapeles",
+        "open_main_window": "Abrir ventana principal",
+        "open_settings": "Ajustes…"
       }
     },
     "button": {
       "clear": "Limpiar",
-      "translate": "Traducir"
+      "translate": "Traducir",
+      "read": "Leer",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "bookmark": "Guardar",
+      "bookmarked": "Guardado"
     },
     "language": {
       "auto_detect": "Detección automática",
@@ -146,6 +160,16 @@
       "capture_screen_area_canceled": "La captura de área de pantalla ha sido cancelada",
       "ocr_service_not_configured": "No hay un servicio de reconocimiento de texto predeterminado configurado. Configúrelo en Ajustes.",
       "ocr_recognition_failed": "El reconocimiento de texto falló"
+    },
+    "result": {
+      "translating": "Traduciendo…",
+      "stale_requery": "Texto modificado · ⏎ retraducir",
+      "compare_engines": "Comparar $count motores",
+      "collapse_compare": "Contraer",
+      "set_preferred": "Establecer como preferido",
+      "retry": "Reintentar",
+      "no_result": "Ningún motor devolvió resultados: revisa la red o prueba otro motor.",
+      "no_result_note": "El texto se conserva; reintentar no duplicará el historial."
     }
   },
   "workbench": {

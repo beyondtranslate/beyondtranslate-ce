@@ -120,17 +120,31 @@
     },
     "input": {
       "hint": "ここに単語またはテキストを入力",
-      "extracting_text": "テキストを抽出中..."
+      "extracting_text": "テキストを抽出中...",
+      "hint_translate_to": "単語またはテキストを入力して$languageに翻訳"
     },
     "toolbar": {
       "tooltip": {
         "extract_text_from_screen_capture": "画面領域をキャプチャしてテキストを認識",
-        "extract_text_from_clipboard": "クリップボードの内容を読み取る"
+        "extract_text_from_clipboard": "クリップボードの内容を読み取る",
+        "pin": "ウィンドウを固定",
+        "more_actions": "その他の操作"
+      },
+      "menu": {
+        "extract_from_screen_capture": "画面から取得",
+        "extract_from_clipboard": "クリップボードから取得",
+        "open_main_window": "メインウィンドウを開く",
+        "open_settings": "設定…"
       }
     },
     "button": {
       "clear": "クリア",
-      "translate": "翻訳"
+      "translate": "翻訳",
+      "read": "読み上げ",
+      "copy": "コピー",
+      "copied": "コピー済み",
+      "bookmark": "保存",
+      "bookmarked": "保存済み"
     },
     "language": {
       "auto_detect": "自動検出",
@@ -146,6 +160,16 @@
       "capture_screen_area_canceled": "画面領域のキャプチャがキャンセルされました",
       "ocr_service_not_configured": "デフォルトのテキスト認識サービスが設定されていません。設定で設定してください。",
       "ocr_recognition_failed": "テキスト認識に失敗しました"
+    },
+    "result": {
+      "translating": "翻訳中…",
+      "stale_requery": "原文が変更されました · ⏎ 再翻訳",
+      "compare_engines": "$count 個のエンジンを比較",
+      "collapse_compare": "比較を閉じる",
+      "set_preferred": "優先に設定",
+      "retry": "再試行",
+      "no_result": "どのエンジンも結果を返しませんでした。ネットワークを確認するか、別のエンジンをお試しください。",
+      "no_result_note": "原文は保持され、再試行しても履歴は重複しません。"
     }
   },
   "workbench": {

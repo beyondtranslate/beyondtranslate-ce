@@ -120,17 +120,31 @@
     },
     "input": {
       "hint": "在此处输入单词或文本",
-      "extracting_text": "正在提取文字..."
+      "extracting_text": "正在提取文字...",
+      "hint_translate_to": "输入单词或文本，翻译为$language"
     },
     "toolbar": {
       "tooltip": {
         "extract_text_from_screen_capture": "截取屏幕区域并识别文字",
-        "extract_text_from_clipboard": "读取剪切板内容"
+        "extract_text_from_clipboard": "读取剪切板内容",
+        "pin": "固定窗口",
+        "more_actions": "更多操作"
+      },
+      "menu": {
+        "extract_from_screen_capture": "屏幕取词",
+        "extract_from_clipboard": "剪贴板取词",
+        "open_main_window": "打开主窗口",
+        "open_settings": "设置…"
       }
     },
     "button": {
       "clear": "清空",
-      "translate": "翻译"
+      "translate": "翻译",
+      "read": "朗读",
+      "copy": "复制",
+      "copied": "已复制",
+      "bookmark": "收藏",
+      "bookmarked": "已收藏"
     },
     "language": {
       "auto_detect": "自动检测",
@@ -146,6 +160,16 @@
       "capture_screen_area_canceled": "截取屏幕区域已取消",
       "ocr_service_not_configured": "未配置默认文字识别服务，请在设置中配置。",
       "ocr_recognition_failed": "文字识别失败"
+    },
+    "result": {
+      "translating": "正在翻译…",
+      "stale_requery": "原文已修改 · ⏎ 重新翻译",
+      "compare_engines": "对比 $count 个引擎",
+      "collapse_compare": "收起对比",
+      "set_preferred": "设为首选",
+      "retry": "重试",
+      "no_result": "所有引擎都没有返回结果 —— 检查网络，或换一个引擎再试。",
+      "no_result_note": "原文已保留，重试不会重复计入历史。"
     }
   },
   "workbench": {

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
@@ -70,6 +71,20 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   List<TranslationResult> _translationResultList = [];
   bool _showCompare = false;
 
+  /// The source was edited after the last query — arms ⏎ 重新翻译.
+  bool _resultStale = false;
+
+  /// Engine promoted with 设为首选 / ⌥n; the preferred block follows it.
+  String? _preferredEngineId;
+  bool _copied = false;
+  bool _starred = false;
+  Timer? _copiedTimer;
+
+  /// Engine display names and the translation-service ids, captured per query
+  /// so the results view can attribute records without re-fetching settings.
+  Map<String, String> _engineNameById = {};
+  Set<String> _translationServiceIds = {};
+
   Timer? _resizeSettledTimer;
   bool _isWindowResizeScheduled = false;
   bool _pendingWindowResizeAnimate = true;
@@ -107,6 +122,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _uninit();
     }
     _resizeSettledTimer?.cancel();
+    _copiedTimer?.cancel();
     super.dispose();
   }
 
@@ -348,6 +364,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _querySubmitted = true;
       _detectedLanguage = null;
       _translationResultList = [];
+      _resultStale = false;
+      _copied = false;
     });
 
     final settings = runtime.settings();
@@ -362,6 +380,13 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
             service.type == ServiceType.dictionary ||
             service.type == ServiceType.translation)
         .toList();
+    _engineNameById = {
+      for (final service in queryServices) service.id: service.name,
+    };
+    _translationServiceIds = {
+      for (final service in queryServices)
+        if (service.type == ServiceType.translation) service.id,
+    };
 
     // Detect source language for translation target matching.
     if (_text.isNotEmpty) {
@@ -670,9 +695,14 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     bool isRequery = false,
   }) {
     _setStateAndScheduleWindowResize(() {
+      final previousText = _text;
       _text = (newValue ?? '').trim();
       if (settingsStore.inputSubmitMode == InputSubmitMode.enter) {
         _text = _text.replaceAll('\n', ' ');
+      }
+      // 原文已修改 — arm ⏎ 重新翻译 on the result block.
+      if (_querySubmitted && _text != previousText) {
+        _resultStale = true;
       }
     });
     if (isRequery) {
@@ -751,9 +781,35 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _detectedLanguage = null;
       _isTextDetecting = false;
       _translationResultList = [];
+      _resultStale = false;
+      _copied = false;
+      _starred = false;
     });
     _textEditingController.clear();
     _focusNode.requestFocus();
+  }
+
+  void _handleButtonTappedCopy() {
+    final preferred =
+        preferredTranslation(_translationResultList, _preferredEngineId);
+    if (preferred == null) return;
+    Clipboard.setData(ClipboardData(text: preferred.text));
+    setState(() => _copied = true);
+    _copiedTimer?.cancel();
+    _copiedTimer = Timer(const Duration(milliseconds: 1400), () {
+      if (mounted) setState(() => _copied = false);
+    });
+  }
+
+  /// ⌥1/⌥2/⌥3 promote an engine, matching the shortcut hints on the cards.
+  void _handlePreferEngineAt(int index) {
+    final translations = engineTranslations(_translationResultList);
+    if (index < 0 || index >= translations.length) return;
+    final engineId = translations[index].record.translationEngineId;
+    if (engineId == null) return;
+    _setStateAndScheduleWindowResize(() {
+      _preferredEngineId = engineId;
+    });
   }
 
   void _handleButtonTappedTrans() async {
@@ -806,32 +862,23 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   }
 
   Widget _buildBody(BuildContext context) {
+    final hasTranslation =
+        preferredTranslation(_translationResultList, _preferredEngineId) !=
+            null;
+
     return Column(
       key: _contentViewKey,
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildBannersView(context),
-        MiniTranslatorLanguageBar(
-          sourceLanguage: _sourceLanguage,
-          selectedTargetLanguage: _selectedTargetLanguage,
-          detectedLanguage: _detectedLanguage,
-          activeConfigIndex: _activeConfigIndex,
-          persistentTargets: settingsStore.general.translationTargets,
-          commonLanguageCodes: settingsStore.general.commonLanguages.isNotEmpty
-              ? settingsStore.general.commonLanguages
-              : defaultCommonLanguages(),
-          onSourceChanged: _handleSourceChanged,
-          onTargetLanguageChanged: _handleTargetLanguageChanged,
-          onConfigTargetSelected: _handleConfigTargetSelected,
-          onManageCommonLanguages: _handleManageCommonLanguages,
-          onAddTarget: _handleAddTarget,
-          onManageTargets: _handleManageTargets,
-        ),
         MiniTranslatorInput(
           focusNode: _focusNode,
           controller: _textEditingController,
           text: _text,
           inputSubmitMode: settingsStore.inputSubmitMode,
+          targetLanguageName: _selectedTargetLanguage == null
+              ? null
+              : getLanguageName(_selectedTargetLanguage!),
           onChanged: (v) => _handleTextChanged(v),
           onSubmitted: _handleButtonTappedTrans,
           onClear: _handleButtonTappedClear,
@@ -839,21 +886,34 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         MiniTranslatorTranslation(
           querySubmitted: _querySubmitted,
           translationResultList: _translationResultList,
+          translationServiceIds: _translationServiceIds,
+          engineNameById: _engineNameById,
+          preferredEngineId: _preferredEngineId,
+          stale: _resultStale,
           showCompare: _showCompare,
           onToggleCompare: () {
             _setStateAndScheduleWindowResize(() {
               _showCompare = !_showCompare;
             });
           },
+          onPreferEngine: (engineId) {
+            _setStateAndScheduleWindowResize(() {
+              _preferredEngineId = engineId;
+            });
+          },
+          onRequery: _handleButtonTappedTrans,
         ),
         MiniTranslatorWordDefinition(
           translationResultList: _translationResultList,
         ),
         MiniTranslatorActionButtons(
-          hasContent: (_querySubmitted && _translationResultList.isNotEmpty),
+          hasContent: hasTranslation,
+          copied: _copied,
+          starred: _starred,
+          translateEnabled: _text.isNotEmpty,
           onRead: () {},
-          onCopy: () {},
-          onBookmark: () {},
+          onCopy: _handleButtonTappedCopy,
+          onBookmark: () => setState(() => _starred = !_starred),
           onTranslate: _handleButtonTappedTrans,
         ),
       ],
@@ -863,27 +923,52 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            MiniTranslatorToolbar(
-              key: _toolbarViewKey,
-              isAlwaysOnTop: _isAlwaysOnTop,
-              onTogglePin: () {
-                setState(() {
-                  _isAlwaysOnTop = !_isAlwaysOnTop;
-                });
-                _window.isAlwaysOnTop = _isAlwaysOnTop;
-              },
-              onExtractScreenCapture: _handleExtractTextFromScreenCapture,
-              onExtractClipboard: _handleExtractTextFromClipboard,
-              onOpenWorkbench: () => showWorkbenchWindow(text: _text),
-              onOpenSettings: showSettingsWindow,
-            ),
-            _buildBody(context),
-          ],
+      body: CallbackShortcuts(
+        bindings: {
+          // ⌥1…⌥9 promote the matching engine, as hinted on the cards.
+          for (var digit = 1; digit <= 9; digit++)
+            SingleActivator(
+              LogicalKeyboardKey(LogicalKeyboardKey.digit1.keyId + digit - 1),
+              alt: true,
+            ): () => _handlePreferEngineAt(digit - 1),
+        },
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MiniTranslatorTopBar(
+                key: _toolbarViewKey,
+                sourceLanguage: _sourceLanguage,
+                selectedTargetLanguage: _selectedTargetLanguage,
+                detectedLanguage: _detectedLanguage,
+                activeConfigIndex: _activeConfigIndex,
+                persistentTargets: settingsStore.general.translationTargets,
+                commonLanguageCodes:
+                    settingsStore.general.commonLanguages.isNotEmpty
+                        ? settingsStore.general.commonLanguages
+                        : defaultCommonLanguages(),
+                onSourceChanged: _handleSourceChanged,
+                onTargetLanguageChanged: _handleTargetLanguageChanged,
+                onConfigTargetSelected: _handleConfigTargetSelected,
+                onManageCommonLanguages: _handleManageCommonLanguages,
+                onAddTarget: _handleAddTarget,
+                onManageTargets: _handleManageTargets,
+                isAlwaysOnTop: _isAlwaysOnTop,
+                onTogglePin: () {
+                  setState(() {
+                    _isAlwaysOnTop = !_isAlwaysOnTop;
+                  });
+                  _window.isAlwaysOnTop = _isAlwaysOnTop;
+                },
+                onExtractScreenCapture: _handleExtractTextFromScreenCapture,
+                onExtractClipboard: _handleExtractTextFromClipboard,
+                onOpenWorkbench: () => showWorkbenchWindow(text: _text),
+                onOpenSettings: showSettingsWindow,
+              ),
+              _buildBody(context),
+            ],
+          ),
         ),
       ),
     );

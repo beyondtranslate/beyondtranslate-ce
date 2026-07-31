@@ -106,8 +106,12 @@ void _populateLanguageMenu(
   menu.addItem(manageItem);
 }
 
-class MiniTranslatorLanguageBar extends StatelessWidget {
-  MiniTranslatorLanguageBar({
+/// 顶部栏 — the deck's MiniTranslator chrome: the language capsule on the
+/// left (each end opens a native menu, matching the deck's target-language
+/// menu trigger), window-level actions on the right: the ⋯ native menu
+/// (取词 / 主窗口 / 设置 / 切换目标) and the pin.
+class MiniTranslatorTopBar extends StatelessWidget {
+  MiniTranslatorTopBar({
     Key? key,
     required this.sourceLanguage,
     required this.selectedTargetLanguage,
@@ -121,6 +125,12 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
     required this.onManageCommonLanguages,
     required this.onAddTarget,
     required this.onManageTargets,
+    required this.isAlwaysOnTop,
+    required this.onTogglePin,
+    required this.onExtractScreenCapture,
+    required this.onExtractClipboard,
+    required this.onOpenWorkbench,
+    required this.onOpenSettings,
   }) : super(key: key);
 
   final String sourceLanguage;
@@ -135,11 +145,17 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
   final VoidCallback onManageCommonLanguages;
   final VoidCallback onAddTarget;
   final VoidCallback onManageTargets;
+  final bool isAlwaysOnTop;
+  final VoidCallback onTogglePin;
+  final VoidCallback onExtractScreenCapture;
+  final VoidCallback onExtractClipboard;
+  final VoidCallback onOpenWorkbench;
+  final VoidCallback onOpenSettings;
 
   // Keys for anchoring native menus
   final GlobalKey _sourceButtonKey = GlobalKey();
   final GlobalKey _targetButtonKey = GlobalKey();
-  final GlobalKey _configButtonKey = GlobalKey();
+  final GlobalKey _moreButtonKey = GlobalKey();
 
   void _showSourceMenu() {
     final menu = nativeapi.Menu();
@@ -195,8 +211,51 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
     _openMenu(_targetButtonKey, menu);
   }
 
-  void _showConfigMenu() {
+  /// The ⋯ menu — 取词 sources, window-level entries, and the 切换目标
+  /// submenu that used to live behind its own options button.
+  void _showMoreMenu() {
     final menu = nativeapi.Menu();
+
+    final captureItem = nativeapi.MenuItem(
+      t.mini_translator.toolbar.menu.extract_from_screen_capture,
+      nativeapi.MenuItemType.normal,
+    );
+    captureItem
+        .on<nativeapi.MenuItemClickedEvent>((_) => onExtractScreenCapture());
+    menu.addItem(captureItem);
+
+    final clipboardItem = nativeapi.MenuItem(
+      t.mini_translator.toolbar.menu.extract_from_clipboard,
+      nativeapi.MenuItemType.normal,
+    );
+    clipboardItem
+        .on<nativeapi.MenuItemClickedEvent>((_) => onExtractClipboard());
+    menu.addItem(clipboardItem);
+
+    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    menu.addItem(_buildConfigSubmenuItem());
+    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+
+    final workbenchItem = nativeapi.MenuItem(
+      t.mini_translator.toolbar.menu.open_main_window,
+      nativeapi.MenuItemType.normal,
+    );
+    workbenchItem.on<nativeapi.MenuItemClickedEvent>((_) => onOpenWorkbench());
+    menu.addItem(workbenchItem);
+
+    final settingsItem = nativeapi.MenuItem(
+      t.mini_translator.toolbar.menu.open_settings,
+      nativeapi.MenuItemType.normal,
+    );
+    settingsItem.on<nativeapi.MenuItemClickedEvent>((_) => onOpenSettings());
+    menu.addItem(settingsItem);
+
+    _openMenu(_moreButtonKey, menu,
+        placement: nativeapi.Placement.bottomEnd, anchorX: 1.0);
+  }
+
+  nativeapi.MenuItem _buildConfigSubmenuItem() {
+    final submenu = nativeapi.Menu();
 
     final autoLabel =
         '${t.mini_translator.language.auto_detect} -> ${t.mini_translator.language.auto_match}';
@@ -212,8 +271,8 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
     autoItem.on<nativeapi.MenuItemClickedEvent>((_) {
       onConfigTargetSelected(-1);
     });
-    menu.addItem(autoItem);
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    submenu.addItem(autoItem);
+    submenu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
 
     for (var i = 0; i < persistentTargets.length; i++) {
       final target = persistentTargets[i];
@@ -226,27 +285,31 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
       item.on<nativeapi.MenuItemClickedEvent>((_) {
         onConfigTargetSelected(i);
       });
-      menu.addItem(item);
+      submenu.addItem(item);
     }
 
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    submenu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
 
     final addItem = nativeapi.MenuItem(
       t.mini_translator.language.add_target,
       nativeapi.MenuItemType.normal,
     );
     addItem.on<nativeapi.MenuItemClickedEvent>((_) => onAddTarget());
-    menu.addItem(addItem);
+    submenu.addItem(addItem);
 
     final manageItem = nativeapi.MenuItem(
       t.mini_translator.language.manage_targets,
       nativeapi.MenuItemType.normal,
     );
     manageItem.on<nativeapi.MenuItemClickedEvent>((_) => onManageTargets());
-    menu.addItem(manageItem);
+    submenu.addItem(manageItem);
 
-    _openMenu(_configButtonKey, menu,
-        placement: nativeapi.Placement.bottomEnd, anchorX: 1.0);
+    final configItem = nativeapi.MenuItem(
+      t.mini_translator.language.switch_config,
+      nativeapi.MenuItemType.submenu,
+    );
+    configItem.submenu = submenu;
+    return configItem;
   }
 
   @override
@@ -262,7 +325,7 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
     final canSwap = !isAutoSource(sourceLanguage);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -273,15 +336,6 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Badge(
-            tone: BadgeTone.accent,
-            child: Text(
-              isDetected
-                  ? getLanguageName(detectedLanguage!)
-                  : t.mini_translator.language.auto_detect,
-            ),
-          ),
-          const SizedBox(width: 8),
           // The language capsule, shaped like the design system's SwapPair —
           // but each end opens a native menu, so the labels are pressable.
           Container(
@@ -318,11 +372,29 @@ class MiniTranslatorLanguageBar extends StatelessWidget {
               ],
             ),
           ),
+          if (isDetected) ...[
+            const SizedBox(width: 8),
+            Badge(
+              tone: BadgeTone.accent,
+              child: Text(getLanguageName(detectedLanguage!)),
+            ),
+          ],
           const Spacer(),
           IconActionButton(
-            key: _configButtonKey,
-            icon: FluentIcons.options_20_regular,
-            onPressed: _showConfigMenu,
+            key: _moreButtonKey,
+            icon: FluentIcons.more_horizontal_20_regular,
+            tooltip: t.mini_translator.toolbar.tooltip.more_actions,
+            onPressed: _showMoreMenu,
+          ),
+          IconActionButton(
+            icon: isAlwaysOnTop
+                ? FluentIcons.pin_20_filled
+                : FluentIcons.pin_20_regular,
+            tooltip: t.mini_translator.toolbar.tooltip.pin,
+            selected: isAlwaysOnTop,
+            // The pin lies at -45° until pinned, matching the deck.
+            iconTurns: isAlwaysOnTop ? 0 : -0.125,
+            onPressed: onTogglePin,
           ),
         ],
       ),

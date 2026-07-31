@@ -120,17 +120,31 @@
     },
     "input": {
       "hint": "在此輸入單字或文字",
-      "extracting_text": "正在辨識文字…"
+      "extracting_text": "正在辨識文字…",
+      "hint_translate_to": "輸入單詞或文字，翻譯為$language"
     },
     "toolbar": {
       "tooltip": {
         "extract_text_from_screen_capture": "擷取螢幕區域並辨識文字",
-        "extract_text_from_clipboard": "讀取剪貼簿內容"
+        "extract_text_from_clipboard": "讀取剪貼簿內容",
+        "pin": "固定視窗",
+        "more_actions": "更多操作"
+      },
+      "menu": {
+        "extract_from_screen_capture": "螢幕取詞",
+        "extract_from_clipboard": "剪貼簿取詞",
+        "open_main_window": "開啟主視窗",
+        "open_settings": "設定…"
       }
     },
     "button": {
       "clear": "清除",
-      "translate": "翻譯"
+      "translate": "翻譯",
+      "read": "朗讀",
+      "copy": "複製",
+      "copied": "已複製",
+      "bookmark": "收藏",
+      "bookmarked": "已收藏"
     },
     "language": {
       "auto_detect": "自動偵測",
@@ -146,6 +160,16 @@
       "capture_screen_area_canceled": "螢幕區域擷取已取消",
       "ocr_service_not_configured": "未配置預設文字辨識服務，請在設定中配置。",
       "ocr_recognition_failed": "文字辨識失敗"
+    },
+    "result": {
+      "translating": "正在翻譯…",
+      "stale_requery": "原文已修改 · ⏎ 重新翻譯",
+      "compare_engines": "對比 $count 個引擎",
+      "collapse_compare": "收起對比",
+      "set_preferred": "設為首選",
+      "retry": "重試",
+      "no_result": "所有引擎都沒有回傳結果 —— 檢查網路，或換一個引擎再試。",
+      "no_result_note": "原文已保留，重試不會重複計入歷史。"
     }
   },
   "workbench": {

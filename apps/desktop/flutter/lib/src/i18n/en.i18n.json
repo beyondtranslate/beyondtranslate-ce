@@ -120,17 +120,31 @@
     },
     "input": {
       "hint": "Enter the word or text here",
-      "extracting_text": "Extracting text..."
+      "extracting_text": "Extracting text...",
+      "hint_translate_to": "Type a word or text to translate into $language"
     },
     "toolbar": {
       "tooltip": {
         "extract_text_from_screen_capture": "Capture screen area and recognize text",
-        "extract_text_from_clipboard": "Read clipboard content"
+        "extract_text_from_clipboard": "Read clipboard content",
+        "pin": "Pin window",
+        "more_actions": "More actions"
+      },
+      "menu": {
+        "extract_from_screen_capture": "Capture from screen",
+        "extract_from_clipboard": "From clipboard",
+        "open_main_window": "Open main window",
+        "open_settings": "Settings…"
       }
     },
     "button": {
       "clear": "Clear",
-      "translate": "Translate"
+      "translate": "Translate",
+      "read": "Read aloud",
+      "copy": "Copy",
+      "copied": "Copied",
+      "bookmark": "Save",
+      "bookmarked": "Saved"
     },
     "language": {
       "auto_detect": "Auto Detect",
@@ -146,6 +160,16 @@
       "capture_screen_area_canceled": "Capture screen area has been canceled",
       "ocr_service_not_configured": "No default text recognition service configured. Please set one in Settings.",
       "ocr_recognition_failed": "Text recognition failed"
+    },
+    "result": {
+      "translating": "Translating…",
+      "stale_requery": "Source changed · ⏎ retranslate",
+      "compare_engines": "Compare $count engines",
+      "collapse_compare": "Collapse",
+      "set_preferred": "Set as preferred",
+      "retry": "Retry",
+      "no_result": "No engine returned a result — check your network or try another engine.",
+      "no_result_note": "Your text is kept; retrying will not duplicate history."
     }
   },
   "workbench": {
