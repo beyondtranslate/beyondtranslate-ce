@@ -30,7 +30,6 @@ dependencies:
   path_provider: ^2.1.1
   slang: ^4.13.0
   slang_flutter: ^4.13.0
-  sticky_headers: ^0.3.0+2
   vclibs: ^0.1.0
 
 dev_dependencies:

@@ -23,7 +23,7 @@ EXCLUDED_DIRS = {
 }
 
 DEFAULT_IGNORED_FILES = {
-    Path("apps/desktop/flutter/macos/Flutter/GeneratedPluginRegistrant.swift"),
+    Path("GeneratedPluginRegistrant.swift"),
 }
 
 
