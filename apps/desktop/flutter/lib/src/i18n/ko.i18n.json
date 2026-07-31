@@ -120,17 +120,31 @@
     },
     "input": {
       "hint": "단어나 텍스트를 입력하세요",
-      "extracting_text": "텍스트 추출 중..."
+      "extracting_text": "텍스트 추출 중...",
+      "hint_translate_to": "단어나 텍스트를 입력해 $language(으)로 번역"
     },
     "toolbar": {
       "tooltip": {
         "extract_text_from_screen_capture": "화면 영역을 캡처하여 텍스트 인식",
-        "extract_text_from_clipboard": "클립보드 내용 읽기"
+        "extract_text_from_clipboard": "클립보드 내용 읽기",
+        "pin": "창 고정",
+        "more_actions": "더 보기"
+      },
+      "menu": {
+        "extract_from_screen_capture": "화면에서 추출",
+        "extract_from_clipboard": "클립보드에서 추출",
+        "open_main_window": "메인 창 열기",
+        "open_settings": "설정…"
       }
     },
     "button": {
       "clear": "지우기",
-      "translate": "번역"
+      "translate": "번역",
+      "read": "읽기",
+      "copy": "복사",
+      "copied": "복사됨",
+      "bookmark": "저장",
+      "bookmarked": "저장됨"
     },
     "language": {
       "auto_detect": "자동 감지",
@@ -146,6 +160,16 @@
       "capture_screen_area_canceled": "화면 영역 캡처가 취소되었습니다",
       "ocr_service_not_configured": "기본 텍스트 인식 서비스가 설정되지 않았습니다. 설정에서 설정해주세요.",
       "ocr_recognition_failed": "텍스트 인식 실패"
+    },
+    "result": {
+      "translating": "번역 중…",
+      "stale_requery": "원문이 수정됨 · ⏎ 다시 번역",
+      "compare_engines": "엔진 $count개 비교",
+      "collapse_compare": "비교 접기",
+      "set_preferred": "기본으로 설정",
+      "retry": "다시 시도",
+      "no_result": "어떤 엔진도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 엔진을 사용해 보세요.",
+      "no_result_note": "원문은 유지되며, 다시 시도해도 기록이 중복되지 않습니다."
     }
   },
   "workbench": {

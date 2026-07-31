@@ -3,7 +3,6 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide TextField;
 
 import '../../i18n/i18n.dart';
-import '../../widgets/icon_action_button.dart';
 import '../../widgets/text_field.dart' show TextField;
 import '../../widgets/ui.dart'
     show
@@ -14,74 +13,6 @@ import '../../widgets/ui.dart'
         DesignThemeContext,
         DesignTypographyStyles;
 
-class MiniTranslatorToolbar extends StatelessWidget {
-  const MiniTranslatorToolbar({
-    Key? key,
-    required this.isAlwaysOnTop,
-    required this.onTogglePin,
-    required this.onExtractScreenCapture,
-    required this.onExtractClipboard,
-    required this.onOpenWorkbench,
-    required this.onOpenSettings,
-  }) : super(key: key);
-
-  final bool isAlwaysOnTop;
-  final VoidCallback onTogglePin;
-  final VoidCallback onExtractScreenCapture;
-  final VoidCallback onExtractClipboard;
-  final VoidCallback onOpenWorkbench;
-  final VoidCallback onOpenSettings;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.border,
-            width: context.hairlineWidth,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          IconActionButton(
-            icon: isAlwaysOnTop
-                ? FluentIcons.pin_20_filled
-                : FluentIcons.pin_20_regular,
-            selected: isAlwaysOnTop,
-            onPressed: onTogglePin,
-          ),
-          const Spacer(),
-          IconActionButton(
-            icon: FluentIcons.crop_20_regular,
-            tooltip: t.mini_translator.toolbar.tooltip
-                .extract_text_from_screen_capture,
-            onPressed: onExtractScreenCapture,
-          ),
-          IconActionButton(
-            icon: FluentIcons.clipboard_text_ltr_20_regular,
-            tooltip:
-                t.mini_translator.toolbar.tooltip.extract_text_from_clipboard,
-            onPressed: onExtractClipboard,
-          ),
-          IconActionButton(
-            icon: FluentIcons.open_20_regular,
-            onPressed: onOpenWorkbench,
-          ),
-          IconActionButton(
-            icon: FluentIcons.settings_20_regular,
-            onPressed: onOpenSettings,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class MiniTranslatorInput extends StatelessWidget {
   const MiniTranslatorInput({
     Key? key,
@@ -89,6 +20,7 @@ class MiniTranslatorInput extends StatelessWidget {
     required this.controller,
     required this.text,
     required this.inputSubmitMode,
+    this.targetLanguageName,
     required this.onChanged,
     required this.onSubmitted,
     required this.onClear,
@@ -98,6 +30,9 @@ class MiniTranslatorInput extends StatelessWidget {
   final TextEditingController controller;
   final String text;
   final InputSubmitMode inputSubmitMode;
+
+  /// Repeats the chosen target in the placeholder — 输入单词或文本，翻译为X.
+  final String? targetLanguageName;
   final ValueChanged<String?> onChanged;
   final VoidCallback onSubmitted;
   final VoidCallback onClear;
@@ -106,6 +41,10 @@ class MiniTranslatorInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    final placeholder = targetLanguageName == null
+        ? t.mini_translator.input.hint
+        : t.mini_translator.input
+            .hint_translate_to(language: targetLanguageName!);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
@@ -124,7 +63,7 @@ class MiniTranslatorInput extends StatelessWidget {
             focusNode: focusNode,
             controller: controller,
             padding: const EdgeInsets.only(right: 26),
-            placeholder: t.mini_translator.input.hint,
+            placeholder: placeholder,
             placeholderStyle:
                 tokens.typography.sourceStyle(color: colors.fgFaint),
             style: tokens.typography.sourceStyle(color: colors.fg),
@@ -157,6 +96,9 @@ class MiniTranslatorActionButtons extends StatelessWidget {
   const MiniTranslatorActionButtons({
     Key? key,
     required this.hasContent,
+    required this.copied,
+    required this.starred,
+    required this.translateEnabled,
     required this.onRead,
     required this.onCopy,
     required this.onBookmark,
@@ -164,6 +106,15 @@ class MiniTranslatorActionButtons extends StatelessWidget {
   }) : super(key: key);
 
   final bool hasContent;
+
+  /// 复制 flips to 已复制 for a beat after copying.
+  final bool copied;
+
+  /// 收藏 / 已收藏 toggle state.
+  final bool starred;
+
+  /// 翻译 stays disabled until there is something to translate.
+  final bool translateEnabled;
   final VoidCallback onRead;
   final VoidCallback onCopy;
   final VoidCallback onBookmark;
@@ -172,6 +123,8 @@ class MiniTranslatorActionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final buttons = t.mini_translator.button;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -191,20 +144,23 @@ class MiniTranslatorActionButtons extends StatelessWidget {
               Button(
                 variant: ButtonVariant.ghost,
                 size: ButtonSize.xs,
+                enabled: hasContent,
                 onPressed: onRead,
-                child: const Text('朗读'),
+                child: Text(buttons.read),
               ),
               Button(
                 variant: ButtonVariant.ghost,
                 size: ButtonSize.xs,
+                enabled: hasContent,
                 onPressed: onCopy,
-                child: const Text('复制'),
+                child: Text(copied ? buttons.copied : buttons.copy),
               ),
               Button(
                 variant: ButtonVariant.ghost,
                 size: ButtonSize.xs,
+                enabled: hasContent,
                 onPressed: onBookmark,
-                child: const Text('收藏'),
+                child: Text(starred ? buttons.bookmarked : buttons.bookmark),
               ),
             ],
           ),
@@ -212,8 +168,10 @@ class MiniTranslatorActionButtons extends StatelessWidget {
           Button(
             variant: ButtonVariant.primary,
             size: ButtonSize.xs,
+            enabled: translateEnabled,
             onPressed: onTranslate,
-            child: Text(t.mini_translator.button.translate),
+            shortcut: const Text('⏎'),
+            child: Text(buttons.translate),
           ),
         ],
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'ui.dart' show DesignThemeContext, Pressable;
+import 'ui.dart' show DesignThemeContext, Pressable, kTransitionDuration;
 
 /// A 32pt square icon affordance for toolbars, built on the design system's
 /// [Pressable] so it gets the same hover, focus ring and keyboard activation
@@ -12,12 +12,17 @@ class IconActionButton extends StatelessWidget {
     this.tooltip,
     required this.onPressed,
     this.selected = false,
+    this.iconTurns = 0,
   });
 
   final IconData icon;
   final String? tooltip;
   final VoidCallback? onPressed;
   final bool selected;
+
+  /// Animated rotation of the glyph, in turns — the pin lies at -45° until
+  /// pinned, matching the deck.
+  final double iconTurns;
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +45,16 @@ class IconActionButton extends StatelessWidget {
               : (state.hovered ? colors.controlHover : null),
           borderRadius: radius,
         ),
-        child: Icon(
-          icon,
-          size: 17,
-          color: selected
-              ? colors.accentText
-              : (onPressed == null ? colors.fgFaint : colors.fgControl),
+        child: AnimatedRotation(
+          turns: iconTurns,
+          duration: kTransitionDuration,
+          child: Icon(
+            icon,
+            size: 17,
+            color: selected
+                ? colors.accentText
+                : (onPressed == null ? colors.fgFaint : colors.fgControl),
+          ),
         ),
       ),
     );

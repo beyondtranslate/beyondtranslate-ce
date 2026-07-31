@@ -120,17 +120,31 @@
     },
     "input": {
       "hint": "Saisissez le mot ou le texte ici",
-      "extracting_text": "Extraction du texte..."
+      "extracting_text": "Extraction du texte...",
+      "hint_translate_to": "Saisissez un mot ou un texte à traduire en $language"
     },
     "toolbar": {
       "tooltip": {
         "extract_text_from_screen_capture": "Capturer une zone de l'écran et reconnaître le texte",
-        "extract_text_from_clipboard": "Lire le contenu du presse-papiers"
+        "extract_text_from_clipboard": "Lire le contenu du presse-papiers",
+        "pin": "Épingler la fenêtre",
+        "more_actions": "Plus d’actions"
+      },
+      "menu": {
+        "extract_from_screen_capture": "Capturer depuis l’écran",
+        "extract_from_clipboard": "Depuis le presse-papiers",
+        "open_main_window": "Ouvrir la fenêtre principale",
+        "open_settings": "Réglages…"
       }
     },
     "button": {
       "clear": "Effacer",
-      "translate": "Traduire"
+      "translate": "Traduire",
+      "read": "Lire",
+      "copy": "Copier",
+      "copied": "Copié",
+      "bookmark": "Enregistrer",
+      "bookmarked": "Enregistré"
     },
     "language": {
       "auto_detect": "Détection automatique",
@@ -146,6 +160,16 @@
       "capture_screen_area_canceled": "La capture de la zone d'écran a été annulée",
       "ocr_service_not_configured": "Aucun service de reconnaissance de texte par défaut configuré. Veuillez en définir un dans les Paramètres.",
       "ocr_recognition_failed": "La reconnaissance de texte a échoué"
+    },
+    "result": {
+      "translating": "Traduction…",
+      "stale_requery": "Texte modifié · ⏎ retraduire",
+      "compare_engines": "Comparer $count moteurs",
+      "collapse_compare": "Réduire",
+      "set_preferred": "Définir comme préféré",
+      "retry": "Réessayer",
+      "no_result": "Aucun moteur n’a renvoyé de résultat : vérifiez le réseau ou essayez un autre moteur.",
+      "no_result_note": "Le texte est conservé ; réessayer ne dupliquera pas l’historique."
     }
   },
   "workbench": {
