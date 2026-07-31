@@ -4,7 +4,7 @@
 /// themes, same components — under plain, generic widget names.
 ///
 /// Several of those names (`Badge`, `Button`, `Checkbox`, `Dialog`, `Divider`,
-/// `ListTile`, `Radio`, `Step`, `Switch`) are also Material's. This package
+/// `IconButton`, `ListTile`, `Radio`, `Step`, `Switch`) are also Material's. This package
 /// never imports Material, so nothing clashes internally, but an app that uses
 /// both should import one of them with a prefix:
 ///
@@ -40,10 +40,12 @@ export 'src/widgets/empty_state.dart';
 export 'src/widgets/field.dart';
 export 'src/widgets/floating_ball.dart';
 export 'src/widgets/focus_ring.dart';
+export 'src/widgets/icon_button.dart';
 export 'src/widgets/kbd.dart';
 export 'src/widgets/label.dart';
 export 'src/widgets/list_card.dart';
 export 'src/widgets/list_tile.dart';
+export 'src/widgets/menu.dart';
 export 'src/widgets/option_card.dart';
 export 'src/widgets/popover.dart';
 export 'src/widgets/popover_card.dart';

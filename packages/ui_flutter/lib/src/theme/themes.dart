@@ -3,8 +3,8 @@ import 'package:flutter/widgets.dart';
 
 /// `studioLight` is the baseline the components were built against; the others
 /// re-skin the same widgets by swapping tokens — including radii, so the Bright
-/// themes' pill controls need no widget changes. `brightDark` isn't in the
-/// design deck — it's a dark canvas extrapolated from `brightLight`'s palette.
+/// themes' pill controls need no widget changes. The Bright pair maps to deck
+/// sections 4b (light) and 4e (dark).
 enum DesignThemeName {
   studioLight,
   studioDark,
@@ -65,7 +65,7 @@ const Map<DesignThemeName, DesignThemeMeta> designThemeMeta = {
   DesignThemeName.brightDark: DesignThemeMeta(
     name: DesignThemeName.brightDark,
     title: 'Bright Dark',
-    description: '同一套酸性绿标记与胶囊控件，画布换成墨绿近黑；是 Bright Light 的暗色延伸。',
+    description: '墨蓝从文字变画布、暖白从纸面变文字；酸性绿分工不变，高亮改 8% 低透明填色，不发光。',
   ),
 };
 
@@ -228,7 +228,7 @@ abstract final class DesignThemes {
       inset: Color(0xFFF0EFE9),
       control: Color(0xFFF0EFE9),
       controlHover: Color(0xFFE8E6DD),
-      track: Color(0xFFE4E2D9),
+      track: Color(0xFFE5E3DB),
       controlOutline: Color(0x40111C2E),
       controlRaised: Color(0xFFFFFFFF),
       selectionUnemphasized: Color(0x1A111C2E),
@@ -271,7 +271,7 @@ abstract final class DesignThemes {
       warnFg: Color(0xFF7A4F0E),
       warnSurface: Color(0xFFFBF3E2),
       warnBorder: Color(0x4CC98420),
-      warnMark: Color(0xFFFBE3BB),
+      warnMark: Color(0xFFFFE0B8),
       danger: Color(0xFFC0392B),
       dangerFg: Color(0xFFA62F23),
       dangerDeep: Color(0xFF6D1B13),
@@ -282,7 +282,13 @@ abstract final class DesignThemes {
     // Pill controls are this theme's signature, so they stay — but only on the
     // `control` axis, where height sets the curve. Containers take a finite,
     // generous corner instead; a pill textarea reads as a lozenge, not a field.
+    // The window / popover / backdrop / avatar radii are pinned at Studio's old
+    // base so a Studio-side bump doesn't round the Bright chrome.
     radii: const DesignRadii(
+      backdrop: 24,
+      window: 16,
+      popover: 14,
+      avatar: 7,
       control: 999,
       controlSm: 999,
       chip: 999,
@@ -322,88 +328,101 @@ abstract final class DesignThemes {
   );
 
 // ------------------------------------------------------------------ //
-// Bright Dark — not in the deck: Bright Light's ink-navy/acid-green identity
-// carried onto a dark canvas. Acid green moves from "marker only" to the
-// accent fill itself, since ink navy has no contrast left to give.
+// Bright Dark — deck section 4e: Bright Light with the roles swapped.
+// Ink navy moves from text to canvas, warm paper from canvas to text.
+// Acid green keeps its single job (marking the block being read) but its
+// surface becomes a low-alpha tint — "8% 低透明填色，不发光不刺眼" — while
+// primary actions invert to acid green printed with ink navy.
 // ------------------------------------------------------------------ //
 
   static final DesignTokens brightDark = DesignTokens(
     brightness: Brightness.dark,
     backdrop: linearGradientFromAngle(
       140,
-      const [Color(0xFF2E3A28), Color(0xFF1A2318), Color(0xFF0B0F09)],
+      const [Color(0xFF3F4A3A), Color(0xFF232A2C), Color(0xFF0E1216)],
       const [0, 0.5, 1],
     ),
+    // The deck fills progress solid acid; two identical stops keep the token
+    // a gradient because Progress paints it as one.
     progressGradient: linearGradientFromAngle(
       90,
-      const [Color(0xFF6B8F22), Color(0xFFD6FF3F)],
+      const [Color(0xFFD6FF3F), Color(0xFFD6FF3F)],
     ),
     highlightRule: 2,
-    highlightGlow: const [
-      BoxShadow(blurRadius: 10, color: Color(0xB3D6FF3F)),
-    ],
+    // Explicitly no glow — the deck: "不发光不刺眼".
     colors: const DesignColors(
-      canvas: Color(0xFF0E120B),
-      window: Color(0xFF14180F),
-      chrome: Color(0xFF191D13),
-      sidebar: Color(0xFF10130B),
-      rail: Color(0xFF12160D),
-      raised: Color(0xFF191D13),
-      card: Color(0xFF171B11),
-      subtle: Color(0xFF1A1E14),
-      inset: Color(0xFF20251A),
-      control: Color(0xFF20251A),
-      controlHover: Color(0xFF292F20),
-      track: Color(0xFF292F20),
-      controlOutline: Color(0xFF3C4331),
-      controlRaised: Color(0xFF363D29),
-      selectionUnemphasized: Color(0x21F3F6EA),
-      tray: Color(0xFF191D13),
-      panel: Color(0xFF14180F),
-      accentSurface: Color(0xFF1D2416),
-      accentSurfaceAlt: Color(0xFF222A19),
-      border: Color(0x14E6F79A),
-      borderStrong: Color(0x24E6F79A),
-      borderHairline: Color(0x0FE6F79A),
-      accentBorder: Color(0x66D6FF3F),
-      fg: Color(0xFFF3F6EA),
-      fgSecondary: Color(0xC7F3F6EA),
-      fgTertiary: Color(0x9EF3F6EA),
-      fgMuted: Color(0x7AF3F6EA),
-      fgSubtle: Color(0x66F3F6EA),
-      fgFaint: Color(0x52F3F6EA),
-      fgNav: Color(0xB2F3F6EA),
-      fgControl: Color(0xFFF3F6EA),
-      // Ink navy can't carry a fill on a dark canvas, so accent and highlight
-      // converge back onto acid green here — dark text prints on top of it.
+      canvas: Color(0xFF0A111A),
+      window: Color(0xFF0C141E),
+      chrome: Color(0xFF111A26),
+      sidebar: Color(0xFF0A111A),
+      rail: Color(0xFF0B1219),
+      raised: Color(0xFF111A26),
+      card: Color(0xFF141D29),
+      subtle: Color(0xFF101923),
+      inset: Color(0xFF16202C),
+      control: Color(0xFF1C2734),
+      controlHover: Color(0xFF24303F),
+      track: Color(0xFF1C2734),
+      controlOutline: Color(0xFF35414F),
+      controlRaised: Color(0xFF2A3644),
+      selectionUnemphasized: Color(0x21F2F4EF),
+      tray: Color(0xFF111A26),
+      panel: Color(0xFF0C141E),
+      // Low-alpha on purpose: the deck floats the tint over whichever surface
+      // the block sits on instead of committing to an opaque green-dark mix.
+      accentSurface: Color(0x14D6FF3F),
+      accentSurfaceAlt: Color(0x1FD6FF3F),
+      border: Color(0x14F2F4EF),
+      borderStrong: Color(0x24F2F4EF),
+      borderHairline: Color(0x0FF2F4EF),
+      // The rules fencing the current block stay solid acid, same as light.
+      accentBorder: Color(0xFFD6FF3F),
+      fg: Color(0xFFF2F4EF),
+      fgSecondary: Color(0xC7F2F4EF),
+      fgTertiary: Color(0xA8F2F4EF),
+      fgMuted: Color(0x80F2F4EF),
+      fgSubtle: Color(0x73F2F4EF),
+      fgFaint: Color(0x61F2F4EF),
+      fgNav: Color(0xB2F2F4EF),
+      fgControl: Color(0xFFF2F4EF),
+      // The exact inversion of Bright Light's primary pair: acid green fill,
+      // ink navy printed on top.
       accent: Color(0xFFD6FF3F),
       accentHover: Color(0xFFC2EA2C),
-      onAccent: Color(0xFF12180A),
+      onAccent: Color(0xFF111C2E),
       accentText: Color(0xFFD6FF3F),
-      accentTextStrong: Color(0xFFE4FF70),
+      accentTextStrong: Color(0xFFE9FF8F),
       highlight: Color(0xFFD6FF3F),
       accentRing: Color(0x59D6FF3F),
       focusRing: Color(0x8CD6FF3F),
+      // Term marks lift the text along with the tint (#e9ff8f), where the
+      // light theme leaves marked text at full ink.
       accentMark: Color(0x38D6FF3F),
-      accentMarkFg: Color(0xFFEAFFA0),
-      inverse: Color(0xFF262C1C),
-      inverseFg: Color(0xFFF3F6EA),
+      accentMarkFg: Color(0xFFE9FF8F),
+      inverse: Color(0xFF1C2734),
+      inverseFg: Color(0xFFF2F4EF),
       success: Color(0xFF5FD88A),
       successSurface: Color(0x295FD88A),
-      warn: Color(0xFFFFB84D),
-      warnStrong: Color(0xFFFFB84D),
-      warnFg: Color(0xFFFFD28F),
-      warnSurface: Color(0x1AFFB84D),
-      warnBorder: Color(0x47FFB84D),
-      warnMark: Color(0x38FFB84D),
+      warn: Color(0xFFFFB86B),
+      warnStrong: Color(0xFFFFB86B),
+      warnFg: Color(0xFFFFC98A),
+      warnSurface: Color(0x1AFFB86B),
+      warnBorder: Color(0x47FFB86B),
+      warnMark: Color(0x3DFFB86B),
       danger: Color(0xFFFF7A68),
       dangerFg: Color(0xFFFF9585),
       dangerDeep: Color(0xFFFFCFC7),
       dangerSurface: Color(0x1FFF7A68),
       dangerBorder: Color(0x52FF7A68),
-      engineDict: Color(0xFF82A690),
     ),
+    // Same layout scheme as Bright Light: pill controls, finite containers,
+    // and the window / popover / backdrop / avatar radii pinned at Studio's
+    // old base so a Studio-side bump doesn't round the Bright chrome.
     radii: const DesignRadii(
+      backdrop: 24,
+      window: 16,
+      popover: 14,
+      avatar: 7,
       control: 999,
       controlSm: 999,
       chip: 999,

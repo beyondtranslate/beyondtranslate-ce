@@ -13,6 +13,10 @@ enum ButtonVariant {
   /// Recessed neutral chip — 朗读 / 复制 / 收藏 on the mini window.
   ghost,
 
+  /// Accent-tinted chip — 对比 N 个引擎: the deck fills this pill with the
+  /// accent at low alpha and prints the accent colour on top.
+  tint,
+
   /// Text-only affordance — 设为首选 / 导出配置 / 更改位置.
   quiet,
 
@@ -45,7 +49,7 @@ class Button extends StatelessWidget {
   final bool enabled;
   final Widget? child;
 
-  /// Trailing shortcut glyph, e.g. `⏎` on 打开窗口.
+  /// Trailing shortcut glyph, e.g. `⏎` on 翻译.
   final Widget? shortcut;
   final String? semanticsLabel;
 
@@ -109,16 +113,36 @@ class Button extends StatelessWidget {
             }
           case ButtonVariant.secondary:
             weight = FontWeight.w600;
-            background = hovered ? colors.subtle : colors.window;
-            foreground = colors.fgControl;
-            border = Border.all(
-              color: colors.borderStrong,
-              width: context.hairlineWidth,
-            );
+            if (disabled) {
+              background = colors.track;
+              foreground = colors.fgFaint;
+            } else {
+              background = hovered ? colors.subtle : colors.window;
+              foreground = colors.fgControl;
+              border = Border.all(
+                color: colors.borderStrong,
+                width: context.hairlineWidth,
+              );
+            }
           case ButtonVariant.ghost:
             weight = FontWeight.w600;
-            background = hovered ? colors.controlHover : colors.control;
-            foreground = colors.fgControl;
+            if (disabled) {
+              background = colors.track;
+              foreground = colors.fgFaint;
+            } else {
+              background = hovered ? colors.controlHover : colors.control;
+              foreground = colors.fgControl;
+            }
+          case ButtonVariant.tint:
+            weight = FontWeight.w600;
+            if (disabled) {
+              background = colors.track;
+              foreground = colors.fgFaint;
+            } else {
+              background =
+                  colors.accent.withValues(alpha: hovered ? 0.20 : 0.12);
+              foreground = colors.accentText;
+            }
           case ButtonVariant.quiet:
             weight = FontWeight.w600;
             foreground = hovered ? colors.accentTextStrong : colors.accentText;
@@ -138,7 +162,7 @@ class Button extends StatelessWidget {
         );
 
         return Opacity(
-          opacity: disabled && variant != ButtonVariant.primary ? 0.6 : 1,
+          opacity: disabled && _textOnly ? 0.6 : 1,
           child: AnimatedContainer(
             duration: kTransitionDuration,
             width: fullWidth ? double.infinity : null,
