@@ -169,7 +169,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       onTap: () {},
                     ),
                     NavigationItem(
-                      label: '术语表',
+                      label: '术语库',
                       icon: Icons.menu_book_outlined,
                       onTap: () {},
                     ),

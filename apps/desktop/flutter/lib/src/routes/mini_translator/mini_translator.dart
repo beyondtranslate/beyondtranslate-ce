@@ -18,6 +18,7 @@ import '../../services/settings_store.dart';
 import '../../services/shortcut_service/shortcut_service.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
+import '../../widgets/ui.dart' show DesignThemeContext, PopoverPanel;
 import '../app_router.dart'
     show
         miniTranslatorPositionAtCursorScreenTopRight,
@@ -28,6 +29,10 @@ import 'limited_functionality_banner.dart';
 import 'translation_input_view.dart';
 import 'translation_results_view.dart';
 import 'translation_target_select_view.dart';
+
+/// The tray's own inset (`--bt-mini-tray-pad`): the top bar, the panel card and
+/// the action bar all float this far inside the window edge.
+const double _kTrayInset = 8;
 
 class MiniTranslatorPage extends StatefulWidget {
   const MiniTranslatorPage({Key? key}) : super(key: key);
@@ -333,7 +338,11 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     final toolbarViewHeight = _renderBoxHeight(_toolbarViewKey);
     final contentViewHeight = _renderBoxHeight(_contentViewKey);
 
-    return toolbarViewHeight + contentViewHeight + (kIsWindows ? 5 : 0);
+    // Both keys sit inside the tray inset, so it has to be added back on.
+    return toolbarViewHeight +
+        contentViewHeight +
+        (_kTrayInset * 2) +
+        (kIsWindows ? 5 : 0);
   }
 
   double _renderBoxHeight(GlobalKey key) {
@@ -871,40 +880,51 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildBannersView(context),
-        MiniTranslatorInput(
-          focusNode: _focusNode,
-          controller: _textEditingController,
-          text: _text,
-          inputSubmitMode: settingsStore.inputSubmitMode,
-          targetLanguageName: _selectedTargetLanguage == null
-              ? null
-              : getLanguageName(_selectedTargetLanguage!),
-          onChanged: (v) => _handleTextChanged(v),
-          onSubmitted: _handleButtonTappedTrans,
-          onClear: _handleButtonTappedClear,
-        ),
-        MiniTranslatorTranslation(
-          querySubmitted: _querySubmitted,
-          translationResultList: _translationResultList,
-          translationServiceIds: _translationServiceIds,
-          engineNameById: _engineNameById,
-          preferredEngineId: _preferredEngineId,
-          stale: _resultStale,
-          showCompare: _showCompare,
-          onToggleCompare: () {
-            _setStateAndScheduleWindowResize(() {
-              _showCompare = !_showCompare;
-            });
-          },
-          onPreferEngine: (engineId) {
-            _setStateAndScheduleWindowResize(() {
-              _preferredEngineId = engineId;
-            });
-          },
-          onRequery: _handleButtonTappedTrans,
-        ),
-        MiniTranslatorWordDefinition(
-          translationResultList: _translationResultList,
+        // The deck's MiniPanel: input, result and dictionary share one card
+        // floating on the tray. It spans the tray inset edge to edge — the
+        // top bar and action bar add their own inner padding on top of it.
+        PopoverPanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MiniTranslatorInput(
+                focusNode: _focusNode,
+                controller: _textEditingController,
+                text: _text,
+                inputSubmitMode: settingsStore.inputSubmitMode,
+                targetLanguageName: _selectedTargetLanguage == null
+                    ? null
+                    : getLanguageName(_selectedTargetLanguage!),
+                onChanged: (v) => _handleTextChanged(v),
+                onSubmitted: _handleButtonTappedTrans,
+                onClear: _handleButtonTappedClear,
+              ),
+              MiniTranslatorTranslation(
+                querySubmitted: _querySubmitted,
+                translationResultList: _translationResultList,
+                translationServiceIds: _translationServiceIds,
+                engineNameById: _engineNameById,
+                preferredEngineId: _preferredEngineId,
+                stale: _resultStale,
+                showCompare: _showCompare,
+                onToggleCompare: () {
+                  _setStateAndScheduleWindowResize(() {
+                    _showCompare = !_showCompare;
+                  });
+                },
+                onPreferEngine: (engineId) {
+                  _setStateAndScheduleWindowResize(() {
+                    _preferredEngineId = engineId;
+                  });
+                },
+                onRequery: _handleButtonTappedTrans,
+              ),
+              MiniTranslatorWordDefinition(
+                translationResultList: _translationResultList,
+              ),
+            ],
+          ),
         ),
         MiniTranslatorActionButtons(
           hasContent: hasTranslation,
@@ -922,7 +942,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   @override
   Widget build(BuildContext context) {
+    // The window itself is the deck's MiniWindow tray: the top bar and the
+    // action bar sit directly on it, the panel card floats between them.
     return Scaffold(
+      backgroundColor: context.colors.tray,
       body: CallbackShortcuts(
         bindings: {
           // ⌥1…⌥9 promote the matching engine, as hinted on the cards.
@@ -934,6 +957,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         },
         child: SingleChildScrollView(
           controller: _scrollController,
+          padding: const EdgeInsets.all(_kTrayInset),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

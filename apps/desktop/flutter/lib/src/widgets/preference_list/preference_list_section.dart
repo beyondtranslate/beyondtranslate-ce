@@ -1,18 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-import '../ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Divider,
-        DividerTone,
-        Label,
-        Surface,
-        SurfaceRadius,
-        SurfacePadding;
+import '../ui.dart' show DesignThemeContext, DesignTypographyStyles, Label;
 
-/// A titled group of preference rows, drawn as one bordered card with hairline
-/// separators — the shape macOS System Settings gives a settings group.
+/// A titled group of preference rows in the deck's flat shape: a section
+/// label over the rows themselves — no card, no per-row rules. Sections are
+/// separated by the page, not by their own chrome.
 class PreferenceListSection extends StatelessWidget {
   const PreferenceListSection({
     Key? key,
@@ -31,20 +23,10 @@ class PreferenceListSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
 
-    final card = Surface(
-      radius: SurfaceRadius.box,
-      padding: SurfacePadding.none,
-      clip: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var index = 0; index < children.length; index++) ...[
-            if (index > 0) const Divider(tone: DividerTone.soft),
-            children[index],
-          ],
-        ],
-      ),
+    final rows = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: children,
     );
 
     return Column(
@@ -52,17 +34,17 @@ class PreferenceListSection extends StatelessWidget {
       children: [
         if (title != null) ...[
           Label(child: title!),
-          const SizedBox(height: 8),
+          const SizedBox(height: 11),
         ],
         if (leading == null)
-          card
+          rows
         else
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               leading!,
               const SizedBox(width: 12),
-              Expanded(child: card),
+              Expanded(child: rows),
             ],
           ),
         if (description != null) ...[

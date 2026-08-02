@@ -23,7 +23,7 @@ enum ButtonVariant {
   /// Text-only, de-emphasised — 测试连接 / 存为默认设置.
   plain,
 
-  /// Text-only warning — 与术语表冲突 · 查看.
+  /// Text-only warning — 与术语库冲突 · 查看.
   warning,
 }
 

@@ -95,7 +95,7 @@ class DetailBlock extends StatelessWidget {
   /// Sits beside the title on the same baseline — a phonetic, a count.
   final Widget? subtitle;
 
-  /// Right-aligned tag — 术语表.
+  /// Right-aligned tag — 术语库.
   final Widget? trailing;
 
   /// Makes the title a link — opens the glossary at this entry.

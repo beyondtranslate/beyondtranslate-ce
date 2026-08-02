@@ -1,18 +1,18 @@
+import 'dart:async';
+
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../i18n/i18n.dart';
-import '../../services/runtime.dart' show TranslationTarget;
-import '../../services/settings_store.dart';
-import '../../utils/language_util.dart';
+import '../../utils/utils.dart';
 import '../../widgets/navigation_item.dart';
 import '../../widgets/ui.dart'
     show
+        Button,
+        ButtonSize,
         DesignThemeContext,
         DesignTypographyStyles,
-        Label,
-        LabelTone,
         SidebarCard,
         SidebarGroup;
 import '../../widgets/workbench.dart';
@@ -22,7 +22,9 @@ import '../settings/general.dart';
 import '../settings/index.dart';
 import '../settings/providers.dart';
 import '../settings/shortcuts.dart';
-import 'placeholder.dart';
+import 'document.dart';
+import 'glossary.dart';
+import 'library.dart';
 import 'translation.dart';
 
 final ValueNotifier<String?> workbenchTextHandoff = ValueNotifier(null);
@@ -45,33 +47,21 @@ List<RouteBase> get $appRoutes => <RouteBase>[
             path: '/document',
             pageBuilder: (_, state) => _noTransitionPage(
               state,
-              WorkbenchPlaceholderPage(
-                title: t.workbench.document,
-                message: t.workbench.placeholder.document,
-                icon: FluentIcons.document_48_regular,
-              ),
+              const WorkbenchDocumentPage(),
             ),
           ),
           GoRoute(
             path: '/history',
             pageBuilder: (_, state) => _noTransitionPage(
               state,
-              WorkbenchPlaceholderPage(
-                title: t.workbench.history,
-                message: t.workbench.placeholder.history,
-                icon: FluentIcons.bookmark_32_regular,
-              ),
+              const WorkbenchLibraryPage(),
             ),
           ),
           GoRoute(
             path: '/glossary',
             pageBuilder: (_, state) => _noTransitionPage(
               state,
-              WorkbenchPlaceholderPage(
-                title: t.workbench.glossary,
-                message: t.workbench.placeholder.glossary,
-                icon: FluentIcons.book_open_48_regular,
-              ),
+              const WorkbenchGlossaryPage(),
             ),
           ),
           ShellRoute(
@@ -128,7 +118,7 @@ Page<void> _noTransitionPage(GoRouterState state, Widget child) {
   return NoTransitionPage<void>(key: state.pageKey, child: child);
 }
 
-class WorkbenchShell extends StatelessWidget {
+class WorkbenchShell extends StatefulWidget {
   const WorkbenchShell({
     super.key,
     required this.location,
@@ -138,14 +128,23 @@ class WorkbenchShell extends StatelessWidget {
   final String location;
   final Widget child;
 
+  @override
+  State<WorkbenchShell> createState() => _WorkbenchShellState();
+}
+
+class _WorkbenchShellState extends State<WorkbenchShell> {
+  bool _collapsed = false;
+
   bool _selected(String path) =>
-      location == path || location.startsWith('$path/');
+      widget.location == path || widget.location.startsWith('$path/');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Workbench(
-        footer: _StatusBar(location: location),
+        collapsed: _collapsed,
+        onToggleCollapsed: () => setState(() => _collapsed = !_collapsed),
+        sidebarFooter: const _SidebarVersion(),
         sidebar: [
           SidebarGroup(
             first: true,
@@ -183,71 +182,76 @@ class WorkbenchShell extends StatelessWidget {
               ),
             ],
           ),
-          _RecentLanguages(targets: settingsStore.general.translationTargets),
         ],
-        child: child,
+        child: widget.child,
       ),
     );
   }
 }
 
-class _RecentLanguages extends StatelessWidget {
-  const _RecentLanguages({required this.targets});
-
-  final List<TranslationTarget> targets;
+/// The card pinned to the sidebar's foot, the deck's SidebarVersion: the
+/// version, its status, and the updater button — three lines in every state.
+/// There is no updater service yet, so 检查更新 plays its checking state and
+/// lands back on 已是最新.
+class _SidebarVersion extends StatefulWidget {
+  const _SidebarVersion();
 
   @override
-  Widget build(BuildContext context) {
-    final visible = targets.take(3).toList(growable: false);
-    return SidebarCard(
-      label: Text(t.workbench.recent_languages),
-      children: [
-        if (visible.isEmpty)
-          Text(
-            t.workbench.not_configured,
-            style: context.typography.sansStyle(
-              fontSize: 11,
-              color: context.colors.fgSubtle,
-            ),
-          )
-        else
-          for (final target in visible)
-            Text(
-              '${getSourceDisplayName(target.source)} → '
-              '${getLanguageName(target.target)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.typography.sansStyle(
-                fontSize: 11,
-                color: context.colors.fgMuted,
-              ),
-            ),
-      ],
-    );
-  }
+  State<_SidebarVersion> createState() => _SidebarVersionState();
 }
 
-class _StatusBar extends StatelessWidget {
-  const _StatusBar({required this.location});
+class _SidebarVersionState extends State<_SidebarVersion> {
+  bool _checking = false;
+  Timer? _timer;
 
-  final String location;
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _check() {
+    setState(() => _checking = true);
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) setState(() => _checking = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+
+    // No 版本 label: the number carries the line on its own, and the three
+    // lines are then one fact, one status and one control.
+    return SidebarCard(
       children: [
-        Label(
-          tone: LabelTone.faint,
-          child: Text(
-            location.startsWith('/settings')
-                ? t.workbench.status.settings_synced
-                : t.workbench.status.runtime_ready,
+        Text(
+          sharedEnv.appVersion,
+          style: tokens.typography.sansStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            height: 1,
+            color: colors.fg,
           ),
         ),
-        const Spacer(),
-        Label(
-          tone: LabelTone.faint,
-          child: Text(t.workbench.status.shortcuts),
+        const SizedBox(height: 6),
+        Text(
+          _checking ? t.workbench.version_checking : t.workbench.version_latest,
+          style: tokens.typography.sansStyle(
+            fontSize: 11,
+            height: 1,
+            color: colors.fgSubtle,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Button(
+          size: ButtonSize.xs,
+          fullWidth: true,
+          enabled: !_checking,
+          onPressed: _check,
+          child: Text(t.workbench.check_updates),
         ),
       ],
     );

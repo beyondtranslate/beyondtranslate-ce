@@ -14,7 +14,12 @@ use struct_patch::Patch as ApplyPatch;
 use tokio::sync::{broadcast, Mutex as AsyncMutex, RwLock};
 
 use crate::domain::engine;
+use crate::domain::glossary::{
+    check_compliance, GlossaryBook, GlossaryBookInput, GlossaryComplianceIssue, GlossaryEntry,
+    GlossaryEntryInput, GlossaryMatch, GlossaryStore,
+};
 use crate::domain::permission;
+use beyondtranslate_engine::prompt::GlossaryTerm;
 use crate::domain::settings::{
     provider_entry_from_config, AdvancedSettings, AdvancedSettingsPatch, AppearanceSettings,
     AppearanceSettingsPatch, GeneralSettings, GeneralSettingsPatch, ProviderConfigEntry,
@@ -51,6 +56,10 @@ pub enum SettingsChange {
     Shortcuts,
     Advanced,
     Providers,
+    /// A glossary book or term was created, edited or deleted. Glossary data
+    /// lives outside `settings.json` but rides the same event channel so
+    /// consumers keep a single subscription loop.
+    Glossary,
 }
 
 /// Callback invoked by the Rust runtime as LLM streaming chunks arrive.
@@ -107,6 +116,10 @@ impl RuntimeState {
 struct RuntimeInner {
     settings_file_path: Arc<str>,
     state: RwLock<RuntimeState>,
+    /// Terms live in their own files under `data_dir/glossary`, behind their
+    /// own lock so editing a book never blocks a translation waiting on
+    /// settings (or vice versa).
+    glossary: RwLock<GlossaryStore>,
     /// Broadcasts a [`SettingsChange`] event after every successful
     /// settings write. The sender is kept alive for the lifetime of
     /// `RuntimeInner`, so receivers obtained via `subscribe()` will only
@@ -171,6 +184,11 @@ pub struct RuntimeOcr {
 }
 
 #[derive(uniffi::Object)]
+pub struct RuntimeGlossary {
+    runtime: Runtime,
+}
+
+#[derive(uniffi::Object)]
 pub struct RuntimePermission;
 
 /// Rust-native screen text extractor.
@@ -215,10 +233,12 @@ impl Runtime {
         let settings_file_path = key.join("settings.json");
         let settings = Settings::load(&settings_file_path)?;
         let state = RuntimeState::new(settings)?;
+        let glossary = GlossaryStore::load(&key)?;
         let (events, _) = broadcast::channel(EVENT_CHANNEL_CAPACITY);
         let inner = Arc::new(RuntimeInner {
             settings_file_path: Arc::from(settings_file_path.to_string_lossy().into_owned()),
             state: RwLock::new(state),
+            glossary: RwLock::new(glossary),
             events,
         });
         registry.insert(key, inner.clone());
@@ -283,6 +303,12 @@ impl Runtime {
 
     pub fn text_extractor(self: Arc<Self>) -> Arc<RuntimeTextExtractor> {
         Arc::new(RuntimeTextExtractor {
+            runtime: (*self).clone(),
+        })
+    }
+
+    pub fn glossary(self: Arc<Self>) -> Arc<RuntimeGlossary> {
+        Arc::new(RuntimeGlossary {
             runtime: (*self).clone(),
         })
     }
@@ -607,11 +633,38 @@ fn render_prompt_template(
     source_language: &str,
     target_language: &str,
     text: &str,
+    glossary: &[GlossaryTerm],
 ) -> String {
-    template
+    const GLOSSARY_PLACEHOLDER: &str = "{{glossary}}";
+
+    let rendered = template
         .replace("{{sourceLanguage}}", source_language)
         .replace("{{targetLanguage}}", target_language)
-        .replace("{{text}}", text)
+        .replace("{{text}}", text);
+    let block = beyondtranslate_engine::prompt::glossary_constraints(glossary);
+
+    if rendered.contains(GLOSSARY_PLACEHOLDER) {
+        return rendered.replace(GLOSSARY_PLACEHOLDER, block.as_deref().unwrap_or_default());
+    }
+    // A custom template written before glossaries existed has nowhere to put
+    // the terms, and dropping them silently would break the promise that
+    // glossary entries outrank engine output. Append instead.
+    match block {
+        Some(block) => format!("{rendered}\n\n{block}"),
+        None => rendered,
+    }
+}
+
+/// Flattens matches into the shape the prompt builder wants.
+fn glossary_terms(matches: &[GlossaryMatch]) -> Vec<GlossaryTerm> {
+    matches
+        .iter()
+        .map(|hit| GlossaryTerm {
+            term: hit.term.clone(),
+            translation: hit.translation.clone(),
+            forbidden: hit.forbidden.clone(),
+        })
+        .collect()
 }
 
 #[uniffi::export(async_runtime = "tokio")]
@@ -989,6 +1042,180 @@ impl SettingsSubscription {
     }
 }
 
+impl Runtime {
+    /// Terms from the enabled books that occur in `text`. Used by the
+    /// translation path to constrain the model and by the UI to highlight.
+    pub(crate) async fn glossary_matches(
+        &self,
+        text: &str,
+        source_language: Option<&str>,
+        target_language: Option<&str>,
+    ) -> Vec<GlossaryMatch> {
+        self.inner
+            .glossary
+            .read()
+            .await
+            .match_text(text, source_language, target_language)
+    }
+
+    /// Counts one use of each matched term. Failures here are never worth
+    /// failing a translation over, so they stay inside the store.
+    pub(crate) async fn record_glossary_hits(&self, matches: &[GlossaryMatch]) {
+        if matches.is_empty() {
+            return;
+        }
+        self.inner.glossary.write().await.record_hits(matches);
+    }
+}
+
+impl RuntimeGlossary {
+    /// Applies a change, persists it and tells subscribers the glossary moved.
+    async fn commit<T>(
+        &self,
+        update: impl FnOnce(&mut GlossaryStore) -> Result<T, String>,
+    ) -> Result<T, String> {
+        let result = {
+            let mut store = self.runtime.inner.glossary.write().await;
+            update(&mut store)?
+        };
+        // `send` only fails when nobody is subscribed yet, which is benign.
+        let _ = self.runtime.inner.events.send(SettingsChange::Glossary);
+        Ok(result)
+    }
+}
+
+#[uniffi::export(async_runtime = "tokio")]
+impl RuntimeGlossary {
+    pub async fn list_books(&self) -> Result<Vec<GlossaryBook>, RuntimeError> {
+        Ok(self.runtime.inner.glossary.read().await.list_books())
+    }
+
+    pub async fn get_book(&self, book_id: String) -> Result<Option<GlossaryBook>, RuntimeError> {
+        Ok(self.runtime.inner.glossary.read().await.get_book(&book_id))
+    }
+
+    /// Creates a book when `input.id` is empty, otherwise replaces the named
+    /// book's metadata.
+    pub async fn upsert_book(
+        &self,
+        input: GlossaryBookInput,
+    ) -> Result<GlossaryBook, RuntimeError> {
+        self.commit(|store| store.upsert_book(input))
+            .await
+            .map_err(Into::into)
+    }
+
+    /// Returns `false` when the book was already gone.
+    pub async fn delete_book(&self, book_id: String) -> Result<bool, RuntimeError> {
+        self.commit(|store| store.delete_book(&book_id))
+            .await
+            .map_err(Into::into)
+    }
+
+    /// Terms in a book, newest first. `query` filters on term, translation,
+    /// forbidden list and note; `limit` of 0 means no limit.
+    pub async fn list_entries(
+        &self,
+        book_id: String,
+        query: Option<String>,
+        offset: u32,
+        limit: u32,
+    ) -> Result<Vec<GlossaryEntry>, RuntimeError> {
+        self.runtime
+            .inner
+            .glossary
+            .read()
+            .await
+            .list_entries(&book_id, query.as_deref(), offset, limit)
+            .map_err(Into::into)
+    }
+
+    /// How many terms `list_entries` would return with the same `query`.
+    pub async fn count_entries(
+        &self,
+        book_id: String,
+        query: Option<String>,
+    ) -> Result<u32, RuntimeError> {
+        self.runtime
+            .inner
+            .glossary
+            .read()
+            .await
+            .count_entries(&book_id, query.as_deref())
+            .map_err(Into::into)
+    }
+
+    /// Creates a term when `input.id` is empty, otherwise replaces it. An
+    /// empty id whose term already exists updates that term in place.
+    pub async fn upsert_entry(
+        &self,
+        book_id: String,
+        input: GlossaryEntryInput,
+    ) -> Result<GlossaryEntry, RuntimeError> {
+        self.commit(|store| store.upsert_entry(&book_id, input))
+            .await
+            .map_err(Into::into)
+    }
+
+    /// Returns `false` when the term was already gone.
+    pub async fn delete_entry(
+        &self,
+        book_id: String,
+        entry_id: String,
+    ) -> Result<bool, RuntimeError> {
+        self.commit(|store| store.delete_entry(&book_id, &entry_id))
+            .await
+            .map_err(Into::into)
+    }
+
+    /// Terms present in `text`, for highlighting the source before or during
+    /// a translation.
+    pub async fn match_text(
+        &self,
+        text: String,
+        source_language: Option<String>,
+        target_language: Option<String>,
+    ) -> Result<Vec<GlossaryMatch>, RuntimeError> {
+        Ok(self
+            .runtime
+            .glossary_matches(&text, source_language.as_deref(), target_language.as_deref())
+            .await)
+    }
+
+    /// Which glossary rules `translated` breaks. Engines that cannot be
+    /// constrained up front are checked here instead, so the result can be
+    /// flagged rather than silently rewritten.
+    pub async fn check(
+        &self,
+        source: String,
+        translated: String,
+        source_language: Option<String>,
+        target_language: Option<String>,
+    ) -> Result<Vec<GlossaryComplianceIssue>, RuntimeError> {
+        let matches = self
+            .runtime
+            .glossary_matches(
+                &source,
+                source_language.as_deref(),
+                target_language.as_deref(),
+            )
+            .await;
+        Ok(check_compliance(&matches, &translated))
+    }
+
+    /// Writes any hit counts still held in memory. Worth calling before the
+    /// app quits; everything else flushes on its own schedule.
+    pub async fn flush_hits(&self) -> Result<(), RuntimeError> {
+        self.runtime
+            .inner
+            .glossary
+            .write()
+            .await
+            .flush_hits()
+            .map_err(Into::into)
+    }
+}
+
 impl RuntimeTranslation {
     async fn translate_impl(&self, request: TranslateRequest) -> Result<TranslateResponse, String> {
         let service_id = self.service_id.clone();
@@ -1011,6 +1238,13 @@ impl RuntimeTranslation {
                     .clone()
             };
 
+            // Terms are looked up once for both branches: an LLM gets them as
+            // constraints, and either way their use is counted.
+            let matches = runtime
+                .glossary_matches(&text, source_language.as_deref(), Some(&target_language))
+                .await;
+            runtime.record_glossary_hits(&matches).await;
+
             if let Some(translation_service) = provider.translation() {
                 // Use the dedicated translation service.
                 translation_service
@@ -1028,18 +1262,21 @@ impl RuntimeTranslation {
                     .map(str::to_owned)
                     .or_else(|| llm_service.available_models().into_iter().next())
                     .ok_or_else(|| "llm default model must be configured".to_owned())?;
+                let terms = glossary_terms(&matches);
                 let system_prompt = if let Some(system_prompt) = resolved.field("systemPrompt") {
                     render_prompt_template(
                         system_prompt,
                         source_language.as_deref().unwrap_or("auto"),
                         &target_language,
                         &text,
+                        &terms,
                     )
                 } else {
                     beyondtranslate_engine::prompt::translate_text_system_prompt(
                         source_language.as_deref().unwrap_or("auto"),
                         &target_language,
                         None,
+                        &terms,
                     )
                 };
                 let user_prompt = beyondtranslate_engine::prompt::translate_text_user_prompt(&text);
@@ -1481,6 +1718,11 @@ impl RuntimeLlm {
                     .map_err(|error| error.to_string())?
                     .clone()
             };
+            let matches = runtime
+                .glossary_matches(&text, Some(&source_lang), Some(&target_lang))
+                .await;
+            runtime.record_glossary_hits(&matches).await;
+
             if let Some(llm_service) = provider.llm() {
                 // LLM-based streaming translation
                 let model = resolved
@@ -1488,13 +1730,21 @@ impl RuntimeLlm {
                     .map(str::to_owned)
                     .or_else(|| llm_service.available_models().into_iter().next())
                     .ok_or_else(|| "llm default model must be configured".to_owned())?;
+                let terms = glossary_terms(&matches);
                 let system_prompt = if let Some(system_prompt) = resolved.field("systemPrompt") {
-                    render_prompt_template(system_prompt, &source_lang, &target_lang, &text)
+                    render_prompt_template(
+                        system_prompt,
+                        &source_lang,
+                        &target_lang,
+                        &text,
+                        &terms,
+                    )
                 } else {
                     beyondtranslate_engine::prompt::translate_text_system_prompt(
                         &source_lang,
                         &target_lang,
                         None,
+                        &terms,
                     )
                 };
                 let user_prompt = beyondtranslate_engine::prompt::translate_text_user_prompt(&text);
@@ -2395,5 +2645,164 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(error.to_string(), "word is required");
+    }
+
+    fn block_on<F: Future>(future: F) -> F::Output {
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap()
+            .block_on(future)
+    }
+
+    fn sample_book() -> GlossaryBookInput {
+        GlossaryBookInput {
+            id: None,
+            name: "机器学习".to_owned(),
+            enabled: true,
+            source_language: None,
+            target_language: None,
+        }
+    }
+
+    fn sample_entry(term: &str, translation: &str, forbidden: &[&str]) -> GlossaryEntryInput {
+        GlossaryEntryInput {
+            id: None,
+            term: term.to_owned(),
+            translation: translation.to_owned(),
+            forbidden: forbidden.iter().map(|value| (*value).to_owned()).collect(),
+            note: None,
+            case_sensitive: false,
+            whole_word: true,
+        }
+    }
+
+    #[test]
+    fn glossary_survives_a_runtime_rebuilt_from_the_same_data_dir() {
+        let data_dir = unique_data_dir();
+        let book_id = block_on(async {
+            let runtime =
+                Runtime::new(data_dir.display().to_string()).expect("failed to create runtime");
+            let glossary = runtime.glossary();
+            let book = glossary
+                .upsert_book(sample_book())
+                .await
+                .expect("failed to create book");
+            glossary
+                .upsert_entry(book.id.clone(), sample_entry("token", "词元", &["标记"]))
+                .await
+                .expect("failed to create entry");
+            book.id
+        });
+
+        // A fresh handle for the same data dir shares the registry entry, so
+        // reload through a second runtime process would look the same.
+        let store = crate::domain::glossary::GlossaryStore::load(&data_dir)
+            .expect("failed to reload glossary");
+        let entries = store
+            .list_entries(&book_id, None, 0, 0)
+            .expect("failed to list entries");
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].translation, "词元");
+    }
+
+    #[test]
+    fn glossary_writes_notify_settings_subscribers() {
+        let runtime = create_runtime();
+
+        block_on(async {
+            let subscription = runtime.clone().settings().subscribe();
+            runtime
+                .clone()
+                .glossary()
+                .upsert_book(sample_book())
+                .await
+                .expect("failed to create book");
+
+            let change = subscription.next().await.expect("subscription ended");
+            assert_eq!(change, Some(SettingsChange::Glossary));
+        });
+    }
+
+    #[test]
+    fn glossary_check_flags_a_translation_that_ignores_its_terms() {
+        let runtime = create_runtime();
+
+        block_on(async {
+            let glossary = runtime.clone().glossary();
+            let book = glossary
+                .upsert_book(sample_book())
+                .await
+                .expect("failed to create book");
+            glossary
+                .upsert_entry(book.id, sample_entry("token", "词元", &["标记"]))
+                .await
+                .expect("failed to create entry");
+
+            let clean = glossary
+                .check(
+                    "one token".to_owned(),
+                    "一个词元".to_owned(),
+                    Some("en".to_owned()),
+                    Some("zh".to_owned()),
+                )
+                .await
+                .expect("failed to check translation");
+            assert!(clean.is_empty());
+
+            let issues = glossary
+                .check(
+                    "one token".to_owned(),
+                    "一个标记".to_owned(),
+                    Some("en".to_owned()),
+                    Some("zh".to_owned()),
+                )
+                .await
+                .expect("failed to check translation");
+            let kinds: Vec<_> = issues.iter().map(|issue| issue.kind).collect();
+            assert!(kinds.contains(&crate::domain::glossary::GlossaryIssueKind::MissingTranslation));
+            assert!(kinds.contains(&crate::domain::glossary::GlossaryIssueKind::ForbiddenUsed));
+        });
+    }
+
+    #[test]
+    fn prompt_template_substitutes_the_glossary_placeholder() {
+        let terms = [GlossaryTerm {
+            term: "token".to_owned(),
+            translation: "词元".to_owned(),
+            forbidden: Vec::new(),
+        }];
+        let rendered = render_prompt_template(
+            "Translate to {{targetLanguage}}.\n{{glossary}}\nEnd.",
+            "en",
+            "zh",
+            "token",
+            &terms,
+        );
+
+        assert!(rendered.contains("Translate to zh."));
+        assert!(rendered.contains("\"token\" MUST be translated as \"词元\""));
+        assert!(rendered.trim_end().ends_with("End."));
+    }
+
+    #[test]
+    fn prompt_template_without_a_placeholder_still_gets_the_terms() {
+        let terms = [GlossaryTerm {
+            term: "token".to_owned(),
+            translation: "词元".to_owned(),
+            forbidden: Vec::new(),
+        }];
+        let rendered = render_prompt_template("Translate {{text}}.", "en", "zh", "token", &terms);
+
+        assert!(rendered.starts_with("Translate token."));
+        assert!(rendered.contains("Terminology constraints"));
+    }
+
+    #[test]
+    fn prompt_template_is_untouched_when_nothing_matched() {
+        assert_eq!(
+            render_prompt_template("Translate {{text}}.", "en", "zh", "hello", &[]),
+            "Translate hello."
+        );
     }
 }

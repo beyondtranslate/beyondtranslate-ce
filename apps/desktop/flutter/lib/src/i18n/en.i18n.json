@@ -189,6 +189,35 @@
       "history": "Favorites and history will be available in a future release",
       "glossary": "Glossary management is being built"
     },
+    "glossary_page": {
+      "add_entry": "New entry",
+      "term": "Source",
+      "translation": "Required translation",
+      "forbidden": "Forbidden",
+      "hits": "Hits",
+      "term_placeholder": "teacher forcing",
+      "translation_placeholder": "forced teaching",
+      "forbidden_placeholder": "coerced teaching",
+      "search": "Search",
+      "search_placeholder": "Search terms or required translations",
+      "search_label": "Search the glossary",
+      "entry_count": "$name · $count terms",
+      "priority_note": "Glossary terms outrank any engine output",
+      "new_book": "New glossary",
+      "new_book_placeholder": "Glossary name",
+      "rename_book": "Rename",
+      "delete_book_confirm": "Delete “$name” and all $count of its terms?",
+      "disabled": "Off",
+      "enable": "Enable",
+      "disable": "Disable",
+      "empty_title": "This glossary is empty",
+      "empty_description": "Glossary terms outrank any engine output. Add them one at a time, or drop in a CSV to merge.",
+      "no_results_title": "No terms match “$query”",
+      "no_results_description": "Try another keyword, or add the term.",
+      "no_books_title": "No glossaries yet",
+      "no_books_description": "A glossary keeps your chosen wording consistent across every engine. Create one, then start adding terms.",
+      "loading": "Loading…"
+    },
     "translation": {
       "source": "Source",
       "target": "Translation",
@@ -206,13 +235,28 @@
       "waiting": "Waiting to translate",
       "read": "Read aloud",
       "copy": "Copy",
-      "favorite_unavailable": "Favorites will be available in a future release"
+      "favorite_unavailable": "Favorites will be available in a future release",
+      "preferred": "Preferred translation",
+      "other_engines": "Other engines",
+      "copy_result": "Copy translation",
+      "copied": "Copied",
+      "favorite": "Save",
+      "terms": "Glossary hits",
+      "terms_hint": "Terms are matched once you type.",
+      "quality": "Quality signals",
+      "quality_hint": "Computed once a translation lands.",
+      "shortcuts": "Shortcuts",
+      "other_engines_disabled": "Other engines are disabled",
+      "input_hint_translate_to": "Type or paste text to translate into $language"
     },
     "status": {
       "runtime_ready": "Translation runtime ready",
       "settings_synced": "Settings synced",
       "shortcuts": "⌥Space Quick window · ⌥⇧2 Capture"
-    }
+    },
+    "version_latest": "Up to date",
+    "version_checking": "Checking…",
+    "check_updates": "Check for updates"
   },
   "settings": {
     "version": "v{} (Build {})",
@@ -409,7 +453,10 @@
       "empty": {
         "title": "Select a Category",
         "message": "Choose a settings section from the sidebar."
-      }
+      },
+      "groups": "Groups",
+      "effect_hint": "Changes apply immediately",
+      "footer_note": "Translations and keys stay on this Mac"
     },
     "about": {
       "title": "About",

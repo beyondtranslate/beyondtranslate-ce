@@ -103,8 +103,12 @@ class _TranslationsWorkbenchJa extends TranslationsWorkbenchEn {
 	@override String get not_configured => '未設定';
 	@override late final _TranslationsWorkbenchSubtitleJa subtitle = _TranslationsWorkbenchSubtitleJa._(_root);
 	@override late final _TranslationsWorkbenchPlaceholderJa placeholder = _TranslationsWorkbenchPlaceholderJa._(_root);
+	@override late final _TranslationsWorkbenchGlossaryPageJa glossary_page = _TranslationsWorkbenchGlossaryPageJa._(_root);
 	@override late final _TranslationsWorkbenchTranslationJa translation = _TranslationsWorkbenchTranslationJa._(_root);
 	@override late final _TranslationsWorkbenchStatusJa status = _TranslationsWorkbenchStatusJa._(_root);
+	@override String get version_latest => '最新です';
+	@override String get version_checking => '確認中…';
+	@override String get check_updates => 'アップデートを確認';
 }
 
 // Path: settings
@@ -367,6 +371,42 @@ class _TranslationsWorkbenchPlaceholderJa extends TranslationsWorkbenchPlacehold
 	@override String get glossary => '用語集管理は開発中です';
 }
 
+// Path: workbench.glossary_page
+class _TranslationsWorkbenchGlossaryPageJa extends TranslationsWorkbenchGlossaryPageEn {
+	_TranslationsWorkbenchGlossaryPageJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get add_entry => '用語を追加';
+	@override String get term => '原文';
+	@override String get translation => '指定訳';
+	@override String get forbidden => '禁止';
+	@override String get hits => 'ヒット';
+	@override String get term_placeholder => 'teacher forcing';
+	@override String get translation_placeholder => '教師強制';
+	@override String get forbidden_placeholder => '強制教育';
+	@override String get search => '検索';
+	@override String get search_placeholder => '用語または指定訳を検索';
+	@override String get search_label => '用語集を検索';
+	@override String entry_count({required Object name, required Object count}) => '${name} · ${count} 件';
+	@override String get priority_note => '用語集はどのエンジンの出力よりも優先されます';
+	@override String get new_book => '用語集を作成';
+	@override String get new_book_placeholder => '用語集の名前';
+	@override String get rename_book => '名前を変更';
+	@override String delete_book_confirm({required Object name, required Object count}) => '「${name}」と、その ${count} 件の用語を削除しますか？';
+	@override String get disabled => '無効';
+	@override String get enable => '有効にする';
+	@override String get disable => '無効にする';
+	@override String get empty_title => 'この用語集は空です';
+	@override String get empty_description => '用語集はどのエンジンの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。';
+	@override String no_results_title({required Object query}) => '「${query}」に一致する用語はありません';
+	@override String get no_results_description => '別のキーワードを試すか、新しく追加してください。';
+	@override String get no_books_title => '用語集がまだありません';
+	@override String get no_books_description => '用語集は、選んだ訳語をすべてのエンジンで統一します。まず 1 つ作成して、用語を追加しましょう。';
+	@override String get loading => '読み込み中…';
+}
+
 // Path: workbench.translation
 class _TranslationsWorkbenchTranslationJa extends TranslationsWorkbenchTranslationEn {
 	_TranslationsWorkbenchTranslationJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -391,6 +431,18 @@ class _TranslationsWorkbenchTranslationJa extends TranslationsWorkbenchTranslati
 	@override String get read => '読み上げ';
 	@override String get copy => 'コピー';
 	@override String get favorite_unavailable => 'お気に入りは今後のリリースで提供します';
+	@override String get preferred => '優先訳文';
+	@override String get other_engines => '他のエンジン';
+	@override String get copy_result => '訳文をコピー';
+	@override String get copied => 'コピー済み';
+	@override String get favorite => '保存';
+	@override String get terms => '用語ヒット';
+	@override String get terms_hint => '入力すると用語集と照合されます。';
+	@override String get quality => '品質シグナル';
+	@override String get quality_hint => '訳文の生成後に計算されます。';
+	@override String get shortcuts => 'ショートカット';
+	@override String get other_engines_disabled => '他のエンジンは無効です';
+	@override String input_hint_translate_to({required Object language}) => '翻訳するテキストを入力または貼り付け、${language}に翻訳';
 }
 
 // Path: workbench.status
@@ -503,6 +555,9 @@ class _TranslationsSettingsLayoutJa extends TranslationsSettingsLayoutEn {
 	// Translations
 	@override String get title => '設定';
 	@override late final _TranslationsSettingsLayoutEmptyJa empty = _TranslationsSettingsLayoutEmptyJa._(_root);
+	@override String get groups => '設定グループ';
+	@override String get effect_hint => '変更は即時反映';
+	@override String get footer_note => '訳文とキーはこのMacにのみ保存されます';
 }
 
 // Path: settings.about
@@ -1211,6 +1266,33 @@ extension on TranslationsJa {
 			'workbench.placeholder.document' => '文書翻訳は開発中です',
 			'workbench.placeholder.history' => 'お気に入りと履歴は今後のリリースで提供します',
 			'workbench.placeholder.glossary' => '用語集管理は開発中です',
+			'workbench.glossary_page.add_entry' => '用語を追加',
+			'workbench.glossary_page.term' => '原文',
+			'workbench.glossary_page.translation' => '指定訳',
+			'workbench.glossary_page.forbidden' => '禁止',
+			'workbench.glossary_page.hits' => 'ヒット',
+			'workbench.glossary_page.term_placeholder' => 'teacher forcing',
+			'workbench.glossary_page.translation_placeholder' => '教師強制',
+			'workbench.glossary_page.forbidden_placeholder' => '強制教育',
+			'workbench.glossary_page.search' => '検索',
+			'workbench.glossary_page.search_placeholder' => '用語または指定訳を検索',
+			'workbench.glossary_page.search_label' => '用語集を検索',
+			'workbench.glossary_page.entry_count' => ({required Object name, required Object count}) => '${name} · ${count} 件',
+			'workbench.glossary_page.priority_note' => '用語集はどのエンジンの出力よりも優先されます',
+			'workbench.glossary_page.new_book' => '用語集を作成',
+			'workbench.glossary_page.new_book_placeholder' => '用語集の名前',
+			'workbench.glossary_page.rename_book' => '名前を変更',
+			'workbench.glossary_page.delete_book_confirm' => ({required Object name, required Object count}) => '「${name}」と、その ${count} 件の用語を削除しますか？',
+			'workbench.glossary_page.disabled' => '無効',
+			'workbench.glossary_page.enable' => '有効にする',
+			'workbench.glossary_page.disable' => '無効にする',
+			'workbench.glossary_page.empty_title' => 'この用語集は空です',
+			'workbench.glossary_page.empty_description' => '用語集はどのエンジンの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。',
+			'workbench.glossary_page.no_results_title' => ({required Object query}) => '「${query}」に一致する用語はありません',
+			'workbench.glossary_page.no_results_description' => '別のキーワードを試すか、新しく追加してください。',
+			'workbench.glossary_page.no_books_title' => '用語集がまだありません',
+			'workbench.glossary_page.no_books_description' => '用語集は、選んだ訳語をすべてのエンジンで統一します。まず 1 つ作成して、用語を追加しましょう。',
+			'workbench.glossary_page.loading' => '読み込み中…',
 			'workbench.translation.source' => '原文',
 			'workbench.translation.target' => '訳文',
 			'workbench.translation.input_hint' => '翻訳するテキストを入力または貼り付け',
@@ -1228,9 +1310,24 @@ extension on TranslationsJa {
 			'workbench.translation.read' => '読み上げ',
 			'workbench.translation.copy' => 'コピー',
 			'workbench.translation.favorite_unavailable' => 'お気に入りは今後のリリースで提供します',
+			'workbench.translation.preferred' => '優先訳文',
+			'workbench.translation.other_engines' => '他のエンジン',
+			'workbench.translation.copy_result' => '訳文をコピー',
+			'workbench.translation.copied' => 'コピー済み',
+			'workbench.translation.favorite' => '保存',
+			'workbench.translation.terms' => '用語ヒット',
+			'workbench.translation.terms_hint' => '入力すると用語集と照合されます。',
+			'workbench.translation.quality' => '品質シグナル',
+			'workbench.translation.quality_hint' => '訳文の生成後に計算されます。',
+			'workbench.translation.shortcuts' => 'ショートカット',
+			'workbench.translation.other_engines_disabled' => '他のエンジンは無効です',
+			'workbench.translation.input_hint_translate_to' => ({required Object language}) => '翻訳するテキストを入力または貼り付け、${language}に翻訳',
 			'workbench.status.runtime_ready' => '翻訳ランタイム準備完了',
 			'workbench.status.settings_synced' => '設定を同期済み',
 			'workbench.status.shortcuts' => '⌥Space クイックウィンドウ · ⌥⇧2 キャプチャ',
+			'workbench.version_latest' => '最新です',
+			'workbench.version_checking' => '確認中…',
+			'workbench.check_updates' => 'アップデートを確認',
 			'settings.version' => 'v{} (Build {})',
 			'settings.general.title' => '一般',
 			'settings.general.section.permissions' => '権限',
@@ -1345,6 +1442,9 @@ extension on TranslationsJa {
 			'settings.layout.title' => '設定',
 			'settings.layout.empty.title' => 'カテゴリを選択',
 			'settings.layout.empty.message' => 'サイドバーから設定セクションを選択してください。',
+			'settings.layout.groups' => '設定グループ',
+			'settings.layout.effect_hint' => '変更は即時反映',
+			'settings.layout.footer_note' => '訳文とキーはこのMacにのみ保存されます',
 			'settings.about.title' => '情報',
 			'settings.about.copy_version_info' => 'バージョン情報をコピー',
 			'settings.about.up_to_date' => '最新の状態です。',

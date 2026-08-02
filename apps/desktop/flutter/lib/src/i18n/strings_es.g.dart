@@ -103,8 +103,12 @@ class _TranslationsWorkbenchEs extends TranslationsWorkbenchEn {
 	@override String get not_configured => 'Sin configurar';
 	@override late final _TranslationsWorkbenchSubtitleEs subtitle = _TranslationsWorkbenchSubtitleEs._(_root);
 	@override late final _TranslationsWorkbenchPlaceholderEs placeholder = _TranslationsWorkbenchPlaceholderEs._(_root);
+	@override late final _TranslationsWorkbenchGlossaryPageEs glossary_page = _TranslationsWorkbenchGlossaryPageEs._(_root);
 	@override late final _TranslationsWorkbenchTranslationEs translation = _TranslationsWorkbenchTranslationEs._(_root);
 	@override late final _TranslationsWorkbenchStatusEs status = _TranslationsWorkbenchStatusEs._(_root);
+	@override String get version_latest => 'Actualizado';
+	@override String get version_checking => 'Comprobando…';
+	@override String get check_updates => 'Buscar actualizaciones';
 }
 
 // Path: settings
@@ -367,6 +371,42 @@ class _TranslationsWorkbenchPlaceholderEs extends TranslationsWorkbenchPlacehold
 	@override String get glossary => 'La gestión del glosario está en desarrollo';
 }
 
+// Path: workbench.glossary_page
+class _TranslationsWorkbenchGlossaryPageEs extends TranslationsWorkbenchGlossaryPageEn {
+	_TranslationsWorkbenchGlossaryPageEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get add_entry => 'Nueva entrada';
+	@override String get term => 'Origen';
+	@override String get translation => 'Traducción obligatoria';
+	@override String get forbidden => 'Prohibido';
+	@override String get hits => 'Usos';
+	@override String get term_placeholder => 'teacher forcing';
+	@override String get translation_placeholder => 'forzado del maestro';
+	@override String get forbidden_placeholder => 'enseñanza forzada';
+	@override String get search => 'Buscar';
+	@override String get search_placeholder => 'Buscar términos o traducciones obligatorias';
+	@override String get search_label => 'Buscar en el glosario';
+	@override String entry_count({required Object name, required Object count}) => '${name} · ${count} términos';
+	@override String get priority_note => 'El glosario tiene prioridad sobre cualquier motor';
+	@override String get new_book => 'Nuevo glosario';
+	@override String get new_book_placeholder => 'Nombre del glosario';
+	@override String get rename_book => 'Cambiar nombre';
+	@override String delete_book_confirm({required Object name, required Object count}) => '¿Eliminar «${name}» y sus ${count} términos?';
+	@override String get disabled => 'Desactivado';
+	@override String get enable => 'Activar';
+	@override String get disable => 'Desactivar';
+	@override String get empty_title => 'Este glosario está vacío';
+	@override String get empty_description => 'El glosario tiene prioridad sobre cualquier motor. Añade términos uno a uno, o suelta un CSV para combinarlos.';
+	@override String no_results_title({required Object query}) => 'Ningún término coincide con «${query}»';
+	@override String get no_results_description => 'Prueba otra palabra clave, o añade el término.';
+	@override String get no_books_title => 'Todavía no hay glosarios';
+	@override String get no_books_description => 'Un glosario mantiene tus traducciones coherentes en todos los motores. Crea uno y empieza a añadir términos.';
+	@override String get loading => 'Cargando…';
+}
+
 // Path: workbench.translation
 class _TranslationsWorkbenchTranslationEs extends TranslationsWorkbenchTranslationEn {
 	_TranslationsWorkbenchTranslationEs._(TranslationsEs root) : this._root = root, super.internal(root);
@@ -391,6 +431,18 @@ class _TranslationsWorkbenchTranslationEs extends TranslationsWorkbenchTranslati
 	@override String get read => 'Leer';
 	@override String get copy => 'Copiar';
 	@override String get favorite_unavailable => 'Favoritos estará disponible más adelante';
+	@override String get preferred => 'Traducción preferida';
+	@override String get other_engines => 'Otros motores';
+	@override String get copy_result => 'Copiar traducción';
+	@override String get copied => 'Copiado';
+	@override String get favorite => 'Guardar';
+	@override String get terms => 'Coincidencias del glosario';
+	@override String get terms_hint => 'Los términos se comparan al escribir.';
+	@override String get quality => 'Señales de calidad';
+	@override String get quality_hint => 'Se calculan cuando llega la traducción.';
+	@override String get shortcuts => 'Atajos';
+	@override String get other_engines_disabled => 'Los demás motores están desactivados';
+	@override String input_hint_translate_to({required Object language}) => 'Escribe o pega el texto para traducir al ${language}';
 }
 
 // Path: workbench.status
@@ -503,6 +555,9 @@ class _TranslationsSettingsLayoutEs extends TranslationsSettingsLayoutEn {
 	// Translations
 	@override String get title => 'Configuración';
 	@override late final _TranslationsSettingsLayoutEmptyEs empty = _TranslationsSettingsLayoutEmptyEs._(_root);
+	@override String get groups => 'Grupos';
+	@override String get effect_hint => 'Los cambios se aplican al instante';
+	@override String get footer_note => 'Las traducciones y claves se guardan solo en este equipo';
 }
 
 // Path: settings.about
@@ -1211,6 +1266,33 @@ extension on TranslationsEs {
 			'workbench.placeholder.document' => 'La traducción de documentos está en desarrollo',
 			'workbench.placeholder.history' => 'Favoritos e historial estarán disponibles más adelante',
 			'workbench.placeholder.glossary' => 'La gestión del glosario está en desarrollo',
+			'workbench.glossary_page.add_entry' => 'Nueva entrada',
+			'workbench.glossary_page.term' => 'Origen',
+			'workbench.glossary_page.translation' => 'Traducción obligatoria',
+			'workbench.glossary_page.forbidden' => 'Prohibido',
+			'workbench.glossary_page.hits' => 'Usos',
+			'workbench.glossary_page.term_placeholder' => 'teacher forcing',
+			'workbench.glossary_page.translation_placeholder' => 'forzado del maestro',
+			'workbench.glossary_page.forbidden_placeholder' => 'enseñanza forzada',
+			'workbench.glossary_page.search' => 'Buscar',
+			'workbench.glossary_page.search_placeholder' => 'Buscar términos o traducciones obligatorias',
+			'workbench.glossary_page.search_label' => 'Buscar en el glosario',
+			'workbench.glossary_page.entry_count' => ({required Object name, required Object count}) => '${name} · ${count} términos',
+			'workbench.glossary_page.priority_note' => 'El glosario tiene prioridad sobre cualquier motor',
+			'workbench.glossary_page.new_book' => 'Nuevo glosario',
+			'workbench.glossary_page.new_book_placeholder' => 'Nombre del glosario',
+			'workbench.glossary_page.rename_book' => 'Cambiar nombre',
+			'workbench.glossary_page.delete_book_confirm' => ({required Object name, required Object count}) => '¿Eliminar «${name}» y sus ${count} términos?',
+			'workbench.glossary_page.disabled' => 'Desactivado',
+			'workbench.glossary_page.enable' => 'Activar',
+			'workbench.glossary_page.disable' => 'Desactivar',
+			'workbench.glossary_page.empty_title' => 'Este glosario está vacío',
+			'workbench.glossary_page.empty_description' => 'El glosario tiene prioridad sobre cualquier motor. Añade términos uno a uno, o suelta un CSV para combinarlos.',
+			'workbench.glossary_page.no_results_title' => ({required Object query}) => 'Ningún término coincide con «${query}»',
+			'workbench.glossary_page.no_results_description' => 'Prueba otra palabra clave, o añade el término.',
+			'workbench.glossary_page.no_books_title' => 'Todavía no hay glosarios',
+			'workbench.glossary_page.no_books_description' => 'Un glosario mantiene tus traducciones coherentes en todos los motores. Crea uno y empieza a añadir términos.',
+			'workbench.glossary_page.loading' => 'Cargando…',
 			'workbench.translation.source' => 'Origen',
 			'workbench.translation.target' => 'Traducción',
 			'workbench.translation.input_hint' => 'Escribe o pega el texto que quieras traducir',
@@ -1228,9 +1310,24 @@ extension on TranslationsEs {
 			'workbench.translation.read' => 'Leer',
 			'workbench.translation.copy' => 'Copiar',
 			'workbench.translation.favorite_unavailable' => 'Favoritos estará disponible más adelante',
+			'workbench.translation.preferred' => 'Traducción preferida',
+			'workbench.translation.other_engines' => 'Otros motores',
+			'workbench.translation.copy_result' => 'Copiar traducción',
+			'workbench.translation.copied' => 'Copiado',
+			'workbench.translation.favorite' => 'Guardar',
+			'workbench.translation.terms' => 'Coincidencias del glosario',
+			'workbench.translation.terms_hint' => 'Los términos se comparan al escribir.',
+			'workbench.translation.quality' => 'Señales de calidad',
+			'workbench.translation.quality_hint' => 'Se calculan cuando llega la traducción.',
+			'workbench.translation.shortcuts' => 'Atajos',
+			'workbench.translation.other_engines_disabled' => 'Los demás motores están desactivados',
+			'workbench.translation.input_hint_translate_to' => ({required Object language}) => 'Escribe o pega el texto para traducir al ${language}',
 			'workbench.status.runtime_ready' => 'Motor de traducción listo',
 			'workbench.status.settings_synced' => 'Ajustes sincronizados',
 			'workbench.status.shortcuts' => '⌥Space Ventana rápida · ⌥⇧2 Captura',
+			'workbench.version_latest' => 'Actualizado',
+			'workbench.version_checking' => 'Comprobando…',
+			'workbench.check_updates' => 'Buscar actualizaciones',
 			'settings.version' => 'v{} (Build {})',
 			'settings.general.title' => 'General',
 			'settings.general.section.permissions' => 'Permisos',
@@ -1345,6 +1442,9 @@ extension on TranslationsEs {
 			'settings.layout.title' => 'Configuración',
 			'settings.layout.empty.title' => 'Selecciona una categoría',
 			'settings.layout.empty.message' => 'Elige una sección de configuración de la barra lateral.',
+			'settings.layout.groups' => 'Grupos',
+			'settings.layout.effect_hint' => 'Los cambios se aplican al instante',
+			'settings.layout.footer_note' => 'Las traducciones y claves se guardan solo en este equipo',
 			'settings.about.title' => 'Acerca de',
 			'settings.about.copy_version_info' => 'Copiar información de versión',
 			'settings.about.up_to_date' => 'Está actualizado.',

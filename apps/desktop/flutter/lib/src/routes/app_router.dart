@@ -26,8 +26,10 @@ import 'workbench/index.dart' as workbench_route;
 
 const _kWorkbenchWindowTitle = 'BeyondTranslate';
 const _kMiniTranslatorAppTitle = 'Mini Translator';
-const _kWorkbenchWindowSize = Size(1080, 600);
-const _kWorkbenchWindowMinimumSize = Size(960, 560);
+// The deck's main window: 840×560, panes scrolling internally rather than
+// the window growing with content.
+const _kWorkbenchWindowSize = Size(840, 560);
+const _kWorkbenchWindowMinimumSize = Size(840, 560);
 const _kMiniTranslatorTrayGap = 10.0;
 
 TrayIcon? _mainTrayIcon;
@@ -105,7 +107,8 @@ void showSettingsWindow() {
 }
 
 final miniTranslatorWindowController = RegularWindowController(
-  size: const Size(380, 420),
+  // The deck's mini popover width (`--bt-mini-width`).
+  size: const Size(396, 420),
   title: _kMiniTranslatorAppTitle,
 )..setWillShowHook((window) {
     if (window.isFirstShow) {

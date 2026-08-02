@@ -98,13 +98,17 @@ class _TranslationsWorkbenchZhHans extends TranslationsWorkbenchEn {
 	@override String get translate => '翻译';
 	@override String get document => '文档翻译';
 	@override String get history => '收藏与历史';
-	@override String get glossary => '术语表';
+	@override String get glossary => '术语库';
 	@override String get recent_languages => '最近语言';
 	@override String get not_configured => '尚未配置';
 	@override late final _TranslationsWorkbenchSubtitleZhHans subtitle = _TranslationsWorkbenchSubtitleZhHans._(_root);
 	@override late final _TranslationsWorkbenchPlaceholderZhHans placeholder = _TranslationsWorkbenchPlaceholderZhHans._(_root);
+	@override late final _TranslationsWorkbenchGlossaryPageZhHans glossary_page = _TranslationsWorkbenchGlossaryPageZhHans._(_root);
 	@override late final _TranslationsWorkbenchTranslationZhHans translation = _TranslationsWorkbenchTranslationZhHans._(_root);
 	@override late final _TranslationsWorkbenchStatusZhHans status = _TranslationsWorkbenchStatusZhHans._(_root);
+	@override String get version_latest => '已是最新';
+	@override String get version_checking => '正在检查…';
+	@override String get check_updates => '检查更新';
 }
 
 // Path: settings
@@ -364,7 +368,43 @@ class _TranslationsWorkbenchPlaceholderZhHans extends TranslationsWorkbenchPlace
 	// Translations
 	@override String get document => '文档翻译正在建设中';
 	@override String get history => '收藏与历史将在后续版本中提供';
-	@override String get glossary => '术语表管理正在建设中';
+	@override String get glossary => '术语库管理正在建设中';
+}
+
+// Path: workbench.glossary_page
+class _TranslationsWorkbenchGlossaryPageZhHans extends TranslationsWorkbenchGlossaryPageEn {
+	_TranslationsWorkbenchGlossaryPageZhHans._(TranslationsZhHans root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHans _root; // ignore: unused_field
+
+	// Translations
+	@override String get add_entry => '新增条目';
+	@override String get term => '原文';
+	@override String get translation => '指定译法';
+	@override String get forbidden => '禁用';
+	@override String get hits => '命中';
+	@override String get term_placeholder => 'teacher forcing';
+	@override String get translation_placeholder => '教师强制';
+	@override String get forbidden_placeholder => '强制教学';
+	@override String get search => '搜索';
+	@override String get search_placeholder => '搜索术语或指定译法';
+	@override String get search_label => '搜索术语库';
+	@override String entry_count({required Object name, required Object count}) => '${name} · ${count} 条';
+	@override String get priority_note => '术语优先级高于任何引擎输出';
+	@override String get new_book => '新建术语库';
+	@override String get new_book_placeholder => '术语库名称';
+	@override String get rename_book => '重命名';
+	@override String delete_book_confirm({required Object name, required Object count}) => '删除「${name}」及其中的 ${count} 条术语？';
+	@override String get disabled => '已停用';
+	@override String get enable => '启用';
+	@override String get disable => '停用';
+	@override String get empty_title => '这个术语库还是空的';
+	@override String get empty_description => '术语优先级高于任何引擎输出。可以逐条新增，也可以把 CSV 拖进来合并。';
+	@override String no_results_title({required Object query}) => '没有匹配「${query}」的术语';
+	@override String get no_results_description => '换个关键词，或直接新增一条。';
+	@override String get no_books_title => '还没有术语库';
+	@override String get no_books_description => '术语库让指定译法在所有引擎里保持一致。先建一个，再往里加词。';
+	@override String get loading => '正在载入…';
 }
 
 // Path: workbench.translation
@@ -391,6 +431,18 @@ class _TranslationsWorkbenchTranslationZhHans extends TranslationsWorkbenchTrans
 	@override String get read => '朗读';
 	@override String get copy => '复制';
 	@override String get favorite_unavailable => '收藏功能将在后续版本中提供';
+	@override String get preferred => '首选译文';
+	@override String get other_engines => '其他引擎';
+	@override String get copy_result => '复制译文';
+	@override String get copied => '已复制';
+	@override String get favorite => '收藏';
+	@override String get terms => '命中术语';
+	@override String get terms_hint => '输入后自动比对术语库。';
+	@override String get quality => '质量信号';
+	@override String get quality_hint => '译文生成后计算。';
+	@override String get shortcuts => '快捷键';
+	@override String get other_engines_disabled => '其他引擎已停用';
+	@override String input_hint_translate_to({required Object language}) => '输入或粘贴要翻译的文本，翻译为${language}';
 }
 
 // Path: workbench.status
@@ -503,6 +555,9 @@ class _TranslationsSettingsLayoutZhHans extends TranslationsSettingsLayoutEn {
 	// Translations
 	@override String get title => '设置';
 	@override late final _TranslationsSettingsLayoutEmptyZhHans empty = _TranslationsSettingsLayoutEmptyZhHans._(_root);
+	@override String get groups => '设置分组';
+	@override String get effect_hint => '更改即时生效';
+	@override String get footer_note => '译文与密钥仅保存在本机';
 }
 
 // Path: settings.about
@@ -1203,14 +1258,41 @@ extension on TranslationsZhHans {
 			'workbench.translate' => '翻译',
 			'workbench.document' => '文档翻译',
 			'workbench.history' => '收藏与历史',
-			'workbench.glossary' => '术语表',
+			'workbench.glossary' => '术语库',
 			'workbench.recent_languages' => '最近语言',
 			'workbench.not_configured' => '尚未配置',
 			'workbench.subtitle.translate' => '工作台 · 多引擎对照',
 			'workbench.subtitle.settings' => '设置',
 			'workbench.placeholder.document' => '文档翻译正在建设中',
 			'workbench.placeholder.history' => '收藏与历史将在后续版本中提供',
-			'workbench.placeholder.glossary' => '术语表管理正在建设中',
+			'workbench.placeholder.glossary' => '术语库管理正在建设中',
+			'workbench.glossary_page.add_entry' => '新增条目',
+			'workbench.glossary_page.term' => '原文',
+			'workbench.glossary_page.translation' => '指定译法',
+			'workbench.glossary_page.forbidden' => '禁用',
+			'workbench.glossary_page.hits' => '命中',
+			'workbench.glossary_page.term_placeholder' => 'teacher forcing',
+			'workbench.glossary_page.translation_placeholder' => '教师强制',
+			'workbench.glossary_page.forbidden_placeholder' => '强制教学',
+			'workbench.glossary_page.search' => '搜索',
+			'workbench.glossary_page.search_placeholder' => '搜索术语或指定译法',
+			'workbench.glossary_page.search_label' => '搜索术语库',
+			'workbench.glossary_page.entry_count' => ({required Object name, required Object count}) => '${name} · ${count} 条',
+			'workbench.glossary_page.priority_note' => '术语优先级高于任何引擎输出',
+			'workbench.glossary_page.new_book' => '新建术语库',
+			'workbench.glossary_page.new_book_placeholder' => '术语库名称',
+			'workbench.glossary_page.rename_book' => '重命名',
+			'workbench.glossary_page.delete_book_confirm' => ({required Object name, required Object count}) => '删除「${name}」及其中的 ${count} 条术语？',
+			'workbench.glossary_page.disabled' => '已停用',
+			'workbench.glossary_page.enable' => '启用',
+			'workbench.glossary_page.disable' => '停用',
+			'workbench.glossary_page.empty_title' => '这个术语库还是空的',
+			'workbench.glossary_page.empty_description' => '术语优先级高于任何引擎输出。可以逐条新增，也可以把 CSV 拖进来合并。',
+			'workbench.glossary_page.no_results_title' => ({required Object query}) => '没有匹配「${query}」的术语',
+			'workbench.glossary_page.no_results_description' => '换个关键词，或直接新增一条。',
+			'workbench.glossary_page.no_books_title' => '还没有术语库',
+			'workbench.glossary_page.no_books_description' => '术语库让指定译法在所有引擎里保持一致。先建一个，再往里加词。',
+			'workbench.glossary_page.loading' => '正在载入…',
 			'workbench.translation.source' => '原文',
 			'workbench.translation.target' => '译文',
 			'workbench.translation.input_hint' => '输入或粘贴需要翻译的文本',
@@ -1228,9 +1310,24 @@ extension on TranslationsZhHans {
 			'workbench.translation.read' => '朗读',
 			'workbench.translation.copy' => '复制',
 			'workbench.translation.favorite_unavailable' => '收藏功能将在后续版本中提供',
+			'workbench.translation.preferred' => '首选译文',
+			'workbench.translation.other_engines' => '其他引擎',
+			'workbench.translation.copy_result' => '复制译文',
+			'workbench.translation.copied' => '已复制',
+			'workbench.translation.favorite' => '收藏',
+			'workbench.translation.terms' => '命中术语',
+			'workbench.translation.terms_hint' => '输入后自动比对术语库。',
+			'workbench.translation.quality' => '质量信号',
+			'workbench.translation.quality_hint' => '译文生成后计算。',
+			'workbench.translation.shortcuts' => '快捷键',
+			'workbench.translation.other_engines_disabled' => '其他引擎已停用',
+			'workbench.translation.input_hint_translate_to' => ({required Object language}) => '输入或粘贴要翻译的文本，翻译为${language}',
 			'workbench.status.runtime_ready' => '翻译运行时已就绪',
 			'workbench.status.settings_synced' => '设置已同步',
 			'workbench.status.shortcuts' => '⌥Space 小窗 · ⌥⇧2 截图',
+			'workbench.version_latest' => '已是最新',
+			'workbench.version_checking' => '正在检查…',
+			'workbench.check_updates' => '检查更新',
 			'settings.version' => 'v{} (Build {})',
 			'settings.general.title' => '常规',
 			'settings.general.section.permissions' => '权限',
@@ -1345,6 +1442,9 @@ extension on TranslationsZhHans {
 			'settings.layout.title' => '设置',
 			'settings.layout.empty.title' => '选择一个分类',
 			'settings.layout.empty.message' => '从侧边栏选择一个设置分类。',
+			'settings.layout.groups' => '设置分组',
+			'settings.layout.effect_hint' => '更改即时生效',
+			'settings.layout.footer_note' => '译文与密钥仅保存在本机',
 			'settings.about.title' => '关于',
 			'settings.about.copy_version_info' => '复制版本信息',
 			'settings.about.up_to_date' => '已是最新版本。',

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ListTile;
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
@@ -14,6 +14,7 @@ import '../../widgets/ui.dart'
         Button,
         ButtonVariant,
         DialogTone,
+        ListTile,
         Spinner,
         SpinnerSize,
         Field,
@@ -323,31 +324,37 @@ class _ProviderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PreferenceListItem(
-      icon: _ProviderTypeIcon(type: provider.type),
-      title: Text(_providerTypeDisplayName(provider.type)),
-      summary: Text(provider.id),
-      onTap: onEdit,
-      accessoryView: PopupMenuButton<String>(
-        onSelected: (value) {
-          switch (value) {
-            case 'edit':
-              onEdit();
-              break;
-            case 'delete':
-              onDelete();
-              break;
-          }
-        },
-        itemBuilder: (_) => [
-          PopupMenuItem<String>(
-            value: 'edit',
-            child: Text(t.common.ui.button.edit),
-          ),
-          const PopupMenuDivider(),
-          PopupMenuItem<String>(
-            value: 'delete',
-            child: Text(t.common.ui.button.delete),
+    // The deck's EngineListItem card: avatar, bold name over a subtle meta
+    // line, controls pinned right.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: _ProviderTypeIcon(type: provider.type),
+        title: Text(_providerTypeDisplayName(provider.type)),
+        subtitle: Text(provider.id),
+        trailing: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'edit':
+                  onEdit();
+                  break;
+                case 'delete':
+                  onDelete();
+                  break;
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem<String>(
+                value: 'edit',
+                child: Text(t.common.ui.button.edit),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                value: 'delete',
+                child: Text(t.common.ui.button.delete),
+              ),
+            ],
           ),
         ],
       ),
@@ -372,16 +379,17 @@ class _ServiceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final providerType = provider?.type;
     final serviceName = service.name.isEmpty ? service.id : service.name;
-    return PreferenceListItem(
-      icon: providerType == null ? null : _ProviderTypeIcon(type: providerType),
-      title: Text(serviceName),
-      summary:
-          Text('${_serviceTypeLabel(service.type)} · ${service.providerId}'),
-      detailText: Text(service.id),
-      onTap: onEdit,
-      accessoryView: onEdit == null && onDelete == null
-          ? const SizedBox.shrink()
-          : PopupMenuButton<String>(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading:
+            providerType == null ? null : _ProviderTypeIcon(type: providerType),
+        title: Text(serviceName),
+        subtitle:
+            Text('${_serviceTypeLabel(service.type)} · ${service.providerId}'),
+        trailing: [
+          if (onEdit != null || onDelete != null)
+            PopupMenuButton<String>(
               onSelected: (value) {
                 switch (value) {
                   case 'edit':
@@ -407,6 +415,8 @@ class _ServiceRow extends StatelessWidget {
                   ),
               ],
             ),
+        ],
+      ),
     );
   }
 }

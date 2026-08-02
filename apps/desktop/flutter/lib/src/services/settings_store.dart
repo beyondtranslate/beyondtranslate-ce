@@ -149,6 +149,10 @@ class SettingsStore extends ChangeNotifier {
           await Future.wait([reloadProviders(), reloadServices()]);
         case SettingsChange.advanced:
           await reloadAdvanced();
+        case SettingsChange.glossary:
+          // Glossary data lives outside settings; GlossaryStore keeps its
+          // own subscription and reloads itself.
+          break;
       }
     }
   }

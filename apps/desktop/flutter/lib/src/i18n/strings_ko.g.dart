@@ -103,8 +103,12 @@ class _TranslationsWorkbenchKo extends TranslationsWorkbenchEn {
 	@override String get not_configured => '설정되지 않음';
 	@override late final _TranslationsWorkbenchSubtitleKo subtitle = _TranslationsWorkbenchSubtitleKo._(_root);
 	@override late final _TranslationsWorkbenchPlaceholderKo placeholder = _TranslationsWorkbenchPlaceholderKo._(_root);
+	@override late final _TranslationsWorkbenchGlossaryPageKo glossary_page = _TranslationsWorkbenchGlossaryPageKo._(_root);
 	@override late final _TranslationsWorkbenchTranslationKo translation = _TranslationsWorkbenchTranslationKo._(_root);
 	@override late final _TranslationsWorkbenchStatusKo status = _TranslationsWorkbenchStatusKo._(_root);
+	@override String get version_latest => '최신 버전입니다';
+	@override String get version_checking => '확인 중…';
+	@override String get check_updates => '업데이트 확인';
 }
 
 // Path: settings
@@ -367,6 +371,42 @@ class _TranslationsWorkbenchPlaceholderKo extends TranslationsWorkbenchPlacehold
 	@override String get glossary => '용어집 관리를 개발 중입니다';
 }
 
+// Path: workbench.glossary_page
+class _TranslationsWorkbenchGlossaryPageKo extends TranslationsWorkbenchGlossaryPageEn {
+	_TranslationsWorkbenchGlossaryPageKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get add_entry => '용어 추가';
+	@override String get term => '원문';
+	@override String get translation => '지정 번역';
+	@override String get forbidden => '금지';
+	@override String get hits => '적중';
+	@override String get term_placeholder => 'teacher forcing';
+	@override String get translation_placeholder => '교사 강요';
+	@override String get forbidden_placeholder => '강제 교육';
+	@override String get search => '검색';
+	@override String get search_placeholder => '용어 또는 지정 번역 검색';
+	@override String get search_label => '용어집 검색';
+	@override String entry_count({required Object name, required Object count}) => '${name} · ${count}개';
+	@override String get priority_note => '용어집은 어떤 엔진 출력보다 우선합니다';
+	@override String get new_book => '용어집 만들기';
+	@override String get new_book_placeholder => '용어집 이름';
+	@override String get rename_book => '이름 바꾸기';
+	@override String delete_book_confirm({required Object name, required Object count}) => '“${name}”과(와) 그 안의 용어 ${count}개를 삭제할까요?';
+	@override String get disabled => '사용 안 함';
+	@override String get enable => '사용';
+	@override String get disable => '사용 안 함';
+	@override String get empty_title => '이 용어집은 비어 있습니다';
+	@override String get empty_description => '용어집은 어떤 엔진 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.';
+	@override String no_results_title({required Object query}) => '“${query}”와(과) 일치하는 용어가 없습니다';
+	@override String get no_results_description => '다른 키워드를 쓰거나 새로 추가해 보세요.';
+	@override String get no_books_title => '아직 용어집이 없습니다';
+	@override String get no_books_description => '용어집은 선택한 번역어를 모든 엔진에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.';
+	@override String get loading => '불러오는 중…';
+}
+
 // Path: workbench.translation
 class _TranslationsWorkbenchTranslationKo extends TranslationsWorkbenchTranslationEn {
 	_TranslationsWorkbenchTranslationKo._(TranslationsKo root) : this._root = root, super.internal(root);
@@ -391,6 +431,18 @@ class _TranslationsWorkbenchTranslationKo extends TranslationsWorkbenchTranslati
 	@override String get read => '읽기';
 	@override String get copy => '복사';
 	@override String get favorite_unavailable => '즐겨찾기는 향후 버전에서 제공됩니다';
+	@override String get preferred => '기본 번역';
+	@override String get other_engines => '다른 엔진';
+	@override String get copy_result => '번역 복사';
+	@override String get copied => '복사됨';
+	@override String get favorite => '저장';
+	@override String get terms => '용어 일치';
+	@override String get terms_hint => '입력하면 용어집과 대조합니다.';
+	@override String get quality => '품질 신호';
+	@override String get quality_hint => '번역이 완료되면 계산됩니다.';
+	@override String get shortcuts => '단축키';
+	@override String get other_engines_disabled => '다른 엔진이 비활성화됨';
+	@override String input_hint_translate_to({required Object language}) => '번역할 텍스트를 입력하거나 붙여넣어 ${language}(으)로 번역';
 }
 
 // Path: workbench.status
@@ -503,6 +555,9 @@ class _TranslationsSettingsLayoutKo extends TranslationsSettingsLayoutEn {
 	// Translations
 	@override String get title => '설정';
 	@override late final _TranslationsSettingsLayoutEmptyKo empty = _TranslationsSettingsLayoutEmptyKo._(_root);
+	@override String get groups => '설정 그룹';
+	@override String get effect_hint => '변경 사항 즉시 적용';
+	@override String get footer_note => '번역과 키는 이 기기에만 저장됩니다';
 }
 
 // Path: settings.about
@@ -1211,6 +1266,33 @@ extension on TranslationsKo {
 			'workbench.placeholder.document' => '문서 번역을 개발 중입니다',
 			'workbench.placeholder.history' => '즐겨찾기와 기록은 향후 버전에서 제공됩니다',
 			'workbench.placeholder.glossary' => '용어집 관리를 개발 중입니다',
+			'workbench.glossary_page.add_entry' => '용어 추가',
+			'workbench.glossary_page.term' => '원문',
+			'workbench.glossary_page.translation' => '지정 번역',
+			'workbench.glossary_page.forbidden' => '금지',
+			'workbench.glossary_page.hits' => '적중',
+			'workbench.glossary_page.term_placeholder' => 'teacher forcing',
+			'workbench.glossary_page.translation_placeholder' => '교사 강요',
+			'workbench.glossary_page.forbidden_placeholder' => '강제 교육',
+			'workbench.glossary_page.search' => '검색',
+			'workbench.glossary_page.search_placeholder' => '용어 또는 지정 번역 검색',
+			'workbench.glossary_page.search_label' => '용어집 검색',
+			'workbench.glossary_page.entry_count' => ({required Object name, required Object count}) => '${name} · ${count}개',
+			'workbench.glossary_page.priority_note' => '용어집은 어떤 엔진 출력보다 우선합니다',
+			'workbench.glossary_page.new_book' => '용어집 만들기',
+			'workbench.glossary_page.new_book_placeholder' => '용어집 이름',
+			'workbench.glossary_page.rename_book' => '이름 바꾸기',
+			'workbench.glossary_page.delete_book_confirm' => ({required Object name, required Object count}) => '“${name}”과(와) 그 안의 용어 ${count}개를 삭제할까요?',
+			'workbench.glossary_page.disabled' => '사용 안 함',
+			'workbench.glossary_page.enable' => '사용',
+			'workbench.glossary_page.disable' => '사용 안 함',
+			'workbench.glossary_page.empty_title' => '이 용어집은 비어 있습니다',
+			'workbench.glossary_page.empty_description' => '용어집은 어떤 엔진 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.',
+			'workbench.glossary_page.no_results_title' => ({required Object query}) => '“${query}”와(과) 일치하는 용어가 없습니다',
+			'workbench.glossary_page.no_results_description' => '다른 키워드를 쓰거나 새로 추가해 보세요.',
+			'workbench.glossary_page.no_books_title' => '아직 용어집이 없습니다',
+			'workbench.glossary_page.no_books_description' => '용어집은 선택한 번역어를 모든 엔진에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.',
+			'workbench.glossary_page.loading' => '불러오는 중…',
 			'workbench.translation.source' => '원문',
 			'workbench.translation.target' => '번역문',
 			'workbench.translation.input_hint' => '번역할 텍스트를 입력하거나 붙여넣으세요',
@@ -1228,9 +1310,24 @@ extension on TranslationsKo {
 			'workbench.translation.read' => '읽기',
 			'workbench.translation.copy' => '복사',
 			'workbench.translation.favorite_unavailable' => '즐겨찾기는 향후 버전에서 제공됩니다',
+			'workbench.translation.preferred' => '기본 번역',
+			'workbench.translation.other_engines' => '다른 엔진',
+			'workbench.translation.copy_result' => '번역 복사',
+			'workbench.translation.copied' => '복사됨',
+			'workbench.translation.favorite' => '저장',
+			'workbench.translation.terms' => '용어 일치',
+			'workbench.translation.terms_hint' => '입력하면 용어집과 대조합니다.',
+			'workbench.translation.quality' => '품질 신호',
+			'workbench.translation.quality_hint' => '번역이 완료되면 계산됩니다.',
+			'workbench.translation.shortcuts' => '단축키',
+			'workbench.translation.other_engines_disabled' => '다른 엔진이 비활성화됨',
+			'workbench.translation.input_hint_translate_to' => ({required Object language}) => '번역할 텍스트를 입력하거나 붙여넣어 ${language}(으)로 번역',
 			'workbench.status.runtime_ready' => '번역 런타임 준비 완료',
 			'workbench.status.settings_synced' => '설정 동기화됨',
 			'workbench.status.shortcuts' => '⌥Space 빠른 창 · ⌥⇧2 캡처',
+			'workbench.version_latest' => '최신 버전입니다',
+			'workbench.version_checking' => '확인 중…',
+			'workbench.check_updates' => '업데이트 확인',
 			'settings.version' => 'v{} (Build {})',
 			'settings.general.title' => '일반',
 			'settings.general.section.permissions' => '권한',
@@ -1345,6 +1442,9 @@ extension on TranslationsKo {
 			'settings.layout.title' => '설정',
 			'settings.layout.empty.title' => '카테고리 선택',
 			'settings.layout.empty.message' => '사이드바에서 설정 섹션을 선택하세요.',
+			'settings.layout.groups' => '설정 그룹',
+			'settings.layout.effect_hint' => '변경 사항 즉시 적용',
+			'settings.layout.footer_note' => '번역과 키는 이 기기에만 저장됩니다',
 			'settings.about.title' => '정보',
 			'settings.about.copy_version_info' => '버전 정보 복사',
 			'settings.about.up_to_date' => '최신 버전입니다.',

@@ -177,7 +177,7 @@
     "translate": "翻譯",
     "document": "文件翻譯",
     "history": "收藏與歷史",
-    "glossary": "術語表",
+    "glossary": "術語庫",
     "recent_languages": "最近語言",
     "not_configured": "尚未設定",
     "subtitle": {
@@ -187,7 +187,36 @@
     "placeholder": {
       "document": "文件翻譯正在建置中",
       "history": "收藏與歷史將在後續版本提供",
-      "glossary": "術語表管理正在建置中"
+      "glossary": "術語庫管理正在建置中"
+    },
+    "glossary_page": {
+      "add_entry": "新增條目",
+      "term": "原文",
+      "translation": "指定譯法",
+      "forbidden": "禁用",
+      "hits": "命中",
+      "term_placeholder": "teacher forcing",
+      "translation_placeholder": "教師強制",
+      "forbidden_placeholder": "強制教學",
+      "search": "搜尋",
+      "search_placeholder": "搜尋術語或指定譯法",
+      "search_label": "搜尋術語庫",
+      "entry_count": "$name · $count 條",
+      "priority_note": "術語優先級高於任何引擎輸出",
+      "new_book": "新增術語庫",
+      "new_book_placeholder": "術語庫名稱",
+      "rename_book": "重新命名",
+      "delete_book_confirm": "刪除「$name」及其中的 $count 條術語？",
+      "disabled": "已停用",
+      "enable": "啟用",
+      "disable": "停用",
+      "empty_title": "這個術語庫還是空的",
+      "empty_description": "術語優先級高於任何引擎輸出。可以逐條新增，也可以把 CSV 拖進來合併。",
+      "no_results_title": "沒有符合「$query」的術語",
+      "no_results_description": "換個關鍵字，或直接新增一條。",
+      "no_books_title": "還沒有術語庫",
+      "no_books_description": "術語庫讓指定譯法在所有引擎裡保持一致。先建一個，再往裡加詞。",
+      "loading": "正在載入…"
     },
     "translation": {
       "source": "原文",
@@ -206,13 +235,28 @@
       "waiting": "等待翻譯",
       "read": "朗讀",
       "copy": "複製",
-      "favorite_unavailable": "收藏功能將在後續版本提供"
+      "favorite_unavailable": "收藏功能將在後續版本提供",
+      "preferred": "首選譯文",
+      "other_engines": "其他引擎",
+      "copy_result": "複製譯文",
+      "copied": "已複製",
+      "favorite": "收藏",
+      "terms": "命中術語",
+      "terms_hint": "輸入後自動比對術語庫。",
+      "quality": "品質信號",
+      "quality_hint": "譯文產生後計算。",
+      "shortcuts": "快捷鍵",
+      "other_engines_disabled": "其他引擎已停用",
+      "input_hint_translate_to": "輸入或貼上要翻譯的文字，翻譯為$language"
     },
     "status": {
       "runtime_ready": "翻譯執行環境已就緒",
       "settings_synced": "設定已同步",
       "shortcuts": "⌥Space 小窗 · ⌥⇧2 截圖"
-    }
+    },
+    "version_latest": "已是最新",
+    "version_checking": "正在檢查…",
+    "check_updates": "檢查更新"
   },
   "settings": {
     "version": "v{} (Build {})",
@@ -409,7 +453,10 @@
       "empty": {
         "title": "選擇一個分類",
         "message": "從側邊欄選擇一個設定分類。"
-      }
+      },
+      "groups": "設定分組",
+      "effect_hint": "更改即時生效",
+      "footer_note": "譯文與金鑰僅保存在本機"
     },
     "about": {
       "title": "關於",

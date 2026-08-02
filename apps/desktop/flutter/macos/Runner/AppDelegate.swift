@@ -34,5 +34,33 @@ class AppDelegate: FlutterAppDelegate {
 
   override func applicationDidFinishLaunching(_ notification: Notification) {
     _ = flutterEngine
+    observeWindows()
+  }
+
+  /// Windows are created by the Flutter multi-window API, so there is no
+  /// NSWindow subclass to hook into. Attach the dummy toolbar as each window
+  /// shows up instead.
+  private func observeWindows() {
+    for name in [NSWindow.didUpdateNotification, NSWindow.didBecomeKeyNotification] {
+      NotificationCenter.default.addObserver(
+        self,
+        selector: #selector(installDummyToolbar(_:)),
+        name: name,
+        object: nil
+      )
+    }
+  }
+
+  /// An empty toolbar moves the traffic light buttons down into the toolbar row.
+  @objc private func installDummyToolbar(_ notification: Notification) {
+    guard
+      let window = notification.object as? NSWindow,
+      window.styleMask.contains(.titled),
+      window.toolbar == nil
+    else {
+      return
+    }
+
+    window.toolbar = NSToolbar(identifier: "DummyToolbar")
   }
 }

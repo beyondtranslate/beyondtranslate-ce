@@ -128,14 +128,19 @@ class WindowTitlebar extends StatelessWidget {
     super.key,
     this.title,
     this.subtitle,
+    this.leading,
     this.lights = true,
     this.children = const [],
   });
 
   final Widget? title;
 
-  /// De-emphasised context after the title — 设置 / 术语表 / file name.
+  /// De-emphasised context after the title — 设置 / 术语库 / file name.
   final Widget? subtitle;
+
+  /// Control parked immediately left of the title, after the traffic lights —
+  /// where AppKit puts the sidebar toggle once the sidebar is collapsed.
+  final Widget? leading;
   final bool lights;
   final List<Widget> children;
 
@@ -161,6 +166,10 @@ class WindowTitlebar extends StatelessWidget {
           if (lights) ...[
             const TrafficLights(),
             const SizedBox(width: 14),
+          ],
+          if (leading != null) ...[
+            leading!,
+            const SizedBox(width: 10),
           ],
           if (title != null) ...[
             DefaultTextStyle(
