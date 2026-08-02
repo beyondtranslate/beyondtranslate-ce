@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 enum BadgeTone { accent, neutral, solid, success, warn, danger }
 
 enum BadgeSize {
-  /// 术语表 / 默认 — the smallest tag in the deck.
+  /// 术语库 / 默认 — the smallest tag in the deck.
   xs,
 
   /// 3 ENGINES.

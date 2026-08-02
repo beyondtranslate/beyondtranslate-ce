@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 
 /// Left workspace column — fixed at the sidebar metric (172px by default).
 class Sidebar extends StatelessWidget {
-  const Sidebar({super.key, this.header, required this.children});
+  const Sidebar({super.key, this.header, this.footer, required this.children});
 
   /// Content for the strip above the nav list, kept at exactly the titlebar
   /// height so it lines up with the toolbar in the pane beside it. Pass the
@@ -14,6 +14,10 @@ class Sidebar extends StatelessWidget {
   /// layout, where the sidebar runs the whole height of the window and the
   /// toolbar only spans the content pane.
   final Widget? header;
+
+  /// Pinned to the column's foot, below the scrolling nav — the deck parks
+  /// the version/updater card here.
+  final Widget? footer;
 
   final List<Widget> children;
 
@@ -60,6 +64,11 @@ class Sidebar extends StatelessWidget {
               ),
             ),
           ),
+          if (footer != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 14),
+              child: footer,
+            ),
         ],
       ),
     );

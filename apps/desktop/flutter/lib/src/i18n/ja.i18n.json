@@ -189,6 +189,35 @@
       "history": "お気に入りと履歴は今後のリリースで提供します",
       "glossary": "用語集管理は開発中です"
     },
+    "glossary_page": {
+      "add_entry": "用語を追加",
+      "term": "原文",
+      "translation": "指定訳",
+      "forbidden": "禁止",
+      "hits": "ヒット",
+      "term_placeholder": "teacher forcing",
+      "translation_placeholder": "教師強制",
+      "forbidden_placeholder": "強制教育",
+      "search": "検索",
+      "search_placeholder": "用語または指定訳を検索",
+      "search_label": "用語集を検索",
+      "entry_count": "$name · $count 件",
+      "priority_note": "用語集はどのエンジンの出力よりも優先されます",
+      "new_book": "用語集を作成",
+      "new_book_placeholder": "用語集の名前",
+      "rename_book": "名前を変更",
+      "delete_book_confirm": "「$name」と、その $count 件の用語を削除しますか？",
+      "disabled": "無効",
+      "enable": "有効にする",
+      "disable": "無効にする",
+      "empty_title": "この用語集は空です",
+      "empty_description": "用語集はどのエンジンの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。",
+      "no_results_title": "「$query」に一致する用語はありません",
+      "no_results_description": "別のキーワードを試すか、新しく追加してください。",
+      "no_books_title": "用語集がまだありません",
+      "no_books_description": "用語集は、選んだ訳語をすべてのエンジンで統一します。まず 1 つ作成して、用語を追加しましょう。",
+      "loading": "読み込み中…"
+    },
     "translation": {
       "source": "原文",
       "target": "訳文",
@@ -206,13 +235,28 @@
       "waiting": "翻訳待ち",
       "read": "読み上げ",
       "copy": "コピー",
-      "favorite_unavailable": "お気に入りは今後のリリースで提供します"
+      "favorite_unavailable": "お気に入りは今後のリリースで提供します",
+      "preferred": "優先訳文",
+      "other_engines": "他のエンジン",
+      "copy_result": "訳文をコピー",
+      "copied": "コピー済み",
+      "favorite": "保存",
+      "terms": "用語ヒット",
+      "terms_hint": "入力すると用語集と照合されます。",
+      "quality": "品質シグナル",
+      "quality_hint": "訳文の生成後に計算されます。",
+      "shortcuts": "ショートカット",
+      "other_engines_disabled": "他のエンジンは無効です",
+      "input_hint_translate_to": "翻訳するテキストを入力または貼り付け、$languageに翻訳"
     },
     "status": {
       "runtime_ready": "翻訳ランタイム準備完了",
       "settings_synced": "設定を同期済み",
       "shortcuts": "⌥Space クイックウィンドウ · ⌥⇧2 キャプチャ"
-    }
+    },
+    "version_latest": "最新です",
+    "version_checking": "確認中…",
+    "check_updates": "アップデートを確認"
   },
   "settings": {
     "version": "v{} (Build {})",
@@ -409,7 +453,10 @@
       "empty": {
         "title": "カテゴリを選択",
         "message": "サイドバーから設定セクションを選択してください。"
-      }
+      },
+      "groups": "設定グループ",
+      "effect_hint": "変更は即時反映",
+      "footer_note": "訳文とキーはこのMacにのみ保存されます"
     },
     "about": {
       "title": "情報",

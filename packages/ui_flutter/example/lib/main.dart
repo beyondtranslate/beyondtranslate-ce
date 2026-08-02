@@ -189,7 +189,7 @@ class _AtomsState extends State<_Atoms> {
                   Button(
                     variant: ButtonVariant.warning,
                     onPressed: () {},
-                    child: const Text('与术语表冲突 · 查看'),
+                    child: const Text('与术语库冲突 · 查看'),
                   ),
                   const Button(
                     variant: ButtonVariant.primary,
@@ -308,7 +308,7 @@ class _AtomsState extends State<_Atoms> {
               children: const [
                 _Row([
                   Badge(child: Text('默认')),
-                  Badge(tone: BadgeTone.neutral, child: Text('术语表')),
+                  Badge(tone: BadgeTone.neutral, child: Text('术语库')),
                   Badge(
                     tone: BadgeTone.solid,
                     size: BadgeSize.sm,
@@ -359,7 +359,7 @@ class _AtomsState extends State<_Atoms> {
                     checked: _checkbox,
                     onChanged: (value) => setState(() => _checkbox = value),
                     note: const Text('12 条'),
-                    child: const Text('包含术语表'),
+                    child: const Text('包含术语库'),
                   ),
                 ]),
                 RadioList<String>(
@@ -606,7 +606,7 @@ class _AtomsState extends State<_Atoms> {
                     child: DetailBlock(
                       title: Text('inference'),
                       subtitle: Text('/ˈɪnf(ə)rəns/'),
-                      trailing: Badge(child: Text('术语表')),
+                      trailing: Badge(child: Text('术语库')),
                       child: Text('名词 · 推理；模型据输入生成输出的过程。'),
                     ),
                   ),
@@ -723,7 +723,7 @@ class _AtomsState extends State<_Atoms> {
                                       term: 'token',
                                       translation: '词元',
                                       forbidden: '标记',
-                                      book: '机器学习 · 术语表',
+                                      book: '机器学习 · 术语库',
                                       hits: 42,
                                     ),
                                     onActivate: () {},
@@ -968,7 +968,7 @@ class _AtomsState extends State<_Atoms> {
                           DetailBlock(
                             title: const Text('inference'),
                             subtitle: const Text('/ˈɪnf(ə)rəns/'),
-                            trailing: const Badge(child: Text('术语表')),
+                            trailing: const Badge(child: Text('术语库')),
                             onTitlePressed: () {},
                             child: const Text('名词 · 推理。'),
                           ),
@@ -983,7 +983,7 @@ class _AtomsState extends State<_Atoms> {
                     trailing: const Text('名词 · 术语'),
                     body: const Text('推理'),
                     note: const Text('模型据输入生成输出的过程。'),
-                    attribution: const Badge(child: Text('术语表 · ML')),
+                    attribution: const Badge(child: Text('术语库 · ML')),
                     secondaryLabel: const Text('整句'),
                     secondary: const Text('每一步推理都以此前的全部内容为条件。'),
                     actions: ActionBar(
@@ -1026,11 +1026,14 @@ class _AtomsState extends State<_Atoms> {
                       const SizedBox(height: 20),
                       const _Row([
                         FloatingBall(),
+                        FloatingBall(state: FloatingBallState.resting),
                         FloatingBall(state: FloatingBallState.translating),
                         FloatingBall(
-                          state: FloatingBallState.expanded,
-                          summary: '已译 392 段',
+                          state: FloatingBallState.translating,
+                          progress: 62,
                         ),
+                        FloatingBall(state: FloatingBallState.translated),
+                        FloatingBall(state: FloatingBallState.expanded),
                       ]),
                     ],
                   ),
@@ -1121,7 +1124,7 @@ class _AtomsState extends State<_Atoms> {
                                   ),
                                   NavItem(
                                     onPressed: () {},
-                                    child: const Text('术语表'),
+                                    child: const Text('术语库'),
                                   ),
                                 ],
                               ),

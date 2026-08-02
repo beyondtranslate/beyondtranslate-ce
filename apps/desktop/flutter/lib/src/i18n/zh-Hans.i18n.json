@@ -177,7 +177,7 @@
     "translate": "翻译",
     "document": "文档翻译",
     "history": "收藏与历史",
-    "glossary": "术语表",
+    "glossary": "术语库",
     "recent_languages": "最近语言",
     "not_configured": "尚未配置",
     "subtitle": {
@@ -187,7 +187,36 @@
     "placeholder": {
       "document": "文档翻译正在建设中",
       "history": "收藏与历史将在后续版本中提供",
-      "glossary": "术语表管理正在建设中"
+      "glossary": "术语库管理正在建设中"
+    },
+    "glossary_page": {
+      "add_entry": "新增条目",
+      "term": "原文",
+      "translation": "指定译法",
+      "forbidden": "禁用",
+      "hits": "命中",
+      "term_placeholder": "teacher forcing",
+      "translation_placeholder": "教师强制",
+      "forbidden_placeholder": "强制教学",
+      "search": "搜索",
+      "search_placeholder": "搜索术语或指定译法",
+      "search_label": "搜索术语库",
+      "entry_count": "$name · $count 条",
+      "priority_note": "术语优先级高于任何引擎输出",
+      "new_book": "新建术语库",
+      "new_book_placeholder": "术语库名称",
+      "rename_book": "重命名",
+      "delete_book_confirm": "删除「$name」及其中的 $count 条术语？",
+      "disabled": "已停用",
+      "enable": "启用",
+      "disable": "停用",
+      "empty_title": "这个术语库还是空的",
+      "empty_description": "术语优先级高于任何引擎输出。可以逐条新增，也可以把 CSV 拖进来合并。",
+      "no_results_title": "没有匹配「$query」的术语",
+      "no_results_description": "换个关键词，或直接新增一条。",
+      "no_books_title": "还没有术语库",
+      "no_books_description": "术语库让指定译法在所有引擎里保持一致。先建一个，再往里加词。",
+      "loading": "正在载入…"
     },
     "translation": {
       "source": "原文",
@@ -206,13 +235,28 @@
       "waiting": "等待翻译",
       "read": "朗读",
       "copy": "复制",
-      "favorite_unavailable": "收藏功能将在后续版本中提供"
+      "favorite_unavailable": "收藏功能将在后续版本中提供",
+      "preferred": "首选译文",
+      "other_engines": "其他引擎",
+      "copy_result": "复制译文",
+      "copied": "已复制",
+      "favorite": "收藏",
+      "terms": "命中术语",
+      "terms_hint": "输入后自动比对术语库。",
+      "quality": "质量信号",
+      "quality_hint": "译文生成后计算。",
+      "shortcuts": "快捷键",
+      "other_engines_disabled": "其他引擎已停用",
+      "input_hint_translate_to": "输入或粘贴要翻译的文本，翻译为$language"
     },
     "status": {
       "runtime_ready": "翻译运行时已就绪",
       "settings_synced": "设置已同步",
       "shortcuts": "⌥Space 小窗 · ⌥⇧2 截图"
-    }
+    },
+    "version_latest": "已是最新",
+    "version_checking": "正在检查…",
+    "check_updates": "检查更新"
   },
   "settings": {
     "version": "v{} (Build {})",
@@ -409,7 +453,10 @@
       "empty": {
         "title": "选择一个分类",
         "message": "从侧边栏选择一个设置分类。"
-      }
+      },
+      "groups": "设置分组",
+      "effect_hint": "更改即时生效",
+      "footer_note": "译文与密钥仅保存在本机"
     },
     "about": {
       "title": "关于",

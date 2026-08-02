@@ -46,16 +46,9 @@ class MiniTranslatorInput extends StatelessWidget {
         : t.mini_translator.input
             .hint_translate_to(language: targetLanguageName!);
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.border,
-            width: context.hairlineWidth,
-          ),
-        ),
-      ),
+    // Inside the panel card; the result block below draws the separation.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 13, 15, 12),
       child: Stack(
         alignment: Alignment.topRight,
         children: [
@@ -64,9 +57,16 @@ class MiniTranslatorInput extends StatelessWidget {
             controller: controller,
             padding: const EdgeInsets.only(right: 26),
             placeholder: placeholder,
-            placeholderStyle:
-                tokens.typography.sourceStyle(color: colors.fgFaint),
-            style: tokens.typography.sourceStyle(color: colors.fg),
+            placeholderStyle: tokens.typography.sansStyle(
+              fontSize: 12,
+              height: 1.7,
+              color: colors.fgFaint,
+            ),
+            style: tokens.typography.sansStyle(
+              fontSize: 12,
+              height: 1.7,
+              color: colors.fgMuted,
+            ),
             maxLines: 4,
             minLines: 1,
             textInputAction: inputSubmitMode == InputSubmitMode.enter
@@ -122,42 +122,29 @@ class MiniTranslatorActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final buttons = t.mini_translator.button;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        border: hasContent
-            ? Border(
-                top: BorderSide(
-                  color: colors.border,
-                  width: context.hairlineWidth,
-                ),
-              )
-            : null,
-      ),
+    // Sits on the window's tray surface, under the panel — no rule of its own.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(6, 10, 6, 4),
       child: Row(
         children: [
           ActionBar(
             children: [
               Button(
                 variant: ButtonVariant.ghost,
-                size: ButtonSize.xs,
                 enabled: hasContent,
                 onPressed: onRead,
                 child: Text(buttons.read),
               ),
               Button(
                 variant: ButtonVariant.ghost,
-                size: ButtonSize.xs,
                 enabled: hasContent,
                 onPressed: onCopy,
                 child: Text(copied ? buttons.copied : buttons.copy),
               ),
               Button(
                 variant: ButtonVariant.ghost,
-                size: ButtonSize.xs,
                 enabled: hasContent,
                 onPressed: onBookmark,
                 child: Text(starred ? buttons.bookmarked : buttons.bookmark),
@@ -167,7 +154,6 @@ class MiniTranslatorActionButtons extends StatelessWidget {
           const Spacer(),
           Button(
             variant: ButtonVariant.primary,
-            size: ButtonSize.xs,
             enabled: translateEnabled,
             onPressed: onTranslate,
             shortcut: const Text('⏎'),

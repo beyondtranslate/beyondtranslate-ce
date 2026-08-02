@@ -189,6 +189,35 @@
       "history": "Les favoris et l’historique seront disponibles ultérieurement",
       "glossary": "La gestion du glossaire est en cours de développement"
     },
+    "glossary_page": {
+      "add_entry": "Nouvelle entrée",
+      "term": "Source",
+      "translation": "Traduction imposée",
+      "forbidden": "Interdit",
+      "hits": "Occur.",
+      "term_placeholder": "teacher forcing",
+      "translation_placeholder": "forçage enseignant",
+      "forbidden_placeholder": "enseignement forcé",
+      "search": "Rechercher",
+      "search_placeholder": "Rechercher un terme ou une traduction imposée",
+      "search_label": "Rechercher dans le glossaire",
+      "entry_count": "$name · $count termes",
+      "priority_note": "Le glossaire prime sur toute sortie de moteur",
+      "new_book": "Nouveau glossaire",
+      "new_book_placeholder": "Nom du glossaire",
+      "rename_book": "Renommer",
+      "delete_book_confirm": "Supprimer « $name » et ses $count termes ?",
+      "disabled": "Désactivé",
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "empty_title": "Ce glossaire est vide",
+      "empty_description": "Le glossaire prime sur toute sortie de moteur. Ajoutez les termes un à un, ou déposez un CSV pour les fusionner.",
+      "no_results_title": "Aucun terme ne correspond à « $query »",
+      "no_results_description": "Essayez un autre mot-clé, ou ajoutez le terme.",
+      "no_books_title": "Aucun glossaire pour l’instant",
+      "no_books_description": "Un glossaire garde vos choix de traduction cohérents sur tous les moteurs. Créez-en un, puis ajoutez des termes.",
+      "loading": "Chargement…"
+    },
     "translation": {
       "source": "Source",
       "target": "Traduction",
@@ -206,13 +235,28 @@
       "waiting": "En attente",
       "read": "Lire",
       "copy": "Copier",
-      "favorite_unavailable": "Les favoris seront disponibles ultérieurement"
+      "favorite_unavailable": "Les favoris seront disponibles ultérieurement",
+      "preferred": "Traduction préférée",
+      "other_engines": "Autres moteurs",
+      "copy_result": "Copier la traduction",
+      "copied": "Copié",
+      "favorite": "Enregistrer",
+      "terms": "Correspondances du glossaire",
+      "terms_hint": "Les termes sont comparés à la saisie.",
+      "quality": "Signaux de qualité",
+      "quality_hint": "Calculés une fois la traduction reçue.",
+      "shortcuts": "Raccourcis",
+      "other_engines_disabled": "Les autres moteurs sont désactivés",
+      "input_hint_translate_to": "Saisissez ou collez le texte à traduire en $language"
     },
     "status": {
       "runtime_ready": "Moteur de traduction prêt",
       "settings_synced": "Réglages synchronisés",
       "shortcuts": "⌥Space Fenêtre rapide · ⌥⇧2 Capture"
-    }
+    },
+    "version_latest": "À jour",
+    "version_checking": "Vérification…",
+    "check_updates": "Rechercher des mises à jour"
   },
   "settings": {
     "version": "v{} (Build {})",
@@ -409,7 +453,10 @@
       "empty": {
         "title": "Sélectionnez une catégorie",
         "message": "Choisissez une section de paramètres dans la barre latérale."
-      }
+      },
+      "groups": "Groupes",
+      "effect_hint": "Les changements prennent effet immédiatement",
+      "footer_note": "Traductions et clés restent sur cet appareil"
     },
     "about": {
       "title": "À propos",

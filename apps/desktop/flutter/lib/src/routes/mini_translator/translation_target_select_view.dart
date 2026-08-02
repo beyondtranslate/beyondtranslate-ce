@@ -324,22 +324,18 @@ class MiniTranslatorTopBar extends StatelessWidget {
         detectedLanguage != null && !isAutoSource(sourceLanguage);
     final canSwap = !isAutoSource(sourceLanguage);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.border,
-            width: context.hairlineWidth,
-          ),
-        ),
-      ),
+    // Sits on the window's tray surface; the panel below provides the
+    // separation, so the bar carries no border of its own.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
       child: Row(
         children: [
           // The language capsule, shaped like the design system's SwapPair —
           // but each end opens a native menu, so the labels are pressable.
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+            // 30px tall, and the chips' own 8px inset lands the label 11px
+            // from the capsule edge, as in the deck.
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
             decoration: BoxDecoration(
               color: colors.control,
               borderRadius: BorderRadius.circular(tokens.radii.control),
@@ -352,7 +348,7 @@ class MiniTranslatorTopBar extends StatelessWidget {
                   label: sourceName,
                   onPressed: _showSourceMenu,
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
                 _SwapButton(
                   onPressed: !canSwap
                       ? null
@@ -363,7 +359,7 @@ class MiniTranslatorTopBar extends StatelessWidget {
                           onTargetLanguageChanged(sourceLanguage);
                         },
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
                 _LanguageChip(
                   key: _targetButtonKey,
                   label: targetName,

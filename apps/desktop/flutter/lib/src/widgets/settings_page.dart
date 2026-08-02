@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-/// The scrolling body of a settings pane. Each block is its own bordered card,
-/// so the blocks are separated by space rather than a rule.
+/// The scrolling body of a settings pane, in the deck's flat layout: sections
+/// sit directly on the pane, separated by the deck's 22px of air — no cards,
+/// no rules between them.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
     super.key,
@@ -20,7 +21,7 @@ class SettingsPage extends StatelessWidget {
       ...children,
     ];
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+      padding: const EdgeInsets.fromLTRB(24, 22, 24, 24),
       itemCount: blocks.length,
       itemBuilder: (_, index) => blocks[index],
       separatorBuilder: (_, __) => const SizedBox(height: 22),

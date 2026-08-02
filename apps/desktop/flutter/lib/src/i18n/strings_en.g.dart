@@ -119,8 +119,18 @@ class TranslationsWorkbenchEn {
 
 	late final TranslationsWorkbenchSubtitleEn subtitle = TranslationsWorkbenchSubtitleEn.internal(_root);
 	late final TranslationsWorkbenchPlaceholderEn placeholder = TranslationsWorkbenchPlaceholderEn.internal(_root);
+	late final TranslationsWorkbenchGlossaryPageEn glossary_page = TranslationsWorkbenchGlossaryPageEn.internal(_root);
 	late final TranslationsWorkbenchTranslationEn translation = TranslationsWorkbenchTranslationEn.internal(_root);
 	late final TranslationsWorkbenchStatusEn status = TranslationsWorkbenchStatusEn.internal(_root);
+
+	/// en: 'Up to date'
+	String get version_latest => 'Up to date';
+
+	/// en: 'Checking…'
+	String get version_checking => 'Checking…';
+
+	/// en: 'Check for updates'
+	String get check_updates => 'Check for updates';
 }
 
 // Path: settings
@@ -562,6 +572,96 @@ class TranslationsWorkbenchPlaceholderEn {
 	String get glossary => 'Glossary management is being built';
 }
 
+// Path: workbench.glossary_page
+class TranslationsWorkbenchGlossaryPageEn {
+	TranslationsWorkbenchGlossaryPageEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'New entry'
+	String get add_entry => 'New entry';
+
+	/// en: 'Source'
+	String get term => 'Source';
+
+	/// en: 'Required translation'
+	String get translation => 'Required translation';
+
+	/// en: 'Forbidden'
+	String get forbidden => 'Forbidden';
+
+	/// en: 'Hits'
+	String get hits => 'Hits';
+
+	/// en: 'teacher forcing'
+	String get term_placeholder => 'teacher forcing';
+
+	/// en: 'forced teaching'
+	String get translation_placeholder => 'forced teaching';
+
+	/// en: 'coerced teaching'
+	String get forbidden_placeholder => 'coerced teaching';
+
+	/// en: 'Search'
+	String get search => 'Search';
+
+	/// en: 'Search terms or required translations'
+	String get search_placeholder => 'Search terms or required translations';
+
+	/// en: 'Search the glossary'
+	String get search_label => 'Search the glossary';
+
+	/// en: '$name · $count terms'
+	String entry_count({required Object name, required Object count}) => '${name} · ${count} terms';
+
+	/// en: 'Glossary terms outrank any engine output'
+	String get priority_note => 'Glossary terms outrank any engine output';
+
+	/// en: 'New glossary'
+	String get new_book => 'New glossary';
+
+	/// en: 'Glossary name'
+	String get new_book_placeholder => 'Glossary name';
+
+	/// en: 'Rename'
+	String get rename_book => 'Rename';
+
+	/// en: 'Delete “$name” and all $count of its terms?'
+	String delete_book_confirm({required Object name, required Object count}) => 'Delete “${name}” and all ${count} of its terms?';
+
+	/// en: 'Off'
+	String get disabled => 'Off';
+
+	/// en: 'Enable'
+	String get enable => 'Enable';
+
+	/// en: 'Disable'
+	String get disable => 'Disable';
+
+	/// en: 'This glossary is empty'
+	String get empty_title => 'This glossary is empty';
+
+	/// en: 'Glossary terms outrank any engine output. Add them one at a time, or drop in a CSV to merge.'
+	String get empty_description => 'Glossary terms outrank any engine output. Add them one at a time, or drop in a CSV to merge.';
+
+	/// en: 'No terms match “$query”'
+	String no_results_title({required Object query}) => 'No terms match “${query}”';
+
+	/// en: 'Try another keyword, or add the term.'
+	String get no_results_description => 'Try another keyword, or add the term.';
+
+	/// en: 'No glossaries yet'
+	String get no_books_title => 'No glossaries yet';
+
+	/// en: 'A glossary keeps your chosen wording consistent across every engine. Create one, then start adding terms.'
+	String get no_books_description => 'A glossary keeps your chosen wording consistent across every engine. Create one, then start adding terms.';
+
+	/// en: 'Loading…'
+	String get loading => 'Loading…';
+}
+
 // Path: workbench.translation
 class TranslationsWorkbenchTranslationEn {
 	TranslationsWorkbenchTranslationEn.internal(this._root);
@@ -620,6 +720,42 @@ class TranslationsWorkbenchTranslationEn {
 
 	/// en: 'Favorites will be available in a future release'
 	String get favorite_unavailable => 'Favorites will be available in a future release';
+
+	/// en: 'Preferred translation'
+	String get preferred => 'Preferred translation';
+
+	/// en: 'Other engines'
+	String get other_engines => 'Other engines';
+
+	/// en: 'Copy translation'
+	String get copy_result => 'Copy translation';
+
+	/// en: 'Copied'
+	String get copied => 'Copied';
+
+	/// en: 'Save'
+	String get favorite => 'Save';
+
+	/// en: 'Glossary hits'
+	String get terms => 'Glossary hits';
+
+	/// en: 'Terms are matched once you type.'
+	String get terms_hint => 'Terms are matched once you type.';
+
+	/// en: 'Quality signals'
+	String get quality => 'Quality signals';
+
+	/// en: 'Computed once a translation lands.'
+	String get quality_hint => 'Computed once a translation lands.';
+
+	/// en: 'Shortcuts'
+	String get shortcuts => 'Shortcuts';
+
+	/// en: 'Other engines are disabled'
+	String get other_engines_disabled => 'Other engines are disabled';
+
+	/// en: 'Type or paste text to translate into $language'
+	String input_hint_translate_to({required Object language}) => 'Type or paste text to translate into ${language}';
 }
 
 // Path: workbench.status
@@ -770,6 +906,15 @@ class TranslationsSettingsLayoutEn {
 	String get title => 'Settings';
 
 	late final TranslationsSettingsLayoutEmptyEn empty = TranslationsSettingsLayoutEmptyEn.internal(_root);
+
+	/// en: 'Groups'
+	String get groups => 'Groups';
+
+	/// en: 'Changes apply immediately'
+	String get effect_hint => 'Changes apply immediately';
+
+	/// en: 'Translations and keys stay on this Mac'
+	String get footer_note => 'Translations and keys stay on this Mac';
 }
 
 // Path: settings.about
@@ -1768,6 +1913,33 @@ extension on Translations {
 			'workbench.placeholder.document' => 'Document translation is being built',
 			'workbench.placeholder.history' => 'Favorites and history will be available in a future release',
 			'workbench.placeholder.glossary' => 'Glossary management is being built',
+			'workbench.glossary_page.add_entry' => 'New entry',
+			'workbench.glossary_page.term' => 'Source',
+			'workbench.glossary_page.translation' => 'Required translation',
+			'workbench.glossary_page.forbidden' => 'Forbidden',
+			'workbench.glossary_page.hits' => 'Hits',
+			'workbench.glossary_page.term_placeholder' => 'teacher forcing',
+			'workbench.glossary_page.translation_placeholder' => 'forced teaching',
+			'workbench.glossary_page.forbidden_placeholder' => 'coerced teaching',
+			'workbench.glossary_page.search' => 'Search',
+			'workbench.glossary_page.search_placeholder' => 'Search terms or required translations',
+			'workbench.glossary_page.search_label' => 'Search the glossary',
+			'workbench.glossary_page.entry_count' => ({required Object name, required Object count}) => '${name} · ${count} terms',
+			'workbench.glossary_page.priority_note' => 'Glossary terms outrank any engine output',
+			'workbench.glossary_page.new_book' => 'New glossary',
+			'workbench.glossary_page.new_book_placeholder' => 'Glossary name',
+			'workbench.glossary_page.rename_book' => 'Rename',
+			'workbench.glossary_page.delete_book_confirm' => ({required Object name, required Object count}) => 'Delete “${name}” and all ${count} of its terms?',
+			'workbench.glossary_page.disabled' => 'Off',
+			'workbench.glossary_page.enable' => 'Enable',
+			'workbench.glossary_page.disable' => 'Disable',
+			'workbench.glossary_page.empty_title' => 'This glossary is empty',
+			'workbench.glossary_page.empty_description' => 'Glossary terms outrank any engine output. Add them one at a time, or drop in a CSV to merge.',
+			'workbench.glossary_page.no_results_title' => ({required Object query}) => 'No terms match “${query}”',
+			'workbench.glossary_page.no_results_description' => 'Try another keyword, or add the term.',
+			'workbench.glossary_page.no_books_title' => 'No glossaries yet',
+			'workbench.glossary_page.no_books_description' => 'A glossary keeps your chosen wording consistent across every engine. Create one, then start adding terms.',
+			'workbench.glossary_page.loading' => 'Loading…',
 			'workbench.translation.source' => 'Source',
 			'workbench.translation.target' => 'Translation',
 			'workbench.translation.input_hint' => 'Enter or paste text to translate',
@@ -1785,9 +1957,24 @@ extension on Translations {
 			'workbench.translation.read' => 'Read aloud',
 			'workbench.translation.copy' => 'Copy',
 			'workbench.translation.favorite_unavailable' => 'Favorites will be available in a future release',
+			'workbench.translation.preferred' => 'Preferred translation',
+			'workbench.translation.other_engines' => 'Other engines',
+			'workbench.translation.copy_result' => 'Copy translation',
+			'workbench.translation.copied' => 'Copied',
+			'workbench.translation.favorite' => 'Save',
+			'workbench.translation.terms' => 'Glossary hits',
+			'workbench.translation.terms_hint' => 'Terms are matched once you type.',
+			'workbench.translation.quality' => 'Quality signals',
+			'workbench.translation.quality_hint' => 'Computed once a translation lands.',
+			'workbench.translation.shortcuts' => 'Shortcuts',
+			'workbench.translation.other_engines_disabled' => 'Other engines are disabled',
+			'workbench.translation.input_hint_translate_to' => ({required Object language}) => 'Type or paste text to translate into ${language}',
 			'workbench.status.runtime_ready' => 'Translation runtime ready',
 			'workbench.status.settings_synced' => 'Settings synced',
 			'workbench.status.shortcuts' => '⌥Space Quick window · ⌥⇧2 Capture',
+			'workbench.version_latest' => 'Up to date',
+			'workbench.version_checking' => 'Checking…',
+			'workbench.check_updates' => 'Check for updates',
 			'settings.version' => 'v{} (Build {})',
 			'settings.general.title' => 'General',
 			'settings.general.section.permissions' => 'Permissions',
@@ -1902,6 +2089,9 @@ extension on Translations {
 			'settings.layout.title' => 'Settings',
 			'settings.layout.empty.title' => 'Select a Category',
 			'settings.layout.empty.message' => 'Choose a settings section from the sidebar.',
+			'settings.layout.groups' => 'Groups',
+			'settings.layout.effect_hint' => 'Changes apply immediately',
+			'settings.layout.footer_note' => 'Translations and keys stay on this Mac',
 			'settings.about.title' => 'About',
 			'settings.about.copy_version_info' => 'Copy Version Info',
 			'settings.about.up_to_date' => 'You\'re up to date.',

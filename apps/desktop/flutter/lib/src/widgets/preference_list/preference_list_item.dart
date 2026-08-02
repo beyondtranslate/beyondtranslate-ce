@@ -2,7 +2,13 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
 
 import '../ui.dart'
-    show DesignThemeContext, DesignTypographyStyles, Input, Pressable, Switch;
+    show
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Input,
+        Pressable,
+        Radio,
+        Switch;
 
 class PreferenceListItem extends StatelessWidget {
   const PreferenceListItem({
@@ -70,6 +76,22 @@ class PreferenceListItem extends StatelessWidget {
     final colors = tokens.colors;
     final enabled = !disabled && isInteractive;
 
+    // The deck's flat rows: plain-label rows read like its ShortcutRow
+    // (secondary, regular), rows with a summary like its privacy toggles
+    // (bold title over a subtle sub-line). No card, no hover wash.
+    final titleStyle = summary == null
+        ? tokens.typography.sansStyle(
+            fontSize: 12,
+            height: 1,
+            color: colors.fgSecondary,
+          )
+        : tokens.typography.sansStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            height: 1,
+            color: colors.fg,
+          );
+
     return Pressable(
       enabled: enabled,
       onPressed: enabled ? _onTap : null,
@@ -80,10 +102,7 @@ class PreferenceListItem extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(minHeight: 42),
-            padding: padding ??
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            color: state.hovered ? colors.subtle : null,
+            padding: padding ?? const EdgeInsets.symmetric(vertical: 6),
             child: Row(
               children: [
                 if (icon != null)
@@ -103,12 +122,7 @@ class PreferenceListItem extends StatelessWidget {
                       children: [
                         if (title != null)
                           DefaultTextStyle(
-                            style: tokens.typography.sansStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              height: 1,
-                              color: colors.fg,
-                            ),
+                            style: titleStyle,
                             child: title!,
                           ),
                         if (summary != null)
@@ -175,33 +189,18 @@ class PreferenceListRadioItem<T> extends PreferenceListItem {
     super._onTap();
   }
 
+  /// The deck's RadioGroup row: mark on the left, label after it — the whole
+  /// row is the design system's [Radio], not a settings row with a trailing
+  /// mark.
   @override
-  Widget buildAccessoryView(BuildContext context) {
-    // [Radio] always reserves room for a label; the row already carries the
-    // title, so only the mark is drawn here — from the same tokens.
-    final colors = context.colors;
-    final selected = value == groupValue;
-    return Container(
-      width: 16,
-      height: 16,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: selected ? colors.accent : colors.controlOutline,
-          width: 1.5,
-        ),
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding ?? const EdgeInsets.symmetric(vertical: 5),
+      child: Radio(
+        checked: value == groupValue,
+        onSelect: _onTap,
+        child: title ?? const SizedBox.shrink(),
       ),
-      child: selected
-          ? Container(
-              width: 7,
-              height: 7,
-              decoration: BoxDecoration(
-                color: colors.accent,
-                shape: BoxShape.circle,
-              ),
-            )
-          : null,
     );
   }
 }

@@ -20,6 +20,15 @@ export 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart'
         ShortcutSettings,
         ShortcutSettingsPatch,
         TranslationTarget,
+        // Glossary types
+        GlossaryBook,
+        GlossaryBookInput,
+        GlossaryComplianceIssue,
+        GlossaryEntry,
+        GlossaryEntryInput,
+        GlossaryIssueKind,
+        GlossaryMatch,
+        RuntimeGlossary,
         // Translation / look-up types
         DetectLanguageRequest,
         DetectLanguageResponse,

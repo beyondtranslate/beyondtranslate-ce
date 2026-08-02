@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart' show CupertinoTextField;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Inline search used by 收藏与历史 and 术语表; opened with ⌘F.
+/// Inline search used by 收藏与历史 and 术语库; opened with ⌘F.
 class SearchField extends StatefulWidget {
   const SearchField({
     super.key,

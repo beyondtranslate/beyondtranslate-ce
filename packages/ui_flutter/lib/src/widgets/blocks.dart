@@ -471,6 +471,7 @@ class HighlightBlock extends StatelessWidget {
     this.meta,
     this.actions,
     this.rule = HighlightRule.bottom,
+    this.stretch = false,
     required this.child,
   });
 
@@ -486,6 +487,10 @@ class HighlightBlock extends StatelessWidget {
   /// Where the accent rule sits. Its thickness is a theme token: 1px in the
   /// Studio themes, 2px in the Bright themes.
   final HighlightRule rule;
+
+  /// Fill the height the parent grants and pin [actions] to the block's foot —
+  /// the deck's `mt-auto` when the 翻译 pane runs the block to its bottom edge.
+  final bool stretch;
   final Widget child;
 
   @override
@@ -508,7 +513,7 @@ class HighlightBlock extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -516,7 +521,7 @@ class HighlightBlock extends StatelessWidget {
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: colors.highlight,
+                  color: colors.accentText,
                   shape: BoxShape.circle,
                   boxShadow: tokens.highlightGlow,
                 ),
@@ -548,7 +553,11 @@ class HighlightBlock extends StatelessWidget {
             style: tokens.typography.translationStyle(color: colors.fg),
             child: child,
           ),
-          if (actions != null) ...[const SizedBox(height: 12), actions!],
+          if (actions != null) ...[
+            const SizedBox(height: 12),
+            if (stretch) const Spacer(),
+            actions!,
+          ],
         ],
       ),
     );
