@@ -95,8 +95,7 @@ class GlossaryStore extends ChangeNotifier {
       if (_disposed) return;
       _books = books;
 
-      final stillExists =
-          books.any((book) => book.id == _selectedBookId);
+      final stillExists = books.any((book) => book.id == _selectedBookId);
       if (!stillExists) {
         _selectedBookId = books.isEmpty ? null : books.first.id;
       }

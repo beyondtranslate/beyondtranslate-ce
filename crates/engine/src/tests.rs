@@ -112,6 +112,56 @@ fn openai_provider_settings_roundtrip() {
     assert_eq!(registry.names(), vec!["openai-main"]);
 }
 
+#[cfg(feature = "deepseek")]
+#[test]
+fn loads_deepseek_provider() {
+    let registry = from_yaml_str(
+        r#"
+providers:
+  deepseek-main:
+    type: deepseek
+    apiKey: sk-test-key
+    defaultModel: deepseek-chat
+"#,
+    )
+    .expect("valid config");
+
+    assert_eq!(registry.names(), vec!["deepseek-main"]);
+    let provider = registry
+        .require("deepseek-main")
+        .expect("deepseek provider");
+    assert_eq!(provider.name(), "deepseek");
+}
+
+#[cfg(feature = "openai-compatible")]
+#[test]
+fn openai_compatible_provider_requires_base_url() {
+    let error = from_yaml_str(
+        r#"
+providers:
+  local-llm:
+    type: openai_compatible
+    defaultModel: qwen3:8b
+"#,
+    )
+    .expect_err("missing base url should fail");
+
+    assert!(matches!(error, EngineError::ConfigValidationFailed { .. }));
+
+    let registry = from_yaml_str(
+        r#"
+providers:
+  local-llm:
+    type: openai_compatible
+    baseUrl: http://localhost:1234
+    defaultModel: qwen3:8b
+"#,
+    )
+    .expect("valid config");
+    let provider = registry.require("local-llm").expect("compat provider");
+    assert_eq!(provider.name(), "openai_compatible");
+}
+
 #[test]
 fn rejects_unknown_provider() {
     let error = from_yaml_str(

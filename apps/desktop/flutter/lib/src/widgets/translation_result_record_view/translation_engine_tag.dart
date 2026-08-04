@@ -80,6 +80,22 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
         return 'ollama';
       case ProviderType.xAi:
         return 'xai';
+      case ProviderType.deepSeek:
+        return 'deepseek';
+      case ProviderType.qwen:
+        return 'qwen';
+      case ProviderType.zhipu:
+        return 'zhipu';
+      case ProviderType.moonshot:
+        return 'moonshot';
+      case ProviderType.doubao:
+        return 'doubao';
+      case ProviderType.groq:
+        return 'groq';
+      case ProviderType.gemini:
+        return 'gemini';
+      case ProviderType.openAiCompatible:
+        return 'openai_compatible';
       case ProviderType.system:
         return 'system';
       case ProviderType.tencent:

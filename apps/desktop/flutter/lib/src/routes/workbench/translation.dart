@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide Badge, TextField;
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' show InputSubmitMode;
@@ -11,6 +12,7 @@ import '../../services/settings_store.dart';
 import '../../services/workbench_translation_controller.dart';
 import '../../utils/global_audio_player.dart';
 import '../../utils/language_util.dart';
+import '../../widgets/language_selector.dart' show LanguageSelector;
 import '../../widgets/text_field.dart' show TextField;
 import '../../widgets/ui.dart'
     show
@@ -33,9 +35,9 @@ import '../../widgets/ui.dart'
         LabelTone,
         Pressable,
         SidebarCard,
-        SwapPair,
         kTransitionDuration;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
+import '../settings/general.dart' show GeneralSettingsPage;
 import 'index.dart' show workbenchTextHandoff;
 
 /// 翻译 — the deck's TranslateView: the source block over the preferred
@@ -111,6 +113,24 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 
   void _refresh() {
     if (mounted) setState(() {});
+  }
+
+  /// Picking a language re-runs the standing query, as it does in the mini
+  /// translator — the result on screen belongs to the pair you just left.
+  void _handleSourceChanged(String value) {
+    _controller.setSourceLanguage(value);
+    if (_controller.text.trim().isNotEmpty) _submit();
+  }
+
+  void _handleTargetChanged(String? value) {
+    if (value == null) return;
+    _controller.setTargetLanguage(value);
+    if (_controller.text.trim().isNotEmpty) _submit();
+  }
+
+  void _handleManageCommonLanguages() {
+    GeneralSettingsPage.pendingOpenCommonLanguages = true;
+    context.go('/settings/general');
   }
 
   void _handleHandoff() {
@@ -193,11 +213,19 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             title: t.workbench.translate,
             children: [
               const SizedBox(width: 4),
-              SwapPair(
-                start: detected == null
-                    ? getSourceDisplayName(_controller.sourceLanguage)
-                    : getLanguageName(detected),
-                end: getLanguageName(_controller.targetLanguage),
+              // The mini translator's capsule: both ends open the same native
+              // language menus, so the two windows pick languages alike.
+              LanguageSelector(
+                sourceLanguage: _controller.sourceLanguage,
+                targetLanguage: _controller.targetLanguage,
+                detectedLanguage: detected,
+                commonLanguageCodes:
+                    settingsStore.general.commonLanguages.isNotEmpty
+                        ? settingsStore.general.commonLanguages
+                        : defaultCommonLanguages(),
+                onSourceChanged: _handleSourceChanged,
+                onTargetChanged: _handleTargetChanged,
+                onManageCommonLanguages: _handleManageCommonLanguages,
               ),
             ],
           ),
@@ -307,12 +335,16 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Focus(
             onKeyEvent: _handleKeyEvent,
             child: TextField(
               focusNode: _focusNode,
               controller: _textController,
+              // The block's own 22px inset is the text column; the field adds
+              // none of its own, so what you type starts under 原文 and lines
+              // up with the translation below.
+              padding: EdgeInsets.zero,
               placeholder: t.workbench.translation.input_hint_translate_to(
                 language: getLanguageName(_controller.targetLanguage),
               ),
@@ -329,7 +361,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               onSubmitted: (_) => _submit(),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           // 翻译 belongs to the box you type in, not to the empty result
           // block below it.
           Row(
@@ -544,6 +576,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                       ),
                       child: TextField(
                         controller: _draftController,
+                        // The box around it already carries the inset.
+                        padding: EdgeInsets.zero,
                         style: tokens.typography
                             .translationStyle(color: colors.fg),
                         minLines: 2,

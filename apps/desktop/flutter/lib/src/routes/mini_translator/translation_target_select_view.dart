@@ -1,110 +1,14 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart' hide Badge;
+import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../extensions/window_controller.dart';
 import '../../i18n/i18n.dart';
 import '../../utils/language_util.dart';
 import '../../widgets/icon_action_button.dart';
-import '../../widgets/ui.dart'
-    show
-        Badge,
-        BadgeTone,
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Pressable;
+import '../../widgets/language_selector.dart';
 import '../app_router.dart' show miniTranslatorWindowController;
-
-/// Opens a native context menu anchored near [buttonKey].
-void _openMenu(
-  GlobalKey buttonKey,
-  nativeapi.Menu menu, {
-  nativeapi.Placement placement = nativeapi.Placement.bottom,
-  double anchorX = 0.5,
-}) {
-  final renderBox = buttonKey.currentContext?.findRenderObject() as RenderBox?;
-  if (renderBox == null || !renderBox.hasSize) return;
-
-  final localPosition = renderBox.localToGlobal(Offset.zero);
-  final size = renderBox.size;
-  final anchorPosition = Offset(
-    localPosition.dx + size.width * anchorX,
-    localPosition.dy + size.height + 4,
-  );
-
-  menu.open(
-    nativeapi.PositioningStrategy.relativeToWindow(
-      miniTranslatorWindowController.window,
-      anchorPosition,
-    ),
-    placement,
-  );
-}
-
-/// Populates [menu] with common languages, a "more languages" submenu, and a
-/// "manage common languages" item.
-void _populateLanguageMenu(
-  nativeapi.Menu menu,
-  List<String> commonLanguageCodes,
-  String? selectedLanguage, {
-  required String Function(String) displayName,
-  required void Function(String) onSelected,
-  required VoidCallback onManageCommonLanguages,
-}) {
-  final common = getCommonLanguages(commonLanguageCodes);
-  final other = getOtherLanguages(commonLanguageCodes);
-
-  for (final lang in common) {
-    final item = nativeapi.MenuItem(
-      displayName(lang),
-      nativeapi.MenuItemType.checkbox,
-    );
-    item.state = lang == selectedLanguage
-        ? nativeapi.MenuItemState.checked
-        : nativeapi.MenuItemState.unchecked;
-    item.on<nativeapi.MenuItemClickedEvent>((_) {
-      onSelected(lang);
-    });
-    menu.addItem(item);
-  }
-
-  if (other.isNotEmpty) {
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
-
-    final moreMenu = nativeapi.Menu();
-    for (final lang in other) {
-      final item = nativeapi.MenuItem(
-        displayName(lang),
-        nativeapi.MenuItemType.checkbox,
-      );
-      item.state = lang == selectedLanguage
-          ? nativeapi.MenuItemState.checked
-          : nativeapi.MenuItemState.unchecked;
-      item.on<nativeapi.MenuItemClickedEvent>((_) {
-        onSelected(lang);
-      });
-      moreMenu.addItem(item);
-    }
-
-    final moreItem = nativeapi.MenuItem(
-      t.mini_translator.language.more_languages,
-      nativeapi.MenuItemType.submenu,
-    );
-    moreItem.submenu = moreMenu;
-    menu.addItem(moreItem);
-  }
-
-  menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
-  final manageItem = nativeapi.MenuItem(
-    t.mini_translator.language.manage_common_languages,
-    nativeapi.MenuItemType.normal,
-  );
-  manageItem.on<nativeapi.MenuItemClickedEvent>((_) {
-    onManageCommonLanguages();
-  });
-  menu.addItem(manageItem);
-}
 
 /// 顶部栏 — the deck's MiniTranslator chrome: the language capsule on the
 /// left (each end opens a native menu, matching the deck's target-language
@@ -152,64 +56,8 @@ class MiniTranslatorTopBar extends StatelessWidget {
   final VoidCallback onOpenWorkbench;
   final VoidCallback onOpenSettings;
 
-  // Keys for anchoring native menus
-  final GlobalKey _sourceButtonKey = GlobalKey();
-  final GlobalKey _targetButtonKey = GlobalKey();
+  // Key for anchoring the ⋯ menu; the capsule owns its own.
   final GlobalKey _moreButtonKey = GlobalKey();
-
-  void _showSourceMenu() {
-    final menu = nativeapi.Menu();
-
-    final autoItem = nativeapi.MenuItem(
-      t.mini_translator.language.auto_detect,
-      nativeapi.MenuItemType.checkbox,
-    );
-    autoItem.state = isAutoSource(sourceLanguage)
-        ? nativeapi.MenuItemState.checked
-        : nativeapi.MenuItemState.unchecked;
-    autoItem.on<nativeapi.MenuItemClickedEvent>((_) {
-      onSourceChanged(kAutoSource);
-    });
-    menu.addItem(autoItem);
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
-
-    _populateLanguageMenu(
-      menu,
-      commonLanguageCodes,
-      sourceLanguage,
-      displayName: (lang) => getLanguageName(lang, showNative: true),
-      onSelected: onSourceChanged,
-      onManageCommonLanguages: onManageCommonLanguages,
-    );
-    _openMenu(_sourceButtonKey, menu);
-  }
-
-  void _showTargetMenu() {
-    final menu = nativeapi.Menu();
-
-    final autoItem = nativeapi.MenuItem(
-      t.mini_translator.language.auto_match,
-      nativeapi.MenuItemType.checkbox,
-    );
-    autoItem.state = selectedTargetLanguage == null
-        ? nativeapi.MenuItemState.checked
-        : nativeapi.MenuItemState.unchecked;
-    autoItem.on<nativeapi.MenuItemClickedEvent>((_) {
-      onTargetLanguageChanged(null);
-    });
-    menu.addItem(autoItem);
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
-
-    _populateLanguageMenu(
-      menu,
-      commonLanguageCodes,
-      selectedTargetLanguage,
-      displayName: (lang) => getLanguageName(lang, showNative: true),
-      onSelected: onTargetLanguageChanged,
-      onManageCommonLanguages: onManageCommonLanguages,
-    );
-    _openMenu(_targetButtonKey, menu);
-  }
 
   /// The ⋯ menu — 取词 sources, window-level entries, and the 切换目标
   /// submenu that used to live behind its own options button.
@@ -250,8 +98,13 @@ class MiniTranslatorTopBar extends StatelessWidget {
     settingsItem.on<nativeapi.MenuItemClickedEvent>((_) => onOpenSettings());
     menu.addItem(settingsItem);
 
-    _openMenu(_moreButtonKey, menu,
-        placement: nativeapi.Placement.bottomEnd, anchorX: 1.0);
+    openNativeMenuBelow(
+      _moreButtonKey,
+      menu,
+      placement: nativeapi.Placement.bottomEnd,
+      anchorX: 1.0,
+      window: miniTranslatorWindowController.window,
+    );
   }
 
   nativeapi.MenuItem _buildConfigSubmenuItem() {
@@ -314,67 +167,23 @@ class MiniTranslatorTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final sourceName = getSourceDisplayName(sourceLanguage);
-    final targetName = selectedTargetLanguage == null
-        ? t.mini_translator.language.auto_match
-        : getLanguageName(selectedTargetLanguage!);
-    final isDetected =
-        detectedLanguage != null && !isAutoSource(sourceLanguage);
-    final canSwap = !isAutoSource(sourceLanguage);
-
     // Sits on the window's tray surface; the panel below provides the
     // separation, so the bar carries no border of its own.
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
       child: Row(
         children: [
-          // The language capsule, shaped like the design system's SwapPair —
-          // but each end opens a native menu, so the labels are pressable.
-          Container(
-            // 30px tall, and the chips' own 8px inset lands the label 11px
-            // from the capsule edge, as in the deck.
-            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
-            decoration: BoxDecoration(
-              color: colors.control,
-              borderRadius: BorderRadius.circular(tokens.radii.control),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LanguageChip(
-                  key: _sourceButtonKey,
-                  label: sourceName,
-                  onPressed: _showSourceMenu,
-                ),
-                const SizedBox(width: 8),
-                _SwapButton(
-                  onPressed: !canSwap
-                      ? null
-                      : () {
-                          onSourceChanged(
-                            selectedTargetLanguage ?? defaultTargetLanguage,
-                          );
-                          onTargetLanguageChanged(sourceLanguage);
-                        },
-                ),
-                const SizedBox(width: 8),
-                _LanguageChip(
-                  key: _targetButtonKey,
-                  label: targetName,
-                  onPressed: _showTargetMenu,
-                ),
-              ],
-            ),
+          LanguageSelector(
+            sourceLanguage: sourceLanguage,
+            targetLanguage: selectedTargetLanguage,
+            detectedLanguage: detectedLanguage,
+            commonLanguageCodes: commonLanguageCodes,
+            allowAutoTarget: true,
+            window: miniTranslatorWindowController.window,
+            onSourceChanged: onSourceChanged,
+            onTargetChanged: onTargetLanguageChanged,
+            onManageCommonLanguages: onManageCommonLanguages,
           ),
-          if (isDetected) ...[
-            const SizedBox(width: 8),
-            Badge(
-              tone: BadgeTone.accent,
-              child: Text(getLanguageName(detectedLanguage!)),
-            ),
-          ],
           const Spacer(),
           IconActionButton(
             key: _moreButtonKey,
@@ -393,91 +202,6 @@ class MiniTranslatorTopBar extends StatelessWidget {
             onPressed: onTogglePin,
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// One end of the language capsule: a label with a disclosure chevron.
-class _LanguageChip extends StatelessWidget {
-  const _LanguageChip({super.key, required this.label, this.onPressed});
-
-  final String label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.chip);
-
-    return Pressable(
-      onPressed: onPressed,
-      borderRadius: radius,
-      semanticsLabel: label,
-      builder: (context, state) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: state.hovered ? colors.window : null,
-          borderRadius: radius,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: tokens.typography.sansStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                height: 1,
-                color: colors.fg,
-              ),
-            ),
-            const SizedBox(width: 3),
-            Icon(
-              FluentIcons.chevron_down_20_regular,
-              size: 11,
-              color: colors.fgTertiary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The capsule's centre swap control, matching SwapPair's raised square.
-class _SwapButton extends StatelessWidget {
-  const _SwapButton({this.onPressed});
-
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.chip);
-
-    return Pressable(
-      onPressed: onPressed,
-      enabled: onPressed != null,
-      borderRadius: radius,
-      semanticsLabel: '交换语言',
-      builder: (context, state) => Container(
-        width: 20,
-        height: 20,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: colors.window,
-          borderRadius: radius,
-        ),
-        child: Icon(
-          FluentIcons.arrow_swap_20_regular,
-          size: 13,
-          color: onPressed == null
-              ? colors.fgFaint
-              : (state.hovered ? colors.fg : colors.fgTertiary),
-        ),
       ),
     );
   }

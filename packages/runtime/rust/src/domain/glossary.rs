@@ -209,11 +209,17 @@ impl GlossaryStore {
 
         if dir.is_dir() {
             let listing = fs::read_dir(&dir).map_err(|error| {
-                format!("failed to read glossary directory `{}`: {error}", dir.display())
+                format!(
+                    "failed to read glossary directory `{}`: {error}",
+                    dir.display()
+                )
             })?;
             for entry in listing {
                 let entry = entry.map_err(|error| {
-                    format!("failed to read glossary directory `{}`: {error}", dir.display())
+                    format!(
+                        "failed to read glossary directory `{}`: {error}",
+                        dir.display()
+                    )
                 })?;
                 let path = entry.path();
                 if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
@@ -259,7 +265,12 @@ impl GlossaryStore {
         let target_language = normalize_optional(input.target_language);
         let now = now_secs();
 
-        let book_id = match input.id.as_deref().map(str::trim).filter(|id| !id.is_empty()) {
+        let book_id = match input
+            .id
+            .as_deref()
+            .map(str::trim)
+            .filter(|id| !id.is_empty())
+        {
             Some(id) => {
                 validate_book_id(id)?;
                 let book = self
@@ -309,7 +320,10 @@ impl GlossaryStore {
         let path = self.book_path(book_id);
         if path.exists() {
             fs::remove_file(&path).map_err(|error| {
-                format!("failed to delete glossary book `{}`: {error}", path.display())
+                format!(
+                    "failed to delete glossary book `{}`: {error}",
+                    path.display()
+                )
             })?;
         }
         Ok(true)
@@ -417,7 +431,12 @@ impl GlossaryStore {
             .find(|entry| entry.term.eq_ignore_ascii_case(&term))
             .map(|entry| entry.id.clone());
 
-        let entry_id = match input.id.as_deref().map(str::trim).filter(|id| !id.is_empty()) {
+        let entry_id = match input
+            .id
+            .as_deref()
+            .map(str::trim)
+            .filter(|id| !id.is_empty())
+        {
             Some(id) => {
                 if existing_by_term.as_deref().is_some_and(|other| other != id) {
                     return Err(format!("term `{term}` already exists in this book"));
@@ -564,7 +583,11 @@ impl GlossaryStore {
             let Some(book) = self.books.get_mut(&hit.book_id) else {
                 continue;
             };
-            let Some(entry) = book.entries.iter_mut().find(|entry| entry.id == hit.entry_id) else {
+            let Some(entry) = book
+                .entries
+                .iter_mut()
+                .find(|entry| entry.id == hit.entry_id)
+            else {
                 continue;
             };
             entry.hits = entry.hits.saturating_add(1);
@@ -617,7 +640,10 @@ impl GlossaryStore {
         let content = serde_json::to_string_pretty(book)
             .map_err(|error| format!("failed to encode glossary book `{}`: {error}", book.id))?;
         fs::write(&path, content).map_err(|error| {
-            format!("failed to write glossary book `{}`: {error}", path.display())
+            format!(
+                "failed to write glossary book `{}`: {error}",
+                path.display()
+            )
         })
     }
 
@@ -780,7 +806,8 @@ impl CompiledMatcher {
         {
             for found in automaton.automaton.find_iter(text) {
                 let info = &automaton.infos[found.pattern().as_usize()];
-                if info.whole_word && !is_word_boundary(text, found.start(), found.end(), &info.term)
+                if info.whole_word
+                    && !is_word_boundary(text, found.start(), found.end(), &info.term)
                 {
                     continue;
                 }
@@ -819,7 +846,11 @@ impl CompiledMatcher {
 fn is_word_boundary(text: &str, start: usize, end: usize, term: &str) -> bool {
     let is_word_char = |c: char| c.is_ascii_alphanumeric() || c == '_';
 
-    if term.chars().next().is_some_and(|c| c.is_ascii_alphanumeric()) {
+    if term
+        .chars()
+        .next()
+        .is_some_and(|c| c.is_ascii_alphanumeric())
+    {
         if let Some(prev) = text[..start].chars().next_back() {
             if is_word_char(prev) {
                 return false;
@@ -859,10 +890,7 @@ fn language_applies(book: Option<&str>, request: Option<&str>) -> bool {
 
 /// `zh-Hans` and `zh` are the same language for glossary purposes.
 fn primary_subtag(language: &str) -> &str {
-    language
-        .split(['-', '_'])
-        .next()
-        .unwrap_or(language)
+    language.split(['-', '_']).next().unwrap_or(language)
 }
 
 fn normalize_language(language: Option<&str>) -> Option<String> {
@@ -1004,7 +1032,9 @@ mod tests {
         let dir = temp_data_dir();
         let book_id = {
             let mut store = GlossaryStore::load(&dir).expect("failed to load glossary");
-            let book = store.upsert_book(book_input("机器学习")).expect("upsert book");
+            let book = store
+                .upsert_book(book_input("机器学习"))
+                .expect("upsert book");
             store
                 .upsert_entry(&book.id, entry_input("token", "词元"))
                 .expect("upsert entry");
@@ -1061,13 +1091,19 @@ mod tests {
         let mut input = entry_input("token", "词元");
         input.id = Some(embedding.id.clone());
         let error = store.upsert_entry(&book_id, input).unwrap_err();
-        assert!(error.contains("already exists"), "unexpected error: {error}");
+        assert!(
+            error.contains("already exists"),
+            "unexpected error: {error}"
+        );
     }
 
     #[test]
     fn list_entries_filters_by_query_and_paginates() {
-        let (store, book_id) =
-            store_with_terms(&[("token", "词元"), ("embedding", "嵌入"), ("prompt", "提示词")]);
+        let (store, book_id) = store_with_terms(&[
+            ("token", "词元"),
+            ("embedding", "嵌入"),
+            ("prompt", "提示词"),
+        ]);
 
         let filtered = store
             .list_entries(&book_id, Some("嵌入"), 0, 0)
@@ -1077,7 +1113,10 @@ mod tests {
 
         assert_eq!(store.count_entries(&book_id, None).expect("count"), 3);
         assert_eq!(
-            store.list_entries(&book_id, None, 1, 1).expect("page").len(),
+            store
+                .list_entries(&book_id, None, 1, 1)
+                .expect("page")
+                .len(),
             1
         );
         assert!(store
@@ -1154,7 +1193,9 @@ mod tests {
         assert_eq!(store.match_text("token", Some("en"), Some("zh")).len(), 1);
         assert_eq!(store.match_text("token", None, None).len(), 1);
         assert_eq!(
-            store.match_text("token", Some("auto"), Some("zh-Hans")).len(),
+            store
+                .match_text("token", Some("auto"), Some("zh-Hans"))
+                .len(),
             1
         );
         // A different target language does not.
@@ -1194,7 +1235,9 @@ mod tests {
     #[test]
     fn compliance_reports_missing_and_forbidden_translations() {
         let mut store = GlossaryStore::load(temp_data_dir()).expect("failed to load glossary");
-        let book = store.upsert_book(book_input("机器学习")).expect("upsert book");
+        let book = store
+            .upsert_book(book_input("机器学习"))
+            .expect("upsert book");
         let mut input = entry_input("token", "词元");
         input.forbidden = vec!["标记".to_owned(), "令牌".to_owned()];
         store.upsert_entry(&book.id, input).expect("upsert entry");
@@ -1233,7 +1276,9 @@ mod tests {
         let dir = temp_data_dir();
         let book_id = {
             let mut store = GlossaryStore::load(&dir).expect("failed to load glossary");
-            let book = store.upsert_book(book_input("机器学习")).expect("upsert book");
+            let book = store
+                .upsert_book(book_input("机器学习"))
+                .expect("upsert book");
             store
                 .upsert_entry(&book.id, entry_input("token", "词元"))
                 .expect("upsert entry");

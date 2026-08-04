@@ -4,18 +4,44 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["anthropic", "baidu", "caiyun", "deepl", "google", "ollama", "openai", "tencent", "xai", "youdao"]
+default = [
+    "anthropic",
+    "baidu",
+    "caiyun",
+    "deepl",
+    "deepseek",
+    "doubao",
+    "gemini",
+    "google",
+    "groq",
+    "moonshot",
+    "ollama",
+    "openai",
+    "openai-compatible",
+    "qwen",
+    "tencent",
+    "xai",
+    "youdao",
+    "zhipu",
+]
 anthropic = []
 baidu = []
 caiyun = []
 deepl = []
+deepseek = []
+doubao = []
+gemini = []
 google = []
-
+groq = []
+moonshot = []
 ollama = []
 openai = []
+openai-compatible = []
+qwen = []
 tencent = []
 xai = []
 youdao = []
+zhipu = []
 
 [dependencies]
 beyondtranslate-core = { path = "../core" }
