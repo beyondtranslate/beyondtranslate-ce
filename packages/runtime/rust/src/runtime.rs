@@ -19,7 +19,6 @@ use crate::domain::glossary::{
     GlossaryEntryInput, GlossaryMatch, GlossaryStore,
 };
 use crate::domain::permission;
-use beyondtranslate_engine::prompt::GlossaryTerm;
 use crate::domain::settings::{
     provider_entry_from_config, AdvancedSettings, AdvancedSettingsPatch, AppearanceSettings,
     AppearanceSettingsPatch, GeneralSettings, GeneralSettingsPatch, ProviderConfigEntry,
@@ -28,6 +27,7 @@ use crate::domain::settings::{
 use crate::domain::text_extractor;
 use crate::RuntimeApiServer;
 use beyondtranslate_core::TranslationTarget;
+use beyondtranslate_engine::prompt::GlossaryTerm;
 
 /// Error type returned by all uniffi-exported Runtime methods.
 #[derive(Debug, thiserror::Error, uniffi::Error)]
@@ -1178,7 +1178,11 @@ impl RuntimeGlossary {
     ) -> Result<Vec<GlossaryMatch>, RuntimeError> {
         Ok(self
             .runtime
-            .glossary_matches(&text, source_language.as_deref(), target_language.as_deref())
+            .glossary_matches(
+                &text,
+                source_language.as_deref(),
+                target_language.as_deref(),
+            )
             .await)
     }
 
@@ -1732,13 +1736,7 @@ impl RuntimeLlm {
                     .ok_or_else(|| "llm default model must be configured".to_owned())?;
                 let terms = glossary_terms(&matches);
                 let system_prompt = if let Some(system_prompt) = resolved.field("systemPrompt") {
-                    render_prompt_template(
-                        system_prompt,
-                        &source_lang,
-                        &target_lang,
-                        &text,
-                        &terms,
-                    )
+                    render_prompt_template(system_prompt, &source_lang, &target_lang, &text, &terms)
                 } else {
                     beyondtranslate_engine::prompt::translate_text_system_prompt(
                         &source_lang,

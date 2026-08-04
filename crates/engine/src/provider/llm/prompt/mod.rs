@@ -42,7 +42,10 @@ pub fn glossary_constraints(terms: &[GlossaryTerm]) -> Option<String> {
         if !seen.insert(term.term.as_str()) {
             continue;
         }
-        let mut line = format!("- \"{}\" MUST be translated as \"{}\"", term.term, term.translation);
+        let mut line = format!(
+            "- \"{}\" MUST be translated as \"{}\"",
+            term.term, term.translation
+        );
         if !term.forbidden.is_empty() {
             line.push_str(&format!(". Never use: {}", term.forbidden.join(", ")));
         }
@@ -191,11 +194,8 @@ mod tests {
 
     #[test]
     fn a_term_matched_repeatedly_is_only_stated_once() {
-        let block = glossary_constraints(&[
-            term("token", "词元", &[]),
-            term("token", "词元", &[]),
-        ])
-        .expect("expected a constraint block");
+        let block = glossary_constraints(&[term("token", "词元", &[]), term("token", "词元", &[])])
+            .expect("expected a constraint block");
 
         assert_eq!(block.matches("\"token\"").count(), 1);
     }

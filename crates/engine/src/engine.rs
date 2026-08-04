@@ -12,37 +12,34 @@ use serde::{Deserialize, Serialize};
 use serde_yaml::{Mapping, Value};
 use thiserror::Error;
 
-#[cfg(feature = "anthropic")]
-use crate::provider::llm::AnthropicProvider;
-use crate::provider::llm::AnthropicProviderConfig;
-#[cfg(feature = "ollama")]
-use crate::provider::llm::OllamaProvider;
-use crate::provider::llm::OllamaProviderConfig;
-#[cfg(feature = "openai")]
-use crate::provider::llm::OpenAiProvider;
-use crate::provider::llm::OpenAiProviderConfig;
-#[cfg(feature = "xai")]
-use crate::provider::llm::XAiProvider;
-use crate::provider::llm::XAiProviderConfig;
 #[cfg(feature = "baidu")]
-use crate::provider::BaiduProvider;
-use crate::provider::BaiduProviderConfig;
+use crate::provider::traditional::BaiduProvider;
+use crate::provider::traditional::BaiduProviderConfig;
 #[cfg(feature = "caiyun")]
-use crate::provider::CaiyunProvider;
-use crate::provider::CaiyunProviderConfig;
-use crate::provider::DeepLProvider;
-use crate::provider::DeepLProviderConfig;
+use crate::provider::traditional::CaiyunProvider;
+use crate::provider::traditional::CaiyunProviderConfig;
+use crate::provider::traditional::DeepLProvider;
+use crate::provider::traditional::DeepLProviderConfig;
 #[cfg(feature = "google")]
-use crate::provider::GoogleProvider;
-use crate::provider::GoogleProviderConfig;
+use crate::provider::traditional::GoogleProvider;
+use crate::provider::traditional::GoogleProviderConfig;
+#[cfg(feature = "anthropic")]
+use crate::provider::AnthropicProvider;
+use crate::provider::AnthropicProviderConfig;
+#[cfg(feature = "ollama")]
+use crate::provider::OllamaProvider;
+use crate::provider::OllamaProviderConfig;
+use crate::provider::OpenAiCompatibleProviderConfig;
+#[allow(unused_imports)]
+use crate::provider::{specs, OpenAiCompatibleProvider};
 
-use crate::provider::SystemProvider;
+use crate::provider::traditional::SystemProvider;
 #[cfg(feature = "tencent")]
-use crate::provider::TencentProvider;
-use crate::provider::TencentProviderConfig;
+use crate::provider::traditional::TencentProvider;
+use crate::provider::traditional::TencentProviderConfig;
 #[cfg(feature = "youdao")]
-use crate::provider::YoudaoProvider;
-use crate::provider::YoudaoProviderConfig;
+use crate::provider::traditional::YoudaoProvider;
+use crate::provider::traditional::YoudaoProviderConfig;
 
 // ── Error ─────────────────────────────────────────────────────────────────────
 
@@ -174,6 +171,22 @@ pub enum ProviderType {
     Ollama,
     #[serde(rename = "xai")]
     XAi,
+    #[serde(rename = "deepseek")]
+    DeepSeek,
+    #[serde(rename = "qwen")]
+    Qwen,
+    #[serde(rename = "zhipu")]
+    Zhipu,
+    #[serde(rename = "moonshot")]
+    Moonshot,
+    #[serde(rename = "doubao")]
+    Doubao,
+    #[serde(rename = "groq")]
+    Groq,
+    #[serde(rename = "gemini")]
+    Gemini,
+    #[serde(rename = "openai_compatible")]
+    OpenAiCompatible,
     #[serde(rename = "system")]
     System,
 }
@@ -192,6 +205,14 @@ impl ProviderType {
             Self::OpenAi => "openai",
             Self::Ollama => "ollama",
             Self::XAi => "xai",
+            Self::DeepSeek => "deepseek",
+            Self::Qwen => "qwen",
+            Self::Zhipu => "zhipu",
+            Self::Moonshot => "moonshot",
+            Self::Doubao => "doubao",
+            Self::Groq => "groq",
+            Self::Gemini => "gemini",
+            Self::OpenAiCompatible => "openai_compatible",
             Self::System => "system",
         }
     }
@@ -264,9 +285,60 @@ fn build_provider(
         ProviderType::OpenAi => build_openai_provider(provider_id, config.decode(provider_id)?),
         ProviderType::Ollama => build_ollama_provider(provider_id, config.decode(provider_id)?),
         ProviderType::XAi => build_xai_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::DeepSeek => build_deepseek_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::Qwen => build_qwen_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::Zhipu => build_zhipu_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::Moonshot => build_moonshot_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::Doubao => build_doubao_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::Groq => build_groq_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::Gemini => build_gemini_provider(provider_id, config.decode(provider_id)?),
+        ProviderType::OpenAiCompatible => {
+            build_openai_compatible_provider(provider_id, config.decode(provider_id)?)
+        }
         ProviderType::System => build_system_provider(provider_id),
     }
 }
+
+macro_rules! build_openai_compatible_provider_fn {
+    ($fn_name:ident, $feature:literal, $spec:expr) => {
+        #[cfg(feature = $feature)]
+        fn $fn_name(
+            provider_id: &str,
+            config: OpenAiCompatibleProviderConfig,
+        ) -> Result<Arc<dyn Provider>, EngineError> {
+            let provider = OpenAiCompatibleProvider::new(&$spec, config).map_err(|reason| {
+                EngineError::ConfigValidationFailed {
+                    provider: provider_id.to_owned(),
+                    reason,
+                }
+            })?;
+            Ok(Arc::new(provider))
+        }
+
+        #[cfg(not(feature = $feature))]
+        fn $fn_name(
+            provider_id: &str,
+            _config: OpenAiCompatibleProviderConfig,
+        ) -> Result<Arc<dyn Provider>, EngineError> {
+            Err(EngineError::ProviderNotEnabled(provider_id.to_owned()))
+        }
+    };
+}
+
+build_openai_compatible_provider_fn!(build_openai_provider, "openai", specs::OPENAI);
+build_openai_compatible_provider_fn!(build_xai_provider, "xai", specs::XAI);
+build_openai_compatible_provider_fn!(build_deepseek_provider, "deepseek", specs::DEEPSEEK);
+build_openai_compatible_provider_fn!(build_qwen_provider, "qwen", specs::QWEN);
+build_openai_compatible_provider_fn!(build_zhipu_provider, "zhipu", specs::ZHIPU);
+build_openai_compatible_provider_fn!(build_moonshot_provider, "moonshot", specs::MOONSHOT);
+build_openai_compatible_provider_fn!(build_doubao_provider, "doubao", specs::DOUBAO);
+build_openai_compatible_provider_fn!(build_groq_provider, "groq", specs::GROQ);
+build_openai_compatible_provider_fn!(build_gemini_provider, "gemini", specs::GEMINI);
+build_openai_compatible_provider_fn!(
+    build_openai_compatible_provider,
+    "openai-compatible",
+    specs::OPENAI_COMPATIBLE
+);
 
 build_provider_fn!(
     build_baidu_provider,
@@ -305,35 +377,12 @@ build_provider_fn!(
     YoudaoProvider,
     YoudaoProviderConfig
 );
-build_provider_fn!(build_xai_provider, "xai", XAiProvider, XAiProviderConfig);
-
 fn build_system_provider(provider_id: &str) -> Result<Arc<dyn Provider>, EngineError> {
     let provider = SystemProvider::new().map_err(|reason| EngineError::ConfigValidationFailed {
         provider: provider_id.to_owned(),
         reason,
     })?;
     Ok(Arc::new(provider))
-}
-
-#[cfg(feature = "openai")]
-fn build_openai_provider(
-    provider_id: &str,
-    config: OpenAiProviderConfig,
-) -> Result<Arc<dyn Provider>, EngineError> {
-    let provider =
-        OpenAiProvider::new(config).map_err(|reason| EngineError::ConfigValidationFailed {
-            provider: provider_id.to_owned(),
-            reason,
-        })?;
-    Ok(Arc::new(provider))
-}
-
-#[cfg(not(feature = "openai"))]
-fn build_openai_provider(
-    provider_id: &str,
-    _config: OpenAiProviderConfig,
-) -> Result<Arc<dyn Provider>, EngineError> {
-    Err(EngineError::ProviderNotEnabled(provider_id.to_owned()))
 }
 
 #[cfg(feature = "anthropic")]

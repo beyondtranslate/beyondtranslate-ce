@@ -545,9 +545,8 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
             style: tokens.typography.sansStyle(
               fontSize: 11,
               height: 1,
-              color: error == null
-                  ? tokens.colors.fgSubtle
-                  : tokens.colors.danger,
+              color:
+                  error == null ? tokens.colors.fgSubtle : tokens.colors.danger,
             ),
           ),
         ),

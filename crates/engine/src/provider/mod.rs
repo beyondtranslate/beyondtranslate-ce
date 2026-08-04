@@ -1,29 +1,19 @@
-pub mod baidu;
-pub mod caiyun;
-pub mod deepl;
-pub mod google;
+//! Translation providers.
+//!
+//! LLM providers ([`llm`]) are the primary translation path; traditional
+//! API-based providers live under [`traditional`].
 
 pub mod llm;
-pub mod system;
-pub mod tencent;
-pub mod youdao;
+pub mod traditional;
 
-#[cfg(feature = "baidu")]
-pub use baidu::BaiduProvider;
-pub use baidu::BaiduProviderConfig;
-#[cfg(feature = "caiyun")]
-pub use caiyun::CaiyunProvider;
-pub use caiyun::CaiyunProviderConfig;
-pub use deepl::{DeepLProvider, DeepLProviderConfig};
-#[cfg(feature = "google")]
-pub use google::GoogleProvider;
-pub use google::GoogleProviderConfig;
-
-pub use system::SystemProvider;
-pub use system::SystemTranslationService;
-#[cfg(feature = "tencent")]
-pub use tencent::TencentProvider;
-pub use tencent::TencentProviderConfig;
-#[cfg(feature = "youdao")]
-pub use youdao::YoudaoProvider;
-pub use youdao::YoudaoProviderConfig;
+pub use llm::prompt;
+#[cfg(feature = "anthropic")]
+pub use llm::AnthropicProvider;
+pub use llm::AnthropicProviderConfig;
+#[cfg(feature = "ollama")]
+pub use llm::OllamaProvider;
+pub use llm::OllamaProviderConfig;
+pub use llm::{
+    specs, OpenAiCompatibleProvider, OpenAiCompatibleProviderConfig, OpenAiCompatibleSpec,
+    OpenAiProviderConfig, XAiProviderConfig,
+};

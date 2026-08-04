@@ -502,10 +502,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
 
   List<ProviderConfigEntry> get _aiProviders {
     return settingsStore.providers
-        .where((provider) =>
-            provider.type == ProviderType.openAi ||
-            provider.type == ProviderType.anthropic ||
-            provider.type == ProviderType.ollama)
+        .where((provider) => _isLlmProviderType(provider.type))
         .toList();
   }
 
@@ -694,13 +691,21 @@ class _ProviderEditorDialogState extends State<_ProviderEditorDialog> {
     ProviderType.baidu,
     ProviderType.caiyun,
     ProviderType.deepL,
+    ProviderType.deepSeek,
+    ProviderType.doubao,
+    ProviderType.gemini,
     ProviderType.google,
+    ProviderType.groq,
+    ProviderType.moonshot,
     ProviderType.openAi,
+    ProviderType.openAiCompatible,
     ProviderType.ollama,
+    ProviderType.qwen,
     ProviderType.system,
     ProviderType.tencent,
     ProviderType.xAi,
     ProviderType.youdao,
+    ProviderType.zhipu,
   ];
 
   // Known field keys for each provider type. This intentionally mirrors the
@@ -714,6 +719,14 @@ class _ProviderEditorDialogState extends State<_ProviderEditorDialog> {
     ProviderType.openAi: ['apiKey', 'baseUrl', 'defaultModel'],
     ProviderType.ollama: ['baseUrl', 'defaultModel'],
     ProviderType.xAi: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.deepSeek: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.qwen: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.zhipu: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.moonshot: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.doubao: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.groq: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.gemini: ['apiKey', 'baseUrl', 'defaultModel'],
+    ProviderType.openAiCompatible: ['apiKey', 'baseUrl', 'defaultModel'],
     ProviderType.system: [],
     ProviderType.tencent: ['secretId', 'secretKey'],
     ProviderType.youdao: ['appKey', 'appSecret'],
@@ -872,6 +885,32 @@ class _ProviderEditorDialogState extends State<_ProviderEditorDialog> {
   }
 }
 
+bool _isLlmProviderType(ProviderType type) {
+  switch (type) {
+    case ProviderType.anthropic:
+    case ProviderType.openAi:
+    case ProviderType.ollama:
+    case ProviderType.xAi:
+    case ProviderType.deepSeek:
+    case ProviderType.qwen:
+    case ProviderType.zhipu:
+    case ProviderType.moonshot:
+    case ProviderType.doubao:
+    case ProviderType.groq:
+    case ProviderType.gemini:
+    case ProviderType.openAiCompatible:
+      return true;
+    case ProviderType.baidu:
+    case ProviderType.caiyun:
+    case ProviderType.deepL:
+    case ProviderType.google:
+    case ProviderType.system:
+    case ProviderType.tencent:
+    case ProviderType.youdao:
+      return false;
+  }
+}
+
 String _providerTypeValue(ProviderType type) {
   switch (type) {
     case ProviderType.anthropic:
@@ -890,6 +929,22 @@ String _providerTypeValue(ProviderType type) {
       return 'ollama';
     case ProviderType.xAi:
       return 'xai';
+    case ProviderType.deepSeek:
+      return 'deepseek';
+    case ProviderType.qwen:
+      return 'qwen';
+    case ProviderType.zhipu:
+      return 'zhipu';
+    case ProviderType.moonshot:
+      return 'moonshot';
+    case ProviderType.doubao:
+      return 'doubao';
+    case ProviderType.groq:
+      return 'groq';
+    case ProviderType.gemini:
+      return 'gemini';
+    case ProviderType.openAiCompatible:
+      return 'openai_compatible';
     case ProviderType.system:
       return 'system';
     case ProviderType.tencent:
@@ -917,6 +972,22 @@ String _providerTypeDisplayName(ProviderType type) {
       return t.common.provider.ollama;
     case ProviderType.xAi:
       return t.common.provider.xai;
+    case ProviderType.deepSeek:
+      return 'DeepSeek';
+    case ProviderType.qwen:
+      return 'Qwen';
+    case ProviderType.zhipu:
+      return 'Zhipu GLM';
+    case ProviderType.moonshot:
+      return 'Moonshot Kimi';
+    case ProviderType.doubao:
+      return 'Doubao';
+    case ProviderType.groq:
+      return 'Groq';
+    case ProviderType.gemini:
+      return 'Gemini';
+    case ProviderType.openAiCompatible:
+      return 'OpenAI Compatible';
     case ProviderType.system:
       return t.common.provider.system;
     case ProviderType.tencent:

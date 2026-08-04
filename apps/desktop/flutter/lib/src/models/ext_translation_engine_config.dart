@@ -19,6 +19,22 @@ String getTranslationEngineTypeName(String type) {
       return 'OpenAI';
     case 'xai':
       return 'xAI';
+    case 'deepseek':
+      return 'DeepSeek';
+    case 'qwen':
+      return 'Qwen';
+    case 'zhipu':
+      return 'Zhipu GLM';
+    case 'moonshot':
+      return 'Moonshot Kimi';
+    case 'doubao':
+      return 'Doubao';
+    case 'groq':
+      return 'Groq';
+    case 'gemini':
+      return 'Gemini';
+    case 'openai_compatible':
+      return 'OpenAI Compatible';
     case 'sogou':
       return t.common.provider.sogou;
     case 'tencent':

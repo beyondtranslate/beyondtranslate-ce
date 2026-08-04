@@ -3827,6 +3827,14 @@ enum ProviderType {
   ollama,
   tencent,
   xAi,
+  deepSeek,
+  qwen,
+  zhipu,
+  moonshot,
+  doubao,
+  groq,
+  gemini,
+  openAiCompatible,
   youdao,
   system,
   ;
@@ -3883,10 +3891,50 @@ class FfiConverterProviderType {
         );
       case 10:
         return LiftRetVal(
-          ProviderType.youdao,
+          ProviderType.deepSeek,
           4,
         );
       case 11:
+        return LiftRetVal(
+          ProviderType.qwen,
+          4,
+        );
+      case 12:
+        return LiftRetVal(
+          ProviderType.zhipu,
+          4,
+        );
+      case 13:
+        return LiftRetVal(
+          ProviderType.moonshot,
+          4,
+        );
+      case 14:
+        return LiftRetVal(
+          ProviderType.doubao,
+          4,
+        );
+      case 15:
+        return LiftRetVal(
+          ProviderType.groq,
+          4,
+        );
+      case 16:
+        return LiftRetVal(
+          ProviderType.gemini,
+          4,
+        );
+      case 17:
+        return LiftRetVal(
+          ProviderType.openAiCompatible,
+          4,
+        );
+      case 18:
+        return LiftRetVal(
+          ProviderType.youdao,
+          4,
+        );
+      case 19:
         return LiftRetVal(
           ProviderType.system,
           4,
