@@ -361,8 +361,15 @@
         "available_services": "可用服务"
       },
       "editor": {
-        "coming_soon": "🚧 即将推出",
-        "coming_soon_description": "服务配置尚不可用。您可以在提供商标签页中管理服务提供商。"
+        "title": "添加服务",
+        "subtitle": "为已配置的提供商新增一项服务",
+        "row": {
+          "model": "模型",
+          "system_prompt": "系统提示词"
+        },
+        "prompt_placeholder": "留空则使用该类型的默认提示词",
+        "variant_hint": "{} 已有一项{}服务，这条会作为并列的另一份配置。",
+        "traditional_note": "{} 是传统接口，没有模型与提示词可调；服务参数在提供商详情里配置。"
       },
       "detail": {
         "row": {

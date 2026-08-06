@@ -361,8 +361,15 @@
         "available_services": "사용 가능한 서비스"
       },
       "editor": {
-        "coming_soon": "🚧 곧 출시 예정",
-        "coming_soon_description": "서비스 구성이 아직 제공되지 않습니다. 제공자 탭에서 서비스 제공자를 관리할 수 있습니다."
+        "title": "서비스 추가",
+        "subtitle": "구성된 제공자에 서비스를 하나 더 추가합니다",
+        "row": {
+          "model": "모델",
+          "system_prompt": "시스템 프롬프트"
+        },
+        "prompt_placeholder": "비워 두면 이 유형의 기본 프롬프트를 사용합니다",
+        "variant_hint": "{}에 이미 {} 서비스가 있습니다. 이 서비스는 별도의 구성으로 나란히 추가됩니다.",
+        "traditional_note": "{}은(는) 전통적인 인터페이스라 조정할 모델이나 프롬프트가 없습니다. 매개변수는 제공자 상세 페이지에서 설정합니다."
       },
       "detail": {
         "row": {

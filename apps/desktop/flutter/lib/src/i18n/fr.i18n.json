@@ -361,8 +361,15 @@
         "available_services": "Services disponibles"
       },
       "editor": {
-        "coming_soon": "🚧 Prochainement",
-        "coming_soon_description": "La configuration du service n'est pas encore disponible. Vous pouvez gérer les fournisseurs de services depuis l'onglet fournisseurs."
+        "title": "Ajouter un service",
+        "subtitle": "Ajoutez un service à un fournisseur déjà configuré",
+        "row": {
+          "model": "Modèle",
+          "system_prompt": "Prompt système"
+        },
+        "prompt_placeholder": "Laissez vide pour utiliser le prompt par défaut de ce type",
+        "variant_hint": "{} a déjà un service de {} ; celui-ci vient s’y ajouter comme seconde configuration.",
+        "traditional_note": "{} est une interface traditionnelle : ni modèle ni prompt à régler. Ses paramètres se trouvent sur la page de détail du fournisseur."
       },
       "detail": {
         "row": {

@@ -1429,10 +1429,19 @@ class _TranslationsSettingsServicesEditorJa
 
   // Translations
   @override
-  String get coming_soon => '🚧 近日公開';
+  String get title => 'サービスを追加';
   @override
-  String get coming_soon_description =>
-      'サービスの設定はまだ利用できません。プロバイダータブからサービスプロバイダーを管理できます。';
+  String get subtitle => '設定済みのプロバイダーにサービスを追加します';
+  @override
+  late final _TranslationsSettingsServicesEditorRowJa row =
+      _TranslationsSettingsServicesEditorRowJa._(_root);
+  @override
+  String get prompt_placeholder => '空欄にすると、この種類の既定プロンプトを使います';
+  @override
+  String get variant_hint => '{} にはすでに{}サービスがあります。これは並列の別設定として追加されます。';
+  @override
+  String get traditional_note =>
+      '{} は従来型のインターフェースで、調整できるモデルやプロンプトはありません。パラメーターはプロバイダー詳細で設定します。';
 }
 
 // Path: settings.services.detail
@@ -1697,6 +1706,22 @@ class _TranslationsSettingsGeneralEditorRowJa
   String get source_language => 'ソース言語';
   @override
   String get target_language => 'ターゲット言語';
+}
+
+// Path: settings.services.editor.row
+class _TranslationsSettingsServicesEditorRowJa
+    extends TranslationsSettingsServicesEditorRowEn {
+  _TranslationsSettingsServicesEditorRowJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get model => 'モデル';
+  @override
+  String get system_prompt => 'システムプロンプト';
 }
 
 // Path: settings.services.detail.row
@@ -2236,9 +2261,16 @@ extension on TranslationsJa {
       'settings.services.title' => 'サービス',
       'settings.services.button.add_service' => 'サービスを追加...',
       'settings.services.section.available_services' => '利用可能なサービス',
-      'settings.services.editor.coming_soon' => '🚧 近日公開',
-      'settings.services.editor.coming_soon_description' =>
-        'サービスの設定はまだ利用できません。プロバイダータブからサービスプロバイダーを管理できます。',
+      'settings.services.editor.title' => 'サービスを追加',
+      'settings.services.editor.subtitle' => '設定済みのプロバイダーにサービスを追加します',
+      'settings.services.editor.row.model' => 'モデル',
+      'settings.services.editor.row.system_prompt' => 'システムプロンプト',
+      'settings.services.editor.prompt_placeholder' =>
+        '空欄にすると、この種類の既定プロンプトを使います',
+      'settings.services.editor.variant_hint' =>
+        '{} にはすでに{}サービスがあります。これは並列の別設定として追加されます。',
+      'settings.services.editor.traditional_note' =>
+        '{} は従来型のインターフェースで、調整できるモデルやプロンプトはありません。パラメーターはプロバイダー詳細で設定します。',
       'settings.services.detail.row.id' => 'サービス ID',
       'settings.services.detail.row.name' => '名前',
       'settings.services.detail.row.provider' => 'プロバイダー',

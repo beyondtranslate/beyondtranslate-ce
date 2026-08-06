@@ -1430,10 +1430,19 @@ class _TranslationsSettingsServicesEditorKo
 
   // Translations
   @override
-  String get coming_soon => '🚧 곧 출시 예정';
+  String get title => '서비스 추가';
   @override
-  String get coming_soon_description =>
-      '서비스 구성이 아직 제공되지 않습니다. 제공자 탭에서 서비스 제공자를 관리할 수 있습니다.';
+  String get subtitle => '구성된 제공자에 서비스를 하나 더 추가합니다';
+  @override
+  late final _TranslationsSettingsServicesEditorRowKo row =
+      _TranslationsSettingsServicesEditorRowKo._(_root);
+  @override
+  String get prompt_placeholder => '비워 두면 이 유형의 기본 프롬프트를 사용합니다';
+  @override
+  String get variant_hint => '{}에 이미 {} 서비스가 있습니다. 이 서비스는 별도의 구성으로 나란히 추가됩니다.';
+  @override
+  String get traditional_note =>
+      '{}은(는) 전통적인 인터페이스라 조정할 모델이나 프롬프트가 없습니다. 매개변수는 제공자 상세 페이지에서 설정합니다.';
 }
 
 // Path: settings.services.detail
@@ -1699,6 +1708,22 @@ class _TranslationsSettingsGeneralEditorRowKo
   String get source_language => '소스 언어';
   @override
   String get target_language => '대상 언어';
+}
+
+// Path: settings.services.editor.row
+class _TranslationsSettingsServicesEditorRowKo
+    extends TranslationsSettingsServicesEditorRowEn {
+  _TranslationsSettingsServicesEditorRowKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get model => '모델';
+  @override
+  String get system_prompt => '시스템 프롬프트';
 }
 
 // Path: settings.services.detail.row
@@ -2237,9 +2262,16 @@ extension on TranslationsKo {
       'settings.services.title' => '서비스',
       'settings.services.button.add_service' => '서비스 추가...',
       'settings.services.section.available_services' => '사용 가능한 서비스',
-      'settings.services.editor.coming_soon' => '🚧 곧 출시 예정',
-      'settings.services.editor.coming_soon_description' =>
-        '서비스 구성이 아직 제공되지 않습니다. 제공자 탭에서 서비스 제공자를 관리할 수 있습니다.',
+      'settings.services.editor.title' => '서비스 추가',
+      'settings.services.editor.subtitle' => '구성된 제공자에 서비스를 하나 더 추가합니다',
+      'settings.services.editor.row.model' => '모델',
+      'settings.services.editor.row.system_prompt' => '시스템 프롬프트',
+      'settings.services.editor.prompt_placeholder' =>
+        '비워 두면 이 유형의 기본 프롬프트를 사용합니다',
+      'settings.services.editor.variant_hint' =>
+        '{}에 이미 {} 서비스가 있습니다. 이 서비스는 별도의 구성으로 나란히 추가됩니다.',
+      'settings.services.editor.traditional_note' =>
+        '{}은(는) 전통적인 인터페이스라 조정할 모델이나 프롬프트가 없습니다. 매개변수는 제공자 상세 페이지에서 설정합니다.',
       'settings.services.detail.row.id' => '서비스 ID',
       'settings.services.detail.row.name' => '이름',
       'settings.services.detail.row.provider' => '제공자',

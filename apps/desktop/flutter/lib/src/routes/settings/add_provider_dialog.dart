@@ -144,8 +144,7 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
     setState(() {
       _idController.text = suggestion;
       _fieldControllers = {
-        for (final key in _fieldKeys)
-          if (key != 'defaultModel') key: TextEditingController(),
+        for (final key in _fieldKeys) key: TextEditingController(),
       };
       _resetPhase();
       _configuring = true;
@@ -550,10 +549,12 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
         ? Field(
             label: Text(t.settings.providers.editor.row.default_model),
             child: Input(
-              // Optional: blank leaves the engine's own pick in charge, and
-              // the detail page's model roster can change it later.
+              // Required, not a nicety: every LLM provider refuses to build
+              // without a model, so a blank one fails the test rather than
+              // falling back to anything.
               controller: _fieldControllers['defaultModel'],
               mono: true,
+              onChanged: (_) => setState(_resetPhase),
             ),
           )
         : null;

@@ -11,13 +11,13 @@ import 'package:flutter_test/flutter_test.dart';
 /// Rust runtime and is exercised in the app.
 void main() {
   Widget specimen() {
-    return DesignThemeProvider(
+    return const DesignThemeProvider(
       child: MaterialApp(
         home: Scaffold(
           body: SizedBox(
             width: 840,
             height: 620,
-            child: const AddProviderDialog(),
+            child: AddProviderDialog(),
           ),
         ),
       ),
@@ -96,5 +96,42 @@ void main() {
       findsNWidgets(llmTypes.length),
     );
     expect(tester.takeException(), isNull);
+  });
+
+  group('the field tables match what the engine will accept', () {
+    test('every required field is one the type actually takes', () {
+      for (final type in kKnownProviderTypes) {
+        final offered = kProviderFields[type] ?? const <String>[];
+        for (final key in kRequiredProviderFields[type] ?? const <String>[]) {
+          expect(
+            offered,
+            contains(key),
+            reason: '${providerTypeValue(type)} requires "$key" but the form '
+                'never renders a field for it',
+          );
+        }
+      }
+    });
+
+    test('every LLM type requires a default model', () {
+      // `configured_default_model` in the engine rejects a blank one outright,
+      // so a form that lets it through fails with `config validation failed`
+      // the moment the connection is tested.
+      for (final type in kKnownProviderTypes.where(isLlmProviderType)) {
+        expect(
+          kRequiredProviderFields[type],
+          contains('defaultModel'),
+          reason: '${providerTypeValue(type)} would build without a model',
+        );
+      }
+    });
+
+    test('every known type has both tables filled in', () {
+      for (final type in kKnownProviderTypes) {
+        expect(kProviderFields, contains(type));
+        expect(kRequiredProviderFields, contains(type));
+        expect(kProviderCapabilities, contains(type));
+      }
+    });
   });
 }

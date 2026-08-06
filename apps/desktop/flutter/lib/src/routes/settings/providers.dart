@@ -21,18 +21,14 @@ import '../../widgets/ui.dart'
         DesignThemeContext,
         DesignTypographyStyles,
         DialogTone,
-        Field,
-        Input,
         Label,
         LabelTone,
         ListTile,
         ListTileVariant,
-        Select,
-        SelectItem,
         Spinner,
-        SpinnerSize,
-        TextArea;
+        SpinnerSize;
 import 'add_provider_dialog.dart';
+import 'add_service_dialog.dart';
 import 'provider_detail.dart';
 import 'provider_meta.dart';
 
@@ -111,9 +107,15 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   }
 
   Future<void> _openServiceEditor({ServiceConfigEntry? existing}) async {
-    final draft = await showDialogInCurrentWindow<_ServiceDraft>(
+    final draft = await showDialogInCurrentWindow<ServiceDraft>(
       context: context,
-      builder: (_) => _ServiceEditorDialog(existing: existing),
+      builder: (_) => AddServiceDialog(
+        providers: settingsStore.providers,
+        // The derived services count as taken ids, so a second service of the
+        // same kind gets a suffix instead of shadowing the provider's own.
+        existing: settingsStore.services,
+        service: existing,
+      ),
     );
     if (draft == null) return;
 
@@ -579,206 +581,6 @@ class _ErrorBlock extends StatelessWidget {
           color: tokens.colors.dangerFg,
         ),
       ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 添加服务 — 添加提供商 has a flow of its own, in add_provider_dialog.dart
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _ServiceDraft {
-  _ServiceDraft({
-    required this.id,
-    required this.providerId,
-    required this.type,
-    required this.name,
-    required this.fields,
-  });
-
-  final String id;
-  final String providerId;
-  final ServiceType type;
-  final String name;
-  final Map<String, String> fields;
-}
-
-class _ServiceEditorDialog extends StatefulWidget {
-  const _ServiceEditorDialog({this.existing});
-
-  final ServiceConfigEntry? existing;
-
-  @override
-  State<_ServiceEditorDialog> createState() => _ServiceEditorDialogState();
-}
-
-class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
-  late final TextEditingController _idController;
-  late final TextEditingController _nameController;
-  late final TextEditingController _modelController;
-  late final TextEditingController _systemPromptController;
-  late String _providerId;
-  late ServiceType _type;
-
-  List<ProviderConfigEntry> get _aiProviders {
-    return settingsStore.providers
-        .where((provider) => isLlmProviderType(provider.type))
-        .toList();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    final existing = widget.existing;
-    final providers = _aiProviders;
-    _idController = TextEditingController(text: existing?.id ?? '');
-    _nameController = TextEditingController(text: existing?.name ?? '');
-    _modelController = TextEditingController(
-      text: existing?.fields['model'] ?? '',
-    );
-    _systemPromptController = TextEditingController(
-      text: existing?.fields['systemPrompt'] ?? '',
-    );
-    _providerId =
-        existing?.providerId ?? (providers.isEmpty ? '' : providers.first.id);
-    _type = existing?.type ?? ServiceType.translation;
-  }
-
-  @override
-  void dispose() {
-    _idController.dispose();
-    _nameController.dispose();
-    _modelController.dispose();
-    _systemPromptController.dispose();
-    super.dispose();
-  }
-
-  bool get _canSave {
-    return _idController.text.trim().isNotEmpty && _providerId.isNotEmpty;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isEditing = widget.existing != null;
-    final providers = _aiProviders;
-    final services = t.settings.services;
-
-    return AppDialog(
-      width: 520,
-      title: Text(
-        isEditing ? t.common.ui.button.edit : services.button.add_service,
-      ),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 420),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Field(
-                label: Text(services.detail.row.id),
-                child: Input(
-                  controller: _idController,
-                  enabled: !isEditing,
-                  placeholder: 'e.g. openai-formal',
-                  mono: true,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Field(
-                label: Text(services.detail.row.name),
-                child: Input(
-                  controller: _nameController,
-                  placeholder: 'e.g. Formal translation',
-                ),
-              ),
-              const SizedBox(height: 14),
-              Field(
-                label: Text(services.detail.row.provider),
-                child: Select<String>(
-                  value: _providerId,
-                  enabled: !isEditing,
-                  items: [
-                    for (final provider in providers)
-                      SelectItem(value: provider.id, label: provider.id),
-                  ],
-                  onChanged: (value) => setState(() => _providerId = value),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Field(
-                label: Text(services.detail.row.type),
-                child: Select<ServiceType>(
-                  value: _type,
-                  items: const [
-                    ServiceType.translation,
-                    ServiceType.dictionary,
-                  ]
-                      .map(
-                        (type) => SelectItem(
-                          value: type,
-                          label: serviceTypeLabel(type),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: (value) => setState(() => _type = value),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Field(
-                label: const Text('model'),
-                child: Input(
-                  controller: _modelController,
-                  placeholder: 'Optional',
-                  mono: true,
-                ),
-              ),
-              const SizedBox(height: 14),
-              Field(
-                label: const Text('systemPrompt'),
-                hint: Text(services.detail.prompt_variables),
-                child: TextArea(
-                  controller: _systemPromptController,
-                  minLines: 4,
-                  maxLines: 8,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        Button(
-          variant: ButtonVariant.secondary,
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.ui.button.cancel),
-        ),
-        Button(
-          variant: ButtonVariant.primary,
-          onPressed: _canSave
-              ? () {
-                  Navigator.of(context).pop(
-                    _ServiceDraft(
-                      id: _idController.text.trim(),
-                      providerId: _providerId,
-                      type: _type,
-                      name: _nameController.text.trim(),
-                      fields: {
-                        if (_modelController.text.trim().isNotEmpty)
-                          'model': _modelController.text.trim(),
-                        if (_systemPromptController.text.trim().isNotEmpty)
-                          'systemPrompt': _systemPromptController.text.trim(),
-                      },
-                    ),
-                  );
-                }
-              : null,
-          child: Text(
-            isEditing ? t.common.ui.button.save : t.common.ui.button.add,
-          ),
-        ),
-      ],
     );
   }
 }
