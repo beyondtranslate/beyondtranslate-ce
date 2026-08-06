@@ -1294,6 +1294,7 @@ impl RuntimeTranslation {
                         temperature: Some(0.3),
                         max_tokens: Some(4096),
                         stream: None,
+                        response_format: None,
                     })
                     .await
                     .map_err(|error| error.to_string())?;
@@ -1382,6 +1383,7 @@ impl RuntimeTranslation {
                         temperature: Some(0.0),
                         max_tokens: Some(16),
                         stream: None,
+                        response_format: None,
                     })
                     .await
                     .map_err(|error| error.to_string())?;
@@ -1516,6 +1518,7 @@ impl RuntimeLlm {
                     temperature: None,
                     max_tokens: None,
                     stream: None,
+                    response_format: None,
                 })
                 .await
                 .map_err(|error| error.to_string())
@@ -1561,6 +1564,7 @@ impl RuntimeLlm {
                     temperature: None,
                     max_tokens: None,
                     stream: None,
+                    response_format: None,
                 })
                 .await
                 .map_err(|error| error.to_string())?;
@@ -1612,6 +1616,7 @@ impl RuntimeLlm {
                     temperature: None,
                     max_tokens: None,
                     stream: None,
+                    response_format: None,
                 })
                 .await
                 .map_err(|error| error.to_string())?;
@@ -1680,6 +1685,7 @@ impl RuntimeLlm {
                     temperature: None,
                     max_tokens: None,
                     stream: None,
+                    response_format: None,
                 })
                 .await
                 .map_err(|error| error.to_string())?;
@@ -1757,6 +1763,7 @@ impl RuntimeLlm {
                         temperature: Some(0.3),
                         max_tokens: Some(4096),
                         stream: Some(true),
+                        response_format: None,
                     })
                     .await
                     .map_err(|error| error.to_string())?;

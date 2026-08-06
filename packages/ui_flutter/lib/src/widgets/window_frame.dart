@@ -4,11 +4,26 @@ import 'package:flutter/widgets.dart';
 
 enum TrafficLightsSize { sm, md }
 
+enum TrafficLight { close, minimize, zoom }
+
 /// macOS window buttons. Decorative — they carry no behaviour in the design.
 class TrafficLights extends StatelessWidget {
-  const TrafficLights({super.key, this.size = TrafficLightsSize.md});
+  const TrafficLights({
+    super.key,
+    this.size = TrafficLightsSize.md,
+    this.buttons = const [
+      TrafficLight.close,
+      TrafficLight.minimize,
+      TrafficLight.zoom,
+    ],
+  });
 
   final TrafficLightsSize size;
+
+  /// Which buttons the window actually carries. A window that can neither be
+  /// minimised nor zoomed — the setup assistant, an About panel — is drawn with
+  /// the close button alone.
+  final List<TrafficLight> buttons;
 
   @override
   Widget build(BuildContext context) {
@@ -16,21 +31,27 @@ class TrafficLights extends StatelessWidget {
     final dot = size == TrafficLightsSize.md ? 11.0 : 10.0;
     final gap = size == TrafficLightsSize.md ? 8.0 : 7.0;
 
-    Widget light(Color color) => Container(
-          width: dot,
-          height: dot,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        );
+    Color fill(TrafficLight button) => switch (button) {
+          TrafficLight.close => colors.trafficClose,
+          TrafficLight.minimize => colors.trafficMinimize,
+          TrafficLight.zoom => colors.trafficZoom,
+        };
 
     return ExcludeSemantics(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          light(colors.trafficClose),
-          SizedBox(width: gap),
-          light(colors.trafficMinimize),
-          SizedBox(width: gap),
-          light(colors.trafficZoom),
+          for (var i = 0; i < buttons.length; i++) ...[
+            if (i > 0) SizedBox(width: gap),
+            Container(
+              width: dot,
+              height: dot,
+              decoration: BoxDecoration(
+                color: fill(buttons[i]),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -169,7 +190,7 @@ class WindowTitlebar extends StatelessWidget {
           ],
           if (leading != null) ...[
             leading!,
-            const SizedBox(width: 10),
+            const SizedBox(width: 14),
           ],
           if (title != null) ...[
             DefaultTextStyle(

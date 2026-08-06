@@ -3,7 +3,7 @@ use std::sync::{mpsc, Arc};
 use async_trait::async_trait;
 use beyondtranslate_core::{
     ChatChoice, ChatMessage, ChatRequest, ChatResponse, ChatRole, LlmError, LlmService,
-    LlmStreamReceiver, Provider, StreamChunk,
+    LlmStreamReceiver, Provider, ResponseFormat, StreamChunk,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -141,6 +141,21 @@ impl OllamaLlmService {
         }
         if !options.is_empty() {
             body["options"] = serde_json::Value::Object(options);
+        }
+
+        // Ollama expresses structured output via a top-level "format" field:
+        // the literal string "json", or a JSON schema object.
+        match &request.response_format {
+            Some(ResponseFormat::JsonObject) => {
+                body["format"] = serde_json::json!("json");
+            }
+            Some(ResponseFormat::JsonSchema { json_schema }) => {
+                // Unwrap the OpenAI-style {"name", "schema", "strict"} envelope
+                // when present; Ollama expects the bare schema.
+                let schema = json_schema.get("schema").unwrap_or(json_schema);
+                body["format"] = schema.clone();
+            }
+            Some(ResponseFormat::Text) | None => {}
         }
 
         body

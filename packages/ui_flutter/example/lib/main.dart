@@ -828,10 +828,9 @@ class _AtomsState extends State<_Atoms> {
                         leading: Avatar(
                           label: 'B',
                           color: context.colors.engineBuiltin,
-                          size: AvatarSize.lg,
                         ),
                         title: const Text('内置模型'),
-                        subtitle: const Text('本地运行 · 无需密钥'),
+                        meta: const Text('本地运行 · 无需密钥'),
                         badge: const Badge(child: Text('默认')),
                         tone: ListTileTone.accent,
                         trailing: [
@@ -849,10 +848,9 @@ class _AtomsState extends State<_Atoms> {
                         leading: Avatar(
                           label: 'C',
                           color: context.colors.engineClaude,
-                          size: AvatarSize.lg,
                         ),
                         title: const Text('Claude'),
-                        subtitle: const Text('密钥已过期 · 需重新验证'),
+                        meta: const Text('密钥已过期 · 需重新验证'),
                         tone: ListTileTone.warn,
                         trailing: [
                           const Kbd('⌥2'),

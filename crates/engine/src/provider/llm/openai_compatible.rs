@@ -262,6 +262,9 @@ impl OpenAiCompatibleLlmService {
         if let Some(max_tokens) = request.max_tokens {
             body["max_tokens"] = serde_json::json!(max_tokens);
         }
+        if let Some(response_format) = &request.response_format {
+            body["response_format"] = serde_json::to_value(response_format).unwrap_or(Value::Null);
+        }
 
         body
     }
@@ -493,6 +496,33 @@ mod tests {
         )
         .expect("provider");
         assert_eq!(provider.name(), "openai_compatible");
+    }
+
+    #[test]
+    fn body_includes_response_format_when_set() {
+        use beyondtranslate_core::{ChatMessage, ResponseFormat};
+
+        let provider =
+            OpenAiCompatibleProvider::new(&specs::OPENAI, config("sk-test", None, "gpt-4o-mini"))
+                .expect("provider");
+        let mut request = ChatRequest {
+            model: String::new(),
+            messages: vec![ChatMessage::user("hi")],
+            temperature: None,
+            max_tokens: None,
+            stream: None,
+            response_format: None,
+        };
+
+        let body = provider.llm_service.build_openai_body(&request, false);
+        assert!(body.get("response_format").is_none());
+
+        request.response_format = Some(ResponseFormat::JsonObject);
+        let body = provider.llm_service.build_openai_body(&request, false);
+        assert_eq!(
+            body["response_format"],
+            serde_json::json!({"type": "json_object"})
+        );
     }
 
     #[test]

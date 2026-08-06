@@ -72,7 +72,7 @@ class DialogHeader extends StatelessWidget {
     final colors = tokens.colors;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -85,25 +85,30 @@ class DialogHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Same scale as the window titlebar — a sheet's title should not
+          // outrank the window it sits over.
           DefaultTextStyle(
             style: tokens.typography.displayStyle(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
-              height: 1.2,
-              letterSpacing: -0.15,
+              height: 1,
+              letterSpacing: -0.13,
               color: colors.fg,
             ),
             child: title,
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 5),
+            const SizedBox(height: 3),
             DefaultTextStyle(
-              style: tokens.typography
-                  .sansStyle(fontSize: 12, color: colors.fgSubtle),
+              style: tokens.typography.sansStyle(
+                fontSize: 11,
+                height: 1.4,
+                color: colors.fgSubtle,
+              ),
               child: subtitle!,
             ),
           ],
-          if (child != null) ...[const SizedBox(height: 5), child!],
+          if (child != null) ...[const SizedBox(height: 3), child!],
         ],
       ),
     );

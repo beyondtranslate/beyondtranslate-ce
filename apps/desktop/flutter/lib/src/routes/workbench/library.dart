@@ -4,17 +4,17 @@ import '../../i18n/i18n.dart';
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
         ButtonVariant,
         Checkbox,
         DesignThemeContext,
         DesignTypographyStyles,
         EmptyState,
         Kbd,
+        Label,
         ListCard,
+        Rail,
+        RailItem,
         SearchField,
-        TabItem,
-        Tabs,
         WindowFooter;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 
@@ -65,9 +65,9 @@ const _history = <_HistoryEntry>[
   ),
 ];
 
-enum _Filter { favorites, all, edited }
+enum _Filter { all, favorites, edited }
 
-/// 收藏与历史 — the deck's LibraryView: filter pills over a feed of
+/// 历史 — the deck's LibraryView: a rail of filters beside a feed of
 /// [ListCard] rows, with a footer that flips into batch mode. UI only; the
 /// rows are the deck's sample data and the actions are inert.
 class WorkbenchLibraryPage extends StatefulWidget {
@@ -78,7 +78,7 @@ class WorkbenchLibraryPage extends StatefulWidget {
 }
 
 class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
-  _Filter _filter = _Filter.favorites;
+  _Filter _filter = _Filter.all;
   String _active = _history.first.id;
   bool _searching = false;
   String _query = '';
@@ -106,8 +106,6 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
     final rows = _rows;
 
     return Column(
@@ -125,178 +123,206 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
             ),
           ],
         ),
-        // 筛选带 — pills on the left, the sort note pinned right.
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: colors.border,
-                width: context.hairlineWidth,
-              ),
-            ),
-          ),
-          child: Column(
+        Expanded(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
+              // The deck files 历史 by a rail, not by pills: the filter is a
+              // place you are in, the same as a glossary book.
+              Rail(
                 children: [
-                  Tabs<_Filter>(
-                    value: _filter,
-                    onChanged: (value) => setState(() => _filter = value),
-                    semanticsLabel: '历史筛选',
-                    items: const [
-                      TabItem(
-                        value: _Filter.favorites,
-                        label: Text('收藏'),
-                        count: 64,
-                      ),
-                      TabItem(value: _Filter.all, label: Text('全部历史')),
-                      TabItem(
-                        value: _Filter.edited,
-                        label: Text('我改过的'),
-                        count: 18,
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  const Kbd('按时间'),
+                  for (final entry in const [
+                    (_Filter.all, '全部'),
+                    (_Filter.favorites, '收藏 64'),
+                    (_Filter.edited, '我改过的 18'),
+                  ])
+                    RailItem(
+                      active: entry.$1 == _filter,
+                      onPressed: () => setState(() => _filter = entry.$1),
+                      child: Text(entry.$2),
+                    ),
                 ],
               ),
-              if (_searching) ...[
-                const SizedBox(height: 10),
-                SearchField(
-                  autofocus: true,
-                  value: _query,
-                  onChanged: (value) => setState(() => _query = value),
-                  placeholder: '搜索原文、译文或引擎',
-                  onDismiss: () => setState(() {
-                    _searching = false;
-                    _query = '';
-                  }),
-                  semanticsLabel: '搜索收藏与历史',
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildStrip(context, rows.length),
+                    Expanded(child: _buildFeed(context, rows)),
+                    _buildFooter(context),
+                  ],
                 ),
-              ],
+              ),
             ],
           ),
         ),
-        Expanded(
-          child: rows.isEmpty
-              ? EmptyState(
-                  label: const Text('收藏与历史'),
-                  title: Text(
-                    _query.trim().isNotEmpty
-                        ? '没有匹配「${_query.trim()}」的记录'
-                        : '这个筛选下还没有记录',
-                  ),
-                  description: const Text('换个筛选或关键词试试。'),
-                  action: _query.trim().isEmpty
-                      ? null
-                      : Button(
-                          onPressed: () => setState(() => _query = ''),
-                          child: const Text('清除搜索'),
-                        ),
-                )
-              : ListView(
-                  children: [
-                    for (final entry in rows)
-                      _selecting
-                          ? IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 20, top: 18),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: colors.borderHairline,
-                                          width: context.hairlineWidth,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Checkbox(
-                                        checked: _selected.contains(entry.id),
-                                        onChanged: (_) => _toggle(entry.id),
-                                        child: const SizedBox.shrink(),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(child: _buildRow(entry)),
-                                ],
-                              ),
-                            )
-                          : _buildRow(entry),
-                  ],
-                ),
-        ),
-        WindowFooter(
-          children: _selecting
-              ? [
-                  Text(
-                    '已选 ${_selected.length} 条',
-                    style: tokens.typography.sansStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      height: 1,
-                      color: colors.fg,
-                    ),
-                  ),
-                  Button(
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.xs,
-                    enabled: _selected.isNotEmpty,
-                    onPressed: () {},
-                    child: const Text('批量导出'),
-                  ),
-                  Button(
-                    variant: ButtonVariant.ghost,
-                    size: ButtonSize.xs,
-                    enabled: _selected.isNotEmpty,
-                    onPressed: () {},
-                    child: const Text('加入术语库'),
-                  ),
-                  const Spacer(),
-                  Button(
-                    variant: ButtonVariant.plain,
-                    onPressed: () => setState(() {
-                      _selecting = false;
-                      _selected.clear();
-                    }),
-                    child: const Text('退出多选'),
-                  ),
-                ]
-              : [
-                  Button(
-                    variant: ButtonVariant.plain,
-                    onPressed: () => setState(() => _selecting = true),
-                    child: const Text('多选'),
-                  ),
-                  Button(
-                    variant: ButtonVariant.plain,
-                    onPressed: () {},
-                    child: const Text('批量导出'),
-                  ),
-                  Button(
-                    variant: ButtonVariant.plain,
-                    onPressed: () {},
-                    child: const Text('加入术语库'),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '历史保留 90 天',
-                    style: tokens.typography.sansStyle(
-                      fontSize: 11,
-                      height: 1,
-                      color: colors.fgFaint,
-                    ),
-                  ),
-                ],
-        ),
       ],
+    );
+  }
+
+  /// The strip over the feed: which filter you are in and how it is sorted —
+  /// or the ⌘F search field, which takes the whole strip.
+  Widget _buildStrip(BuildContext context, int count) {
+    final colors = context.colors;
+    final label = switch (_filter) {
+      _Filter.all => '全部',
+      _Filter.favorites => '收藏',
+      _Filter.edited => '我改过的',
+    };
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: colors.border,
+            width: context.hairlineWidth,
+          ),
+        ),
+      ),
+      child: _searching
+          ? SearchField(
+              autofocus: true,
+              value: _query,
+              onChanged: (value) => setState(() => _query = value),
+              placeholder: '搜索原文、译文或引擎',
+              onDismiss: () => setState(() {
+                _searching = false;
+                _query = '';
+              }),
+              semanticsLabel: '搜索历史',
+            )
+          : Row(
+              children: [
+                Label(child: Text('$label · $count 条')),
+                const Spacer(),
+                const Kbd('按时间'),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildFeed(BuildContext context, List<_HistoryEntry> rows) {
+    final colors = context.colors;
+
+    return rows.isEmpty
+        ? EmptyState(
+            label: Text(t.workbench.history),
+            title: Text(
+              _query.trim().isNotEmpty
+                  ? '没有匹配「${_query.trim()}」的记录'
+                  : '这个筛选下还没有记录',
+            ),
+            description: const Text('换个筛选或关键词试试。'),
+            action: _query.trim().isEmpty
+                ? null
+                : Button(
+                    onPressed: () => setState(() => _query = ''),
+                    child: const Text('清除搜索'),
+                  ),
+          )
+        : ListView(
+            children: [
+              for (final entry in rows)
+                _selecting
+                    ? IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.only(left: 20, top: 18),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: colors.borderHairline,
+                                    width: context.hairlineWidth,
+                                  ),
+                                ),
+                              ),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Checkbox(
+                                  checked: _selected.contains(entry.id),
+                                  onChanged: (_) => _toggle(entry.id),
+                                  child: const SizedBox.shrink(),
+                                ),
+                              ),
+                            ),
+                            Expanded(child: _buildRow(entry)),
+                          ],
+                        ),
+                      )
+                    : _buildRow(entry),
+            ],
+          );
+  }
+
+  /// The batch bar. Every action is text-level, so multi-select mode keeps the
+  /// normal mode's height.
+  Widget _buildFooter(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+
+    return WindowFooter(
+      children: _selecting
+          ? [
+              Text(
+                '已选 ${_selected.length} 条',
+                style: tokens.typography.sansStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  height: 1,
+                  color: colors.fg,
+                ),
+              ),
+              Button(
+                variant: ButtonVariant.quiet,
+                enabled: _selected.isNotEmpty,
+                onPressed: () {},
+                child: const Text('批量导出'),
+              ),
+              Button(
+                variant: ButtonVariant.quiet,
+                enabled: _selected.isNotEmpty,
+                onPressed: () {},
+                child: const Text('加入术语库'),
+              ),
+              const Spacer(),
+              Button(
+                variant: ButtonVariant.plain,
+                onPressed: () => setState(() {
+                  _selecting = false;
+                  _selected.clear();
+                }),
+                child: const Text('退出多选'),
+              ),
+            ]
+          : [
+              Button(
+                variant: ButtonVariant.plain,
+                onPressed: () => setState(() => _selecting = true),
+                child: const Text('多选'),
+              ),
+              Button(
+                variant: ButtonVariant.plain,
+                onPressed: () {},
+                child: const Text('批量导出'),
+              ),
+              Button(
+                variant: ButtonVariant.plain,
+                onPressed: () {},
+                child: const Text('加入术语库'),
+              ),
+              const Spacer(),
+              Text(
+                '历史保留 90 天',
+                style: tokens.typography.sansStyle(
+                  fontSize: 11,
+                  height: 1,
+                  color: colors.fgFaint,
+                ),
+              ),
+            ],
     );
   }
 

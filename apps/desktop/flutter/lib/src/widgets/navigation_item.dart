@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart' show DesignThemeContext, NavItem;
+import 'ui.dart' show NavItem;
 
-/// A sidebar row: the design system's [NavItem] with a leading icon.
+/// A sidebar row: the design system's [NavItem] with a leading glyph, sized at
+/// 15 like the deck's workspace navigation.
 class NavigationItem extends StatelessWidget {
   const NavigationItem({
     super.key,
@@ -19,23 +20,12 @@ class NavigationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     return NavItem(
       active: selected,
       onPressed: onTap,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 15,
-            color: selected ? context.tokens.selectionFg : colors.fgNav,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-          ),
-        ],
-      ),
+      // The row tints the glyph, so it is passed without a colour.
+      icon: Icon(icon),
+      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
   }
 }

@@ -484,8 +484,9 @@ class HighlightBlock extends StatelessWidget {
   /// Action row rendered under the translation.
   final Widget? actions;
 
-  /// Where the accent rule sits. Its thickness is a theme token: 1px in the
-  /// Studio themes, 2px in the Bright themes.
+  /// Where the accent rule sits. Its thickness is a layout token — 2px in
+  /// every theme, so the rule reads as the marker it is rather than as another
+  /// hairline.
   final HighlightRule rule;
 
   /// Fill the height the parent grants and pin [actions] to the block's foot —

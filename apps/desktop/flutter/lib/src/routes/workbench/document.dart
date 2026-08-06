@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -234,7 +235,6 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
           title: t.workbench.document,
           children: _phase == _Phase.idle
               ? [
-                  const SizedBox(width: 4),
                   Text(
                     '支持 PDF · Word · Markdown',
                     style: context.typography.sansStyle(
@@ -249,7 +249,6 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
                   ),
                 ]
               : [
-                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       _Document.meta,
@@ -265,7 +264,7 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
                     onPressed: _close,
                     child: const Text('关闭文档'),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   Button(
                     enabled: _done,
                     shortcut: const Text('⌘⇧E'),
@@ -290,53 +289,60 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
-          decoration: BoxDecoration(
-            color: colors.inset,
-            border: Border.all(color: colors.borderStrong),
-            borderRadius: BorderRadius.circular(tokens.radii.card),
+        DecoratedBox(
+          // A drop zone, so the deck fences it with a dashed hairline.
+          decoration: _DashedBorder(
+            color: colors.borderStrong,
+            width: context.hairlineWidth,
+            radius: tokens.radii.card,
           ),
-          child: Column(
-            children: [
-              Text(
-                '拖入文档开始翻译',
-                style: tokens.typography.sansStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  height: 1,
-                  color: colors.fg,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 340),
-                child: Text(
-                  '支持 PDF / Word / Markdown —— 表格与公式保持原版面，逐段翻译。',
-                  textAlign: TextAlign.center,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+            decoration: BoxDecoration(
+              color: colors.inset,
+              borderRadius: BorderRadius.circular(tokens.radii.card),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '拖入文档开始翻译',
                   style: tokens.typography.sansStyle(
-                    fontSize: 12,
-                    height: 1.7,
-                    color: colors.fgSubtle,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                    color: colors.fg,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Button(
-                variant: ButtonVariant.primary,
-                onPressed: _startPipeline,
-                child: const Text('选择文件…'),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                '也可以把文件拖到 Dock 图标上',
-                style: tokens.typography.sansStyle(
-                  fontSize: 11,
-                  height: 1,
-                  color: colors.fgFaint,
+                const SizedBox(height: 12),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 340),
+                  child: Text(
+                    '支持 PDF / Word / Markdown —— 表格与公式保持原版面，逐段翻译。',
+                    textAlign: TextAlign.center,
+                    style: tokens.typography.sansStyle(
+                      fontSize: 12,
+                      height: 1.7,
+                      color: colors.fgSubtle,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Button(
+                  variant: ButtonVariant.primary,
+                  onPressed: _startPipeline,
+                  child: const Text('选择文件…'),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '也可以把文件拖到 Dock 图标上',
+                  style: tokens.typography.sansStyle(
+                    fontSize: 11,
+                    height: 1,
+                    color: colors.fgFaint,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -443,6 +449,34 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Rail(
+          footer: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Label(tone: LabelTone.faint, child: Text('已完成')),
+              const SizedBox(height: 5),
+              Text.rich(
+                TextSpan(
+                  text: '$_donePages ',
+                  children: [
+                    TextSpan(
+                      text: '/ ${_Document.pages} 页',
+                      style: tokens.typography.sansStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: colors.fgSubtle,
+                      ),
+                    ),
+                  ],
+                ),
+                style: tokens.typography.numericStyle(
+                  fontSize: 17,
+                  height: 1,
+                  color: colors.fg,
+                ),
+              ),
+            ],
+          ),
           children: [
             const Padding(
               padding: EdgeInsets.fromLTRB(10, 6, 10, 8),
@@ -451,39 +485,22 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
                 child: Text('页面 · ${_Document.pages}'),
               ),
             ),
-            for (final sheet in _sheets) ...[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Thumbnail(
-                  page: sheet.page,
-                  active: sheet.page == _page,
-                  dimmed: !_done && sheet.page > _donePages / 2,
-                  onPressed: () => _scrollToPage(sheet.page),
-                ),
-              ),
-            ],
-            const SizedBox(height: 12),
-            const Label(tone: LabelTone.faint, child: Text('已完成')),
-            const SizedBox(height: 5),
-            Text.rich(
-              TextSpan(
-                text: '$_donePages ',
-                children: [
-                  TextSpan(
-                    text: '/ ${_Document.pages} 页',
-                    style: tokens.typography.sansStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: colors.fgSubtle,
-                    ),
+            // The thumbs stack on their own 8px rhythm, so they take one
+            // container rather than the rail's 3px nav gap.
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < _sheets.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 8),
+                  Thumbnail(
+                    page: _sheets[i].page,
+                    active: _sheets[i].page == _page,
+                    dimmed: !_done && _sheets[i].page > _donePages / 2,
+                    onPressed: () => _scrollToPage(_sheets[i].page),
                   ),
                 ],
-              ),
-              style: tokens.typography.numericStyle(
-                fontSize: 17,
-                height: 1,
-                color: colors.fg,
-              ),
+              ],
             ),
           ],
         ),
@@ -524,6 +541,7 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
             tooltip: '上一页',
             onPressed: _page <= 1 ? null : () => _scrollToPage(_page - 1),
           ),
+          const SizedBox(width: 6),
           IconActionButton(
             icon: FluentIcons.chevron_down_20_regular,
             tooltip: '下一页',
@@ -561,10 +579,12 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
           const Spacer(),
           IconActionButton(
             icon: FluentIcons.subtract_20_regular,
+            iconSize: 13,
             tooltip: '缩小',
             onPressed:
                 _zoom <= 70 ? null : () => setState(() => _zoom = _zoom - 10),
           ),
+          const SizedBox(width: 2),
           SizedBox(
             width: 36,
             child: Text(
@@ -577,13 +597,15 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
               ),
             ),
           ),
+          const SizedBox(width: 2),
           IconActionButton(
             icon: FluentIcons.add_20_regular,
+            iconSize: 13,
             tooltip: '放大',
             onPressed:
                 _zoom >= 150 ? null : () => setState(() => _zoom = _zoom + 10),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 6),
           SegmentedControl<_ReadingMode>(
             value: _readingMode,
             onChanged: (value) => setState(() => _readingMode = value),
@@ -842,5 +864,57 @@ class _WorkbenchDocumentPageState extends State<WorkbenchDocumentPage> {
         ),
       ],
     );
+  }
+}
+
+/// A dashed rounded-rect outline — Tailwind's `border-dashed`, which Flutter's
+/// [Border] cannot draw.
+class _DashedBorder extends Decoration {
+  const _DashedBorder({
+    required this.color,
+    required this.width,
+    required this.radius,
+  });
+
+  final Color color;
+  final double width;
+  final double radius;
+
+  /// Tailwind's dashed stroke: a 5px dash over a 4px gap.
+  static const double dash = 5;
+  static const double gap = 4;
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) =>
+      _DashedBorderPainter(this);
+}
+
+class _DashedBorderPainter extends BoxPainter {
+  _DashedBorderPainter(this.decoration);
+
+  final _DashedBorder decoration;
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+    final size = configuration.size;
+    if (size == null) return;
+
+    final rect = RRect.fromRectAndRadius(
+      (offset & size).deflate(decoration.width / 2),
+      Radius.circular(decoration.radius),
+    );
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = decoration.width
+      ..color = decoration.color;
+
+    for (final metric in (Path()..addRRect(rect)).computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final end = math.min(distance + _DashedBorder.dash, metric.length);
+        canvas.drawPath(metric.extractPath(distance, end), paint);
+        distance = end + _DashedBorder.gap;
+      }
+    }
   }
 }

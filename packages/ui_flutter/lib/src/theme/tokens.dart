@@ -353,8 +353,10 @@ class DesignTokens {
     this.typography = const DesignTypography(),
     this.shadows = const DesignShadows(),
 
-    /// Marker weight on the preferred-translation block.
-    this.highlightRule = 1,
+    /// Marker weight on the preferred-translation block. `--bt-highlight-rule`
+    /// is 2px in every theme; it stays a token because the marker's weight is a
+    /// scheme decision, not a component's.
+    this.highlightRule = 2,
 
     /// Glow behind the preferred-translation dot — dark themes only.
     this.highlightGlow = const <BoxShadow>[],

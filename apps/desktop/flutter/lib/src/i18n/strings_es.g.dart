@@ -158,7 +158,7 @@ class _TranslationsWorkbenchEs extends TranslationsWorkbenchEn {
   @override
   String get document => 'Traducción de documentos';
   @override
-  String get history => 'Favoritos e historial';
+  String get history => 'Historial';
   @override
   String get glossary => 'Glosario';
   @override
@@ -2021,7 +2021,7 @@ extension on TranslationsEs {
       'workbench.workspace' => 'Espacio de trabajo',
       'workbench.translate' => 'Traducir',
       'workbench.document' => 'Traducción de documentos',
-      'workbench.history' => 'Favoritos e historial',
+      'workbench.history' => 'Historial',
       'workbench.glossary' => 'Glosario',
       'workbench.recent_languages' => 'Idiomas recientes',
       'workbench.not_configured' => 'Sin configurar',

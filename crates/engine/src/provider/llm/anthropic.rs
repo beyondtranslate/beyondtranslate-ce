@@ -3,7 +3,7 @@ use std::sync::{mpsc, Arc};
 use async_trait::async_trait;
 use beyondtranslate_core::{
     ChatMessage, ChatRequest, ChatResponse, ChatRole, LlmError, LlmService, LlmStreamReceiver,
-    Provider, StreamChunk,
+    Provider, ResponseFormat, StreamChunk,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -145,6 +145,26 @@ impl AnthropicLlmService {
             "messages": messages,
             "stream": stream,
         });
+
+        // The Messages API has no `response_format` parameter; fall back to a
+        // system-level instruction so JSON modes still take effect.
+        match &request.response_format {
+            Some(ResponseFormat::JsonObject) => {
+                system_prompts.push(
+                    "You must respond with a single valid JSON object and nothing else — \
+                     no markdown fences, no commentary."
+                        .to_string(),
+                );
+            }
+            Some(ResponseFormat::JsonSchema { json_schema }) => {
+                let schema = json_schema.get("schema").unwrap_or(json_schema);
+                system_prompts.push(format!(
+                    "You must respond with a single valid JSON object matching this JSON \
+                     schema and nothing else — no markdown fences, no commentary:\n{schema}"
+                ));
+            }
+            Some(ResponseFormat::Text) | None => {}
+        }
 
         if !system_prompts.is_empty() {
             let system = system_prompts.join("\n\n");

@@ -128,11 +128,16 @@ class NavItem extends StatelessWidget {
     super.key,
     this.active = false,
     this.onPressed,
+    this.icon,
     required this.child,
   });
 
   final bool active;
   final VoidCallback? onPressed;
+
+  /// Leading glyph — tinted by the row, so it follows selection.
+  final Widget? icon;
+
   final Widget child;
 
   @override
@@ -145,28 +150,55 @@ class NavItem extends StatelessWidget {
       onPressed: onPressed,
       borderRadius: radius,
       selected: active,
-      builder: (context, state) => AnimatedContainer(
-        duration: kTransitionDuration,
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-        alignment: AlignmentDirectional.centerStart,
-        decoration: BoxDecoration(
-          // AppKit fills the selected row with the accent and prints it in
-          // white; the selection pair desaturates when the window is not key.
-          color: active
-              ? tokens.selection
-              : (state.hovered ? colors.accent.withValues(alpha: 0.08) : null),
-          borderRadius: radius,
-        ),
-        child: DefaultTextStyle(
-          style: tokens.typography.sansStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            height: 1,
-            color: active ? tokens.selectionFg : colors.fgNav,
+      builder: (context, state) {
+        final foreground = active ? tokens.selectionFg : colors.fgNav;
+
+        return AnimatedContainer(
+          duration: kTransitionDuration,
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+          decoration: BoxDecoration(
+            // AppKit fills the selected row with the accent and prints it in
+            // white; the selection pair desaturates when the window is not key.
+            color: active
+                ? tokens.selection
+                : (state.hovered
+                    ? colors.accent.withValues(alpha: 0.08)
+                    : null),
+            borderRadius: radius,
           ),
-          child: child,
-        ),
-      ),
+          child: DefaultTextStyle(
+            style: tokens.typography.sansStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              height: 1,
+              color: foreground,
+            ),
+            child: Row(
+              children: [
+                if (icon != null) ...[
+                  // The glyph is taller than the 12px type, so it is boxed to
+                  // the line height and allowed to overflow — the row stays at
+                  // 28px.
+                  SizedBox(
+                    width: 16,
+                    height: 12,
+                    child: OverflowBox(
+                      maxWidth: double.infinity,
+                      maxHeight: double.infinity,
+                      child: IconTheme(
+                        data: IconThemeData(size: 15, color: foreground),
+                        child: icon!,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                Expanded(child: child),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -174,9 +206,18 @@ class NavItem extends StatelessWidget {
 /// The card pinned to the bottom of a sidebar — 今日 148 段, 版本 2.4.0,
 /// 已收藏 64, 队列, 快捷键.
 class SidebarCard extends StatelessWidget {
-  const SidebarCard({super.key, this.label, required this.children});
+  const SidebarCard({
+    super.key,
+    this.label,
+    this.gap = 7,
+    required this.children,
+  });
 
   final Widget? label;
+
+  /// Space between the card's lines. The version card tightens it to 6.
+  final double gap;
+
   final List<Widget> children;
 
   @override
@@ -185,7 +226,6 @@ class SidebarCard extends StatelessWidget {
     final colors = tokens.colors;
 
     return Container(
-      margin: const EdgeInsets.only(top: 14),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colors.raised,
@@ -207,10 +247,10 @@ class SidebarCard extends StatelessWidget {
                 child: label!,
               ),
             ),
-            const SizedBox(height: 7),
+            SizedBox(height: gap),
           ],
           for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) const SizedBox(height: 7),
+            if (i > 0) SizedBox(height: gap),
             children[i],
           ],
         ],
@@ -221,7 +261,11 @@ class SidebarCard extends StatelessWidget {
 
 /// Second column: settings groups, glossary books, document pages.
 class Rail extends StatelessWidget {
-  const Rail({super.key, required this.children});
+  const Rail({super.key, this.footer, required this.children});
+
+  /// Pinned to the column's foot, below the scrolling list — the deck parks
+  /// the document's 已完成 counter here (`mt-auto`).
+  final Widget? footer;
 
   final List<Widget> children;
 
@@ -241,17 +285,52 @@ class Rail extends StatelessWidget {
           ),
         ),
       ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) SizedBox(height: tokens.metrics.navGap),
-              children[i],
-            ],
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // 28 = the column's own vertical padding.
+                final minContentHeight = constraints.maxHeight > 28
+                    ? constraints.maxHeight - 28
+                    : 0.0;
+                final pinsLastItem =
+                    children.length > 1 && children.last is RailAction;
+
+                return SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: minContentHeight),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var i = 0; i < children.length; i++) ...[
+                            // RailAction maps to the React component's
+                            // `mt-auto`: the spacer eats the spare height, and
+                            // disappears once the list is long enough to
+                            // scroll.
+                            if (pinsLastItem && i == children.length - 1)
+                              const Spacer(),
+                            if (i > 0) SizedBox(height: tokens.metrics.navGap),
+                            children[i],
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          if (footer != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 14),
+              child: footer,
+            ),
+        ],
       ),
     );
   }
@@ -303,6 +382,46 @@ class RailItem extends StatelessWidget {
   }
 }
 
+/// Trailing action pinned to the foot of a [Rail] — ＋ 新建术语库. Shaped like
+/// a [RailItem] so the column reads as one list, but printed in the accent to
+/// say it adds rather than selects.
+class RailAction extends StatelessWidget {
+  const RailAction({super.key, this.onPressed, required this.child});
+
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final radius = BorderRadius.circular(tokens.radii.controlSm);
+
+    return Pressable(
+      onPressed: onPressed,
+      borderRadius: radius,
+      builder: (context, state) => AnimatedContainer(
+        duration: kTransitionDuration,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        alignment: AlignmentDirectional.centerStart,
+        decoration: BoxDecoration(
+          color: state.hovered ? colors.accent.withValues(alpha: 0.08) : null,
+          borderRadius: radius,
+        ),
+        child: DefaultTextStyle(
+          style: tokens.typography.sansStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            height: 1,
+            color: colors.accentText,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
 /// Right information column — 命中术语, 质量信号, 快捷键.
 class Aside extends StatelessWidget {
   const Aside({super.key, required this.children});
@@ -325,17 +444,36 @@ class Aside extends StatelessWidget {
           ),
         ),
       ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) const SizedBox(height: 20),
-              children[i],
-            ],
-          ],
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final minContentHeight =
+              constraints.maxHeight > 36 ? constraints.maxHeight - 36 : 0.0;
+          final pinsLastCard =
+              children.length > 1 && children.last is SidebarCard;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: minContentHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < children.length; i++) ...[
+                      // SidebarCard maps to the React component's `mt-auto`.
+                      // The spacer consumes spare height but disappears once
+                      // the content is tall enough to scroll.
+                      if (pinsLastCard && i == children.length - 1)
+                        const Spacer(),
+                      if (i > 0) const SizedBox(height: 20),
+                      children[i],
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

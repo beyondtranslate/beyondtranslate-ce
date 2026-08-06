@@ -60,11 +60,11 @@ class SegmentedControl<T> extends StatelessWidget {
       size == SegmentedSize.sm ? tokens.radii.controlSm : tokens.radii.control,
     );
     final segmentRadius = BorderRadius.circular(tokens.radii.chip);
+    // Both sizes draw a fixed 22px segment; only the inset and the type size
+    // change, so a sm track and an md track stack to the same rhythm.
     final segmentPadding = switch (size) {
-      SegmentedSize.sm =>
-        const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-      SegmentedSize.md =>
-        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      SegmentedSize.sm => const EdgeInsets.symmetric(horizontal: 11),
+      SegmentedSize.md => const EdgeInsets.symmetric(horizontal: 12),
     };
     final fontSize = size == SegmentedSize.sm ? 11.0 : 12.0;
 
@@ -88,6 +88,7 @@ class SegmentedControl<T> extends StatelessWidget {
             opacity: item.enabled ? 1 : 0.5,
             child: AnimatedContainer(
               duration: kTransitionDuration,
+              height: 22,
               padding: segmentPadding,
               alignment: Alignment.center,
               decoration: BoxDecoration(

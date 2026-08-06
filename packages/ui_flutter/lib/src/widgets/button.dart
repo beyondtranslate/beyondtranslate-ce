@@ -70,17 +70,24 @@ class Button extends StatelessWidget {
       ButtonSize.md => 12.0,
       ButtonSize.lg => 12.0,
     };
+    // 24 / 26 / 28 / 32 px tall — the macOS-to-Fluent control range. The height
+    // is fixed rather than derived from the padding, so a taller glyph or a CJK
+    // label can never push one button out of line with its neighbours.
+    final height = switch (size) {
+      ButtonSize.xs => 24.0,
+      ButtonSize.sm => 26.0,
+      ButtonSize.md => 28.0,
+      ButtonSize.lg => 32.0,
+    };
+    // Text-only variants carry no box, so they drop the padding — but they keep
+    // the height, which is what lines them up with the chips beside them.
     final padding = _textOnly
         ? EdgeInsets.zero
         : switch (size) {
-            ButtonSize.xs =>
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            ButtonSize.sm =>
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            ButtonSize.md =>
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ButtonSize.lg =>
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ButtonSize.xs => const EdgeInsets.symmetric(horizontal: 10),
+            ButtonSize.sm => const EdgeInsets.symmetric(horizontal: 12),
+            ButtonSize.md => const EdgeInsets.symmetric(horizontal: 16),
+            ButtonSize.lg => const EdgeInsets.symmetric(horizontal: 16),
           };
     final radius = BorderRadius.circular(
       size == ButtonSize.lg ? tokens.radii.control : tokens.radii.controlSm,
@@ -166,6 +173,7 @@ class Button extends StatelessWidget {
           child: AnimatedContainer(
             duration: kTransitionDuration,
             width: fullWidth ? double.infinity : null,
+            height: height,
             padding: padding,
             decoration: BoxDecoration(
               color: background,

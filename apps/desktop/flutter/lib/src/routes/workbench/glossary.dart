@@ -6,6 +6,7 @@ import '../../services/runtime.dart' show GlossaryBook, GlossaryEntry;
 import '../../widgets/ui.dart'
     show
         Button,
+        ButtonSize,
         ButtonVariant,
         DataTable,
         DataTableCell,
@@ -19,6 +20,7 @@ import '../../widgets/ui.dart'
         Label,
         LabelTone,
         Rail,
+        RailAction,
         RailItem,
         SearchField,
         WindowFooter;
@@ -199,6 +201,13 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
           title: t.workbench.glossary,
           children: [
             const Spacer(),
+            // Both ways into a new book, as the deck draws them: the quiet one
+            // here beside 新增条目, and the accent one at the rail's foot.
+            Button(
+              onPressed: () => _openHeader(_HeaderMode.creating),
+              child: Text(t.workbench.glossary_page.new_book),
+            ),
+            const SizedBox(width: 14),
             Button(
               variant: ButtonVariant.primary,
               enabled: book != null && !_drafting,
@@ -224,9 +233,9 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                                 '${t.workbench.glossary_page.disabled}',
                       ),
                     ),
-                  RailItem(
+                  RailAction(
                     onPressed: () => _openHeader(_HeaderMode.creating),
-                    child: Text('+ ${t.workbench.glossary_page.new_book}'),
+                    child: Text('＋ ${t.workbench.glossary_page.new_book}'),
                   ),
                 ],
               ),
@@ -341,6 +350,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                 (book?.enabled ?? true) ? strings.disable : strings.enable,
               ),
             ),
+            const SizedBox(width: 12),
             Button(
               variant: ButtonVariant.plain,
               onPressed: () => _openHeader(
@@ -349,11 +359,13 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
               ),
               child: Text(strings.rename_book),
             ),
+            const SizedBox(width: 12),
             Button(
               variant: ButtonVariant.plain,
               onPressed: () => _openHeader(_HeaderMode.confirmingDelete),
               child: Text(t.common.ui.button.delete),
             ),
+            const SizedBox(width: 12),
             Button(
               variant: ButtonVariant.plain,
               shortcut: const Text('⌘F'),
@@ -455,6 +467,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
   Widget _buildBody(BuildContext context, List<GlossaryEntry> entries) {
     final strings = t.workbench.glossary_page;
     final query = glossaryStore.query.trim();
+    final styles = _TableStyles.of(context);
 
     if (entries.isEmpty) {
       if (glossaryStore.isLoading) {
@@ -476,6 +489,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
         // per view, so this one is the quieter twin.
         action: Button(
           variant: ButtonVariant.secondary,
+          size: ButtonSize.md,
           onPressed: () => _openDraft(),
           child: Text(strings.add_entry),
         ),
@@ -508,20 +522,30 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                 active: entry.id == _editing?.id,
                 onPressed: () => _openDraft(entry),
                 children: [
-                  DataTableCell(child: Text(entry.term)),
-                  DataTableCell(child: Text(entry.translation)),
+                  DataTableCell(
+                    child: Text(entry.term, style: styles.term),
+                  ),
+                  DataTableCell(
+                    child: Text(entry.translation, style: styles.translation),
+                  ),
                   DataTableCell(
                     width: 96,
                     child: Text(
                       entry.forbidden.isEmpty
                           ? '—'
                           : entry.forbidden.join(_forbiddenSeparator),
+                      style: styles.forbidden,
                     ),
                   ),
                   DataTableCell(
                     width: 56,
                     align: DataTableCellAlign.end,
-                    child: Text('${entry.hits}'),
+                    child: Text(
+                      '${entry.hits}',
+                      style: entry.id == _editing?.id
+                          ? styles.hitsActive
+                          : styles.hits,
+                    ),
                   ),
                 ],
               ),
@@ -553,6 +577,63 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
       ],
     );
   }
+}
+
+/// The four columns of the term table, each with its own face in the deck:
+/// the source term in the display face, the mandated translation a step larger
+/// in CJK, the forbidden wording receded, and the hit count as a numeral that
+/// turns accent on the selected row.
+class _TableStyles {
+  const _TableStyles({
+    required this.term,
+    required this.translation,
+    required this.forbidden,
+    required this.hits,
+    required this.hitsActive,
+  });
+
+  factory _TableStyles.of(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+
+    return _TableStyles(
+      term: tokens.typography.displayStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+        color: colors.fg,
+      ),
+      translation: tokens.typography.cjkStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        height: 1.4,
+        color: colors.fg,
+      ),
+      forbidden: tokens.typography.cjkStyle(
+        fontSize: 12,
+        height: 1.4,
+        color: colors.fgSubtle,
+      ),
+      hits: tokens.typography.displayStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        height: 1,
+        color: colors.fgTertiary,
+      ),
+      hitsActive: tokens.typography.displayStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        height: 1,
+        color: colors.accentText,
+      ),
+    );
+  }
+
+  final TextStyle term;
+  final TextStyle translation;
+  final TextStyle forbidden;
+  final TextStyle hits;
+  final TextStyle hitsActive;
 }
 
 /// One column of the inline editor row: an accent micro-label over its input.

@@ -1,0 +1,247 @@
+import 'package:beyondtranslate_ui/beyondtranslate_ui.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// The fixed geometry the React kit pins with Tailwind height utilities. These
+/// are the metrics a font's own line box would otherwise drift off, so they are
+/// asserted rather than left to look right.
+void main() {
+  Widget specimen(Widget child) => DesignThemeProvider(
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Align(alignment: Alignment.topLeft, child: child),
+        ),
+      );
+
+  Future<Size> sizeOf(WidgetTester tester, Widget child, Type type) async {
+    await tester.pumpWidget(specimen(child));
+    // Controls are AnimatedContainers, so a specimen swapped into the same
+    // element starts at the previous geometry and eases to the new one.
+    await tester.pumpAndSettle();
+    return tester.getSize(find.byType(type));
+  }
+
+  testWidgets('Button keeps the 24 / 26 / 28 / 32 control range', (
+    tester,
+  ) async {
+    for (final (size, height) in const [
+      (ButtonSize.xs, 24.0),
+      (ButtonSize.sm, 26.0),
+      (ButtonSize.md, 28.0),
+      (ButtonSize.lg, 32.0),
+    ]) {
+      final box = await sizeOf(
+        tester,
+        Button(size: size, onPressed: () {}, child: const Text('翻译')),
+        Button,
+      );
+      expect(box.height, height, reason: '$size');
+    }
+  });
+
+  testWidgets('a text-only Button keeps its height and drops its box', (
+    tester,
+  ) async {
+    final box = await sizeOf(
+      tester,
+      Button(
+        variant: ButtonVariant.quiet,
+        onPressed: () {},
+        child: const Text('设为首选'),
+      ),
+      Button,
+    );
+    expect(box.height, 26);
+  });
+
+  testWidgets('Input and SearchField sit on the md-Button line', (
+    tester,
+  ) async {
+    final input = await sizeOf(
+      tester,
+      const SizedBox(width: 240, child: Input(placeholder: 'sk-…')),
+      Input,
+    );
+    expect(input.height, 28);
+
+    final search = await sizeOf(
+      tester,
+      SizedBox(
+        width: 240,
+        child: SearchField(value: '', onChanged: (_) {}),
+      ),
+      SearchField,
+    );
+    expect(search.height, 28);
+  });
+
+  testWidgets('Switch draws the AppKit small switch', (tester) async {
+    expect(
+      await sizeOf(tester, const Switch(checked: true), Switch),
+      const Size(32, 18),
+    );
+    expect(
+      await sizeOf(
+        tester,
+        const Switch(checked: false, size: SwitchSize.sm),
+        Switch,
+      ),
+      const Size(28, 16),
+    );
+  });
+
+  testWidgets('a segmented track is 28px over its 22px segments', (
+    tester,
+  ) async {
+    final box = await sizeOf(
+      tester,
+      SegmentedControl<String>(
+        value: 'light',
+        onChanged: (_) {},
+        items: const [
+          SegmentedItem(value: 'light', label: Text('浅色')),
+          SegmentedItem(value: 'dark', label: Text('深色')),
+        ],
+      ),
+      SegmentedControl<String>,
+    );
+    // 22px segment + the track's 3px inset on both edges.
+    expect(box.height, 28);
+  });
+
+  testWidgets('a boxed Kbd and a filter pill keep their fixed boxes', (
+    tester,
+  ) async {
+    final key = await sizeOf(
+      tester,
+      const Kbd('⌘F', variant: KbdVariant.key),
+      Kbd,
+    );
+    expect(key.height, 22);
+
+    final pills = await sizeOf(
+      tester,
+      Tabs<String>(
+        value: 'all',
+        onChanged: (_) {},
+        items: const [
+          TabItem(value: 'all', label: Text('全部历史')),
+          TabItem(value: 'starred', label: Text('收藏'), count: 64),
+        ],
+      ),
+      Tabs<String>,
+    );
+    expect(pills.height, 24);
+  });
+
+  testWidgets('a NavItem row stays at 28px, with or without a glyph', (
+    tester,
+  ) async {
+    final plain = await sizeOf(
+      tester,
+      const SizedBox(width: 152, child: NavItem(child: Text('翻译'))),
+      NavItem,
+    );
+    expect(plain.height, 28);
+
+    final withIcon = await sizeOf(
+      tester,
+      const SizedBox(
+        width: 152,
+        child: NavItem(icon: Icon(IconData(0xe000)), child: Text('翻译')),
+      ),
+      NavItem,
+    );
+    expect(withIcon.height, 28);
+  });
+
+  testWidgets('the highlight rule fences the block on the requested edge', (
+    tester,
+  ) async {
+    Border borderOf(HighlightRule rule) {
+      final decoration = tester
+          .widgetList<Container>(
+            find.descendant(
+              of: find.byType(HighlightBlock),
+              matching: find.byType(Container),
+            ),
+          )
+          .map((container) => container.decoration)
+          .whereType<BoxDecoration>()
+          .firstWhere((decoration) => decoration.border != null);
+      return decoration.border! as Border;
+    }
+
+    for (final (rule, top, bottom) in const [
+      (HighlightRule.top, true, false),
+      (HighlightRule.bottom, false, true),
+    ]) {
+      await tester.pumpWidget(
+        specimen(
+          SizedBox(
+            width: 400,
+            child: HighlightBlock(
+              rule: rule,
+              label: const Text('内置模型 · 首选译文'),
+              child: const Text('注意力就是你所需要的一切。'),
+            ),
+          ),
+        ),
+      );
+
+      final border = borderOf(rule);
+      // 2px in every theme, and only on the edge the block was asked for.
+      expect(border.top.width, top ? 2 : 0, reason: '$rule top');
+      expect(border.bottom.width, bottom ? 2 : 0, reason: '$rule bottom');
+    }
+  });
+
+  testWidgets('a Rail pins its trailing action and its footer to the foot', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      specimen(
+        SizedBox(
+          height: 300,
+          child: Rail(
+            footer: const Text('已完成'),
+            children: [
+              RailItem(onPressed: () {}, child: const Text('通用')),
+              RailAction(onPressed: () {}, child: const Text('＋ 新建术语库')),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.getSize(find.byType(Rail)).width, 150);
+    // The footer keeps the column's 14px bottom inset…
+    expect(tester.getBottomLeft(find.text('已完成')).dy, 286);
+    // …and `mt-auto` pushes the action down to sit just above it.
+    expect(
+      tester.getBottomLeft(find.byType(RailAction)).dy,
+      greaterThan(200),
+    );
+  });
+
+  testWidgets('the language capsule is 30px tall at both ends', (tester) async {
+    final plain = await sizeOf(
+      tester,
+      const SwapPair(start: 'English', end: '简体中文'),
+      SwapPair,
+    );
+    expect(plain.height, 30);
+
+    final triggers = await sizeOf(
+      tester,
+      SwapPair(
+        start: 'English',
+        end: '简体中文',
+        onStartPressed: () {},
+        onEndPressed: () {},
+      ),
+      SwapPair,
+    );
+    expect(triggers.height, 30);
+  });
+}

@@ -1,16 +1,9 @@
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../i18n/i18n.dart';
 import '../utils/language_util.dart';
-import 'ui.dart'
-    show
-        Badge,
-        BadgeTone,
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Pressable;
+import 'ui.dart' show Badge, BadgeTone, SwapPair, SwapPairSize;
 
 /// Opens [menu] just under the widget [anchorKey] is attached to.
 ///
@@ -107,10 +100,9 @@ void populateLanguageMenu(
   menu.addItem(manageItem);
 }
 
-/// The language capsule that anchors a translation view — shaped like the
-/// design system's SwapPair, but both ends are menu triggers rather than
-/// labels, so it is the one language control the mini translator and the
-/// workbench share.
+/// The language capsule that anchors a translation view — the design system's
+/// SwapPair with both ends wired as menu triggers, so it is the one language
+/// control the mini translator and the workbench share.
 ///
 /// The start end opens 自动检测 plus the language list; the end opens the
 /// target list, prefixed with 自动匹配 where [allowAutoTarget] is set. The
@@ -127,6 +119,7 @@ class LanguageSelector extends StatefulWidget {
     required this.onManageCommonLanguages,
     this.detectedLanguage,
     this.allowAutoTarget = false,
+    this.size = SwapPairSize.md,
     this.window,
   });
 
@@ -146,6 +139,10 @@ class LanguageSelector extends StatefulWidget {
   /// Whether the target menu offers 自动匹配, which hands the choice to the
   /// configured translation targets.
   final bool allowAutoTarget;
+
+  /// The capsule's size. The deck draws the main window's a step smaller than
+  /// the popover's.
+  final SwapPairSize size;
 
   final ValueChanged<String> onSourceChanged;
   final ValueChanged<String?> onTargetChanged;
@@ -225,8 +222,6 @@ class _LanguageSelectorState extends State<LanguageSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
     final sourceName = getSourceDisplayName(widget.sourceLanguage);
     final targetName = widget.targetLanguage == null
         ? t.mini_translator.language.auto_match
@@ -237,32 +232,19 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          // 30px tall, and the chips' own 8px inset lands the label 11px
-          // from the capsule edge, as in the deck.
-          padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
-          decoration: BoxDecoration(
-            color: colors.control,
-            borderRadius: BorderRadius.circular(tokens.radii.control),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _LanguageChip(
-                key: _sourceKey,
-                label: sourceName,
-                onPressed: _showSourceMenu,
-              ),
-              const SizedBox(width: 8),
-              _SwapButton(onPressed: canSwap ? _swap : null),
-              const SizedBox(width: 8),
-              _LanguageChip(
-                key: _targetKey,
-                label: targetName,
-                onPressed: _showTargetMenu,
-              ),
-            ],
-          ),
+        // Both ends are menu triggers here, which is the design system's
+        // LanguagePair with `onSourceClick` and `onTargetClick` both wired.
+        SwapPair(
+          size: widget.size,
+          start: sourceName,
+          end: targetName,
+          startKey: _sourceKey,
+          endKey: _targetKey,
+          onStartPressed: _showSourceMenu,
+          onEndPressed: _showTargetMenu,
+          // Nothing concrete to swap in while the source is 自动检测.
+          onSwap: canSwap ? _swap : null,
+          swapSemanticsLabel: '交换语言',
         ),
         if (detected != null && detected != widget.sourceLanguage) ...[
           const SizedBox(width: 8),
@@ -272,91 +254,6 @@ class _LanguageSelectorState extends State<LanguageSelector> {
           ),
         ],
       ],
-    );
-  }
-}
-
-/// One end of the language capsule: a label with a disclosure chevron.
-class _LanguageChip extends StatelessWidget {
-  const _LanguageChip({super.key, required this.label, this.onPressed});
-
-  final String label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.chip);
-
-    return Pressable(
-      onPressed: onPressed,
-      borderRadius: radius,
-      semanticsLabel: label,
-      builder: (context, state) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: state.hovered ? colors.window : null,
-          borderRadius: radius,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: tokens.typography.sansStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                height: 1,
-                color: colors.fg,
-              ),
-            ),
-            const SizedBox(width: 3),
-            Icon(
-              FluentIcons.chevron_down_20_regular,
-              size: 11,
-              color: colors.fgTertiary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The capsule's centre swap control, matching SwapPair's raised square.
-class _SwapButton extends StatelessWidget {
-  const _SwapButton({this.onPressed});
-
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.chip);
-
-    return Pressable(
-      onPressed: onPressed,
-      enabled: onPressed != null,
-      borderRadius: radius,
-      semanticsLabel: '交换语言',
-      builder: (context, state) => Container(
-        width: 20,
-        height: 20,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: colors.window,
-          borderRadius: radius,
-        ),
-        child: Icon(
-          FluentIcons.arrow_swap_20_regular,
-          size: 13,
-          color: onPressed == null
-              ? colors.fgFaint
-              : (state.hovered ? colors.fg : colors.fgTertiary),
-        ),
-      ),
     );
   }
 }

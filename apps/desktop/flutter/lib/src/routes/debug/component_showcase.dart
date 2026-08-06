@@ -164,13 +164,13 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       onTap: () {},
                     ),
                     NavigationItem(
-                      label: '收藏与历史',
-                      icon: Icons.bookmark_outline,
+                      label: '术语库',
+                      icon: Icons.menu_book_outlined,
                       onTap: () {},
                     ),
                     NavigationItem(
-                      label: '术语库',
-                      icon: Icons.menu_book_outlined,
+                      label: '历史',
+                      icon: Icons.history,
                       onTap: () {},
                     ),
                   ],
@@ -257,7 +257,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
             ),
           ),
           const SizedBox(height: 32),
-          const SectionLabel(index: '04', label: '收藏与历史'),
+          const SectionLabel(index: '04', label: '历史'),
           const SizedBox(height: 12),
           Surface(
             child: Column(

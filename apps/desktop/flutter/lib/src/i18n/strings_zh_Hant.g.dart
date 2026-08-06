@@ -161,7 +161,7 @@ class _TranslationsWorkbenchZhHant extends TranslationsWorkbenchEn {
   @override
   String get document => '文件翻譯';
   @override
-  String get history => '收藏與歷史';
+  String get history => '歷史';
   @override
   String get glossary => '術語庫';
   @override
@@ -1985,7 +1985,7 @@ extension on TranslationsZhHant {
       'workbench.workspace' => '工作區',
       'workbench.translate' => '翻譯',
       'workbench.document' => '文件翻譯',
-      'workbench.history' => '收藏與歷史',
+      'workbench.history' => '歷史',
       'workbench.glossary' => '術語庫',
       'workbench.recent_languages' => '最近語言',
       'workbench.not_configured' => '尚未設定',

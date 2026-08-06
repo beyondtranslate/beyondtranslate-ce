@@ -161,7 +161,7 @@ class _TranslationsWorkbenchZhHans extends TranslationsWorkbenchEn {
   @override
   String get document => '文档翻译';
   @override
-  String get history => '收藏与历史';
+  String get history => '历史';
   @override
   String get glossary => '术语库';
   @override
@@ -1985,7 +1985,7 @@ extension on TranslationsZhHans {
       'workbench.workspace' => '工作区',
       'workbench.translate' => '翻译',
       'workbench.document' => '文档翻译',
-      'workbench.history' => '收藏与历史',
+      'workbench.history' => '历史',
       'workbench.glossary' => '术语库',
       'workbench.recent_languages' => '最近语言',
       'workbench.not_configured' => '尚未配置',
