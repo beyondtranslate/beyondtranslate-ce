@@ -1,31 +1,46 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart' hide ListTile;
+// An error is worth copying out of, and a selectable run of text is the one
+// thing the design system has no equivalent for.
+import 'package:flutter/material.dart' show SelectableText;
+import 'package:flutter/widgets.dart';
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
-import '../../widgets/preference_list/preference_list_item.dart';
 import '../../widgets/preference_list/preference_list_section.dart';
+import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/settings_page.dart';
-import '../../widgets/translation_engine_icon/translation_engine_icon.dart';
 import '../../widgets/ui.dart'
     show
+        Badge,
+        BadgeSize,
         Button,
         ButtonVariant,
         DesignThemeContext,
+        DesignTypographyStyles,
         DialogTone,
-        ListTile,
-        Spinner,
-        SpinnerSize,
         Field,
         Input,
+        Label,
+        LabelTone,
+        ListTile,
+        ListTileVariant,
         Select,
         SelectItem,
+        Spinner,
+        SpinnerSize,
         TextArea;
+import 'add_provider_dialog.dart';
+import 'provider_detail.dart';
+import 'provider_meta.dart';
 
-/// Mirrors macOS `ProvidersView.swift`.
+/// 设置 · 提供商 — the deck's two-group pane.
+///
+/// 提供商 lists credentials and endpoints only: a row opens its detail page,
+/// and what actually runs lives under 可用服务, grouped by capability the way
+/// the macOS page splits 翻译 / 查词 / OCR.
 class ProvidersSettingsPage extends StatefulWidget {
   const ProvidersSettingsPage({super.key});
 
@@ -36,6 +51,11 @@ class ProvidersSettingsPage extends StatefulWidget {
 class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   String? _errorMessage;
   bool _isLoading = false;
+
+  /// The provider whose detail page is open, or null on the list. The deck
+  /// pushes the page inside the pane rather than routing to it, so the rail
+  /// keeps 提供商 selected the whole time.
+  String? _detailProviderId;
 
   @override
   void initState() {
@@ -75,71 +95,19 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
     }
   }
 
-  Future<void> _openEditor({ProviderConfigEntry? existing}) async {
-    final draft = await showDialogInCurrentWindow<_ProviderDraft>(
+  Future<void> _addProvider() async {
+    // The sheet writes and tests the provider itself — it has to, to ask the
+    // real endpoint anything — so it hands back only the id it settled on.
+    final providerId = await showDialogInCurrentWindow<String>(
       context: context,
-      builder: (_) => _ProviderEditorDialog(existing: existing),
+      // Losing a half-filled key to a stray click on the scrim is worse than
+      // making the flow ask for 取消.
+      barrierDismissible: false,
+      builder: (_) => const AddProviderDialog(),
     );
-    if (draft == null) return;
-
-    try {
-      await runtime.settings().updateProvider(
-            providerId: draft.id,
-            providerType: _providerTypeValue(draft.type),
-            fields: draft.fields,
-          );
-      await Future.wait([
-        settingsStore.reloadProviders(),
-        settingsStore.reloadServices(),
-      ]);
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = error.toString();
-      });
-    }
-  }
-
-  Future<void> _deleteProvider(ProviderConfigEntry entry) async {
-    final confirmed = await showDialogInCurrentWindow<bool>(
-      context: context,
-      builder: (ctx) => AppDialog(
-        tone: DialogTone.danger,
-        title: Text(
-          formatTranslation(
-            t.settings.providers.delete_dialog.title,
-            args: [entry.id],
-          ),
-        ),
-        content: Text(t.settings.providers.delete_dialog.message),
-        actions: [
-          Button(
-            variant: ButtonVariant.secondary,
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.common.ui.button.cancel),
-          ),
-          Button(
-            variant: ButtonVariant.warning,
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(t.common.ui.button.delete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
-    try {
-      await runtime.settings().deleteProvider(providerId: entry.id);
-      await Future.wait([
-        settingsStore.reloadProviders(),
-        settingsStore.reloadServices(),
-      ]);
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = error.toString();
-      });
-    }
+    if (providerId == null || !mounted) return;
+    // A new provider opens on its detail page, where its models are waiting.
+    setState(() => _detailProviderId = providerId);
   }
 
   Future<void> _openServiceEditor({ServiceConfigEntry? existing}) async {
@@ -167,6 +135,33 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   }
 
   Future<void> _deleteService(ServiceConfigEntry entry) async {
+    final confirmed = await showDialogInCurrentWindow<bool>(
+      context: context,
+      builder: (ctx) => AppDialog(
+        tone: DialogTone.danger,
+        title: Text(
+          formatTranslation(
+            t.settings.services.detail.delete_dialog.title,
+            args: [entry.name.isEmpty ? entry.id : entry.name],
+          ),
+        ),
+        content: Text(t.settings.services.detail.delete_dialog.message),
+        actions: [
+          Button(
+            variant: ButtonVariant.secondary,
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.common.ui.button.cancel),
+          ),
+          Button(
+            variant: ButtonVariant.warning,
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(t.common.ui.button.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
     try {
       await runtime.settings().deleteService(serviceId: entry.id);
       await settingsStore.reloadServices();
@@ -182,166 +177,237 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
   Widget build(BuildContext context) {
     final providers = settingsStore.providers;
     final services = settingsStore.services;
-    final providersText = t.settings.providers;
+
+    final detail = _detailProviderId == null
+        ? null
+        : providers
+            .where((provider) => provider.id == _detailProviderId)
+            .firstOrNull;
+    // The provider can vanish under us — deleted here, or from the macOS
+    // settings window sharing the same runtime. Fall back to the list.
+    if (_detailProviderId != null && detail == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _detailProviderId = null);
+      });
+    }
+
+    if (detail != null) {
+      return ProviderDetailPage(
+        provider: detail,
+        services: services
+            .where((service) => service.providerId == detail.id)
+            .toList(growable: false),
+        onBack: () => setState(() => _detailProviderId = null),
+        onDeleted: () => setState(() => _detailProviderId = null),
+      );
+    }
 
     return SettingsPage(
+      // The rows bleed their hover wash 8px past the text; the groups push
+      // their prose back out by the same amount.
+      horizontalPadding: 16,
       children: [
         PreferenceListSection(
-          title: const Text('Providers'),
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    providersText.intro.body,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    providersText.intro.warning,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        PreferenceListSection(
-          title: const Text('Services'),
+          labelInset: 8,
+          title: Text(t.settings.providers.title),
+          action: Button(
+            variant: ButtonVariant.primary,
+            onPressed: _addProvider,
+            child: Text(t.settings.providers.button.add),
+          ),
+          description: Text(t.settings.providers.intro.warning),
           children: [
             if (_isLoading)
-              const SizedBox.shrink()
-            else if (services.isEmpty)
-              const PreferenceListItem(
-                title: Text('No services available.'),
-                accessoryView: SizedBox.shrink(),
-              )
-            else
-              for (final service in services)
-                _ServiceRow(
-                  service: service,
-                  provider: _providerFor(providers, service.providerId),
-                  onEdit: service.id == service.providerId
-                      ? null
-                      : () => _openServiceEditor(existing: service),
-                  onDelete: service.id == service.providerId
-                      ? null
-                      : () => _deleteService(service),
-                ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  Button(
-                    variant: ButtonVariant.secondary,
-                    onPressed: () => _openServiceEditor(),
-                    child: const Text('Add a Service...'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        PreferenceListSection(
-          children: [
-            if (_isLoading)
-              Padding(
-                padding: EdgeInsets.zero,
-                child: Row(
-                  children: [
-                    const Spinner(size: SpinnerSize.sm),
-                    const SizedBox(width: 12),
-                    Text(providersText.item.loading),
-                  ],
-                ),
-              )
+              const _LoadingRow()
             else if (providers.isEmpty)
-              const _EmptyProviderRow()
+              _PlaceholderRow(text: t.settings.providers.item.empty)
             else
               for (final provider in providers)
                 _ProviderRow(
                   provider: provider,
-                  onEdit: () => _openEditor(existing: provider),
-                  onDelete: () => _deleteProvider(provider),
+                  capabilities: _capabilitiesOf(services, provider.id),
+                  isDefault: _isDefaultProvider(provider.id),
+                  onOpen: () => setState(() => _detailProviderId = provider.id),
                 ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  Button(
-                    variant: ButtonVariant.secondary,
-                    onPressed: () => _openEditor(),
-                    child: Text(providersText.button.add),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
-        if (_errorMessage != null)
-          PreferenceListSection(
-            children: [
-              Padding(
-                padding: EdgeInsets.zero,
-                child: SelectableText(
-                  _errorMessage!,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-              ),
-            ],
+        const SettingsSectionDivider(),
+        PreferenceListSection(
+          labelInset: 8,
+          title: Text(t.settings.providers.section.services),
+          action: Button(
+            variant: ButtonVariant.quiet,
+            onPressed: providers.isEmpty ? null : () => _openServiceEditor(),
+            child: Text(t.settings.services.button.add_service),
           ),
+          description: Text(t.settings.providers.section.services_description),
+          children: [
+            if (_isLoading)
+              const _LoadingRow()
+            else if (services.isEmpty)
+              _PlaceholderRow(text: t.settings.providers.item.no_services)
+            else
+              ..._buildServiceGroups(services, providers),
+          ],
+        ),
+        if (_errorMessage != null) _ErrorBlock(message: _errorMessage!),
       ],
     );
   }
 
-  ProviderConfigEntry? _providerFor(
+  /// 可用服务, split into the deck's capability groups. Only the groups the
+  /// installed providers actually cover appear, and the last one drops its
+  /// trailing air so the footnote sits as close to the rows as the label does.
+  List<Widget> _buildServiceGroups(
+    List<ServiceConfigEntry> services,
     List<ProviderConfigEntry> providers,
+  ) {
+    final types = [
+      for (final type in kServiceTypeOrder)
+        if (services.any((service) => service.type == type)) type,
+    ];
+    return [
+      for (final (index, type) in types.indexed)
+        _ServiceGroup(
+          type: type,
+          services:
+              services.where((s) => s.type == type).toList(growable: false),
+          providers: providers,
+          isLast: index == types.length - 1,
+          onEdit: (service) => _openServiceEditor(existing: service),
+          onDelete: _deleteService,
+        ),
+    ];
+  }
+
+  /// The capability tags a provider row carries — one per service the runtime
+  /// derives from it, in the deck's order.
+  List<ServiceType> _capabilitiesOf(
+    List<ServiceConfigEntry> services,
     String providerId,
   ) {
-    for (final provider in providers) {
-      if (provider.id == providerId) return provider;
-    }
-    return null;
+    final kinds = services
+        .where((service) => service.providerId == providerId)
+        .map((service) => service.type)
+        .toSet();
+    return [
+      for (final type in kServiceTypeOrder)
+        if (kinds.contains(type)) type,
+    ];
+  }
+
+  /// The provider behind the app's default translation service wears 默认, the
+  /// way the deck marks 内置模型.
+  bool _isDefaultProvider(String providerId) {
+    final defaultService = settingsStore.general.defaultTranslationService;
+    if (defaultService.isEmpty) return false;
+    return providerIdOfService(defaultService) == providerId;
   }
 }
 
+/// One row of 提供商: the mark, the name, what it is set to, and the
+/// capabilities it lends the app. Everything that does not fit goes to the
+/// detail page the chevron opens — the same split the macOS list makes.
 class _ProviderRow extends StatelessWidget {
   const _ProviderRow({
     required this.provider,
+    required this.capabilities,
+    required this.isDefault,
+    required this.onOpen,
+  });
+
+  final ProviderConfigEntry provider;
+  final List<ServiceType> capabilities;
+  final bool isDefault;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: ListTile(
+        variant: ListTileVariant.row,
+        leading: ProviderIcon(providerTypeValue(provider.type), size: 18),
+        title: Text(providerTypeDisplayName(provider.type)),
+        badge: isDefault
+            ? Badge(
+                size: BadgeSize.xs,
+                child: Text(t.settings.providers.detail.models.default_badge),
+              )
+            : null,
+        meta: Text(_meta()),
+        trailing: [
+          for (final capability in capabilities)
+            _CapabilityTag(label: serviceTypeLabel(capability)),
+          Icon(
+            FluentIcons.chevron_right_20_regular,
+            size: 13,
+            color: context.colors.fgFaint,
+          ),
+        ],
+        onPressed: onOpen,
+      ),
+    );
+  }
+
+  /// The deck prints the model and the key's health here. We can vouch for the
+  /// model but not the key, so the id stands in — it is what tells two
+  /// providers of the same type apart anyway.
+  String _meta() {
+    final model = provider.fields['defaultModel']?.trim() ?? '';
+    return model.isEmpty ? provider.id : '$model · ${provider.id}';
+  }
+}
+
+/// One capability of 可用服务, with its rows.
+class _ServiceGroup extends StatelessWidget {
+  const _ServiceGroup({
+    required this.type,
+    required this.services,
+    required this.providers,
+    required this.isLast,
     required this.onEdit,
     required this.onDelete,
   });
 
-  final ProviderConfigEntry provider;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final ServiceType type;
+  final List<ServiceConfigEntry> services;
+  final List<ProviderConfigEntry> providers;
+  final bool isLast;
+  final ValueChanged<ServiceConfigEntry> onEdit;
+  final ValueChanged<ServiceConfigEntry> onDelete;
 
   @override
   Widget build(BuildContext context) {
-    // The deck's ProviderListItem card: avatar, bold name with the meta beside
-    // it, controls pinned right — one 34px line.
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: _ProviderTypeIcon(type: provider.type),
-        title: Text(_providerTypeDisplayName(provider.type)),
-        meta: Text(provider.id),
-        trailing: [
-          _RowMenuButton(onEdit: onEdit, onDelete: onDelete),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8, bottom: 8),
+            child: Label(
+              tone: LabelTone.faint,
+              child: Text(serviceTypeLabel(type)),
+            ),
+          ),
+          for (final service in services)
+            _ServiceRow(
+              service: service,
+              provider: providers
+                  .where((entry) => entry.id == service.providerId)
+                  .firstOrNull,
+              onEdit: () => onEdit(service),
+              onDelete: () => onDelete(service),
+            ),
         ],
       ),
     );
   }
 }
 
+/// One row of 可用服务 — the thing that actually runs.
 class _ServiceRow extends StatelessWidget {
   const _ServiceRow({
     required this.service,
@@ -352,131 +418,174 @@ class _ServiceRow extends StatelessWidget {
 
   final ServiceConfigEntry service;
   final ProviderConfigEntry? provider;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
-    final providerType = provider?.type;
-    final serviceName = service.name.isEmpty ? service.id : service.name;
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final name = service.name.isEmpty ? service.id : service.name;
+    // A synthesised service is the provider's own capability: it has nothing
+    // of its own to edit, and it goes when the provider does.
+    final owned = !isImplicitService(service);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading:
-            providerType == null ? null : _ProviderTypeIcon(type: providerType),
-        title: Text(serviceName),
-        meta:
-            Text('${_serviceTypeLabel(service.type)} · ${service.providerId}'),
-        trailing: [
-          if (onEdit != null || onDelete != null)
-            _RowMenuButton(onEdit: onEdit, onDelete: onDelete),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Row(
+        children: [
+          ProviderIcon(
+            providerTypeValue(provider?.type ?? ProviderType.system),
+            size: 16,
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: tokens.typography.sansStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1,
+                color: colors.fg,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              service.providerId,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: tokens.typography.monoStyle(
+                fontSize: 11,
+                height: 1,
+                color: colors.fgSubtle,
+              ),
+            ),
+          ),
+          const Spacer(),
+          if (owned) ...[
+            Button(
+              variant: ButtonVariant.quiet,
+              onPressed: onEdit,
+              child: Text(t.common.ui.button.edit),
+            ),
+            Button(
+              variant: ButtonVariant.warning,
+              onPressed: onDelete,
+              child: Text(t.common.ui.button.delete),
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-String _serviceTypeLabel(ServiceType type) {
-  switch (type) {
-    case ServiceType.dictionary:
-      return 'Dictionary';
-    case ServiceType.ocr:
-      return 'OCR';
-    case ServiceType.translation:
-      return 'Translation';
-    case ServiceType.llm:
-      return 'AI';
-  }
-}
+/// The capability capsule on a provider row — 翻译 / 查词 / OCR.
+class _CapabilityTag extends StatelessWidget {
+  const _CapabilityTag({required this.label});
 
-class _EmptyProviderRow extends StatelessWidget {
-  const _EmptyProviderRow();
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return PreferenceListItem(
-      icon: Icon(
-        Icons.layers_clear_outlined,
-        size: 22,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
+    final tokens = context.tokens;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: tokens.colors.control,
+        borderRadius: BorderRadius.circular(tokens.radii.pill),
       ),
-      title: Text(
-        t.settings.providers.item.empty,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+      child: Text(
+        label,
+        style: tokens.typography.sansStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+          height: 1,
+          color: tokens.colors.fgSubtle,
         ),
       ),
-      accessoryView: const SizedBox.shrink(),
     );
   }
 }
 
-/// The row's overflow menu, drawn as the design system's 24pt affordance so a
-/// list row keeps the deck's 34px height.
-class _RowMenuButton extends StatelessWidget {
-  const _RowMenuButton({this.onEdit, this.onDelete});
-
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+class _LoadingRow extends StatelessWidget {
+  const _LoadingRow();
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return PopupMenuButton<String>(
-      tooltip: '',
-      iconSize: 14,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 160),
-      icon: Icon(
-        FluentIcons.more_horizontal_20_regular,
-        size: 14,
-        color: colors.fgMuted,
-      ),
-      // The default IconButton box is 48pt; the deck's is 24.
-      style: const ButtonStyle(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        minimumSize: WidgetStatePropertyAll(Size(24, 24)),
-        fixedSize: WidgetStatePropertyAll(Size(24, 24)),
-        padding: WidgetStatePropertyAll(EdgeInsets.zero),
-      ),
-      onSelected: (value) {
-        switch (value) {
-          case 'edit':
-            onEdit?.call();
-            break;
-          case 'delete':
-            onDelete?.call();
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        if (onEdit != null)
-          PopupMenuItem<String>(
-            value: 'edit',
-            child: Text(t.common.ui.button.edit),
+    final tokens = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Row(
+        children: [
+          const Spinner(size: SpinnerSize.sm),
+          const SizedBox(width: 10),
+          Text(
+            t.settings.providers.item.loading,
+            style: tokens.typography.sansStyle(
+              fontSize: 12,
+              height: 1,
+              color: tokens.colors.fgSubtle,
+            ),
           ),
-        if (onEdit != null && onDelete != null) const PopupMenuDivider(),
-        if (onDelete != null)
-          PopupMenuItem<String>(
-            value: 'delete',
-            child: Text(t.common.ui.button.delete),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _ProviderTypeIcon extends StatelessWidget {
-  const _ProviderTypeIcon({required this.type});
+/// What a group shows before it has anything — the deck's 暂无可用服务.
+class _PlaceholderRow extends StatelessWidget {
+  const _PlaceholderRow({required this.text});
 
-  final ProviderType type;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return TranslationEngineIcon(_providerTypeValue(type), size: 22);
+    final tokens = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Text(
+        text,
+        style: tokens.typography.sansStyle(
+          fontSize: 12,
+          height: 1.4,
+          color: tokens.colors.fgFaint,
+        ),
+      ),
+    );
   }
 }
+
+class _ErrorBlock extends StatelessWidget {
+  const _ErrorBlock({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: SelectableText(
+        message,
+        style: tokens.typography.sansStyle(
+          fontSize: 11,
+          height: 1.6,
+          color: tokens.colors.dangerFg,
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 添加服务 — 添加提供商 has a flow of its own, in add_provider_dialog.dart
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _ServiceDraft {
   _ServiceDraft({
@@ -513,7 +622,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
 
   List<ProviderConfigEntry> get _aiProviders {
     return settingsStore.providers
-        .where((provider) => _isLlmProviderType(provider.type))
+        .where((provider) => isLlmProviderType(provider.type))
         .toList();
   }
 
@@ -552,10 +661,13 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
   Widget build(BuildContext context) {
     final isEditing = widget.existing != null;
     final providers = _aiProviders;
+    final services = t.settings.services;
 
     return AppDialog(
       width: 520,
-      title: Text(isEditing ? 'Edit Service' : 'Add Service'),
+      title: Text(
+        isEditing ? t.common.ui.button.edit : services.button.add_service,
+      ),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 420),
         child: SingleChildScrollView(
@@ -564,7 +676,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Field(
-                label: const Text('Service ID'),
+                label: Text(services.detail.row.id),
                 child: Input(
                   controller: _idController,
                   enabled: !isEditing,
@@ -575,7 +687,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
               ),
               const SizedBox(height: 14),
               Field(
-                label: const Text('Display Name'),
+                label: Text(services.detail.row.name),
                 child: Input(
                   controller: _nameController,
                   placeholder: 'e.g. Formal translation',
@@ -583,7 +695,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
               ),
               const SizedBox(height: 14),
               Field(
-                label: const Text('AI Provider'),
+                label: Text(services.detail.row.provider),
                 child: Select<String>(
                   value: _providerId,
                   enabled: !isEditing,
@@ -596,7 +708,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
               ),
               const SizedBox(height: 14),
               Field(
-                label: const Text('Service Type'),
+                label: Text(services.detail.row.type),
                 child: Select<ServiceType>(
                   value: _type,
                   items: const [
@@ -606,7 +718,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
                       .map(
                         (type) => SelectItem(
                           value: type,
-                          label: _serviceTypeLabel(type),
+                          label: serviceTypeLabel(type),
                         ),
                       )
                       .toList(growable: false),
@@ -615,7 +727,7 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
               ),
               const SizedBox(height: 14),
               Field(
-                label: const Text('Model Override'),
+                label: const Text('model'),
                 child: Input(
                   controller: _modelController,
                   placeholder: 'Optional',
@@ -624,11 +736,8 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
               ),
               const SizedBox(height: 14),
               Field(
-                label: const Text('System Prompt'),
-                hint: const Text(
-                  'Use {{sourceLanguage}}, {{targetLanguage}}, {{text}} '
-                  'if needed.',
-                ),
+                label: const Text('systemPrompt'),
+                hint: Text(services.detail.prompt_variables),
                 child: TextArea(
                   controller: _systemPromptController,
                   minLines: 4,
@@ -665,345 +774,11 @@ class _ServiceEditorDialogState extends State<_ServiceEditorDialog> {
                   );
                 }
               : null,
-          child: Text(isEditing ? 'Save' : 'Add'),
-        ),
-      ],
-    );
-  }
-}
-
-class _ProviderDraft {
-  _ProviderDraft({
-    required this.id,
-    required this.type,
-    required this.fields,
-  });
-  final String id;
-  final ProviderType type;
-  final Map<String, String> fields;
-}
-
-class _ProviderEditorDialog extends StatefulWidget {
-  const _ProviderEditorDialog({this.existing});
-
-  final ProviderConfigEntry? existing;
-
-  @override
-  State<_ProviderEditorDialog> createState() => _ProviderEditorDialogState();
-}
-
-class _ProviderEditorDialogState extends State<_ProviderEditorDialog> {
-  late final TextEditingController _idController;
-  ProviderType? _selectedType;
-  late Map<String, TextEditingController> _fieldControllers;
-
-  static const _knownProviderTypes = <ProviderType>[
-    ProviderType.anthropic,
-    ProviderType.baidu,
-    ProviderType.caiyun,
-    ProviderType.deepL,
-    ProviderType.deepSeek,
-    ProviderType.doubao,
-    ProviderType.gemini,
-    ProviderType.google,
-    ProviderType.groq,
-    ProviderType.moonshot,
-    ProviderType.openAi,
-    ProviderType.openAiCompatible,
-    ProviderType.ollama,
-    ProviderType.qwen,
-    ProviderType.system,
-    ProviderType.tencent,
-    ProviderType.xAi,
-    ProviderType.youdao,
-    ProviderType.zhipu,
-  ];
-
-  // Known field keys for each provider type. This intentionally mirrors the
-  // `*ProviderConfig+Fields.swift` files (lowest common denominator).
-  static const Map<ProviderType, List<String>> _providerFields = {
-    ProviderType.anthropic: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.baidu: ['appId', 'appKey'],
-    ProviderType.caiyun: ['token'],
-    ProviderType.deepL: ['authKey'],
-    ProviderType.google: ['apiKey'],
-    ProviderType.openAi: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.ollama: ['baseUrl', 'defaultModel'],
-    ProviderType.xAi: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.deepSeek: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.qwen: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.zhipu: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.moonshot: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.doubao: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.groq: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.gemini: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.openAiCompatible: ['apiKey', 'baseUrl', 'defaultModel'],
-    ProviderType.system: [],
-    ProviderType.tencent: ['secretId', 'secretKey'],
-    ProviderType.youdao: ['appKey', 'appSecret'],
-  };
-
-  @override
-  void initState() {
-    super.initState();
-    final existing = widget.existing;
-    _idController = TextEditingController(text: existing?.id ?? '');
-    _selectedType = existing?.type;
-    _fieldControllers = _buildControllers(_selectedType, existing?.fields);
-  }
-
-  Map<String, TextEditingController> _buildControllers(
-    ProviderType? type,
-    Map<String, String>? initial,
-  ) {
-    if (type == null) return {};
-    final keys = _providerFields[type] ?? const <String>[];
-    final controllers = <String, TextEditingController>{};
-    for (final key in keys) {
-      controllers[key] = TextEditingController(text: initial?[key] ?? '');
-    }
-    return controllers;
-  }
-
-  @override
-  void dispose() {
-    _idController.dispose();
-    for (final c in _fieldControllers.values) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  void _changeType(ProviderType type) {
-    final preserved = {
-      for (final entry in _fieldControllers.entries)
-        entry.key: entry.value.text,
-    };
-    for (final c in _fieldControllers.values) {
-      c.dispose();
-    }
-    setState(() {
-      _selectedType = type;
-      _fieldControllers = _buildControllers(type, preserved);
-    });
-  }
-
-  bool get _canSave {
-    if (_idController.text.trim().isEmpty) return false;
-    if (widget.existing == null && _selectedType == null) return false;
-    return true;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isEditing = widget.existing != null;
-
-    return AppDialog(
-      width: 440,
-      title: Text(isEditing ? 'Edit Provider' : 'Add Provider'),
-      subtitle: isEditing
-          ? Text(
-              '${widget.existing!.id} \u00b7 '
-              '${_providerTypeDisplayName(widget.existing!.type)}',
-            )
-          : null,
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 420),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isEditing) ...[
-                Field(
-                  label: const Text('Provider ID'),
-                  child: Input(
-                    controller: _idController,
-                    placeholder: 'e.g. my-provider',
-                    mono: true,
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Field(
-                  label: const Text('Provider Type'),
-                  child: Select<ProviderType?>(
-                    value: _selectedType,
-                    items: [
-                      for (final type in _knownProviderTypes)
-                        SelectItem(
-                          value: type,
-                          label: _providerTypeDisplayName(type),
-                        ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) _changeType(value);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
-              for (final entry in _fieldControllers.entries) ...[
-                Field(
-                  label: Text(entry.key),
-                  child: Input(
-                    controller: entry.value,
-                    obscureText: _isSecretField(entry.key),
-                    mono: !_isSecretField(entry.key),
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
-              if (_fieldControllers.isEmpty)
-                const Text('No configuration fields required.'),
-            ],
+          child: Text(
+            isEditing ? t.common.ui.button.save : t.common.ui.button.add,
           ),
         ),
-      ),
-      actions: [
-        Button(
-          variant: ButtonVariant.secondary,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        Button(
-          variant: ButtonVariant.primary,
-          onPressed: _canSave
-              ? () {
-                  final draft = _ProviderDraft(
-                    id: _idController.text.trim(),
-                    type: _selectedType!,
-                    fields: {
-                      for (final entry in _fieldControllers.entries)
-                        entry.key: entry.value.text,
-                    },
-                  );
-                  Navigator.of(context).pop(draft);
-                }
-              : null,
-          child: Text(isEditing ? 'Save' : 'Add'),
-        ),
       ],
     );
-  }
-
-  bool _isSecretField(String key) {
-    final lower = key.toLowerCase();
-    return lower.contains('key') ||
-        lower.contains('secret') ||
-        lower.contains('token') ||
-        lower.contains('password');
-  }
-}
-
-bool _isLlmProviderType(ProviderType type) {
-  switch (type) {
-    case ProviderType.anthropic:
-    case ProviderType.openAi:
-    case ProviderType.ollama:
-    case ProviderType.xAi:
-    case ProviderType.deepSeek:
-    case ProviderType.qwen:
-    case ProviderType.zhipu:
-    case ProviderType.moonshot:
-    case ProviderType.doubao:
-    case ProviderType.groq:
-    case ProviderType.gemini:
-    case ProviderType.openAiCompatible:
-      return true;
-    case ProviderType.baidu:
-    case ProviderType.caiyun:
-    case ProviderType.deepL:
-    case ProviderType.google:
-    case ProviderType.system:
-    case ProviderType.tencent:
-    case ProviderType.youdao:
-      return false;
-  }
-}
-
-String _providerTypeValue(ProviderType type) {
-  switch (type) {
-    case ProviderType.anthropic:
-      return 'anthropic';
-    case ProviderType.baidu:
-      return 'baidu';
-    case ProviderType.caiyun:
-      return 'caiyun';
-    case ProviderType.deepL:
-      return 'deepl';
-    case ProviderType.google:
-      return 'google';
-    case ProviderType.openAi:
-      return 'openai';
-    case ProviderType.ollama:
-      return 'ollama';
-    case ProviderType.xAi:
-      return 'xai';
-    case ProviderType.deepSeek:
-      return 'deepseek';
-    case ProviderType.qwen:
-      return 'qwen';
-    case ProviderType.zhipu:
-      return 'zhipu';
-    case ProviderType.moonshot:
-      return 'moonshot';
-    case ProviderType.doubao:
-      return 'doubao';
-    case ProviderType.groq:
-      return 'groq';
-    case ProviderType.gemini:
-      return 'gemini';
-    case ProviderType.openAiCompatible:
-      return 'openai_compatible';
-    case ProviderType.system:
-      return 'system';
-    case ProviderType.tencent:
-      return 'tencent';
-    case ProviderType.youdao:
-      return 'youdao';
-  }
-}
-
-String _providerTypeDisplayName(ProviderType type) {
-  switch (type) {
-    case ProviderType.anthropic:
-      return t.common.provider.anthropic;
-    case ProviderType.baidu:
-      return t.common.provider.baidu;
-    case ProviderType.caiyun:
-      return t.common.provider.caiyun;
-    case ProviderType.deepL:
-      return t.common.provider.deepl;
-    case ProviderType.google:
-      return t.common.provider.google;
-    case ProviderType.openAi:
-      return t.common.provider.openai;
-    case ProviderType.ollama:
-      return t.common.provider.ollama;
-    case ProviderType.xAi:
-      return t.common.provider.xai;
-    case ProviderType.deepSeek:
-      return 'DeepSeek';
-    case ProviderType.qwen:
-      return 'Qwen';
-    case ProviderType.zhipu:
-      return 'Zhipu GLM';
-    case ProviderType.moonshot:
-      return 'Moonshot Kimi';
-    case ProviderType.doubao:
-      return 'Doubao';
-    case ProviderType.groq:
-      return 'Groq';
-    case ProviderType.gemini:
-      return 'Gemini';
-    case ProviderType.openAiCompatible:
-      return 'OpenAI Compatible';
-    case ProviderType.system:
-      return t.common.provider.system;
-    case ProviderType.tencent:
-      return t.common.provider.tencent;
-    case ProviderType.youdao:
-      return t.common.provider.youdao;
   }
 }

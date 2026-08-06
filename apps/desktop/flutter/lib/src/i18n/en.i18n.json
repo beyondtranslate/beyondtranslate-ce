@@ -164,28 +164,26 @@
     "result": {
       "translating": "Translating…",
       "stale_requery": "Source changed · ⏎ retranslate",
-      "compare_engines": "Compare $count engines",
+      "compare_services": "Compare $count services",
       "collapse_compare": "Collapse",
       "set_preferred": "Set as preferred",
       "retry": "Retry",
-      "no_result": "No engine returned a result — check your network or try another engine.",
+      "no_result": "No service returned a result — check your network or try another service.",
       "no_result_note": "Your text is kept; retrying will not duplicate history."
     }
   },
   "workbench": {
     "workspace": "Workspace",
     "translate": "Translate",
-    "document": "Document Translation",
     "history": "History",
     "glossary": "Glossary",
     "recent_languages": "Recent Languages",
     "not_configured": "Not configured",
     "subtitle": {
-      "translate": "Workbench · Engine comparison",
+      "translate": "Workbench · Service comparison",
       "settings": "Settings"
     },
     "placeholder": {
-      "document": "Document translation is being built",
       "history": "Favorites and history will be available in a future release",
       "glossary": "Glossary management is being built"
     },
@@ -202,7 +200,7 @@
       "search_placeholder": "Search terms or required translations",
       "search_label": "Search the glossary",
       "entry_count": "$name · $count terms",
-      "priority_note": "Glossary terms outrank any engine output",
+      "priority_note": "Glossary terms outrank any service output",
       "new_book": "New glossary",
       "new_book_placeholder": "Glossary name",
       "rename_book": "Rename",
@@ -211,11 +209,11 @@
       "enable": "Enable",
       "disable": "Disable",
       "empty_title": "This glossary is empty",
-      "empty_description": "Glossary terms outrank any engine output. Add them one at a time, or drop in a CSV to merge.",
+      "empty_description": "Glossary terms outrank any service output. Add them one at a time, or drop in a CSV to merge.",
       "no_results_title": "No terms match “$query”",
       "no_results_description": "Try another keyword, or add the term.",
       "no_books_title": "No glossaries yet",
-      "no_books_description": "A glossary keeps your chosen wording consistent across every engine. Create one, then start adding terms.",
+      "no_books_description": "A glossary keeps your chosen wording consistent across every service. Create one, then start adding terms.",
       "loading": "Loading…"
     },
     "translation": {
@@ -229,7 +227,7 @@
       "translating": "Translating…",
       "failed": "Translation failed. Check the service configuration and try again.",
       "empty": "The translation will appear here",
-      "engine_compare": "Engine comparison",
+      "service_compare": "Service comparison",
       "main_translation": "Primary",
       "service_unavailable": "Service unavailable",
       "waiting": "Waiting to translate",
@@ -237,7 +235,7 @@
       "copy": "Copy",
       "favorite_unavailable": "Favorites will be available in a future release",
       "preferred": "Preferred translation",
-      "other_engines": "Other engines",
+      "other_services": "Other services",
       "copy_result": "Copy translation",
       "copied": "Copied",
       "favorite": "Save",
@@ -246,7 +244,7 @@
       "quality": "Quality signals",
       "quality_hint": "Computed once a translation lands.",
       "shortcuts": "Shortcuts",
-      "other_engines_disabled": "Other engines are disabled",
+      "other_services_disabled": "Other services are disabled",
       "input_hint_translate_to": "Type or paste text to translate into $language"
     },
     "status": {
@@ -368,6 +366,7 @@
       },
       "detail": {
         "row": {
+          "id": "Service ID",
           "name": "Name",
           "provider": "Provider",
           "type": "Type"
@@ -402,7 +401,9 @@
       },
       "editor": {
         "row": {
-          "id": "Provider ID"
+          "id": "Provider ID",
+          "type": "Provider Type",
+          "default_model": "Default Model"
         },
         "placeholder": {
           "id": "e.g. deepl-main"
@@ -414,11 +415,37 @@
         },
         "tooltip": {
           "help": "Help"
+        },
+        "step": {
+          "next": "Continue",
+          "back": "Back"
+        },
+        "add_title": "Add {}",
+        "capability_note": {
+          "translation": "Joins the translation candidates",
+          "dictionary": "Provides dictionary definitions",
+          "ocr": "Recognises text in images"
+        },
+        "test": {
+          "run": "Test Connection",
+          "running": "Testing connection · {}s elapsed",
+          "passed_models": "Connection OK · {} models available",
+          "passed_service": "Connection OK · service available",
+          "passed_footer": "Connection test passed",
+          "retest": "Test Again",
+          "tips_title": "Things to try",
+          "tips_llm": "· Check the key matches the provider type you picked\n· Check whether the Base URL needs /v1\n· Confirm the model is enabled in the provider console",
+          "tips_traditional": "· Check the credentials match the provider type you picked\n· Confirm the service is enabled in the provider console",
+          "failed_suffix": "verification failed",
+          "passed_suffix": "verified"
         }
       },
       "detail": {
         "tooltip": {
           "edit": "Edit provider"
+        },
+        "row": {
+          "id_hint": "Cannot be changed after creation"
         },
         "section": {
           "configuration": "Configuration",
@@ -428,14 +455,17 @@
           "loading": "Loading models...",
           "empty": "No models found.",
           "retry": "Retry",
+          "refresh": "Refresh List",
           "default_badge": "Default",
+          "set_default": "Set as Default",
           "fetch_error": "Could not fetch models from provider API."
         }
       },
       "capability": {
         "translation": "Translation",
         "dictionary": "Dictionary",
-        "ocr": "OCR"
+        "ocr": "OCR",
+        "llm": "AI"
       },
       "description": {
         "all": "Provides dictionary lookup and text translation",

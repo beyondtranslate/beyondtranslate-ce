@@ -24,7 +24,6 @@ class WorkbenchRouteTree {
   const WorkbenchRouteTree();
 
   final String translate = '/translate';
-  final String document = '/document';
   final String history = '/history';
   final String glossary = '/glossary';
 }
@@ -34,7 +33,7 @@ class DebugRouteTree {
 
   final String path = '/debug';
   final String runtime = '/debug/runtime';
-  final String components = '/debug/components';
+  final String widgets = '/debug/widgets';
 }
 
 class SettingsRouteTree {
@@ -70,8 +69,8 @@ final List<RouteNode> routeNodes = <RouteNode>[
     parentId: 'root',
   ),
   RouteNode(
-    id: 'debug-components',
-    path: RouteTree.debug.components,
+    id: 'debug-widgets',
+    path: RouteTree.debug.widgets,
     parentId: 'debug',
   ),
   RouteNode(
@@ -80,11 +79,6 @@ final List<RouteNode> routeNodes = <RouteNode>[
     parentId: 'debug',
   ),
   const RouteNode(id: 'root', path: RouteTree.root),
-  RouteNode(
-    id: 'workbench-document',
-    path: RouteTree.workbench.document,
-    parentId: 'root',
-  ),
   RouteNode(
     id: 'workbench-glossary',
     path: RouteTree.workbench.glossary,

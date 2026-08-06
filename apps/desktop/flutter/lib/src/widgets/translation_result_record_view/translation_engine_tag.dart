@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/ext_translation_engine_config.dart';
 import '../../models/translation_result_record.dart';
 import '../../services/runtime.dart';
-import '../translation_engine_icon/translation_engine_icon.dart';
+import '../provider_icon/provider_icon.dart';
 import '../ui.dart' show Button, ButtonVariant;
 
 class TranslationEngineTag extends StatefulWidget {
@@ -19,27 +19,12 @@ class TranslationEngineTag extends StatefulWidget {
 }
 
 class _TranslationEngineTagState extends State<TranslationEngineTag> {
-  static const Set<String> _iconTypes = {
-    'anthropic',
-    'baidu',
-    'caiyun',
-    'deepl',
-    'google',
-    'ollama',
-    'openai',
-    'sogou',
-    'system',
-    'tencent',
-    'xai',
-    'youdao',
-  };
-
   bool _isHovered = false;
   ProviderConfigEntry? _providerConfigEntry;
   ServiceConfigEntry? _serviceConfigEntry;
 
-  String? get _translationEngineId {
-    return widget.translationResultRecord.translationEngineId;
+  String? get _translationServiceId {
+    return widget.translationResultRecord.translationServiceId;
   }
 
   String get _translationEngineType {
@@ -47,7 +32,7 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
     if (type != null) {
       return _providerTypeValue(type);
     }
-    return _translationEngineId ?? '';
+    return _translationServiceId ?? '';
   }
 
   String get _translationEngineName {
@@ -59,7 +44,7 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
       }
       return getTranslationEngineTypeName(_providerTypeValue(providerType));
     }
-    return _translationEngineId ?? '';
+    return _translationServiceId ?? '';
   }
 
   static String _providerTypeValue(ProviderType type) {
@@ -114,8 +99,8 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
   @override
   void didUpdateWidget(covariant TranslationEngineTag oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.translationResultRecord.translationEngineId !=
-        widget.translationResultRecord.translationEngineId) {
+    if (oldWidget.translationResultRecord.translationServiceId !=
+        widget.translationResultRecord.translationServiceId) {
       _providerConfigEntry = null;
       _serviceConfigEntry = null;
       _loadProviderConfigEntry();
@@ -123,23 +108,23 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
   }
 
   void _loadProviderConfigEntry() async {
-    final translationEngineId = _translationEngineId;
-    if (translationEngineId == null) {
+    final translationServiceId = _translationServiceId;
+    if (translationServiceId == null) {
       return;
     }
 
     try {
       final serviceConfigEntry = await runtime.settings().getService(
-            serviceId: translationEngineId,
+            serviceId: translationServiceId,
           );
       final providerConfigEntry = serviceConfigEntry == null
           ? await runtime
               .settings()
-              .getProvider(providerId: translationEngineId)
+              .getProvider(providerId: translationServiceId)
           : await runtime
               .settings()
               .getProvider(providerId: serviceConfigEntry.providerId);
-      if (!mounted || translationEngineId != _translationEngineId) {
+      if (!mounted || translationServiceId != _translationServiceId) {
         return;
       }
       setState(() {
@@ -151,36 +136,7 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
     }
   }
 
-  Widget _buildIcon(String type) {
-    if (_iconTypes.contains(type)) {
-      return TranslationEngineIcon(
-        type,
-        size: 12,
-      );
-    }
-
-    return Container(
-      width: 12,
-      height: 12,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withValues(alpha: 0.12),
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
-        border: Border.all(
-          color: Colors.black.withValues(alpha: 0.2),
-          width: 0.5,
-        ),
-      ),
-      child: Text(
-        type.isEmpty ? '?' : type[0].toUpperCase(),
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: Theme.of(context).primaryColor,
-              fontSize: 7,
-              height: 1,
-            ),
-      ),
-    );
-  }
+  Widget _buildIcon(String type) => ProviderIcon(type, size: 12);
 
   @override
   Widget build(BuildContext context) {

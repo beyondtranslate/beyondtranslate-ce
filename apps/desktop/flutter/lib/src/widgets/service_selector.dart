@@ -2,15 +2,15 @@ import 'package:flutter/widgets.dart';
 
 import 'ui.dart' show Badge, BadgeTone, OptionCard;
 
-class EngineSelector extends StatelessWidget {
-  const EngineSelector({
+class ServiceSelector extends StatelessWidget {
+  const ServiceSelector({
     super.key,
-    required this.engines,
+    required this.services,
     required this.selectedId,
     required this.onSelected,
   });
 
-  final List<EngineOption> engines;
+  final List<ServiceOption> services;
   final String selectedId;
   final ValueChanged<String> onSelected;
 
@@ -19,26 +19,26 @@ class EngineSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var index = 0; index < engines.length; index++) ...[
+        for (var index = 0; index < services.length; index++) ...[
           if (index > 0) const SizedBox(height: 8),
           Builder(
             builder: (context) {
-              final engine = engines[index];
+              final service = services[index];
               return OptionCard(
-                selected: engine.id == selectedId,
-                onSelect: () => onSelected(engine.id),
+                selected: service.id == selectedId,
+                onSelect: () => onSelected(service.id),
                 title: Row(
                   children: [
-                    Expanded(child: Text(engine.name)),
-                    if (engine.tag != null)
+                    Expanded(child: Text(service.name)),
+                    if (service.tag != null)
                       Badge(
                         tone: BadgeTone.accent,
-                        child: Text(engine.tag!),
+                        child: Text(service.tag!),
                       ),
                   ],
                 ),
                 description: Text(
-                  engine.preview,
+                  service.preview,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -51,8 +51,8 @@ class EngineSelector extends StatelessWidget {
   }
 }
 
-class EngineOption {
-  const EngineOption({
+class ServiceOption {
+  const ServiceOption({
     required this.id,
     required this.name,
     required this.preview,

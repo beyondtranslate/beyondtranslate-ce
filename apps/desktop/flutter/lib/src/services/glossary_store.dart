@@ -233,7 +233,7 @@ class GlossaryStore extends ChangeNotifier {
   }
 
   /// Which glossary rules a translation breaks, for flagging results the
-  /// engine produced without honouring the terms.
+  /// service produced without honouring the terms.
   Future<List<GlossaryComplianceIssue>> check({
     required String source,
     required String translated,

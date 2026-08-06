@@ -156,8 +156,6 @@ class _TranslationsWorkbenchKo extends TranslationsWorkbenchEn {
   @override
   String get translate => '번역';
   @override
-  String get document => '문서 번역';
-  @override
   String get history => '기록';
   @override
   String get glossary => '용어집';
@@ -572,7 +570,7 @@ class _TranslationsMiniTranslatorResultKo
   @override
   String get stale_requery => '원문이 수정됨 · ⏎ 다시 번역';
   @override
-  String compare_engines({required Object count}) => '엔진 ${count}개 비교';
+  String compare_services({required Object count}) => '서비스 ${count}개 비교';
   @override
   String get collapse_compare => '비교 접기';
   @override
@@ -580,7 +578,8 @@ class _TranslationsMiniTranslatorResultKo
   @override
   String get retry => '다시 시도';
   @override
-  String get no_result => '어떤 엔진도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 엔진을 사용해 보세요.';
+  String get no_result =>
+      '어떤 서비스도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 서비스을 사용해 보세요.';
   @override
   String get no_result_note => '원문은 유지되며, 다시 시도해도 기록이 중복되지 않습니다.';
 }
@@ -595,7 +594,7 @@ class _TranslationsWorkbenchSubtitleKo extends TranslationsWorkbenchSubtitleEn {
 
   // Translations
   @override
-  String get translate => '워크벤치 · 엔진 비교';
+  String get translate => '워크벤치 · 서비스 비교';
   @override
   String get settings => '설정';
 }
@@ -610,8 +609,6 @@ class _TranslationsWorkbenchPlaceholderKo
   final TranslationsKo _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get document => '문서 번역을 개발 중입니다';
   @override
   String get history => '즐겨찾기와 기록은 향후 버전에서 제공됩니다';
   @override
@@ -654,7 +651,7 @@ class _TranslationsWorkbenchGlossaryPageKo
   String entry_count({required Object name, required Object count}) =>
       '${name} · ${count}개';
   @override
-  String get priority_note => '용어집은 어떤 엔진 출력보다 우선합니다';
+  String get priority_note => '용어집은 어떤 서비스 출력보다 우선합니다';
   @override
   String get new_book => '용어집 만들기';
   @override
@@ -674,7 +671,7 @@ class _TranslationsWorkbenchGlossaryPageKo
   String get empty_title => '이 용어집은 비어 있습니다';
   @override
   String get empty_description =>
-      '용어집은 어떤 엔진 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.';
+      '용어집은 어떤 서비스 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.';
   @override
   String no_results_title({required Object query}) =>
       '“${query}”와(과) 일치하는 용어가 없습니다';
@@ -684,7 +681,7 @@ class _TranslationsWorkbenchGlossaryPageKo
   String get no_books_title => '아직 용어집이 없습니다';
   @override
   String get no_books_description =>
-      '용어집은 선택한 번역어를 모든 엔진에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.';
+      '용어집은 선택한 번역어를 모든 서비스에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.';
   @override
   String get loading => '불러오는 중…';
 }
@@ -720,7 +717,7 @@ class _TranslationsWorkbenchTranslationKo
   @override
   String get empty => '번역문이 여기에 표시됩니다';
   @override
-  String get engine_compare => '엔진 비교';
+  String get service_compare => '서비스 비교';
   @override
   String get main_translation => '기본 번역';
   @override
@@ -736,7 +733,7 @@ class _TranslationsWorkbenchTranslationKo
   @override
   String get preferred => '기본 번역';
   @override
-  String get other_engines => '다른 엔진';
+  String get other_services => '다른 서비스';
   @override
   String get copy_result => '번역 복사';
   @override
@@ -754,7 +751,7 @@ class _TranslationsWorkbenchTranslationKo
   @override
   String get shortcuts => '단축키';
   @override
-  String get other_engines_disabled => '다른 엔진이 비활성화됨';
+  String get other_services_disabled => '다른 서비스이 비활성화됨';
   @override
   String input_hint_translate_to({required Object language}) =>
       '번역할 텍스트를 입력하거나 붙여넣어 ${language}(으)로 번역';
@@ -1562,6 +1559,18 @@ class _TranslationsSettingsProvidersEditorKo
   @override
   late final _TranslationsSettingsProvidersEditorTooltipKo tooltip =
       _TranslationsSettingsProvidersEditorTooltipKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorStepKo step =
+      _TranslationsSettingsProvidersEditorStepKo._(_root);
+  @override
+  String get add_title => '{} 추가';
+  @override
+  late final _TranslationsSettingsProvidersEditorCapabilityNoteKo
+      capability_note =
+      _TranslationsSettingsProvidersEditorCapabilityNoteKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorTestKo test =
+      _TranslationsSettingsProvidersEditorTestKo._(_root);
 }
 
 // Path: settings.providers.detail
@@ -1577,6 +1586,9 @@ class _TranslationsSettingsProvidersDetailKo
   @override
   late final _TranslationsSettingsProvidersDetailTooltipKo tooltip =
       _TranslationsSettingsProvidersDetailTooltipKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailRowKo row =
+      _TranslationsSettingsProvidersDetailRowKo._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailSectionKo section =
       _TranslationsSettingsProvidersDetailSectionKo._(_root);
@@ -1601,6 +1613,8 @@ class _TranslationsSettingsProvidersCapabilityKo
   String get dictionary => '사전';
   @override
   String get ocr => 'OCR';
+  @override
+  String get llm => 'AI';
 }
 
 // Path: settings.providers.description
@@ -1698,6 +1712,8 @@ class _TranslationsSettingsServicesDetailRowKo
 
   // Translations
   @override
+  String get id => '서비스 ID';
+  @override
   String get name => '이름';
   @override
   String get provider => '제공자';
@@ -1733,6 +1749,10 @@ class _TranslationsSettingsProvidersEditorRowKo
   // Translations
   @override
   String get id => '제공자 ID';
+  @override
+  String get type => '제공자 유형';
+  @override
+  String get default_model => '기본 모델';
 }
 
 // Path: settings.providers.editor.placeholder
@@ -1781,6 +1801,76 @@ class _TranslationsSettingsProvidersEditorTooltipKo
   String get help => '도움말';
 }
 
+// Path: settings.providers.editor.step
+class _TranslationsSettingsProvidersEditorStepKo
+    extends TranslationsSettingsProvidersEditorStepEn {
+  _TranslationsSettingsProvidersEditorStepKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get next => '계속';
+  @override
+  String get back => '이전';
+}
+
+// Path: settings.providers.editor.capability_note
+class _TranslationsSettingsProvidersEditorCapabilityNoteKo
+    extends TranslationsSettingsProvidersEditorCapabilityNoteEn {
+  _TranslationsSettingsProvidersEditorCapabilityNoteKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => '번역 후보에 참여합니다';
+  @override
+  String get dictionary => '사전 뜻풀이를 제공합니다';
+  @override
+  String get ocr => '이미지 속 문자를 인식합니다';
+}
+
+// Path: settings.providers.editor.test
+class _TranslationsSettingsProvidersEditorTestKo
+    extends TranslationsSettingsProvidersEditorTestEn {
+  _TranslationsSettingsProvidersEditorTestKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get run => '연결 테스트';
+  @override
+  String get running => '연결 테스트 중 · {}s 경과';
+  @override
+  String get passed_models => '연결 정상 · 모델 {}개 사용 가능';
+  @override
+  String get passed_service => '연결 정상 · 서비스 사용 가능';
+  @override
+  String get passed_footer => '연결 테스트를 통과했습니다';
+  @override
+  String get retest => '다시 테스트';
+  @override
+  String get tips_title => '이렇게 해보세요';
+  @override
+  String get tips_llm =>
+      '· 키가 선택한 제공자 유형과 맞는지 확인하세요\n· Base URL에 /v1이 필요한지 확인하세요\n· 제공자 콘솔에서 해당 모델이 활성화되어 있는지 확인하세요';
+  @override
+  String get tips_traditional =>
+      '· 자격 증명이 선택한 제공자 유형과 맞는지 확인하세요\n· 제공자 콘솔에서 서비스가 활성화되어 있는지 확인하세요';
+  @override
+  String get failed_suffix => '검증 실패';
+  @override
+  String get passed_suffix => '검증됨';
+}
+
 // Path: settings.providers.detail.tooltip
 class _TranslationsSettingsProvidersDetailTooltipKo
     extends TranslationsSettingsProvidersDetailTooltipEn {
@@ -1793,6 +1883,20 @@ class _TranslationsSettingsProvidersDetailTooltipKo
   // Translations
   @override
   String get edit => '제공자 편집';
+}
+
+// Path: settings.providers.detail.row
+class _TranslationsSettingsProvidersDetailRowKo
+    extends TranslationsSettingsProvidersDetailRowEn {
+  _TranslationsSettingsProvidersDetailRowKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get id_hint => '생성 후에는 변경할 수 없습니다';
 }
 
 // Path: settings.providers.detail.section
@@ -1828,7 +1932,11 @@ class _TranslationsSettingsProvidersDetailModelsKo
   @override
   String get retry => '재시도';
   @override
+  String get refresh => '목록 새로 고침';
+  @override
   String get default_badge => '기본값';
+  @override
+  String get set_default => '기본값으로 설정';
   @override
   String get fetch_error => '제공자 API에서 모델을 가져올 수 없습니다.';
 }
@@ -1964,25 +2072,23 @@ extension on TranslationsKo {
       'mini_translator.message.ocr_recognition_failed' => '텍스트 인식 실패',
       'mini_translator.result.translating' => '번역 중…',
       'mini_translator.result.stale_requery' => '원문이 수정됨 · ⏎ 다시 번역',
-      'mini_translator.result.compare_engines' => ({required Object count}) =>
-          '엔진 ${count}개 비교',
+      'mini_translator.result.compare_services' => ({required Object count}) =>
+          '서비스 ${count}개 비교',
       'mini_translator.result.collapse_compare' => '비교 접기',
       'mini_translator.result.set_preferred' => '기본으로 설정',
       'mini_translator.result.retry' => '다시 시도',
       'mini_translator.result.no_result' =>
-        '어떤 엔진도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 엔진을 사용해 보세요.',
+        '어떤 서비스도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 서비스을 사용해 보세요.',
       'mini_translator.result.no_result_note' =>
         '원문은 유지되며, 다시 시도해도 기록이 중복되지 않습니다.',
       'workbench.workspace' => '작업 공간',
       'workbench.translate' => '번역',
-      'workbench.document' => '문서 번역',
       'workbench.history' => '기록',
       'workbench.glossary' => '용어집',
       'workbench.recent_languages' => '최근 언어',
       'workbench.not_configured' => '설정되지 않음',
-      'workbench.subtitle.translate' => '워크벤치 · 엔진 비교',
+      'workbench.subtitle.translate' => '워크벤치 · 서비스 비교',
       'workbench.subtitle.settings' => '설정',
-      'workbench.placeholder.document' => '문서 번역을 개발 중입니다',
       'workbench.placeholder.history' => '즐겨찾기와 기록은 향후 버전에서 제공됩니다',
       'workbench.placeholder.glossary' => '용어집 관리를 개발 중입니다',
       'workbench.glossary_page.add_entry' => '용어 추가',
@@ -1999,7 +2105,7 @@ extension on TranslationsKo {
       'workbench.glossary_page.entry_count' => (
               {required Object name, required Object count}) =>
           '${name} · ${count}개',
-      'workbench.glossary_page.priority_note' => '용어집은 어떤 엔진 출력보다 우선합니다',
+      'workbench.glossary_page.priority_note' => '용어집은 어떤 서비스 출력보다 우선합니다',
       'workbench.glossary_page.new_book' => '용어집 만들기',
       'workbench.glossary_page.new_book_placeholder' => '용어집 이름',
       'workbench.glossary_page.rename_book' => '이름 바꾸기',
@@ -2011,14 +2117,14 @@ extension on TranslationsKo {
       'workbench.glossary_page.disable' => '사용 안 함',
       'workbench.glossary_page.empty_title' => '이 용어집은 비어 있습니다',
       'workbench.glossary_page.empty_description' =>
-        '용어집은 어떤 엔진 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.',
+        '용어집은 어떤 서비스 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.',
       'workbench.glossary_page.no_results_title' => ({required Object query}) =>
           '“${query}”와(과) 일치하는 용어가 없습니다',
       'workbench.glossary_page.no_results_description' =>
         '다른 키워드를 쓰거나 새로 추가해 보세요.',
       'workbench.glossary_page.no_books_title' => '아직 용어집이 없습니다',
       'workbench.glossary_page.no_books_description' =>
-        '용어집은 선택한 번역어를 모든 엔진에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.',
+        '용어집은 선택한 번역어를 모든 서비스에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.',
       'workbench.glossary_page.loading' => '불러오는 중…',
       'workbench.translation.source' => '원문',
       'workbench.translation.target' => '번역문',
@@ -2030,7 +2136,7 @@ extension on TranslationsKo {
       'workbench.translation.translating' => '번역 중…',
       'workbench.translation.failed' => '번역에 실패했습니다. 서비스 설정을 확인하세요.',
       'workbench.translation.empty' => '번역문이 여기에 표시됩니다',
-      'workbench.translation.engine_compare' => '엔진 비교',
+      'workbench.translation.service_compare' => '서비스 비교',
       'workbench.translation.main_translation' => '기본 번역',
       'workbench.translation.service_unavailable' => '서비스를 사용할 수 없음',
       'workbench.translation.waiting' => '번역 대기',
@@ -2038,7 +2144,7 @@ extension on TranslationsKo {
       'workbench.translation.copy' => '복사',
       'workbench.translation.favorite_unavailable' => '즐겨찾기는 향후 버전에서 제공됩니다',
       'workbench.translation.preferred' => '기본 번역',
-      'workbench.translation.other_engines' => '다른 엔진',
+      'workbench.translation.other_services' => '다른 서비스',
       'workbench.translation.copy_result' => '번역 복사',
       'workbench.translation.copied' => '복사됨',
       'workbench.translation.favorite' => '저장',
@@ -2047,7 +2153,7 @@ extension on TranslationsKo {
       'workbench.translation.quality' => '품질 신호',
       'workbench.translation.quality_hint' => '번역이 완료되면 계산됩니다.',
       'workbench.translation.shortcuts' => '단축키',
-      'workbench.translation.other_engines_disabled' => '다른 엔진이 비활성화됨',
+      'workbench.translation.other_services_disabled' => '다른 서비스이 비활성화됨',
       'workbench.translation.input_hint_translate_to' => (
               {required Object language}) =>
           '번역할 텍스트를 입력하거나 붙여넣어 ${language}(으)로 번역',
@@ -2134,6 +2240,7 @@ extension on TranslationsKo {
       'settings.services.editor.coming_soon' => '🚧 곧 출시 예정',
       'settings.services.editor.coming_soon_description' =>
         '서비스 구성이 아직 제공되지 않습니다. 제공자 탭에서 서비스 제공자를 관리할 수 있습니다.',
+      'settings.services.detail.row.id' => '서비스 ID',
       'settings.services.detail.row.name' => '이름',
       'settings.services.detail.row.provider' => '제공자',
       'settings.services.detail.row.type' => '유형',
@@ -2154,23 +2261,48 @@ extension on TranslationsKo {
       'settings.providers.intro.warning' =>
         '연결된 제공업체는 사용자가 보낸 텍스트나 이미지를 처리할 수 있습니다. 신뢰할 수 있는 서비스만 활성화하세요.',
       'settings.providers.editor.row.id' => '제공자 ID',
+      'settings.providers.editor.row.type' => '제공자 유형',
+      'settings.providers.editor.row.default_model' => '기본 모델',
       'settings.providers.editor.placeholder.id' => '예: deepl-main',
       'settings.providers.editor.type_picker.prompt' => '추가할 제공자 유형을 선택하세요:',
       'settings.providers.editor.type_picker.section_llm' => 'LLM',
       'settings.providers.editor.type_picker.section_traditional' => '전통',
       'settings.providers.editor.tooltip.help' => '도움말',
+      'settings.providers.editor.step.next' => '계속',
+      'settings.providers.editor.step.back' => '이전',
+      'settings.providers.editor.add_title' => '{} 추가',
+      'settings.providers.editor.capability_note.translation' => '번역 후보에 참여합니다',
+      'settings.providers.editor.capability_note.dictionary' => '사전 뜻풀이를 제공합니다',
+      'settings.providers.editor.capability_note.ocr' => '이미지 속 문자를 인식합니다',
+      'settings.providers.editor.test.run' => '연결 테스트',
+      'settings.providers.editor.test.running' => '연결 테스트 중 · {}s 경과',
+      'settings.providers.editor.test.passed_models' => '연결 정상 · 모델 {}개 사용 가능',
+      'settings.providers.editor.test.passed_service' => '연결 정상 · 서비스 사용 가능',
+      'settings.providers.editor.test.passed_footer' => '연결 테스트를 통과했습니다',
+      'settings.providers.editor.test.retest' => '다시 테스트',
+      'settings.providers.editor.test.tips_title' => '이렇게 해보세요',
+      'settings.providers.editor.test.tips_llm' =>
+        '· 키가 선택한 제공자 유형과 맞는지 확인하세요\n· Base URL에 /v1이 필요한지 확인하세요\n· 제공자 콘솔에서 해당 모델이 활성화되어 있는지 확인하세요',
+      'settings.providers.editor.test.tips_traditional' =>
+        '· 자격 증명이 선택한 제공자 유형과 맞는지 확인하세요\n· 제공자 콘솔에서 서비스가 활성화되어 있는지 확인하세요',
+      'settings.providers.editor.test.failed_suffix' => '검증 실패',
+      'settings.providers.editor.test.passed_suffix' => '검증됨',
       'settings.providers.detail.tooltip.edit' => '제공자 편집',
+      'settings.providers.detail.row.id_hint' => '생성 후에는 변경할 수 없습니다',
       'settings.providers.detail.section.configuration' => '구성',
       'settings.providers.detail.section.models' => '모델',
       'settings.providers.detail.models.loading' => '모델 로딩 중...',
       'settings.providers.detail.models.empty' => '모델을 찾을 수 없습니다.',
       'settings.providers.detail.models.retry' => '재시도',
+      'settings.providers.detail.models.refresh' => '목록 새로 고침',
       'settings.providers.detail.models.default_badge' => '기본값',
+      'settings.providers.detail.models.set_default' => '기본값으로 설정',
       'settings.providers.detail.models.fetch_error' =>
         '제공자 API에서 모델을 가져올 수 없습니다.',
       'settings.providers.capability.translation' => '번역',
       'settings.providers.capability.dictionary' => '사전',
       'settings.providers.capability.ocr' => 'OCR',
+      'settings.providers.capability.llm' => 'AI',
       'settings.providers.description.all' => '사전 검색 및 텍스트 번역을 제공합니다',
       'settings.providers.description.dictionary' => '사전 검색 및 단어 정의를 제공합니다',
       'settings.providers.description.translation' => '언어 간 텍스트 번역을 제공합니다',

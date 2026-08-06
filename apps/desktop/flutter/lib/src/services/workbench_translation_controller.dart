@@ -88,8 +88,8 @@ class RuntimeWorkbenchTranslationGateway
   }
 }
 
-class WorkbenchEngineResult {
-  WorkbenchEngineResult({
+class WorkbenchServiceResult {
+  WorkbenchServiceResult({
     required this.service,
     required this.provider,
   });
@@ -120,7 +120,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
   String sourceLanguage = kAutoSource;
   String targetLanguage;
   String? detectedLanguage;
-  String? selectedEngineId;
+  String? selectedServiceId;
   String text = '';
   bool loadingServices = true;
   bool submitting = false;
@@ -129,14 +129,14 @@ class WorkbenchTranslationController extends ChangeNotifier {
 
   List<ProviderConfigEntry> providers = const [];
   List<ServiceConfigEntry> services = const [];
-  final List<WorkbenchEngineResult> results = [];
+  final List<WorkbenchServiceResult> results = [];
 
   int _requestId = 0;
 
-  WorkbenchEngineResult? get selectedResult {
+  WorkbenchServiceResult? get selectedResult {
     if (results.isEmpty) return null;
-    return results.cast<WorkbenchEngineResult?>().firstWhere(
-          (result) => result?.service.id == selectedEngineId,
+    return results.cast<WorkbenchServiceResult?>().firstWhere(
+          (result) => result?.service.id == selectedServiceId,
           orElse: () => results.first,
         );
   }
@@ -188,8 +188,8 @@ class WorkbenchTranslationController extends ChangeNotifier {
     _notify();
   }
 
-  void selectEngine(String id) {
-    selectedEngineId = id;
+  void selectService(String id) {
+    selectedServiceId = id;
     _notify();
   }
 
@@ -205,13 +205,13 @@ class WorkbenchTranslationController extends ChangeNotifier {
       ..clear()
       ..addAll(
         translationServices.map(
-          (service) => WorkbenchEngineResult(
+          (service) => WorkbenchServiceResult(
             service: service,
             provider: _providerFor(service),
           ),
         ),
       );
-    selectedEngineId = results.isEmpty ? null : results.first.service.id;
+    selectedServiceId = results.isEmpty ? null : results.first.service.id;
     _notify();
 
     await _detectLanguage(query, requestId);
@@ -227,7 +227,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
     submitting = false;
     final firstSuccess = results.where((result) => result.hasText).firstOrNull;
     if (selectedResult?.hasText != true && firstSuccess != null) {
-      selectedEngineId = firstSuccess.service.id;
+      selectedServiceId = firstSuccess.service.id;
     }
     _notify();
   }
@@ -248,7 +248,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
   }
 
   Future<void> _translate(
-    WorkbenchEngineResult result,
+    WorkbenchServiceResult result,
     String query,
     int requestId,
   ) async {

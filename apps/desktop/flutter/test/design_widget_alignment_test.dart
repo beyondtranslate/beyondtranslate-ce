@@ -40,7 +40,7 @@ void main() {
     expect(tester.getSize(find.byType(Sidebar)).width, 172);
   });
 
-  testWidgets('toolbar icon adapter keeps the 24 point component metric', (
+  testWidgets('toolbar icon adapter keeps the 24 point widget metric', (
     tester,
   ) async {
     await tester.pumpWidget(

@@ -13,7 +13,7 @@ enum ButtonVariant {
   /// Recessed neutral chip — 朗读 / 复制 / 收藏 on the mini window.
   ghost,
 
-  /// Accent-tinted chip — 对比 N 个引擎: the deck fills this pill with the
+  /// Accent-tinted chip — 对比 N 个服务: the deck fills this pill with the
   /// accent at low alpha and prints the accent colour on top.
   tint,
 

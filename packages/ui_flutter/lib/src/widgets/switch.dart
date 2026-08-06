@@ -11,7 +11,7 @@ enum SwitchSize {
   md,
 }
 
-/// The switch used for engine enablement and per-site options.
+/// The switch used for provider enablement and per-site options.
 class Switch extends StatelessWidget {
   const Switch({
     super.key,

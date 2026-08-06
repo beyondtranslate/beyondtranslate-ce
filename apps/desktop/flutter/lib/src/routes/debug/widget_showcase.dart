@@ -2,13 +2,13 @@ import 'package:flutter/material.dart' hide Divider;
 import 'package:go_router/go_router.dart';
 
 import '../../widgets/definition_card.dart';
-import '../../widgets/engine_selector.dart';
 import '../../widgets/glossary_hit.dart';
 import '../../widgets/history_row.dart';
 import '../../widgets/icon_action_button.dart';
 import '../../widgets/language_pair.dart';
 import '../../widgets/navigation_item.dart';
 import '../../widgets/section_label.dart';
+import '../../widgets/service_selector.dart';
 import '../../widgets/translation_pane.dart';
 import '../../widgets/translation_text_area.dart';
 import '../../widgets/ui.dart'
@@ -30,31 +30,31 @@ import '../../widgets/workbench.dart';
 
 List<RouteBase> get $appRoutes => <RouteBase>[
       GoRoute(
-        path: '/debug/components',
+        path: '/debug/widgets',
         builder: (BuildContext context, GoRouterState state) =>
-            const ComponentShowcasePage(),
+            const WidgetShowcasePage(),
       ),
     ];
 
-class ComponentShowcasePage extends StatefulWidget {
-  const ComponentShowcasePage({super.key});
+class WidgetShowcasePage extends StatefulWidget {
+  const WidgetShowcasePage({super.key});
 
   @override
-  State<ComponentShowcasePage> createState() => _ComponentShowcasePageState();
+  State<WidgetShowcasePage> createState() => _WidgetShowcasePageState();
 }
 
-class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
-  String _engineId = 'local';
+class _WidgetShowcasePageState extends State<WidgetShowcasePage> {
+  String _serviceId = 'local';
   bool _enabled = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('UI Components')),
+      appBar: AppBar(title: const Text('UI Widgets')),
       body: ListView(
         padding: const EdgeInsets.all(32),
         children: [
-          const SectionLabel(index: '01', label: '基础组件'),
+          const SectionLabel(index: '01', label: '基础控件'),
           const SizedBox(height: 12),
           Surface(
             tone: SurfaceTone.raised,
@@ -114,7 +114,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                   Row(
                     children: [
                       Text(
-                        '译文 · 本地引擎',
+                        '译文 · 本地服务',
                         style: context.typography
                             .labelStyle(color: context.colors.accentText),
                       ),
@@ -156,11 +156,6 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       label: '翻译',
                       icon: Icons.translate,
                       selected: true,
-                      onTap: () {},
-                    ),
-                    NavigationItem(
-                      label: '文档翻译',
-                      icon: Icons.article_outlined,
                       onTap: () {},
                     ),
                     NavigationItem(
@@ -229,24 +224,24 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                         const SizedBox(width: 12),
                         SizedBox(
                           width: 260,
-                          child: EngineSelector(
-                            engines: const [
-                              EngineOption(
+                          child: ServiceSelector(
+                            services: const [
+                              ServiceOption(
                                 id: 'local',
-                                name: '本地引擎',
+                                name: '本地服务',
                                 preview: '离线可用',
                                 tag: '主译文',
                               ),
-                              EngineOption(
+                              ServiceOption(
                                 id: 'cloud',
-                                name: '云端引擎',
+                                name: '云端服务',
                                 preview: '更适合长文',
                                 tag: '候选',
                               ),
                             ],
-                            selectedId: _engineId,
+                            selectedId: _serviceId,
                             onSelected: (value) =>
-                                setState(() => _engineId = value),
+                                setState(() => _serviceId = value),
                           ),
                         ),
                       ],

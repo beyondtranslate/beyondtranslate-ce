@@ -164,28 +164,26 @@
     "result": {
       "translating": "번역 중…",
       "stale_requery": "원문이 수정됨 · ⏎ 다시 번역",
-      "compare_engines": "엔진 $count개 비교",
+      "compare_services": "서비스 $count개 비교",
       "collapse_compare": "비교 접기",
       "set_preferred": "기본으로 설정",
       "retry": "다시 시도",
-      "no_result": "어떤 엔진도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 엔진을 사용해 보세요.",
+      "no_result": "어떤 서비스도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 서비스을 사용해 보세요.",
       "no_result_note": "원문은 유지되며, 다시 시도해도 기록이 중복되지 않습니다."
     }
   },
   "workbench": {
     "workspace": "작업 공간",
     "translate": "번역",
-    "document": "문서 번역",
     "history": "기록",
     "glossary": "용어집",
     "recent_languages": "최근 언어",
     "not_configured": "설정되지 않음",
     "subtitle": {
-      "translate": "워크벤치 · 엔진 비교",
+      "translate": "워크벤치 · 서비스 비교",
       "settings": "설정"
     },
     "placeholder": {
-      "document": "문서 번역을 개발 중입니다",
       "history": "즐겨찾기와 기록은 향후 버전에서 제공됩니다",
       "glossary": "용어집 관리를 개발 중입니다"
     },
@@ -202,7 +200,7 @@
       "search_placeholder": "용어 또는 지정 번역 검색",
       "search_label": "용어집 검색",
       "entry_count": "$name · $count개",
-      "priority_note": "용어집은 어떤 엔진 출력보다 우선합니다",
+      "priority_note": "용어집은 어떤 서비스 출력보다 우선합니다",
       "new_book": "용어집 만들기",
       "new_book_placeholder": "용어집 이름",
       "rename_book": "이름 바꾸기",
@@ -211,11 +209,11 @@
       "enable": "사용",
       "disable": "사용 안 함",
       "empty_title": "이 용어집은 비어 있습니다",
-      "empty_description": "용어집은 어떤 엔진 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.",
+      "empty_description": "용어집은 어떤 서비스 출력보다 우선합니다. 하나씩 추가하거나 CSV를 끌어다 놓아 병합하세요.",
       "no_results_title": "“$query”와(과) 일치하는 용어가 없습니다",
       "no_results_description": "다른 키워드를 쓰거나 새로 추가해 보세요.",
       "no_books_title": "아직 용어집이 없습니다",
-      "no_books_description": "용어집은 선택한 번역어를 모든 엔진에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.",
+      "no_books_description": "용어집은 선택한 번역어를 모든 서비스에서 일관되게 유지합니다. 먼저 하나 만들고 용어를 추가하세요.",
       "loading": "불러오는 중…"
     },
     "translation": {
@@ -229,7 +227,7 @@
       "translating": "번역 중…",
       "failed": "번역에 실패했습니다. 서비스 설정을 확인하세요.",
       "empty": "번역문이 여기에 표시됩니다",
-      "engine_compare": "엔진 비교",
+      "service_compare": "서비스 비교",
       "main_translation": "기본 번역",
       "service_unavailable": "서비스를 사용할 수 없음",
       "waiting": "번역 대기",
@@ -237,7 +235,7 @@
       "copy": "복사",
       "favorite_unavailable": "즐겨찾기는 향후 버전에서 제공됩니다",
       "preferred": "기본 번역",
-      "other_engines": "다른 엔진",
+      "other_services": "다른 서비스",
       "copy_result": "번역 복사",
       "copied": "복사됨",
       "favorite": "저장",
@@ -246,7 +244,7 @@
       "quality": "품질 신호",
       "quality_hint": "번역이 완료되면 계산됩니다.",
       "shortcuts": "단축키",
-      "other_engines_disabled": "다른 엔진이 비활성화됨",
+      "other_services_disabled": "다른 서비스이 비활성화됨",
       "input_hint_translate_to": "번역할 텍스트를 입력하거나 붙여넣어 $language(으)로 번역"
     },
     "status": {
@@ -368,6 +366,7 @@
       },
       "detail": {
         "row": {
+          "id": "서비스 ID",
           "name": "이름",
           "provider": "제공자",
           "type": "유형"
@@ -402,7 +401,9 @@
       },
       "editor": {
         "row": {
-          "id": "제공자 ID"
+          "id": "제공자 ID",
+          "type": "제공자 유형",
+          "default_model": "기본 모델"
         },
         "placeholder": {
           "id": "예: deepl-main"
@@ -414,11 +415,37 @@
         },
         "tooltip": {
           "help": "도움말"
+        },
+        "step": {
+          "next": "계속",
+          "back": "이전"
+        },
+        "add_title": "{} 추가",
+        "capability_note": {
+          "translation": "번역 후보에 참여합니다",
+          "dictionary": "사전 뜻풀이를 제공합니다",
+          "ocr": "이미지 속 문자를 인식합니다"
+        },
+        "test": {
+          "run": "연결 테스트",
+          "running": "연결 테스트 중 · {}s 경과",
+          "passed_models": "연결 정상 · 모델 {}개 사용 가능",
+          "passed_service": "연결 정상 · 서비스 사용 가능",
+          "passed_footer": "연결 테스트를 통과했습니다",
+          "retest": "다시 테스트",
+          "tips_title": "이렇게 해보세요",
+          "tips_llm": "· 키가 선택한 제공자 유형과 맞는지 확인하세요\n· Base URL에 /v1이 필요한지 확인하세요\n· 제공자 콘솔에서 해당 모델이 활성화되어 있는지 확인하세요",
+          "tips_traditional": "· 자격 증명이 선택한 제공자 유형과 맞는지 확인하세요\n· 제공자 콘솔에서 서비스가 활성화되어 있는지 확인하세요",
+          "failed_suffix": "검증 실패",
+          "passed_suffix": "검증됨"
         }
       },
       "detail": {
         "tooltip": {
           "edit": "제공자 편집"
+        },
+        "row": {
+          "id_hint": "생성 후에는 변경할 수 없습니다"
         },
         "section": {
           "configuration": "구성",
@@ -428,14 +455,17 @@
           "loading": "모델 로딩 중...",
           "empty": "모델을 찾을 수 없습니다.",
           "retry": "재시도",
+          "refresh": "목록 새로 고침",
           "default_badge": "기본값",
+          "set_default": "기본값으로 설정",
           "fetch_error": "제공자 API에서 모델을 가져올 수 없습니다."
         }
       },
       "capability": {
         "translation": "번역",
         "dictionary": "사전",
-        "ocr": "OCR"
+        "ocr": "OCR",
+        "llm": "AI"
       },
       "description": {
         "all": "사전 검색 및 텍스트 번역을 제공합니다",

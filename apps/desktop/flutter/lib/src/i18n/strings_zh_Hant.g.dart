@@ -159,8 +159,6 @@ class _TranslationsWorkbenchZhHant extends TranslationsWorkbenchEn {
   @override
   String get translate => '翻譯';
   @override
-  String get document => '文件翻譯';
-  @override
   String get history => '歷史';
   @override
   String get glossary => '術語庫';
@@ -577,7 +575,7 @@ class _TranslationsMiniTranslatorResultZhHant
   @override
   String get stale_requery => '原文已修改 · ⏎ 重新翻譯';
   @override
-  String compare_engines({required Object count}) => '對比 ${count} 個引擎';
+  String compare_services({required Object count}) => '對比 ${count} 個服務';
   @override
   String get collapse_compare => '收起對比';
   @override
@@ -585,7 +583,7 @@ class _TranslationsMiniTranslatorResultZhHant
   @override
   String get retry => '重試';
   @override
-  String get no_result => '所有引擎都沒有回傳結果 —— 檢查網路，或換一個引擎再試。';
+  String get no_result => '所有服務都沒有回傳結果 —— 檢查網路，或換一個服務再試。';
   @override
   String get no_result_note => '原文已保留，重試不會重複計入歷史。';
 }
@@ -601,7 +599,7 @@ class _TranslationsWorkbenchSubtitleZhHant
 
   // Translations
   @override
-  String get translate => '工作台 · 多引擎對照';
+  String get translate => '工作台 · 多服務對照';
   @override
   String get settings => '設定';
 }
@@ -616,8 +614,6 @@ class _TranslationsWorkbenchPlaceholderZhHant
   final TranslationsZhHant _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get document => '文件翻譯正在建置中';
   @override
   String get history => '收藏與歷史將在後續版本提供';
   @override
@@ -660,7 +656,7 @@ class _TranslationsWorkbenchGlossaryPageZhHant
   String entry_count({required Object name, required Object count}) =>
       '${name} · ${count} 條';
   @override
-  String get priority_note => '術語優先級高於任何引擎輸出';
+  String get priority_note => '術語優先級高於任何服務輸出';
   @override
   String get new_book => '新增術語庫';
   @override
@@ -679,7 +675,7 @@ class _TranslationsWorkbenchGlossaryPageZhHant
   @override
   String get empty_title => '這個術語庫還是空的';
   @override
-  String get empty_description => '術語優先級高於任何引擎輸出。可以逐條新增，也可以把 CSV 拖進來合併。';
+  String get empty_description => '術語優先級高於任何服務輸出。可以逐條新增，也可以把 CSV 拖進來合併。';
   @override
   String no_results_title({required Object query}) => '沒有符合「${query}」的術語';
   @override
@@ -687,7 +683,7 @@ class _TranslationsWorkbenchGlossaryPageZhHant
   @override
   String get no_books_title => '還沒有術語庫';
   @override
-  String get no_books_description => '術語庫讓指定譯法在所有引擎裡保持一致。先建一個，再往裡加詞。';
+  String get no_books_description => '術語庫讓指定譯法在所有服務裡保持一致。先建一個，再往裡加詞。';
   @override
   String get loading => '正在載入…';
 }
@@ -723,7 +719,7 @@ class _TranslationsWorkbenchTranslationZhHant
   @override
   String get empty => '譯文將顯示於此';
   @override
-  String get engine_compare => '引擎比較';
+  String get service_compare => '服務比較';
   @override
   String get main_translation => '主譯文';
   @override
@@ -739,7 +735,7 @@ class _TranslationsWorkbenchTranslationZhHant
   @override
   String get preferred => '首選譯文';
   @override
-  String get other_engines => '其他引擎';
+  String get other_services => '其他服務';
   @override
   String get copy_result => '複製譯文';
   @override
@@ -757,7 +753,7 @@ class _TranslationsWorkbenchTranslationZhHant
   @override
   String get shortcuts => '快捷鍵';
   @override
-  String get other_engines_disabled => '其他引擎已停用';
+  String get other_services_disabled => '其他服務已停用';
   @override
   String input_hint_translate_to({required Object language}) =>
       '輸入或貼上要翻譯的文字，翻譯為${language}';
@@ -1573,6 +1569,18 @@ class _TranslationsSettingsProvidersEditorZhHant
   @override
   late final _TranslationsSettingsProvidersEditorTooltipZhHant tooltip =
       _TranslationsSettingsProvidersEditorTooltipZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorStepZhHant step =
+      _TranslationsSettingsProvidersEditorStepZhHant._(_root);
+  @override
+  String get add_title => '新增 {}';
+  @override
+  late final _TranslationsSettingsProvidersEditorCapabilityNoteZhHant
+      capability_note =
+      _TranslationsSettingsProvidersEditorCapabilityNoteZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorTestZhHant test =
+      _TranslationsSettingsProvidersEditorTestZhHant._(_root);
 }
 
 // Path: settings.providers.detail
@@ -1588,6 +1596,9 @@ class _TranslationsSettingsProvidersDetailZhHant
   @override
   late final _TranslationsSettingsProvidersDetailTooltipZhHant tooltip =
       _TranslationsSettingsProvidersDetailTooltipZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailRowZhHant row =
+      _TranslationsSettingsProvidersDetailRowZhHant._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailSectionZhHant section =
       _TranslationsSettingsProvidersDetailSectionZhHant._(_root);
@@ -1612,6 +1623,8 @@ class _TranslationsSettingsProvidersCapabilityZhHant
   String get dictionary => '辭典';
   @override
   String get ocr => 'OCR';
+  @override
+  String get llm => 'AI';
 }
 
 // Path: settings.providers.description
@@ -1709,6 +1722,8 @@ class _TranslationsSettingsServicesDetailRowZhHant
 
   // Translations
   @override
+  String get id => '服務 ID';
+  @override
   String get name => '名稱';
   @override
   String get provider => '提供者';
@@ -1745,6 +1760,10 @@ class _TranslationsSettingsProvidersEditorRowZhHant
   // Translations
   @override
   String get id => '提供者 ID';
+  @override
+  String get type => '提供者類型';
+  @override
+  String get default_model => '預設模型';
 }
 
 // Path: settings.providers.editor.placeholder
@@ -1795,6 +1814,76 @@ class _TranslationsSettingsProvidersEditorTooltipZhHant
   String get help => '說明';
 }
 
+// Path: settings.providers.editor.step
+class _TranslationsSettingsProvidersEditorStepZhHant
+    extends TranslationsSettingsProvidersEditorStepEn {
+  _TranslationsSettingsProvidersEditorStepZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get next => '繼續';
+  @override
+  String get back => '上一步';
+}
+
+// Path: settings.providers.editor.capability_note
+class _TranslationsSettingsProvidersEditorCapabilityNoteZhHant
+    extends TranslationsSettingsProvidersEditorCapabilityNoteEn {
+  _TranslationsSettingsProvidersEditorCapabilityNoteZhHant._(
+      TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => '加入翻譯候選';
+  @override
+  String get dictionary => '提供辭典釋義';
+  @override
+  String get ocr => '辨識圖片中的文字';
+}
+
+// Path: settings.providers.editor.test
+class _TranslationsSettingsProvidersEditorTestZhHant
+    extends TranslationsSettingsProvidersEditorTestEn {
+  _TranslationsSettingsProvidersEditorTestZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get run => '測試連線';
+  @override
+  String get running => '正在測試連線 · 已用 {}s';
+  @override
+  String get passed_models => '連線正常 · {} 個模型可用';
+  @override
+  String get passed_service => '連線正常 · 服務可用';
+  @override
+  String get passed_footer => '已通過連線測試';
+  @override
+  String get retest => '重新測試';
+  @override
+  String get tips_title => '可以試試';
+  @override
+  String get tips_llm =>
+      '· 確認金鑰與所選提供者類型一致\n· 檢查 Base URL 是否需要包含 /v1\n· 在提供者主控台確認該模型已開通';
+  @override
+  String get tips_traditional => '· 確認金鑰與所選提供者類型一致\n· 在提供者主控台確認服務已開通';
+  @override
+  String get failed_suffix => '驗證失敗';
+  @override
+  String get passed_suffix => '已驗證';
+}
+
 // Path: settings.providers.detail.tooltip
 class _TranslationsSettingsProvidersDetailTooltipZhHant
     extends TranslationsSettingsProvidersDetailTooltipEn {
@@ -1807,6 +1896,20 @@ class _TranslationsSettingsProvidersDetailTooltipZhHant
   // Translations
   @override
   String get edit => '編輯提供者';
+}
+
+// Path: settings.providers.detail.row
+class _TranslationsSettingsProvidersDetailRowZhHant
+    extends TranslationsSettingsProvidersDetailRowEn {
+  _TranslationsSettingsProvidersDetailRowZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get id_hint => '建立後不可變更';
 }
 
 // Path: settings.providers.detail.section
@@ -1842,7 +1945,11 @@ class _TranslationsSettingsProvidersDetailModelsZhHant
   @override
   String get retry => '重試';
   @override
+  String get refresh => '重新整理清單';
+  @override
   String get default_badge => '預設';
+  @override
+  String get set_default => '設為預設';
   @override
   String get fetch_error => '無法從提供者 API 取得模型。';
 }
@@ -1975,23 +2082,21 @@ extension on TranslationsZhHant {
       'mini_translator.message.ocr_recognition_failed' => '文字辨識失敗',
       'mini_translator.result.translating' => '正在翻譯…',
       'mini_translator.result.stale_requery' => '原文已修改 · ⏎ 重新翻譯',
-      'mini_translator.result.compare_engines' => ({required Object count}) =>
-          '對比 ${count} 個引擎',
+      'mini_translator.result.compare_services' => ({required Object count}) =>
+          '對比 ${count} 個服務',
       'mini_translator.result.collapse_compare' => '收起對比',
       'mini_translator.result.set_preferred' => '設為首選',
       'mini_translator.result.retry' => '重試',
-      'mini_translator.result.no_result' => '所有引擎都沒有回傳結果 —— 檢查網路，或換一個引擎再試。',
+      'mini_translator.result.no_result' => '所有服務都沒有回傳結果 —— 檢查網路，或換一個服務再試。',
       'mini_translator.result.no_result_note' => '原文已保留，重試不會重複計入歷史。',
       'workbench.workspace' => '工作區',
       'workbench.translate' => '翻譯',
-      'workbench.document' => '文件翻譯',
       'workbench.history' => '歷史',
       'workbench.glossary' => '術語庫',
       'workbench.recent_languages' => '最近語言',
       'workbench.not_configured' => '尚未設定',
-      'workbench.subtitle.translate' => '工作台 · 多引擎對照',
+      'workbench.subtitle.translate' => '工作台 · 多服務對照',
       'workbench.subtitle.settings' => '設定',
-      'workbench.placeholder.document' => '文件翻譯正在建置中',
       'workbench.placeholder.history' => '收藏與歷史將在後續版本提供',
       'workbench.placeholder.glossary' => '術語庫管理正在建置中',
       'workbench.glossary_page.add_entry' => '新增條目',
@@ -2008,7 +2113,7 @@ extension on TranslationsZhHant {
       'workbench.glossary_page.entry_count' => (
               {required Object name, required Object count}) =>
           '${name} · ${count} 條',
-      'workbench.glossary_page.priority_note' => '術語優先級高於任何引擎輸出',
+      'workbench.glossary_page.priority_note' => '術語優先級高於任何服務輸出',
       'workbench.glossary_page.new_book' => '新增術語庫',
       'workbench.glossary_page.new_book_placeholder' => '術語庫名稱',
       'workbench.glossary_page.rename_book' => '重新命名',
@@ -2020,13 +2125,13 @@ extension on TranslationsZhHant {
       'workbench.glossary_page.disable' => '停用',
       'workbench.glossary_page.empty_title' => '這個術語庫還是空的',
       'workbench.glossary_page.empty_description' =>
-        '術語優先級高於任何引擎輸出。可以逐條新增，也可以把 CSV 拖進來合併。',
+        '術語優先級高於任何服務輸出。可以逐條新增，也可以把 CSV 拖進來合併。',
       'workbench.glossary_page.no_results_title' => ({required Object query}) =>
           '沒有符合「${query}」的術語',
       'workbench.glossary_page.no_results_description' => '換個關鍵字，或直接新增一條。',
       'workbench.glossary_page.no_books_title' => '還沒有術語庫',
       'workbench.glossary_page.no_books_description' =>
-        '術語庫讓指定譯法在所有引擎裡保持一致。先建一個，再往裡加詞。',
+        '術語庫讓指定譯法在所有服務裡保持一致。先建一個，再往裡加詞。',
       'workbench.glossary_page.loading' => '正在載入…',
       'workbench.translation.source' => '原文',
       'workbench.translation.target' => '譯文',
@@ -2038,7 +2143,7 @@ extension on TranslationsZhHant {
       'workbench.translation.translating' => '正在翻譯…',
       'workbench.translation.failed' => '翻譯失敗，請檢查服務設定後重試',
       'workbench.translation.empty' => '譯文將顯示於此',
-      'workbench.translation.engine_compare' => '引擎比較',
+      'workbench.translation.service_compare' => '服務比較',
       'workbench.translation.main_translation' => '主譯文',
       'workbench.translation.service_unavailable' => '服務暫不可用',
       'workbench.translation.waiting' => '等待翻譯',
@@ -2046,7 +2151,7 @@ extension on TranslationsZhHant {
       'workbench.translation.copy' => '複製',
       'workbench.translation.favorite_unavailable' => '收藏功能將在後續版本提供',
       'workbench.translation.preferred' => '首選譯文',
-      'workbench.translation.other_engines' => '其他引擎',
+      'workbench.translation.other_services' => '其他服務',
       'workbench.translation.copy_result' => '複製譯文',
       'workbench.translation.copied' => '已複製',
       'workbench.translation.favorite' => '收藏',
@@ -2055,7 +2160,7 @@ extension on TranslationsZhHant {
       'workbench.translation.quality' => '品質信號',
       'workbench.translation.quality_hint' => '譯文產生後計算。',
       'workbench.translation.shortcuts' => '快捷鍵',
-      'workbench.translation.other_engines_disabled' => '其他引擎已停用',
+      'workbench.translation.other_services_disabled' => '其他服務已停用',
       'workbench.translation.input_hint_translate_to' =>
         ({required Object language}) => '輸入或貼上要翻譯的文字，翻譯為${language}',
       'workbench.status.runtime_ready' => '翻譯執行環境已就緒',
@@ -2139,6 +2244,7 @@ extension on TranslationsZhHant {
       'settings.services.editor.coming_soon' => '🚧 即將推出',
       'settings.services.editor.coming_soon_description' =>
         '服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。',
+      'settings.services.detail.row.id' => '服務 ID',
       'settings.services.detail.row.name' => '名稱',
       'settings.services.detail.row.provider' => '提供者',
       'settings.services.detail.row.type' => '類型',
@@ -2158,22 +2264,47 @@ extension on TranslationsZhHant {
       'settings.providers.intro.body' => '管理應用程式使用的服務提供商。',
       'settings.providers.intro.warning' => '已連線的提供商可能會處理您傳送的文字或圖片，請僅啟用您信任的服務。',
       'settings.providers.editor.row.id' => '提供者 ID',
+      'settings.providers.editor.row.type' => '提供者類型',
+      'settings.providers.editor.row.default_model' => '預設模型',
       'settings.providers.editor.placeholder.id' => '例如 deepl-main',
       'settings.providers.editor.type_picker.prompt' => '請選擇要新增的提供者類型：',
       'settings.providers.editor.type_picker.section_llm' => 'LLM',
       'settings.providers.editor.type_picker.section_traditional' => '傳統',
       'settings.providers.editor.tooltip.help' => '說明',
+      'settings.providers.editor.step.next' => '繼續',
+      'settings.providers.editor.step.back' => '上一步',
+      'settings.providers.editor.add_title' => '新增 {}',
+      'settings.providers.editor.capability_note.translation' => '加入翻譯候選',
+      'settings.providers.editor.capability_note.dictionary' => '提供辭典釋義',
+      'settings.providers.editor.capability_note.ocr' => '辨識圖片中的文字',
+      'settings.providers.editor.test.run' => '測試連線',
+      'settings.providers.editor.test.running' => '正在測試連線 · 已用 {}s',
+      'settings.providers.editor.test.passed_models' => '連線正常 · {} 個模型可用',
+      'settings.providers.editor.test.passed_service' => '連線正常 · 服務可用',
+      'settings.providers.editor.test.passed_footer' => '已通過連線測試',
+      'settings.providers.editor.test.retest' => '重新測試',
+      'settings.providers.editor.test.tips_title' => '可以試試',
+      'settings.providers.editor.test.tips_llm' =>
+        '· 確認金鑰與所選提供者類型一致\n· 檢查 Base URL 是否需要包含 /v1\n· 在提供者主控台確認該模型已開通',
+      'settings.providers.editor.test.tips_traditional' =>
+        '· 確認金鑰與所選提供者類型一致\n· 在提供者主控台確認服務已開通',
+      'settings.providers.editor.test.failed_suffix' => '驗證失敗',
+      'settings.providers.editor.test.passed_suffix' => '已驗證',
       'settings.providers.detail.tooltip.edit' => '編輯提供者',
+      'settings.providers.detail.row.id_hint' => '建立後不可變更',
       'settings.providers.detail.section.configuration' => '配置',
       'settings.providers.detail.section.models' => '模型',
       'settings.providers.detail.models.loading' => '正在載入模型...',
       'settings.providers.detail.models.empty' => '找不到模型。',
       'settings.providers.detail.models.retry' => '重試',
+      'settings.providers.detail.models.refresh' => '重新整理清單',
       'settings.providers.detail.models.default_badge' => '預設',
+      'settings.providers.detail.models.set_default' => '設為預設',
       'settings.providers.detail.models.fetch_error' => '無法從提供者 API 取得模型。',
       'settings.providers.capability.translation' => '翻譯',
       'settings.providers.capability.dictionary' => '辭典',
       'settings.providers.capability.ocr' => 'OCR',
+      'settings.providers.capability.llm' => 'AI',
       'settings.providers.description.all' => '提供辭典查詢和文字翻譯',
       'settings.providers.description.translation' => '提供語言間文字翻譯',
       'settings.providers.description.dictionary' => '提供辭典查詢和單字釋義',

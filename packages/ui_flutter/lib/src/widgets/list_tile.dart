@@ -6,7 +6,8 @@ import 'package:flutter/widgets.dart';
 enum ListTileTone {
   standard,
 
-  /// The row the view treats as current — the default engine, the active book.
+  /// The row the view treats as current — the default provider, the active
+  /// book.
   accent,
 
   /// The row that needs attention — an expired key, a failed import.

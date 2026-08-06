@@ -110,7 +110,7 @@ class TranslationResultRecord {
   TranslationResultRecord({
     this.id,
     this.translationTargetId,
-    this.translationEngineId,
+    this.translationServiceId,
     this.lookUpRequest,
     this.lookUpResponse,
     this.lookUpError,
@@ -123,7 +123,7 @@ class TranslationResultRecord {
     return TranslationResultRecord(
       id: json['id'],
       translationTargetId: json['translationTargetId'],
-      translationEngineId: json['translationEngineId'],
+      translationServiceId: json['translationServiceId'],
       lookUpRequest: json['lookUpRequest'] != null
           ? LookUpRequest(
               sourceLanguage: json['lookUpRequest']['sourceLanguage'],
@@ -219,7 +219,7 @@ class TranslationResultRecord {
 
   String? id;
   String? translationTargetId;
-  String? translationEngineId;
+  String? translationServiceId;
   LookUpRequest? lookUpRequest;
   LookUpResponse? lookUpResponse;
   TranslationError? lookUpError;
@@ -231,7 +231,7 @@ class TranslationResultRecord {
     return {
       'id': id,
       'translationTargetId': translationTargetId,
-      'translationEngineId': translationEngineId,
+      'translationServiceId': translationServiceId,
       'lookUpRequest': lookUpRequest != null
           ? {
               'sourceLanguage': lookUpRequest!.sourceLanguage,

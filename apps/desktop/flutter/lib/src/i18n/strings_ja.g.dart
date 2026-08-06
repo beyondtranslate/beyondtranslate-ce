@@ -156,8 +156,6 @@ class _TranslationsWorkbenchJa extends TranslationsWorkbenchEn {
   @override
   String get translate => '翻訳';
   @override
-  String get document => '文書翻訳';
-  @override
   String get history => '履歴';
   @override
   String get glossary => '用語集';
@@ -572,7 +570,7 @@ class _TranslationsMiniTranslatorResultJa
   @override
   String get stale_requery => '原文が変更されました · ⏎ 再翻訳';
   @override
-  String compare_engines({required Object count}) => '${count} 個のエンジンを比較';
+  String compare_services({required Object count}) => '${count} 個のサービスを比較';
   @override
   String get collapse_compare => '比較を閉じる';
   @override
@@ -580,7 +578,7 @@ class _TranslationsMiniTranslatorResultJa
   @override
   String get retry => '再試行';
   @override
-  String get no_result => 'どのエンジンも結果を返しませんでした。ネットワークを確認するか、別のエンジンをお試しください。';
+  String get no_result => 'どのサービスも結果を返しませんでした。ネットワークを確認するか、別のサービスをお試しください。';
   @override
   String get no_result_note => '原文は保持され、再試行しても履歴は重複しません。';
 }
@@ -595,7 +593,7 @@ class _TranslationsWorkbenchSubtitleJa extends TranslationsWorkbenchSubtitleEn {
 
   // Translations
   @override
-  String get translate => 'ワークベンチ · エンジン比較';
+  String get translate => 'ワークベンチ · サービス比較';
   @override
   String get settings => '設定';
 }
@@ -610,8 +608,6 @@ class _TranslationsWorkbenchPlaceholderJa
   final TranslationsJa _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get document => '文書翻訳は開発中です';
   @override
   String get history => 'お気に入りと履歴は今後のリリースで提供します';
   @override
@@ -654,7 +650,7 @@ class _TranslationsWorkbenchGlossaryPageJa
   String entry_count({required Object name, required Object count}) =>
       '${name} · ${count} 件';
   @override
-  String get priority_note => '用語集はどのエンジンの出力よりも優先されます';
+  String get priority_note => '用語集はどのサービスの出力よりも優先されます';
   @override
   String get new_book => '用語集を作成';
   @override
@@ -674,7 +670,7 @@ class _TranslationsWorkbenchGlossaryPageJa
   String get empty_title => 'この用語集は空です';
   @override
   String get empty_description =>
-      '用語集はどのエンジンの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。';
+      '用語集はどのサービスの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。';
   @override
   String no_results_title({required Object query}) => '「${query}」に一致する用語はありません';
   @override
@@ -683,7 +679,7 @@ class _TranslationsWorkbenchGlossaryPageJa
   String get no_books_title => '用語集がまだありません';
   @override
   String get no_books_description =>
-      '用語集は、選んだ訳語をすべてのエンジンで統一します。まず 1 つ作成して、用語を追加しましょう。';
+      '用語集は、選んだ訳語をすべてのサービスで統一します。まず 1 つ作成して、用語を追加しましょう。';
   @override
   String get loading => '読み込み中…';
 }
@@ -719,7 +715,7 @@ class _TranslationsWorkbenchTranslationJa
   @override
   String get empty => '訳文がここに表示されます';
   @override
-  String get engine_compare => 'エンジン比較';
+  String get service_compare => 'サービス比較';
   @override
   String get main_translation => 'メイン';
   @override
@@ -735,7 +731,7 @@ class _TranslationsWorkbenchTranslationJa
   @override
   String get preferred => '優先訳文';
   @override
-  String get other_engines => '他のエンジン';
+  String get other_services => '他のサービス';
   @override
   String get copy_result => '訳文をコピー';
   @override
@@ -753,7 +749,7 @@ class _TranslationsWorkbenchTranslationJa
   @override
   String get shortcuts => 'ショートカット';
   @override
-  String get other_engines_disabled => '他のエンジンは無効です';
+  String get other_services_disabled => '他のサービスは無効です';
   @override
   String input_hint_translate_to({required Object language}) =>
       '翻訳するテキストを入力または貼り付け、${language}に翻訳';
@@ -1561,6 +1557,18 @@ class _TranslationsSettingsProvidersEditorJa
   @override
   late final _TranslationsSettingsProvidersEditorTooltipJa tooltip =
       _TranslationsSettingsProvidersEditorTooltipJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorStepJa step =
+      _TranslationsSettingsProvidersEditorStepJa._(_root);
+  @override
+  String get add_title => '{} を追加';
+  @override
+  late final _TranslationsSettingsProvidersEditorCapabilityNoteJa
+      capability_note =
+      _TranslationsSettingsProvidersEditorCapabilityNoteJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorTestJa test =
+      _TranslationsSettingsProvidersEditorTestJa._(_root);
 }
 
 // Path: settings.providers.detail
@@ -1576,6 +1584,9 @@ class _TranslationsSettingsProvidersDetailJa
   @override
   late final _TranslationsSettingsProvidersDetailTooltipJa tooltip =
       _TranslationsSettingsProvidersDetailTooltipJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailRowJa row =
+      _TranslationsSettingsProvidersDetailRowJa._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailSectionJa section =
       _TranslationsSettingsProvidersDetailSectionJa._(_root);
@@ -1600,6 +1611,8 @@ class _TranslationsSettingsProvidersCapabilityJa
   String get dictionary => '辞書';
   @override
   String get ocr => 'OCR';
+  @override
+  String get llm => 'AI';
 }
 
 // Path: settings.providers.description
@@ -1697,6 +1710,8 @@ class _TranslationsSettingsServicesDetailRowJa
 
   // Translations
   @override
+  String get id => 'サービス ID';
+  @override
   String get name => '名前';
   @override
   String get provider => 'プロバイダー';
@@ -1732,6 +1747,10 @@ class _TranslationsSettingsProvidersEditorRowJa
   // Translations
   @override
   String get id => 'プロバイダーID';
+  @override
+  String get type => 'プロバイダーの種類';
+  @override
+  String get default_model => 'デフォルトモデル';
 }
 
 // Path: settings.providers.editor.placeholder
@@ -1780,6 +1799,76 @@ class _TranslationsSettingsProvidersEditorTooltipJa
   String get help => 'ヘルプ';
 }
 
+// Path: settings.providers.editor.step
+class _TranslationsSettingsProvidersEditorStepJa
+    extends TranslationsSettingsProvidersEditorStepEn {
+  _TranslationsSettingsProvidersEditorStepJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get next => '続ける';
+  @override
+  String get back => '前へ';
+}
+
+// Path: settings.providers.editor.capability_note
+class _TranslationsSettingsProvidersEditorCapabilityNoteJa
+    extends TranslationsSettingsProvidersEditorCapabilityNoteEn {
+  _TranslationsSettingsProvidersEditorCapabilityNoteJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => '翻訳候補に加わります';
+  @override
+  String get dictionary => '辞書の語義を提供します';
+  @override
+  String get ocr => '画像内の文字を認識します';
+}
+
+// Path: settings.providers.editor.test
+class _TranslationsSettingsProvidersEditorTestJa
+    extends TranslationsSettingsProvidersEditorTestEn {
+  _TranslationsSettingsProvidersEditorTestJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get run => '接続をテスト';
+  @override
+  String get running => '接続をテスト中 · 経過 {}s';
+  @override
+  String get passed_models => '接続は正常 · {} 個のモデルが利用可能';
+  @override
+  String get passed_service => '接続は正常 · サービスを利用できます';
+  @override
+  String get passed_footer => '接続テストに合格しました';
+  @override
+  String get retest => '再テスト';
+  @override
+  String get tips_title => '試せること';
+  @override
+  String get tips_llm =>
+      '· キーが選んだプロバイダーの種類と一致しているか確認\n· Base URL に /v1 が必要か確認\n· プロバイダーのコンソールでそのモデルが有効か確認';
+  @override
+  String get tips_traditional =>
+      '· 認証情報が選んだプロバイダーの種類と一致しているか確認\n· プロバイダーのコンソールでサービスが有効か確認';
+  @override
+  String get failed_suffix => '検証に失敗';
+  @override
+  String get passed_suffix => '検証済み';
+}
+
 // Path: settings.providers.detail.tooltip
 class _TranslationsSettingsProvidersDetailTooltipJa
     extends TranslationsSettingsProvidersDetailTooltipEn {
@@ -1792,6 +1881,20 @@ class _TranslationsSettingsProvidersDetailTooltipJa
   // Translations
   @override
   String get edit => 'プロバイダーを編集';
+}
+
+// Path: settings.providers.detail.row
+class _TranslationsSettingsProvidersDetailRowJa
+    extends TranslationsSettingsProvidersDetailRowEn {
+  _TranslationsSettingsProvidersDetailRowJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get id_hint => '作成後は変更できません';
 }
 
 // Path: settings.providers.detail.section
@@ -1827,7 +1930,11 @@ class _TranslationsSettingsProvidersDetailModelsJa
   @override
   String get retry => '再試行';
   @override
+  String get refresh => 'リストを更新';
+  @override
   String get default_badge => 'デフォルト';
+  @override
+  String get set_default => 'デフォルトに設定';
   @override
   String get fetch_error => 'プロバイダーAPIからモデルを取得できませんでした。';
 }
@@ -1963,24 +2070,22 @@ extension on TranslationsJa {
       'mini_translator.message.ocr_recognition_failed' => 'テキスト認識に失敗しました',
       'mini_translator.result.translating' => '翻訳中…',
       'mini_translator.result.stale_requery' => '原文が変更されました · ⏎ 再翻訳',
-      'mini_translator.result.compare_engines' => ({required Object count}) =>
-          '${count} 個のエンジンを比較',
+      'mini_translator.result.compare_services' => ({required Object count}) =>
+          '${count} 個のサービスを比較',
       'mini_translator.result.collapse_compare' => '比較を閉じる',
       'mini_translator.result.set_preferred' => '優先に設定',
       'mini_translator.result.retry' => '再試行',
       'mini_translator.result.no_result' =>
-        'どのエンジンも結果を返しませんでした。ネットワークを確認するか、別のエンジンをお試しください。',
+        'どのサービスも結果を返しませんでした。ネットワークを確認するか、別のサービスをお試しください。',
       'mini_translator.result.no_result_note' => '原文は保持され、再試行しても履歴は重複しません。',
       'workbench.workspace' => 'ワークスペース',
       'workbench.translate' => '翻訳',
-      'workbench.document' => '文書翻訳',
       'workbench.history' => '履歴',
       'workbench.glossary' => '用語集',
       'workbench.recent_languages' => '最近の言語',
       'workbench.not_configured' => '未設定',
-      'workbench.subtitle.translate' => 'ワークベンチ · エンジン比較',
+      'workbench.subtitle.translate' => 'ワークベンチ · サービス比較',
       'workbench.subtitle.settings' => '設定',
-      'workbench.placeholder.document' => '文書翻訳は開発中です',
       'workbench.placeholder.history' => 'お気に入りと履歴は今後のリリースで提供します',
       'workbench.placeholder.glossary' => '用語集管理は開発中です',
       'workbench.glossary_page.add_entry' => '用語を追加',
@@ -1997,7 +2102,7 @@ extension on TranslationsJa {
       'workbench.glossary_page.entry_count' => (
               {required Object name, required Object count}) =>
           '${name} · ${count} 件',
-      'workbench.glossary_page.priority_note' => '用語集はどのエンジンの出力よりも優先されます',
+      'workbench.glossary_page.priority_note' => '用語集はどのサービスの出力よりも優先されます',
       'workbench.glossary_page.new_book' => '用語集を作成',
       'workbench.glossary_page.new_book_placeholder' => '用語集の名前',
       'workbench.glossary_page.rename_book' => '名前を変更',
@@ -2009,14 +2114,14 @@ extension on TranslationsJa {
       'workbench.glossary_page.disable' => '無効にする',
       'workbench.glossary_page.empty_title' => 'この用語集は空です',
       'workbench.glossary_page.empty_description' =>
-        '用語集はどのエンジンの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。',
+        '用語集はどのサービスの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。',
       'workbench.glossary_page.no_results_title' => ({required Object query}) =>
           '「${query}」に一致する用語はありません',
       'workbench.glossary_page.no_results_description' =>
         '別のキーワードを試すか、新しく追加してください。',
       'workbench.glossary_page.no_books_title' => '用語集がまだありません',
       'workbench.glossary_page.no_books_description' =>
-        '用語集は、選んだ訳語をすべてのエンジンで統一します。まず 1 つ作成して、用語を追加しましょう。',
+        '用語集は、選んだ訳語をすべてのサービスで統一します。まず 1 つ作成して、用語を追加しましょう。',
       'workbench.glossary_page.loading' => '読み込み中…',
       'workbench.translation.source' => '原文',
       'workbench.translation.target' => '訳文',
@@ -2028,7 +2133,7 @@ extension on TranslationsJa {
       'workbench.translation.translating' => '翻訳中…',
       'workbench.translation.failed' => '翻訳に失敗しました。サービス設定を確認してください。',
       'workbench.translation.empty' => '訳文がここに表示されます',
-      'workbench.translation.engine_compare' => 'エンジン比較',
+      'workbench.translation.service_compare' => 'サービス比較',
       'workbench.translation.main_translation' => 'メイン',
       'workbench.translation.service_unavailable' => 'サービスを利用できません',
       'workbench.translation.waiting' => '翻訳待ち',
@@ -2036,7 +2141,7 @@ extension on TranslationsJa {
       'workbench.translation.copy' => 'コピー',
       'workbench.translation.favorite_unavailable' => 'お気に入りは今後のリリースで提供します',
       'workbench.translation.preferred' => '優先訳文',
-      'workbench.translation.other_engines' => '他のエンジン',
+      'workbench.translation.other_services' => '他のサービス',
       'workbench.translation.copy_result' => '訳文をコピー',
       'workbench.translation.copied' => 'コピー済み',
       'workbench.translation.favorite' => '保存',
@@ -2045,7 +2150,7 @@ extension on TranslationsJa {
       'workbench.translation.quality' => '品質シグナル',
       'workbench.translation.quality_hint' => '訳文の生成後に計算されます。',
       'workbench.translation.shortcuts' => 'ショートカット',
-      'workbench.translation.other_engines_disabled' => '他のエンジンは無効です',
+      'workbench.translation.other_services_disabled' => '他のサービスは無効です',
       'workbench.translation.input_hint_translate_to' =>
         ({required Object language}) => '翻訳するテキストを入力または貼り付け、${language}に翻訳',
       'workbench.status.runtime_ready' => '翻訳ランタイム準備完了',
@@ -2134,6 +2239,7 @@ extension on TranslationsJa {
       'settings.services.editor.coming_soon' => '🚧 近日公開',
       'settings.services.editor.coming_soon_description' =>
         'サービスの設定はまだ利用できません。プロバイダータブからサービスプロバイダーを管理できます。',
+      'settings.services.detail.row.id' => 'サービス ID',
       'settings.services.detail.row.name' => '名前',
       'settings.services.detail.row.provider' => 'プロバイダー',
       'settings.services.detail.row.type' => '種類',
@@ -2156,24 +2262,49 @@ extension on TranslationsJa {
       'settings.providers.intro.warning' =>
         '接続したプロバイダーは送信したテキストや画像を処理する場合があります。信頼できるサービスのみ有効にしてください。',
       'settings.providers.editor.row.id' => 'プロバイダーID',
+      'settings.providers.editor.row.type' => 'プロバイダーの種類',
+      'settings.providers.editor.row.default_model' => 'デフォルトモデル',
       'settings.providers.editor.placeholder.id' => '例: deepl-main',
       'settings.providers.editor.type_picker.prompt' =>
         '追加するプロバイダーの種類を選択してください：',
       'settings.providers.editor.type_picker.section_llm' => 'LLM',
       'settings.providers.editor.type_picker.section_traditional' => '従来型',
       'settings.providers.editor.tooltip.help' => 'ヘルプ',
+      'settings.providers.editor.step.next' => '続ける',
+      'settings.providers.editor.step.back' => '前へ',
+      'settings.providers.editor.add_title' => '{} を追加',
+      'settings.providers.editor.capability_note.translation' => '翻訳候補に加わります',
+      'settings.providers.editor.capability_note.dictionary' => '辞書の語義を提供します',
+      'settings.providers.editor.capability_note.ocr' => '画像内の文字を認識します',
+      'settings.providers.editor.test.run' => '接続をテスト',
+      'settings.providers.editor.test.running' => '接続をテスト中 · 経過 {}s',
+      'settings.providers.editor.test.passed_models' => '接続は正常 · {} 個のモデルが利用可能',
+      'settings.providers.editor.test.passed_service' => '接続は正常 · サービスを利用できます',
+      'settings.providers.editor.test.passed_footer' => '接続テストに合格しました',
+      'settings.providers.editor.test.retest' => '再テスト',
+      'settings.providers.editor.test.tips_title' => '試せること',
+      'settings.providers.editor.test.tips_llm' =>
+        '· キーが選んだプロバイダーの種類と一致しているか確認\n· Base URL に /v1 が必要か確認\n· プロバイダーのコンソールでそのモデルが有効か確認',
+      'settings.providers.editor.test.tips_traditional' =>
+        '· 認証情報が選んだプロバイダーの種類と一致しているか確認\n· プロバイダーのコンソールでサービスが有効か確認',
+      'settings.providers.editor.test.failed_suffix' => '検証に失敗',
+      'settings.providers.editor.test.passed_suffix' => '検証済み',
       'settings.providers.detail.tooltip.edit' => 'プロバイダーを編集',
+      'settings.providers.detail.row.id_hint' => '作成後は変更できません',
       'settings.providers.detail.section.configuration' => '設定',
       'settings.providers.detail.section.models' => 'モデル',
       'settings.providers.detail.models.loading' => 'モデルを読み込み中...',
       'settings.providers.detail.models.empty' => 'モデルが見つかりません。',
       'settings.providers.detail.models.retry' => '再試行',
+      'settings.providers.detail.models.refresh' => 'リストを更新',
       'settings.providers.detail.models.default_badge' => 'デフォルト',
+      'settings.providers.detail.models.set_default' => 'デフォルトに設定',
       'settings.providers.detail.models.fetch_error' =>
         'プロバイダーAPIからモデルを取得できませんでした。',
       'settings.providers.capability.translation' => '翻訳',
       'settings.providers.capability.dictionary' => '辞書',
       'settings.providers.capability.ocr' => 'OCR',
+      'settings.providers.capability.llm' => 'AI',
       'settings.providers.description.all' => '辞書検索とテキスト翻訳を提供',
       'settings.providers.description.dictionary' => '辞書検索と単語定義を提供',
       'settings.providers.description.translation' => '言語間のテキスト翻訳を提供',

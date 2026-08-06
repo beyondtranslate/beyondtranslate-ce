@@ -6,7 +6,7 @@ class TranslationResult {
     this.id,
     this.translationTarget,
     this.translationResultRecordList,
-    this.unsupportedEngineIdList,
+    this.unsupportedServiceIdList,
   });
 
   factory TranslationResult.fromJson(Map<String, dynamic> json) {
@@ -29,8 +29,8 @@ class TranslationResult {
         enabled: true,
       ),
       translationResultRecordList: translationResultRecordList,
-      unsupportedEngineIdList: List<String>.from(
-        json['unsupportedEngineIdList'],
+      unsupportedServiceIdList: List<String>.from(
+        json['unsupportedServiceIdList'],
       ),
     );
   }
@@ -38,7 +38,7 @@ class TranslationResult {
   String? id;
   TranslationTarget? translationTarget;
   List<TranslationResultRecord>? translationResultRecordList;
-  List<String>? unsupportedEngineIdList;
+  List<String>? unsupportedServiceIdList;
 
   Map<String, dynamic> toJson() {
     return {
@@ -51,7 +51,7 @@ class TranslationResult {
             },
       'translationResultRecordList':
           translationResultRecordList?.map((e) => e.toJson()).toList(),
-      'unsupportedEngineIdList': unsupportedEngineIdList,
+      'unsupportedServiceIdList': unsupportedServiceIdList,
     };
   }
 }

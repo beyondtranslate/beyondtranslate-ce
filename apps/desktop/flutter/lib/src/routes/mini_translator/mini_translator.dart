@@ -79,15 +79,15 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   /// The source was edited after the last query — arms ⏎ 重新翻译.
   bool _resultStale = false;
 
-  /// Engine promoted with 设为首选 / ⌥n; the preferred block follows it.
-  String? _preferredEngineId;
+  /// Service promoted with 设为首选 / ⌥n; the preferred block follows it.
+  String? _preferredServiceId;
   bool _copied = false;
   bool _starred = false;
   Timer? _copiedTimer;
 
-  /// Engine display names and the translation-service ids, captured per query
+  /// Service display names and the translation-service ids, captured per query
   /// so the results view can attribute records without re-fetching settings.
-  Map<String, String> _engineNameById = {};
+  Map<String, String> _serviceNameById = {};
   Set<String> _translationServiceIds = {};
 
   Timer? _resizeSettledTimer;
@@ -363,7 +363,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   void _loadData() async {
     // The previous implementation populated `_latestVersion` from a cloud API
-    // and refreshed local engine config. Both pieces of state moved into the
+    // and refreshed local service config. Both pieces of state moved into the
     // Rust runtime / external installers, so the mini translator no longer
     // performs network bootstrapping here.
   }
@@ -389,7 +389,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
             service.type == ServiceType.dictionary ||
             service.type == ServiceType.translation)
         .toList();
-    _engineNameById = {
+    _serviceNameById = {
       for (final service in queryServices) service.id: service.name,
     };
     _translationServiceIds = {
@@ -465,10 +465,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           translationResultRecordList: [
             for (final service in services)
               TranslationResultRecord(
-                translationEngineId: service.id,
+                translationServiceId: service.id,
               ),
           ],
-          unsupportedEngineIdList: [],
+          unsupportedServiceIdList: [],
         ),
     ];
   }
@@ -800,7 +800,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   void _handleButtonTappedCopy() {
     final preferred =
-        preferredTranslation(_translationResultList, _preferredEngineId);
+        preferredTranslation(_translationResultList, _preferredServiceId);
     if (preferred == null) return;
     Clipboard.setData(ClipboardData(text: preferred.text));
     setState(() => _copied = true);
@@ -810,14 +810,14 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     });
   }
 
-  /// ⌥1/⌥2/⌥3 promote an engine, matching the shortcut hints on the cards.
-  void _handlePreferEngineAt(int index) {
-    final translations = engineTranslations(_translationResultList);
+  /// ⌥1/⌥2/⌥3 promote a service, matching the shortcut hints on the cards.
+  void _handlePreferServiceAt(int index) {
+    final translations = serviceTranslations(_translationResultList);
     if (index < 0 || index >= translations.length) return;
-    final engineId = translations[index].record.translationEngineId;
-    if (engineId == null) return;
+    final serviceId = translations[index].record.translationServiceId;
+    if (serviceId == null) return;
     _setStateAndScheduleWindowResize(() {
-      _preferredEngineId = engineId;
+      _preferredServiceId = serviceId;
     });
   }
 
@@ -872,7 +872,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   Widget _buildBody(BuildContext context) {
     final hasTranslation =
-        preferredTranslation(_translationResultList, _preferredEngineId) !=
+        preferredTranslation(_translationResultList, _preferredServiceId) !=
             null;
 
     return Column(
@@ -904,8 +904,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 querySubmitted: _querySubmitted,
                 translationResultList: _translationResultList,
                 translationServiceIds: _translationServiceIds,
-                engineNameById: _engineNameById,
-                preferredEngineId: _preferredEngineId,
+                serviceNameById: _serviceNameById,
+                preferredServiceId: _preferredServiceId,
                 stale: _resultStale,
                 showCompare: _showCompare,
                 onToggleCompare: () {
@@ -913,9 +913,9 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                     _showCompare = !_showCompare;
                   });
                 },
-                onPreferEngine: (engineId) {
+                onPreferService: (serviceId) {
                   _setStateAndScheduleWindowResize(() {
-                    _preferredEngineId = engineId;
+                    _preferredServiceId = serviceId;
                   });
                 },
                 onRequery: _handleButtonTappedTrans,
@@ -948,12 +948,12 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       backgroundColor: context.colors.tray,
       body: CallbackShortcuts(
         bindings: {
-          // ⌥1…⌥9 promote the matching engine, as hinted on the cards.
+          // ⌥1…⌥9 promote the matching service, as hinted on the cards.
           for (var digit = 1; digit <= 9; digit++)
             SingleActivator(
               LogicalKeyboardKey(LogicalKeyboardKey.digit1.keyId + digit - 1),
               alt: true,
-            ): () => _handlePreferEngineAt(digit - 1),
+            ): () => _handlePreferServiceAt(digit - 1),
         },
         child: SingleChildScrollView(
           controller: _scrollController,

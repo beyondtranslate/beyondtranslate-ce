@@ -164,28 +164,26 @@
     "result": {
       "translating": "翻訳中…",
       "stale_requery": "原文が変更されました · ⏎ 再翻訳",
-      "compare_engines": "$count 個のエンジンを比較",
+      "compare_services": "$count 個のサービスを比較",
       "collapse_compare": "比較を閉じる",
       "set_preferred": "優先に設定",
       "retry": "再試行",
-      "no_result": "どのエンジンも結果を返しませんでした。ネットワークを確認するか、別のエンジンをお試しください。",
+      "no_result": "どのサービスも結果を返しませんでした。ネットワークを確認するか、別のサービスをお試しください。",
       "no_result_note": "原文は保持され、再試行しても履歴は重複しません。"
     }
   },
   "workbench": {
     "workspace": "ワークスペース",
     "translate": "翻訳",
-    "document": "文書翻訳",
     "history": "履歴",
     "glossary": "用語集",
     "recent_languages": "最近の言語",
     "not_configured": "未設定",
     "subtitle": {
-      "translate": "ワークベンチ · エンジン比較",
+      "translate": "ワークベンチ · サービス比較",
       "settings": "設定"
     },
     "placeholder": {
-      "document": "文書翻訳は開発中です",
       "history": "お気に入りと履歴は今後のリリースで提供します",
       "glossary": "用語集管理は開発中です"
     },
@@ -202,7 +200,7 @@
       "search_placeholder": "用語または指定訳を検索",
       "search_label": "用語集を検索",
       "entry_count": "$name · $count 件",
-      "priority_note": "用語集はどのエンジンの出力よりも優先されます",
+      "priority_note": "用語集はどのサービスの出力よりも優先されます",
       "new_book": "用語集を作成",
       "new_book_placeholder": "用語集の名前",
       "rename_book": "名前を変更",
@@ -211,11 +209,11 @@
       "enable": "有効にする",
       "disable": "無効にする",
       "empty_title": "この用語集は空です",
-      "empty_description": "用語集はどのエンジンの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。",
+      "empty_description": "用語集はどのサービスの出力よりも優先されます。1 件ずつ追加するか、CSV をドロップして取り込めます。",
       "no_results_title": "「$query」に一致する用語はありません",
       "no_results_description": "別のキーワードを試すか、新しく追加してください。",
       "no_books_title": "用語集がまだありません",
-      "no_books_description": "用語集は、選んだ訳語をすべてのエンジンで統一します。まず 1 つ作成して、用語を追加しましょう。",
+      "no_books_description": "用語集は、選んだ訳語をすべてのサービスで統一します。まず 1 つ作成して、用語を追加しましょう。",
       "loading": "読み込み中…"
     },
     "translation": {
@@ -229,7 +227,7 @@
       "translating": "翻訳中…",
       "failed": "翻訳に失敗しました。サービス設定を確認してください。",
       "empty": "訳文がここに表示されます",
-      "engine_compare": "エンジン比較",
+      "service_compare": "サービス比較",
       "main_translation": "メイン",
       "service_unavailable": "サービスを利用できません",
       "waiting": "翻訳待ち",
@@ -237,7 +235,7 @@
       "copy": "コピー",
       "favorite_unavailable": "お気に入りは今後のリリースで提供します",
       "preferred": "優先訳文",
-      "other_engines": "他のエンジン",
+      "other_services": "他のサービス",
       "copy_result": "訳文をコピー",
       "copied": "コピー済み",
       "favorite": "保存",
@@ -246,7 +244,7 @@
       "quality": "品質シグナル",
       "quality_hint": "訳文の生成後に計算されます。",
       "shortcuts": "ショートカット",
-      "other_engines_disabled": "他のエンジンは無効です",
+      "other_services_disabled": "他のサービスは無効です",
       "input_hint_translate_to": "翻訳するテキストを入力または貼り付け、$languageに翻訳"
     },
     "status": {
@@ -368,6 +366,7 @@
       },
       "detail": {
         "row": {
+          "id": "サービス ID",
           "name": "名前",
           "provider": "プロバイダー",
           "type": "種類"
@@ -402,7 +401,9 @@
       },
       "editor": {
         "row": {
-          "id": "プロバイダーID"
+          "id": "プロバイダーID",
+          "type": "プロバイダーの種類",
+          "default_model": "デフォルトモデル"
         },
         "placeholder": {
           "id": "例: deepl-main"
@@ -414,11 +415,37 @@
         },
         "tooltip": {
           "help": "ヘルプ"
+        },
+        "step": {
+          "next": "続ける",
+          "back": "前へ"
+        },
+        "add_title": "{} を追加",
+        "capability_note": {
+          "translation": "翻訳候補に加わります",
+          "dictionary": "辞書の語義を提供します",
+          "ocr": "画像内の文字を認識します"
+        },
+        "test": {
+          "run": "接続をテスト",
+          "running": "接続をテスト中 · 経過 {}s",
+          "passed_models": "接続は正常 · {} 個のモデルが利用可能",
+          "passed_service": "接続は正常 · サービスを利用できます",
+          "passed_footer": "接続テストに合格しました",
+          "retest": "再テスト",
+          "tips_title": "試せること",
+          "tips_llm": "· キーが選んだプロバイダーの種類と一致しているか確認\n· Base URL に /v1 が必要か確認\n· プロバイダーのコンソールでそのモデルが有効か確認",
+          "tips_traditional": "· 認証情報が選んだプロバイダーの種類と一致しているか確認\n· プロバイダーのコンソールでサービスが有効か確認",
+          "failed_suffix": "検証に失敗",
+          "passed_suffix": "検証済み"
         }
       },
       "detail": {
         "tooltip": {
           "edit": "プロバイダーを編集"
+        },
+        "row": {
+          "id_hint": "作成後は変更できません"
         },
         "section": {
           "configuration": "設定",
@@ -428,14 +455,17 @@
           "loading": "モデルを読み込み中...",
           "empty": "モデルが見つかりません。",
           "retry": "再試行",
+          "refresh": "リストを更新",
           "default_badge": "デフォルト",
+          "set_default": "デフォルトに設定",
           "fetch_error": "プロバイダーAPIからモデルを取得できませんでした。"
         }
       },
       "capability": {
         "translation": "翻訳",
         "dictionary": "辞書",
-        "ocr": "OCR"
+        "ocr": "OCR",
+        "llm": "AI"
       },
       "description": {
         "all": "辞書検索とテキスト翻訳を提供",
