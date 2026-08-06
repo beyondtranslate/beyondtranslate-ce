@@ -19,8 +19,8 @@ import '../utils/language_util.dart';
 import '../utils/platform_util.dart';
 import '../widgets/ui.dart' show DesignThemeProvider;
 import '__root.dart';
-import 'debug/component_showcase.dart' as component_showcase_route;
 import 'debug/runtime.dart' as debug_runtime_route;
+import 'debug/widget_showcase.dart' as widget_showcase_route;
 import 'mini_translator/mini_translator.dart';
 import 'workbench/index.dart' as workbench_route;
 
@@ -38,7 +38,6 @@ String _pendingWorkbenchLocation = '/translate';
 
 enum WorkbenchDestination {
   translate('/translate'),
-  document('/document'),
   history('/history'),
   glossary('/glossary'),
   settingsGeneral('/settings/general'),
@@ -338,7 +337,7 @@ GoRouter createWorkbenchAppRouter({
     routes: <RouteBase>[
       ...$appRoutes,
       ...debug_runtime_route.$appRoutes,
-      ...component_showcase_route.$appRoutes,
+      ...widget_showcase_route.$appRoutes,
       ...workbench_route.$appRoutes,
     ],
     initialLocation: initialLocation ?? _pendingWorkbenchLocation,

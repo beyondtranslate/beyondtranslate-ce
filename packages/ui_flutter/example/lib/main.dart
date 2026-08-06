@@ -174,7 +174,7 @@ class _AtomsState extends State<_Atoms> {
                   Button(
                     variant: ButtonVariant.tint,
                     onPressed: () {},
-                    child: const Text('对比 3 个引擎'),
+                    child: const Text('对比 3 个服务'),
                   ),
                   Button(
                     variant: ButtonVariant.quiet,
@@ -312,7 +312,7 @@ class _AtomsState extends State<_Atoms> {
                   Badge(
                     tone: BadgeTone.solid,
                     size: BadgeSize.sm,
-                    child: Text('3 ENGINES'),
+                    child: Text('3 SERVICES'),
                   ),
                   Badge(tone: BadgeTone.success, child: Text('已完成')),
                   Badge(tone: BadgeTone.warn, child: Text('需验证')),
@@ -750,7 +750,7 @@ class _AtomsState extends State<_Atoms> {
                                   title: const Text('Claude'),
                                   avatar: Avatar(
                                     label: 'C',
-                                    color: context.colors.engineClaude,
+                                    color: context.colors.providerClaude,
                                   ),
                                   shortcut: const Kbd('⌥2'),
                                   footer: Button(
@@ -768,7 +768,7 @@ class _AtomsState extends State<_Atoms> {
                                   title: const Text('DeepL'),
                                   avatar: Avatar(
                                     label: 'D',
-                                    color: context.colors.engineDeepl,
+                                    color: context.colors.providerDeepl,
                                   ),
                                   shortcut: const Kbd('⌥3'),
                                   child: const Text(
@@ -827,7 +827,7 @@ class _AtomsState extends State<_Atoms> {
                       ListTile(
                         leading: Avatar(
                           label: 'B',
-                          color: context.colors.engineBuiltin,
+                          color: context.colors.providerBuiltin,
                         ),
                         title: const Text('内置模型'),
                         meta: const Text('本地运行 · 无需密钥'),
@@ -847,7 +847,7 @@ class _AtomsState extends State<_Atoms> {
                       ListTile(
                         leading: Avatar(
                           label: 'C',
-                          color: context.colors.engineClaude,
+                          color: context.colors.providerClaude,
                         ),
                         title: const Text('Claude'),
                         meta: const Text('密钥已过期 · 需重新验证'),
@@ -1285,7 +1285,7 @@ class _Section extends StatelessWidget {
   }
 }
 
-/// The avatar sizes, in the shipped engine colours.
+/// The avatar sizes, in the shipped provider colours.
 class _AvatarRow extends StatelessWidget {
   const _AvatarRow();
 
@@ -1293,10 +1293,10 @@ class _AvatarRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return _Row([
-      Avatar(label: 'B', color: colors.engineBuiltin, size: AvatarSize.xs),
-      Avatar(label: 'C', color: colors.engineClaude),
-      Avatar(label: 'D', color: colors.engineDeepl, size: AvatarSize.md),
-      Avatar(label: '词', color: colors.engineDict, size: AvatarSize.lg),
+      Avatar(label: 'B', color: colors.providerBuiltin, size: AvatarSize.xs),
+      Avatar(label: 'C', color: colors.providerClaude),
+      Avatar(label: 'D', color: colors.providerDeepl, size: AvatarSize.md),
+      Avatar(label: '词', color: colors.providerDict, size: AvatarSize.lg),
     ]);
   }
 }

@@ -101,7 +101,7 @@ Type recipes come off `DesignTypography` and match the CSS classes:
 | `Stage` / `ActionBar` | `Stage` / `ActionBar` |
 | — | `Pressable`, `HoverRegion`, `FocusRing` (interaction primitives) |
 
-Every widget that carried product vocabulary in React (engine ids, "translation",
+Every widget that carried product vocabulary in React (provider ids, "translation",
 "term") takes generic slots here: the product words live at the call site.
 
 ## Gallery
@@ -113,13 +113,23 @@ under a theme switcher.
 cd example && flutter run -d macos
 ```
 
-`example/test/gallery_specimen_test.dart` renders the same gallery to
-`example/test/specimens/<theme>.png` for eyeballing beside the Storybook
-stories. It is tagged so a normal `flutter test` skips it (the images depend on
-which faces the host has installed):
+## Tests
+
+`test/widget_metrics_test.dart` asserts the fixed geometry the deck pins with
+Tailwind height utilities — the numbers a font's own line box would otherwise
+drift off (control heights, the switch box, the sidebar group's gaps).
+
+`test/golden_test.dart` renders each block on its own at DPR 1 into
+`test/goldens/<block>.png`, ~10 KB each, so a regression names the block it
+broke and the image is small enough to read. It loads the real faces — SF,
+PingFang SC, Apple Symbols and the Fluent icon font — so the images show the
+typography, not a wall of placeholder boxes. A host without those faces skips
+the suite rather than reporting false diffs, which makes this a macOS-local
+guard; the metrics test above is the part that holds everywhere. Refresh after
+a deliberate visual change:
 
 ```bash
-cd example && flutter test --update-goldens --tags specimen
+flutter test --update-goldens
 ```
 
 ## Notes on the port

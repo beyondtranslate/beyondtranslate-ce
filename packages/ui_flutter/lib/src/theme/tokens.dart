@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 
 /// BeyondTranslate design tokens — the Dart mirror of `tokens.css`.
 ///
-/// Every visual decision a component makes reads from a token, so an
+/// Every visual decision a widget makes reads from a token, so an
 /// alternative palette (Studio Dark, Bright Light, Bright Dark) is a pure
 /// token swap: no widget needs to know which theme is active.
 ///
@@ -101,11 +101,11 @@ class DesignColors {
     this.dangerSurface = const Color(0xFFFDF2F2),
     this.dangerBorder = const Color(0x57D64040), // rgba(214, 64, 64, 0.34)
 
-    // Engine identity — brand colours, stable across themes
-    this.engineBuiltin = const Color(0xFF6B4DFF),
-    this.engineClaude = const Color(0xFFD97757),
-    this.engineDeepl = const Color(0xFF3A7BFD),
-    this.engineDict = const Color(0xFF5B7F6B),
+    // Provider identity — brand colours, stable across themes
+    this.providerBuiltin = const Color(0xFF6B4DFF),
+    this.providerClaude = const Color(0xFFD97757),
+    this.providerDeepl = const Color(0xFF3A7BFD),
+    this.providerDict = const Color(0xFF5B7F6B),
 
     // macOS traffic lights
     this.trafficClose = const Color(0xFFFF5F57),
@@ -169,10 +169,10 @@ class DesignColors {
   final Color dangerDeep;
   final Color dangerSurface;
   final Color dangerBorder;
-  final Color engineBuiltin;
-  final Color engineClaude;
-  final Color engineDeepl;
-  final Color engineDict;
+  final Color providerBuiltin;
+  final Color providerClaude;
+  final Color providerDeepl;
+  final Color providerDict;
   final Color trafficClose;
   final Color trafficMinimize;
   final Color trafficZoom;
@@ -245,7 +245,7 @@ class DesignFont {
 }
 
 /// A native app has one typeface, not a display/text pair. The roles stay
-/// separate so components keep their intent, but they resolve to the system
+/// separate so widgets keep their intent, but they resolve to the system
 /// face. AppKit's practical scale: 11 secondary · 13 body · 15 emphasis ·
 /// 17 title.
 @immutable
@@ -355,7 +355,7 @@ class DesignTokens {
 
     /// Marker weight on the preferred-translation block. `--bt-highlight-rule`
     /// is 2px in every theme; it stays a token because the marker's weight is a
-    /// scheme decision, not a component's.
+    /// scheme decision, not a widget's.
     this.highlightRule = 2,
 
     /// Glow behind the preferred-translation dot — dark themes only.
@@ -387,12 +387,17 @@ class DesignTokens {
 
   Color get selectionFg => _selectionFg ?? colors.onAccent;
 
-  DesignTokens copyWith({Color? selection, Color? selectionFg}) => DesignTokens(
+  DesignTokens copyWith({
+    Color? selection,
+    Color? selectionFg,
+    DesignTypography? typography,
+  }) =>
+      DesignTokens(
         brightness: brightness,
         colors: colors,
         radii: radii,
         metrics: metrics,
-        typography: typography,
+        typography: typography ?? this.typography,
         shadows: shadows,
         backdrop: backdrop,
         progressGradient: progressGradient,

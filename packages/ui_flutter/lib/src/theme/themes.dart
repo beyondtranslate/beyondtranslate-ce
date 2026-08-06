@@ -1,7 +1,7 @@
 import 'package:beyondtranslate_ui/src/theme/tokens.dart';
 import 'package:flutter/widgets.dart';
 
-/// `studioLight` is the baseline the components were built against; the others
+/// `studioLight` is the baseline the widgets were built against; the others
 /// re-skin the same widgets by swapping tokens — including radii, so the Bright
 /// themes' pill controls need no widget changes. The Bright pair maps to deck
 /// sections 4b (light) and 4e (dark).
@@ -275,7 +275,7 @@ abstract final class DesignThemes {
       dangerDeep: Color(0xFF6D1B13),
       dangerSurface: Color(0xFFFBEEEC),
       dangerBorder: Color(0x52C0392B),
-      engineDict: Color(0xFF5B7F6B),
+      providerDict: Color(0xFF5B7F6B),
     ),
     // Pill controls are this theme's signature, so they stay — but only on the
     // `control` axis, where height sets the curve. Containers take a finite,

@@ -155,6 +155,45 @@ void main() {
     expect(withIcon.height, 28);
   });
 
+  testWidgets('a sidebar group spaces its label like another row', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      specimen(
+        SizedBox(
+          height: 400,
+          child: Sidebar(
+            children: [
+              SidebarGroup(
+                first: true,
+                label: const Text('工作区'),
+                children: [
+                  NavItem(
+                      active: true, onPressed: () {}, child: const Text('翻译')),
+                  NavItem(onPressed: () {}, child: const Text('文档翻译')),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final label = tester.getRect(find.text('工作区'));
+    final rows = tester.widgetList<NavItem>(find.byType(NavItem)).length;
+    expect(rows, 2);
+
+    final first = tester.getRect(find.byType(NavItem).first);
+    final second = tester.getRect(find.byType(NavItem).last);
+
+    // `pb-1` under the label, then the group's own 3px gap.
+    expect(first.top - label.bottom, 4 + 3);
+    // …the same 3px that separates one row from the next.
+    expect(second.top - first.bottom, 3);
+    // `px-2.5` on the label lines it up with the rows' 11px text inset.
+    expect(label.left - tester.getRect(find.byType(SidebarGroup)).left, 10);
+  });
+
   testWidgets('the highlight rule fences the block on the requested edge', (
     tester,
   ) async {

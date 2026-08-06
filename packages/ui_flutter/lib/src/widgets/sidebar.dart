@@ -96,26 +96,33 @@ class SidebarGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
 
+    // The group's own `gap-[3px]` falls between every pair of rows *and*
+    // between the label and the first row — the label is one of the flex
+    // children, not a heading pinned to the run below it.
+    final rows = <Widget>[
+      if (label != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Label(
+              tone: LabelTone.faint,
+              child: label!,
+            ),
+          ),
+        ),
+      ...children,
+    ];
+
     return Padding(
       padding: EdgeInsets.only(top: first ? 0 : 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (label != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Label(
-                  tone: LabelTone.faint,
-                  child: label!,
-                ),
-              ),
-            ),
-          for (var i = 0; i < children.length; i++) ...[
+          for (var i = 0; i < rows.length; i++) ...[
             if (i > 0) SizedBox(height: tokens.metrics.navGap),
-            children[i],
+            rows[i],
           ],
         ],
       ),

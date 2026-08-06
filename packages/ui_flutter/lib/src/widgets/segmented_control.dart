@@ -27,7 +27,7 @@ class SegmentedItem<T> {
   final bool enabled;
 }
 
-/// The 正式 / 口语 / 技术 style switch — also used for reading modes, engine
+/// The 正式 / 口语 / 技术 style switch — also used for reading modes, provider
 /// protocol tabs and the browser popup's alignment picker.
 class SegmentedControl<T> extends StatelessWidget {
   const SegmentedControl({

@@ -26,7 +26,7 @@ class IconActionButton extends StatelessWidget {
   final bool selected;
 
   /// The deck sizes the glyph per call site: 18 in the mini-window toolbar,
-  /// 16 in the sidebar header, 13 on the document zoom stepper.
+  /// 16 in the sidebar header.
   final double iconSize;
 
   /// Animated rotation of the glyph, in turns — the pin lies at -45° until

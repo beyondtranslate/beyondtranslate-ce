@@ -23,7 +23,7 @@ import '../../widgets/workbench.dart' show WorkbenchToolbar;
 class _HistoryEntry {
   const _HistoryEntry({
     required this.id,
-    required this.engine,
+    required this.service,
     required this.meta,
     required this.edited,
     required this.source,
@@ -31,7 +31,7 @@ class _HistoryEntry {
   });
 
   final String id;
-  final String engine;
+  final String service;
   final String meta;
   final bool edited;
   final String source;
@@ -41,7 +41,7 @@ class _HistoryEntry {
 const _history = <_HistoryEntry>[
   _HistoryEntry(
     id: 'h1',
-    engine: '内置模型',
+    service: '内置模型',
     meta: '今天 14:22 · arxiv.org',
     edited: true,
     source: 'Self-attention weighs every token against every other token.',
@@ -49,7 +49,7 @@ const _history = <_HistoryEntry>[
   ),
   _HistoryEntry(
     id: 'h2',
-    engine: 'Claude',
+    service: 'Claude',
     meta: '今天 11:04 · Xcode',
     edited: false,
     source: 'The build phase failed because the signing certificate expired.',
@@ -57,7 +57,7 @@ const _history = <_HistoryEntry>[
   ),
   _HistoryEntry(
     id: 'h3',
-    engine: 'DeepL',
+    service: 'DeepL',
     meta: '昨天 20:47 · Mail',
     edited: false,
     source: 'Please find the revised contract attached for your review.',
@@ -91,7 +91,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       for (final entry in _history)
         if (_filter != _Filter.edited || entry.edited)
           if (needle.isEmpty ||
-              '${entry.source} ${entry.translation} ${entry.engine}'
+              '${entry.source} ${entry.translation} ${entry.service}'
                   .toLowerCase()
                   .contains(needle))
             entry,
@@ -185,7 +185,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
               autofocus: true,
               value: _query,
               onChanged: (value) => setState(() => _query = value),
-              placeholder: '搜索原文、译文或引擎',
+              placeholder: '搜索原文、译文或服务',
               onDismiss: () => setState(() {
                 _searching = false;
                 _query = '';
@@ -330,7 +330,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     final active =
         _selecting ? _selected.contains(entry.id) : entry.id == _active;
     return ListCard(
-      eyebrow: Text(entry.engine),
+      eyebrow: Text(entry.service),
       meta: Text(entry.meta),
       flag: entry.edited ? const Text('我改过') : null,
       primary: Text(entry.source),

@@ -24,19 +24,19 @@ import '../../widgets/ui.dart'
         SpinnerSize,
         kTransitionDuration;
 
-/// One engine's translated text, paired with the target it belongs to.
-typedef EngineTranslation = ({
+/// One service's translated text, paired with the target it belongs to.
+typedef ServiceTranslation = ({
   TranslationResult result,
   TranslationResultRecord record,
   String text,
 });
 
-/// Every engine translation with text, in engine order — the first target's
+/// Every service translation with text, in service order — the first target's
 /// records first, then any additional configured targets.
-List<EngineTranslation> engineTranslations(
+List<ServiceTranslation> serviceTranslations(
   List<TranslationResult> results,
 ) {
-  final translations = <EngineTranslation>[];
+  final translations = <ServiceTranslation>[];
   for (final result in results) {
     for (final record in result.translationResultRecordList ??
         const <TranslationResultRecord>[]) {
@@ -50,37 +50,37 @@ List<EngineTranslation> engineTranslations(
   return translations;
 }
 
-/// The translation the preferred block shows: the engine the user promoted
-/// (⌥n / 设为首选) when it has text, else the first engine that answered.
-EngineTranslation? preferredTranslation(
+/// The translation the preferred block shows: the service the user promoted
+/// (⌥n / 设为首选) when it has text, else the first service that answered.
+ServiceTranslation? preferredTranslation(
   List<TranslationResult> results,
-  String? preferredEngineId,
+  String? preferredServiceId,
 ) {
-  final translations = engineTranslations(results);
+  final translations = serviceTranslations(results);
   if (translations.isEmpty) return null;
   for (final translation in translations) {
-    if (translation.record.translationEngineId == preferredEngineId) {
+    if (translation.record.translationServiceId == preferredServiceId) {
       return translation;
     }
   }
   return translations.first;
 }
 
-/// The preferred block plus the on-demand engine comparison, mirroring the
+/// The preferred block plus the on-demand service comparison, mirroring the
 /// deck's MiniTranslator: one preferred translation as the visual protagonist,
-/// its engine attribution below, candidates behind a 对比 N 个引擎 toggle.
+/// its service attribution below, candidates behind a 对比 N 个服务 toggle.
 class MiniTranslatorTranslation extends StatelessWidget {
   const MiniTranslatorTranslation({
     Key? key,
     required this.querySubmitted,
     required this.translationResultList,
     required this.translationServiceIds,
-    required this.engineNameById,
-    required this.preferredEngineId,
+    required this.serviceNameById,
+    required this.preferredServiceId,
     required this.stale,
     required this.showCompare,
     required this.onToggleCompare,
-    required this.onPreferEngine,
+    required this.onPreferService,
     required this.onRequery,
   }) : super(key: key);
 
@@ -90,18 +90,18 @@ class MiniTranslatorTranslation extends StatelessWidget {
   /// Service ids of type translation — lookup-only records must not keep the
   /// block in the translating phase.
   final Set<String> translationServiceIds;
-  final Map<String, String> engineNameById;
-  final String? preferredEngineId;
+  final Map<String, String> serviceNameById;
+  final String? preferredServiceId;
 
   /// The source was edited after this result came back — offer ⏎ 重新翻译.
   final bool stale;
   final bool showCompare;
   final VoidCallback onToggleCompare;
-  final ValueChanged<String> onPreferEngine;
+  final ValueChanged<String> onPreferService;
   final VoidCallback onRequery;
 
-  String _engineName(String? engineId) =>
-      engineNameById[engineId] ?? engineId ?? '';
+  String _serviceName(String? serviceId) =>
+      serviceNameById[serviceId] ?? serviceId ?? '';
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +113,8 @@ class MiniTranslatorTranslation extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final translations = engineTranslations(results);
-    final preferred = preferredTranslation(results, preferredEngineId);
+    final translations = serviceTranslations(results);
+    final preferred = preferredTranslation(results, preferredServiceId);
 
     // Translation records that errored / are still in flight, ignoring
     // dictionary lookups.
@@ -123,7 +123,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
     for (final result in results) {
       for (final record in result.translationResultRecordList ??
           const <TranslationResultRecord>[]) {
-        if (!translationServiceIds.contains(record.translationEngineId)) {
+        if (!translationServiceIds.contains(record.translationServiceId)) {
           continue;
         }
         if (record.translateError != null) {
@@ -229,7 +229,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
               ],
               if (!noResult) ...[
                 const SizedBox(height: 12),
-                // 引擎署名与对比开关 — under the translation, so the text
+                // 服务署名与对比开关 — under the translation, so the text
                 // stays the visual protagonist of the block.
                 Row(
                   children: [
@@ -251,8 +251,8 @@ class MiniTranslatorTranslation extends StatelessWidget {
                               ? getLanguageName(
                                   results.first.translationTarget?.target ?? '',
                                 )
-                              : _engineName(
-                                  preferred!.record.translationEngineId,
+                              : _serviceName(
+                                  preferred!.record.translationServiceId,
                                 ),
                         ),
                       ),
@@ -261,7 +261,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     if (translations.length > 1)
                       _CompareToggle(
                         expanded: showCompare,
-                        engineCount: translations.length,
+                        serviceCount: translations.length,
                         onPressed: onToggleCompare,
                       ),
                   ],
@@ -270,7 +270,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
             ],
           ),
         ),
-        // 展开对比 — candidate engines as promotable cards.
+        // 展开对比 — candidate services as promotable cards.
         if (showCompare && candidates.isNotEmpty && !translating && !noResult)
           Container(
             padding: const EdgeInsets.all(11),
@@ -293,10 +293,10 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     name: _candidateName(candidates[i], results),
                     shortcut: _shortcutFor(candidates[i], translations),
                     text: candidates[i].text,
-                    onPrefer: candidates[i].record.translationEngineId == null
+                    onPrefer: candidates[i].record.translationServiceId == null
                         ? null
-                        : () => onPreferEngine(
-                              candidates[i].record.translationEngineId!,
+                        : () => onPreferService(
+                              candidates[i].record.translationServiceId!,
                             ),
                   ),
                 ],
@@ -307,24 +307,24 @@ class MiniTranslatorTranslation extends StatelessWidget {
     );
   }
 
-  /// Candidate label: engine name, with the target appended when the app is
+  /// Candidate label: service name, with the target appended when the app is
   /// translating into several targets at once.
   String _candidateName(
-    EngineTranslation candidate,
+    ServiceTranslation candidate,
     List<TranslationResult> results,
   ) {
-    final name = _engineName(candidate.record.translationEngineId);
+    final name = _serviceName(candidate.record.translationServiceId);
     if (results.length <= 1) return name;
     final target = candidate.result.translationTarget?.target;
     if (target == null || target.isEmpty) return name;
     return '$name · ${getLanguageName(target)}';
   }
 
-  /// ⌥n hint, numbered by the engine's position in the full list — the same
+  /// ⌥n hint, numbered by the service's position in the full list — the same
   /// index the page's ⌥1/2/3 shortcuts promote.
   String? _shortcutFor(
-    EngineTranslation candidate,
-    List<EngineTranslation> translations,
+    ServiceTranslation candidate,
+    List<ServiceTranslation> translations,
   ) {
     final index = translations.indexOf(candidate);
     if (index < 0 || index > 8) return null;
@@ -332,16 +332,16 @@ class MiniTranslatorTranslation extends StatelessWidget {
   }
 }
 
-/// The 对比 N 个引擎 / 收起对比 pill — accent-tinted with a rotating chevron.
+/// The 对比 N 个服务 / 收起对比 pill — accent-tinted with a rotating chevron.
 class _CompareToggle extends StatelessWidget {
   const _CompareToggle({
     required this.expanded,
-    required this.engineCount,
+    required this.serviceCount,
     required this.onPressed,
   });
 
   final bool expanded;
-  final int engineCount;
+  final int serviceCount;
   final VoidCallback onPressed;
 
   @override
@@ -355,7 +355,7 @@ class _CompareToggle extends StatelessWidget {
       borderRadius: radius,
       semanticsLabel: expanded
           ? t.mini_translator.result.collapse_compare
-          : t.mini_translator.result.compare_engines(count: engineCount),
+          : t.mini_translator.result.compare_services(count: serviceCount),
       builder: (context, state) => AnimatedContainer(
         duration: kTransitionDuration,
         padding: const EdgeInsets.fromLTRB(9, 4, 7, 4),
@@ -370,7 +370,7 @@ class _CompareToggle extends StatelessWidget {
               expanded
                   ? t.mini_translator.result.collapse_compare
                   : t.mini_translator.result
-                      .compare_engines(count: engineCount),
+                      .compare_services(count: serviceCount),
               style: tokens.typography.sansStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -395,7 +395,7 @@ class _CompareToggle extends StatelessWidget {
   }
 }
 
-/// One candidate engine: attribution with its ⌥n hint, the text, and 设为首选.
+/// One candidate service: attribution with its ⌥n hint, the text, and 设为首选.
 class _CandidateCard extends StatelessWidget {
   const _CandidateCard({
     required this.name,

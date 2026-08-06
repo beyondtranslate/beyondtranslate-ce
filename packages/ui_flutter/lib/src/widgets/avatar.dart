@@ -8,8 +8,8 @@ enum AvatarSize { xs, sm, md, lg }
 /// The rounded-square identity mark used in cards, lists and the extension.
 ///
 /// It carries no product knowledge: the caller supplies the glyph and the
-/// brand colour. The palette ships the shipped engines' brand colours as
-/// `context.colors.engineClaude` and friends.
+/// brand colour. The palette ships the shipped providers' brand colours as
+/// `context.colors.providerClaude` and friends.
 class Avatar extends StatelessWidget {
   const Avatar({
     super.key,

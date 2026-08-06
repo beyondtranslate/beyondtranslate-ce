@@ -43,7 +43,7 @@ import '../settings/general.dart' show GeneralSettingsPage;
 import 'index.dart' show workbenchTextHandoff;
 
 /// 翻译 — the deck's TranslateView: the source block over the preferred
-/// translation, the other engines behind a 对比 toggle, and the information
+/// translation, the other services behind a 对比 toggle, and the information
 /// aside on the right.
 class WorkbenchTranslationPage extends StatefulWidget {
   const WorkbenchTranslationPage({super.key});
@@ -59,7 +59,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
-  /// 其他引擎 — collapsed by default, like the mini translator's 对比 list.
+  /// 其他服务 — collapsed by default, like the mini translator's 对比 list.
   bool _expanded = false;
   bool _copied = false;
   bool _starred = false;
@@ -173,8 +173,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     });
   }
 
-  /// Whether the selected engine came back with nothing but an error.
-  static bool _isFailed(WorkbenchEngineResult? result) =>
+  /// Whether the selected service came back with nothing but an error.
+  static bool _isFailed(WorkbenchServiceResult? result) =>
       result != null &&
       result.error != null &&
       result.text.isEmpty &&
@@ -189,7 +189,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         if (entry.service.id != result?.service.id) entry,
     ];
 
-    // 三个引擎都失败 — the deck's error state, which replaces the preferred
+    // 三个服务都失败 — the deck's error state, which replaces the preferred
     // block (and with it the accent rule that normally divides the pane).
     final failed = _isFailed(result);
 
@@ -207,7 +207,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             _submit();
           }
         },
-        // ⌥1…⌥9 promote the matching engine, as hinted on the cards.
+        // ⌥1…⌥9 promote the matching service, as hinted on the cards.
         for (var digit = 1; digit <= 9; digit++)
           SingleActivator(
             LogicalKeyboardKey(LogicalKeyboardKey.digit1.keyId + digit - 1),
@@ -215,7 +215,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           ): () {
             final results = _controller.results;
             if (digit <= results.length) {
-              _controller.selectEngine(results[digit - 1].service.id);
+              _controller.selectService(results[digit - 1].service.id);
             }
           },
       },
@@ -426,14 +426,14 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   /// 首选译文 — the one accent block, in the deck's HighlightBlock shape.
   Widget _buildPreferredBlock(
     BuildContext context,
-    WorkbenchEngineResult? result, {
+    WorkbenchServiceResult? result, {
     bool stretch = false,
   }) {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final translation = t.workbench.translation;
     final text = result?.text ?? '';
-    final engineName = result == null
+    final serviceName = result == null
         ? translation.main_translation
         : (result.service.name.isEmpty
             ? result.service.id
@@ -476,15 +476,15 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         if (entry.service.id != result?.service.id) entry,
     ];
     // 对比开关 — lives in the preferred block's action row, the mini's
-    // placement. With every other engine disabled it degrades to a note.
+    // placement. With every other service disabled it degrades to a note.
     final compareToggle = others.isNotEmpty
         ? _CompareToggle(
             expanded: _expanded,
-            engineCount: others.length + 1,
+            serviceCount: others.length + 1,
             onPressed: () => setState(() => _expanded = !_expanded),
           )
         : Text(
-            translation.other_engines_disabled,
+            translation.other_services_disabled,
             style: tokens.typography.sansStyle(
               fontSize: 11,
               height: 1,
@@ -499,7 +499,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       // pane's divider, which is why 原文 draws no hairline of its own.
       rule: HighlightRule.top,
       stretch: stretch,
-      label: Text('$engineName · ${translation.preferred}'),
+      label: Text('$serviceName · ${translation.preferred}'),
       meta: translating
           ? Text(translation.translating)
           : _override != null
@@ -637,12 +637,12 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     );
   }
 
-  /// 展开对比 — candidate engine cards stacked under the preferred block,
+  /// 展开对比 — candidate service cards stacked under the preferred block,
   /// the mini translator's compare list.
   Widget _buildOthersSection(
     BuildContext context,
-    WorkbenchEngineResult? preferred,
-    List<WorkbenchEngineResult> others,
+    WorkbenchServiceResult? preferred,
+    List<WorkbenchServiceResult> others,
   ) {
     if (!_expanded || others.isEmpty) return const SizedBox.shrink();
 
@@ -653,31 +653,31 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         children: [
           for (var i = 0; i < others.length; i++) ...[
             if (i > 0) const SizedBox(height: 14),
-            _buildEngineCard(context, others[i]),
+            _buildServiceCard(context, others[i]),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildEngineCard(
+  Widget _buildServiceCard(
     BuildContext context,
-    WorkbenchEngineResult result,
+    WorkbenchServiceResult result,
   ) {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final translation = t.workbench.translation;
     final name =
         result.service.name.isEmpty ? result.service.id : result.service.name;
-    // ⌥n hint and avatar colour follow the engine's position in the full
+    // ⌥n hint and avatar colour follow the service's position in the full
     // list — the same order the deck numbers its cards.
     final index = _controller.results
         .indexWhere((entry) => entry.service.id == result.service.id);
     final avatarColors = [
-      colors.engineBuiltin,
-      colors.engineClaude,
-      colors.engineDeepl,
-      colors.engineDict,
+      colors.providerBuiltin,
+      colors.providerClaude,
+      colors.providerDeepl,
+      colors.providerDict,
     ];
 
     return Container(
@@ -741,7 +741,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             const SizedBox(height: 7),
             Button(
               variant: ButtonVariant.quiet,
-              onPressed: () => _controller.selectEngine(result.service.id),
+              onPressed: () => _controller.selectService(result.service.id),
               child: Text(t.mini_translator.result.set_preferred),
             ),
           ],
@@ -848,16 +848,16 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   }
 }
 
-/// The 对比 N 个引擎 / 收起对比 pill — same control as the mini translator's.
+/// The 对比 N 个服务 / 收起对比 pill — same control as the mini translator's.
 class _CompareToggle extends StatelessWidget {
   const _CompareToggle({
     required this.expanded,
-    required this.engineCount,
+    required this.serviceCount,
     required this.onPressed,
   });
 
   final bool expanded;
-  final int engineCount;
+  final int serviceCount;
   final VoidCallback onPressed;
 
   @override
@@ -867,7 +867,7 @@ class _CompareToggle extends StatelessWidget {
     final radius = BorderRadius.circular(tokens.radii.pill);
     final label = expanded
         ? t.mini_translator.result.collapse_compare
-        : t.mini_translator.result.compare_engines(count: engineCount);
+        : t.mini_translator.result.compare_services(count: serviceCount);
 
     return Pressable(
       onPressed: onPressed,

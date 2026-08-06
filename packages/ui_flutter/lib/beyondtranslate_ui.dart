@@ -1,7 +1,7 @@
 /// The BeyondTranslate design system for Flutter.
 ///
 /// A port of the React `@beyondtranslate/ui` atoms: same tokens, same four
-/// themes, same components — under plain, generic widget names.
+/// themes, same widgets — under plain, generic names.
 ///
 /// Several of those names (`Badge`, `Button`, `Checkbox`, `Dialog`, `Divider`,
 /// `IconButton`, `ListTile`, `Radio`, `Step`, `Switch`) are also Material's. This package

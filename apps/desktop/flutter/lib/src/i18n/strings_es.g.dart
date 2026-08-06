@@ -156,8 +156,6 @@ class _TranslationsWorkbenchEs extends TranslationsWorkbenchEn {
   @override
   String get translate => 'Traducir';
   @override
-  String get document => 'Traducción de documentos';
-  @override
   String get history => 'Historial';
   @override
   String get glossary => 'Glosario';
@@ -574,8 +572,8 @@ class _TranslationsMiniTranslatorResultEs
   @override
   String get stale_requery => 'Texto modificado · ⏎ retraducir';
   @override
-  String compare_engines({required Object count}) =>
-      'Comparar ${count} motores';
+  String compare_services({required Object count}) =>
+      'Comparar ${count} servicios';
   @override
   String get collapse_compare => 'Contraer';
   @override
@@ -584,7 +582,7 @@ class _TranslationsMiniTranslatorResultEs
   String get retry => 'Reintentar';
   @override
   String get no_result =>
-      'Ningún motor devolvió resultados: revisa la red o prueba otro motor.';
+      'Ningún servicio devolvió resultados: revisa la red o prueba otro servicio.';
   @override
   String get no_result_note =>
       'El texto se conserva; reintentar no duplicará el historial.';
@@ -600,7 +598,7 @@ class _TranslationsWorkbenchSubtitleEs extends TranslationsWorkbenchSubtitleEn {
 
   // Translations
   @override
-  String get translate => 'Mesa de trabajo · Comparación de motores';
+  String get translate => 'Mesa de trabajo · Comparación de servicios';
   @override
   String get settings => 'Ajustes';
 }
@@ -615,8 +613,6 @@ class _TranslationsWorkbenchPlaceholderEs
   final TranslationsEs _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get document => 'La traducción de documentos está en desarrollo';
   @override
   String get history =>
       'Favoritos e historial estarán disponibles más adelante';
@@ -662,7 +658,7 @@ class _TranslationsWorkbenchGlossaryPageEs
       '${name} · ${count} términos';
   @override
   String get priority_note =>
-      'El glosario tiene prioridad sobre cualquier motor';
+      'El glosario tiene prioridad sobre cualquier servicio';
   @override
   String get new_book => 'Nuevo glosario';
   @override
@@ -682,7 +678,7 @@ class _TranslationsWorkbenchGlossaryPageEs
   String get empty_title => 'Este glosario está vacío';
   @override
   String get empty_description =>
-      'El glosario tiene prioridad sobre cualquier motor. Añade términos uno a uno, o suelta un CSV para combinarlos.';
+      'El glosario tiene prioridad sobre cualquier servicio. Añade términos uno a uno, o suelta un CSV para combinarlos.';
   @override
   String no_results_title({required Object query}) =>
       'Ningún término coincide con «${query}»';
@@ -693,7 +689,7 @@ class _TranslationsWorkbenchGlossaryPageEs
   String get no_books_title => 'Todavía no hay glosarios';
   @override
   String get no_books_description =>
-      'Un glosario mantiene tus traducciones coherentes en todos los motores. Crea uno y empieza a añadir términos.';
+      'Un glosario mantiene tus traducciones coherentes en todos los servicios. Crea uno y empieza a añadir términos.';
   @override
   String get loading => 'Cargando…';
 }
@@ -730,7 +726,7 @@ class _TranslationsWorkbenchTranslationEs
   @override
   String get empty => 'La traducción aparecerá aquí';
   @override
-  String get engine_compare => 'Comparación de motores';
+  String get service_compare => 'Comparación de servicios';
   @override
   String get main_translation => 'Principal';
   @override
@@ -746,7 +742,7 @@ class _TranslationsWorkbenchTranslationEs
   @override
   String get preferred => 'Traducción preferida';
   @override
-  String get other_engines => 'Otros motores';
+  String get other_services => 'Otros servicios';
   @override
   String get copy_result => 'Copiar traducción';
   @override
@@ -764,7 +760,8 @@ class _TranslationsWorkbenchTranslationEs
   @override
   String get shortcuts => 'Atajos';
   @override
-  String get other_engines_disabled => 'Los demás motores están desactivados';
+  String get other_services_disabled =>
+      'Los demás servicios están desactivados';
   @override
   String input_hint_translate_to({required Object language}) =>
       'Escribe o pega el texto para traducir al ${language}';
@@ -1592,6 +1589,18 @@ class _TranslationsSettingsProvidersEditorEs
   @override
   late final _TranslationsSettingsProvidersEditorTooltipEs tooltip =
       _TranslationsSettingsProvidersEditorTooltipEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorStepEs step =
+      _TranslationsSettingsProvidersEditorStepEs._(_root);
+  @override
+  String get add_title => 'Agregar {}';
+  @override
+  late final _TranslationsSettingsProvidersEditorCapabilityNoteEs
+      capability_note =
+      _TranslationsSettingsProvidersEditorCapabilityNoteEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersEditorTestEs test =
+      _TranslationsSettingsProvidersEditorTestEs._(_root);
 }
 
 // Path: settings.providers.detail
@@ -1607,6 +1616,9 @@ class _TranslationsSettingsProvidersDetailEs
   @override
   late final _TranslationsSettingsProvidersDetailTooltipEs tooltip =
       _TranslationsSettingsProvidersDetailTooltipEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailRowEs row =
+      _TranslationsSettingsProvidersDetailRowEs._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailSectionEs section =
       _TranslationsSettingsProvidersDetailSectionEs._(_root);
@@ -1631,6 +1643,8 @@ class _TranslationsSettingsProvidersCapabilityEs
   String get dictionary => 'Diccionario';
   @override
   String get ocr => 'OCR';
+  @override
+  String get llm => 'IA';
 }
 
 // Path: settings.providers.description
@@ -1730,6 +1744,8 @@ class _TranslationsSettingsServicesDetailRowEs
 
   // Translations
   @override
+  String get id => 'ID del servicio';
+  @override
   String get name => 'Nombre';
   @override
   String get provider => 'Proveedor';
@@ -1765,6 +1781,10 @@ class _TranslationsSettingsProvidersEditorRowEs
   // Translations
   @override
   String get id => 'ID del proveedor';
+  @override
+  String get type => 'Tipo de proveedor';
+  @override
+  String get default_model => 'Modelo predeterminado';
 }
 
 // Path: settings.providers.editor.placeholder
@@ -1813,6 +1833,76 @@ class _TranslationsSettingsProvidersEditorTooltipEs
   String get help => 'Ayuda';
 }
 
+// Path: settings.providers.editor.step
+class _TranslationsSettingsProvidersEditorStepEs
+    extends TranslationsSettingsProvidersEditorStepEn {
+  _TranslationsSettingsProvidersEditorStepEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get next => 'Continuar';
+  @override
+  String get back => 'Atrás';
+}
+
+// Path: settings.providers.editor.capability_note
+class _TranslationsSettingsProvidersEditorCapabilityNoteEs
+    extends TranslationsSettingsProvidersEditorCapabilityNoteEn {
+  _TranslationsSettingsProvidersEditorCapabilityNoteEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => 'Se suma a las traducciones candidatas';
+  @override
+  String get dictionary => 'Aporta definiciones de diccionario';
+  @override
+  String get ocr => 'Reconoce texto en imágenes';
+}
+
+// Path: settings.providers.editor.test
+class _TranslationsSettingsProvidersEditorTestEs
+    extends TranslationsSettingsProvidersEditorTestEn {
+  _TranslationsSettingsProvidersEditorTestEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get run => 'Probar conexión';
+  @override
+  String get running => 'Probando la conexión · {}s transcurridos';
+  @override
+  String get passed_models => 'Conexión correcta · {} modelos disponibles';
+  @override
+  String get passed_service => 'Conexión correcta · servicio disponible';
+  @override
+  String get passed_footer => 'Prueba de conexión superada';
+  @override
+  String get retest => 'Probar de nuevo';
+  @override
+  String get tips_title => 'Puedes intentar';
+  @override
+  String get tips_llm =>
+      '· Comprueba que la clave corresponda al tipo de proveedor elegido\n· Comprueba si la Base URL necesita /v1\n· Confirma que el modelo esté habilitado en la consola del proveedor';
+  @override
+  String get tips_traditional =>
+      '· Comprueba que las credenciales correspondan al tipo de proveedor elegido\n· Confirma que el servicio esté habilitado en la consola del proveedor';
+  @override
+  String get failed_suffix => 'verificación fallida';
+  @override
+  String get passed_suffix => 'verificado';
+}
+
 // Path: settings.providers.detail.tooltip
 class _TranslationsSettingsProvidersDetailTooltipEs
     extends TranslationsSettingsProvidersDetailTooltipEn {
@@ -1825,6 +1915,20 @@ class _TranslationsSettingsProvidersDetailTooltipEs
   // Translations
   @override
   String get edit => 'Editar proveedor';
+}
+
+// Path: settings.providers.detail.row
+class _TranslationsSettingsProvidersDetailRowEs
+    extends TranslationsSettingsProvidersDetailRowEn {
+  _TranslationsSettingsProvidersDetailRowEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get id_hint => 'No se puede cambiar después de crearlo';
 }
 
 // Path: settings.providers.detail.section
@@ -1860,7 +1964,11 @@ class _TranslationsSettingsProvidersDetailModelsEs
   @override
   String get retry => 'Reintentar';
   @override
+  String get refresh => 'Actualizar lista';
+  @override
   String get default_badge => 'Predeterminado';
+  @override
+  String get set_default => 'Establecer como predeterminado';
   @override
   String get fetch_error =>
       'No se pudieron obtener los modelos de la API del proveedor.';
@@ -2009,27 +2117,24 @@ extension on TranslationsEs {
       'mini_translator.result.translating' => 'Traduciendo…',
       'mini_translator.result.stale_requery' =>
         'Texto modificado · ⏎ retraducir',
-      'mini_translator.result.compare_engines' => ({required Object count}) =>
-          'Comparar ${count} motores',
+      'mini_translator.result.compare_services' => ({required Object count}) =>
+          'Comparar ${count} servicios',
       'mini_translator.result.collapse_compare' => 'Contraer',
       'mini_translator.result.set_preferred' => 'Establecer como preferido',
       'mini_translator.result.retry' => 'Reintentar',
       'mini_translator.result.no_result' =>
-        'Ningún motor devolvió resultados: revisa la red o prueba otro motor.',
+        'Ningún servicio devolvió resultados: revisa la red o prueba otro servicio.',
       'mini_translator.result.no_result_note' =>
         'El texto se conserva; reintentar no duplicará el historial.',
       'workbench.workspace' => 'Espacio de trabajo',
       'workbench.translate' => 'Traducir',
-      'workbench.document' => 'Traducción de documentos',
       'workbench.history' => 'Historial',
       'workbench.glossary' => 'Glosario',
       'workbench.recent_languages' => 'Idiomas recientes',
       'workbench.not_configured' => 'Sin configurar',
       'workbench.subtitle.translate' =>
-        'Mesa de trabajo · Comparación de motores',
+        'Mesa de trabajo · Comparación de servicios',
       'workbench.subtitle.settings' => 'Ajustes',
-      'workbench.placeholder.document' =>
-        'La traducción de documentos está en desarrollo',
       'workbench.placeholder.history' =>
         'Favoritos e historial estarán disponibles más adelante',
       'workbench.placeholder.glossary' =>
@@ -2051,7 +2156,7 @@ extension on TranslationsEs {
               {required Object name, required Object count}) =>
           '${name} · ${count} términos',
       'workbench.glossary_page.priority_note' =>
-        'El glosario tiene prioridad sobre cualquier motor',
+        'El glosario tiene prioridad sobre cualquier servicio',
       'workbench.glossary_page.new_book' => 'Nuevo glosario',
       'workbench.glossary_page.new_book_placeholder' => 'Nombre del glosario',
       'workbench.glossary_page.rename_book' => 'Cambiar nombre',
@@ -2063,14 +2168,14 @@ extension on TranslationsEs {
       'workbench.glossary_page.disable' => 'Desactivar',
       'workbench.glossary_page.empty_title' => 'Este glosario está vacío',
       'workbench.glossary_page.empty_description' =>
-        'El glosario tiene prioridad sobre cualquier motor. Añade términos uno a uno, o suelta un CSV para combinarlos.',
+        'El glosario tiene prioridad sobre cualquier servicio. Añade términos uno a uno, o suelta un CSV para combinarlos.',
       'workbench.glossary_page.no_results_title' => ({required Object query}) =>
           'Ningún término coincide con «${query}»',
       'workbench.glossary_page.no_results_description' =>
         'Prueba otra palabra clave, o añade el término.',
       'workbench.glossary_page.no_books_title' => 'Todavía no hay glosarios',
       'workbench.glossary_page.no_books_description' =>
-        'Un glosario mantiene tus traducciones coherentes en todos los motores. Crea uno y empieza a añadir términos.',
+        'Un glosario mantiene tus traducciones coherentes en todos los servicios. Crea uno y empieza a añadir términos.',
       'workbench.glossary_page.loading' => 'Cargando…',
       'workbench.translation.source' => 'Origen',
       'workbench.translation.target' => 'Traducción',
@@ -2086,7 +2191,7 @@ extension on TranslationsEs {
       'workbench.translation.failed' =>
         'La traducción falló. Revisa la configuración del servicio.',
       'workbench.translation.empty' => 'La traducción aparecerá aquí',
-      'workbench.translation.engine_compare' => 'Comparación de motores',
+      'workbench.translation.service_compare' => 'Comparación de servicios',
       'workbench.translation.main_translation' => 'Principal',
       'workbench.translation.service_unavailable' => 'Servicio no disponible',
       'workbench.translation.waiting' => 'Esperando traducción',
@@ -2095,7 +2200,7 @@ extension on TranslationsEs {
       'workbench.translation.favorite_unavailable' =>
         'Favoritos estará disponible más adelante',
       'workbench.translation.preferred' => 'Traducción preferida',
-      'workbench.translation.other_engines' => 'Otros motores',
+      'workbench.translation.other_services' => 'Otros servicios',
       'workbench.translation.copy_result' => 'Copiar traducción',
       'workbench.translation.copied' => 'Copiado',
       'workbench.translation.favorite' => 'Guardar',
@@ -2106,8 +2211,8 @@ extension on TranslationsEs {
       'workbench.translation.quality_hint' =>
         'Se calculan cuando llega la traducción.',
       'workbench.translation.shortcuts' => 'Atajos',
-      'workbench.translation.other_engines_disabled' =>
-        'Los demás motores están desactivados',
+      'workbench.translation.other_services_disabled' =>
+        'Los demás servicios están desactivados',
       'workbench.translation.input_hint_translate_to' => (
               {required Object language}) =>
           'Escribe o pega el texto para traducir al ${language}',
@@ -2216,6 +2321,7 @@ extension on TranslationsEs {
       'settings.services.editor.coming_soon' => '🚧 Próximamente',
       'settings.services.editor.coming_soon_description' =>
         'La configuración del servicio aún no está disponible. Puede administrar los proveedores de servicios desde la pestaña de proveedores.',
+      'settings.services.detail.row.id' => 'ID del servicio',
       'settings.services.detail.row.name' => 'Nombre',
       'settings.services.detail.row.provider' => 'Proveedor',
       'settings.services.detail.row.type' => 'Tipo',
@@ -2239,6 +2345,8 @@ extension on TranslationsEs {
       'settings.providers.intro.warning' =>
         'Los proveedores conectados pueden procesar el texto o las imágenes que envías. Activa solo servicios en los que confíes.',
       'settings.providers.editor.row.id' => 'ID del proveedor',
+      'settings.providers.editor.row.type' => 'Tipo de proveedor',
+      'settings.providers.editor.row.default_model' => 'Modelo predeterminado',
       'settings.providers.editor.placeholder.id' => 'ej. deepl-main',
       'settings.providers.editor.type_picker.prompt' =>
         'Selecciona el tipo de proveedor que deseas agregar:',
@@ -2246,18 +2354,50 @@ extension on TranslationsEs {
       'settings.providers.editor.type_picker.section_traditional' =>
         'Tradicional',
       'settings.providers.editor.tooltip.help' => 'Ayuda',
+      'settings.providers.editor.step.next' => 'Continuar',
+      'settings.providers.editor.step.back' => 'Atrás',
+      'settings.providers.editor.add_title' => 'Agregar {}',
+      'settings.providers.editor.capability_note.translation' =>
+        'Se suma a las traducciones candidatas',
+      'settings.providers.editor.capability_note.dictionary' =>
+        'Aporta definiciones de diccionario',
+      'settings.providers.editor.capability_note.ocr' =>
+        'Reconoce texto en imágenes',
+      'settings.providers.editor.test.run' => 'Probar conexión',
+      'settings.providers.editor.test.running' =>
+        'Probando la conexión · {}s transcurridos',
+      'settings.providers.editor.test.passed_models' =>
+        'Conexión correcta · {} modelos disponibles',
+      'settings.providers.editor.test.passed_service' =>
+        'Conexión correcta · servicio disponible',
+      'settings.providers.editor.test.passed_footer' =>
+        'Prueba de conexión superada',
+      'settings.providers.editor.test.retest' => 'Probar de nuevo',
+      'settings.providers.editor.test.tips_title' => 'Puedes intentar',
+      'settings.providers.editor.test.tips_llm' =>
+        '· Comprueba que la clave corresponda al tipo de proveedor elegido\n· Comprueba si la Base URL necesita /v1\n· Confirma que el modelo esté habilitado en la consola del proveedor',
+      'settings.providers.editor.test.tips_traditional' =>
+        '· Comprueba que las credenciales correspondan al tipo de proveedor elegido\n· Confirma que el servicio esté habilitado en la consola del proveedor',
+      'settings.providers.editor.test.failed_suffix' => 'verificación fallida',
+      'settings.providers.editor.test.passed_suffix' => 'verificado',
       'settings.providers.detail.tooltip.edit' => 'Editar proveedor',
+      'settings.providers.detail.row.id_hint' =>
+        'No se puede cambiar después de crearlo',
       'settings.providers.detail.section.configuration' => 'Configuración',
       'settings.providers.detail.section.models' => 'Modelos',
       'settings.providers.detail.models.loading' => 'Cargando modelos...',
       'settings.providers.detail.models.empty' => 'No se encontraron modelos.',
       'settings.providers.detail.models.retry' => 'Reintentar',
+      'settings.providers.detail.models.refresh' => 'Actualizar lista',
       'settings.providers.detail.models.default_badge' => 'Predeterminado',
+      'settings.providers.detail.models.set_default' =>
+        'Establecer como predeterminado',
       'settings.providers.detail.models.fetch_error' =>
         'No se pudieron obtener los modelos de la API del proveedor.',
       'settings.providers.capability.translation' => 'Traducción',
       'settings.providers.capability.dictionary' => 'Diccionario',
       'settings.providers.capability.ocr' => 'OCR',
+      'settings.providers.capability.llm' => 'IA',
       'settings.providers.description.all' =>
         'Proporciona búsqueda en diccionario y traducción de texto',
       'settings.providers.description.dictionary' =>

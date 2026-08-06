@@ -8,7 +8,7 @@ enum BadgeSize {
   /// 术语库 / 默认 — the smallest tag in the deck.
   xs,
 
-  /// 3 ENGINES.
+  /// 3 SERVICES.
   sm,
 }
 

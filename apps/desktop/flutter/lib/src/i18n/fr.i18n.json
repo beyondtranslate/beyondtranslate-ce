@@ -164,28 +164,26 @@
     "result": {
       "translating": "Traduction…",
       "stale_requery": "Texte modifié · ⏎ retraduire",
-      "compare_engines": "Comparer $count moteurs",
+      "compare_services": "Comparer $count services",
       "collapse_compare": "Réduire",
       "set_preferred": "Définir comme préféré",
       "retry": "Réessayer",
-      "no_result": "Aucun moteur n’a renvoyé de résultat : vérifiez le réseau ou essayez un autre moteur.",
+      "no_result": "Aucun service n’a renvoyé de résultat : vérifiez le réseau ou essayez un autre service.",
       "no_result_note": "Le texte est conservé ; réessayer ne dupliquera pas l’historique."
     }
   },
   "workbench": {
     "workspace": "Espace de travail",
     "translate": "Traduire",
-    "document": "Traduction de documents",
     "history": "Historique",
     "glossary": "Glossaire",
     "recent_languages": "Langues récentes",
     "not_configured": "Non configuré",
     "subtitle": {
-      "translate": "Atelier · Comparaison des moteurs",
+      "translate": "Atelier · Comparaison des services",
       "settings": "Réglages"
     },
     "placeholder": {
-      "document": "La traduction de documents est en cours de développement",
       "history": "Les favoris et l’historique seront disponibles ultérieurement",
       "glossary": "La gestion du glossaire est en cours de développement"
     },
@@ -202,7 +200,7 @@
       "search_placeholder": "Rechercher un terme ou une traduction imposée",
       "search_label": "Rechercher dans le glossaire",
       "entry_count": "$name · $count termes",
-      "priority_note": "Le glossaire prime sur toute sortie de moteur",
+      "priority_note": "Le glossaire prime sur toute sortie de service",
       "new_book": "Nouveau glossaire",
       "new_book_placeholder": "Nom du glossaire",
       "rename_book": "Renommer",
@@ -211,11 +209,11 @@
       "enable": "Activer",
       "disable": "Désactiver",
       "empty_title": "Ce glossaire est vide",
-      "empty_description": "Le glossaire prime sur toute sortie de moteur. Ajoutez les termes un à un, ou déposez un CSV pour les fusionner.",
+      "empty_description": "Le glossaire prime sur toute sortie de service. Ajoutez les termes un à un, ou déposez un CSV pour les fusionner.",
       "no_results_title": "Aucun terme ne correspond à « $query »",
       "no_results_description": "Essayez un autre mot-clé, ou ajoutez le terme.",
       "no_books_title": "Aucun glossaire pour l’instant",
-      "no_books_description": "Un glossaire garde vos choix de traduction cohérents sur tous les moteurs. Créez-en un, puis ajoutez des termes.",
+      "no_books_description": "Un glossaire garde vos choix de traduction cohérents sur tous les services. Créez-en un, puis ajoutez des termes.",
       "loading": "Chargement…"
     },
     "translation": {
@@ -229,7 +227,7 @@
       "translating": "Traduction…",
       "failed": "Échec de la traduction. Vérifiez la configuration du service.",
       "empty": "La traduction apparaîtra ici",
-      "engine_compare": "Comparaison des moteurs",
+      "service_compare": "Comparaison des services",
       "main_translation": "Principale",
       "service_unavailable": "Service indisponible",
       "waiting": "En attente",
@@ -237,7 +235,7 @@
       "copy": "Copier",
       "favorite_unavailable": "Les favoris seront disponibles ultérieurement",
       "preferred": "Traduction préférée",
-      "other_engines": "Autres moteurs",
+      "other_services": "Autres services",
       "copy_result": "Copier la traduction",
       "copied": "Copié",
       "favorite": "Enregistrer",
@@ -246,7 +244,7 @@
       "quality": "Signaux de qualité",
       "quality_hint": "Calculés une fois la traduction reçue.",
       "shortcuts": "Raccourcis",
-      "other_engines_disabled": "Les autres moteurs sont désactivés",
+      "other_services_disabled": "Les autres services sont désactivés",
       "input_hint_translate_to": "Saisissez ou collez le texte à traduire en $language"
     },
     "status": {
@@ -368,6 +366,7 @@
       },
       "detail": {
         "row": {
+          "id": "ID du service",
           "name": "Nom",
           "provider": "Fournisseur",
           "type": "Type"
@@ -402,7 +401,9 @@
       },
       "editor": {
         "row": {
-          "id": "Identifiant du fournisseur"
+          "id": "Identifiant du fournisseur",
+          "type": "Type de fournisseur",
+          "default_model": "Modèle par défaut"
         },
         "placeholder": {
           "id": "p. ex. deepl-main"
@@ -414,11 +415,37 @@
         },
         "tooltip": {
           "help": "Aide"
+        },
+        "step": {
+          "next": "Continuer",
+          "back": "Précédent"
+        },
+        "add_title": "Ajouter {}",
+        "capability_note": {
+          "translation": "Rejoint les traductions candidates",
+          "dictionary": "Fournit des définitions de dictionnaire",
+          "ocr": "Reconnaît le texte des images"
+        },
+        "test": {
+          "run": "Tester la connexion",
+          "running": "Test de la connexion · {}s écoulées",
+          "passed_models": "Connexion OK · {} modèles disponibles",
+          "passed_service": "Connexion OK · service disponible",
+          "passed_footer": "Test de connexion réussi",
+          "retest": "Retester",
+          "tips_title": "À essayer",
+          "tips_llm": "· Vérifiez que la clé correspond au type de fournisseur choisi\n· Vérifiez si la Base URL doit contenir /v1\n· Confirmez que le modèle est activé dans la console du fournisseur",
+          "tips_traditional": "· Vérifiez que les identifiants correspondent au type de fournisseur choisi\n· Confirmez que le service est activé dans la console du fournisseur",
+          "failed_suffix": "échec de la vérification",
+          "passed_suffix": "vérifié"
         }
       },
       "detail": {
         "tooltip": {
           "edit": "Modifier le fournisseur"
+        },
+        "row": {
+          "id_hint": "Non modifiable après la création"
         },
         "section": {
           "configuration": "Configuration",
@@ -428,14 +455,17 @@
           "loading": "Chargement des modèles...",
           "empty": "Aucun modèle trouvé.",
           "retry": "Réessayer",
+          "refresh": "Actualiser la liste",
           "default_badge": "Par défaut",
+          "set_default": "Définir par défaut",
           "fetch_error": "Impossible de récupérer les modèles depuis l'API du fournisseur."
         }
       },
       "capability": {
         "translation": "Traduction",
         "dictionary": "Dictionnaire",
-        "ocr": "OCR"
+        "ocr": "OCR",
+        "llm": "IA"
       },
       "description": {
         "all": "Fournit la recherche dans le dictionnaire et la traduction de texte",

@@ -44,7 +44,7 @@ class Workbench extends StatelessWidget {
       collapsed: collapsed,
       onToggleCollapsed: onToggleCollapsed,
       // WindowBody is Flexible so it can also live inside WindowFrame in the
-      // component gallery. The app shell supplies the Flex parent here.
+      // widget gallery. The app shell supplies the Flex parent here.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -5,10 +5,10 @@ enum SurfaceTone {
   /// White card on a tinted pane — the default card.
   raised,
 
-  /// Grey card on white — 其他引擎 cards, form fields.
+  /// Grey card on white — 其他服务 cards, form fields.
   card,
 
-  /// Flat grey, no hairline — mini-window engine candidates.
+  /// Flat grey, no hairline — mini-window service candidates.
   subtle,
 
   /// Accent-tinted — the preferred translation, active list rows.

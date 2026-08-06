@@ -9,7 +9,7 @@ enum DialogTone {
   danger,
 }
 
-/// Sheet shell for 添加翻译引擎 and 导出译文.
+/// Sheet shell for 添加提供商 and 导出译文.
 class Dialog extends StatelessWidget {
   const Dialog({
     super.key,

@@ -164,28 +164,26 @@
     "result": {
       "translating": "正在翻译…",
       "stale_requery": "原文已修改 · ⏎ 重新翻译",
-      "compare_engines": "对比 $count 个引擎",
+      "compare_services": "对比 $count 个服务",
       "collapse_compare": "收起对比",
       "set_preferred": "设为首选",
       "retry": "重试",
-      "no_result": "所有引擎都没有返回结果 —— 检查网络，或换一个引擎再试。",
+      "no_result": "所有服务都没有返回结果 —— 检查网络，或换一个服务再试。",
       "no_result_note": "原文已保留，重试不会重复计入历史。"
     }
   },
   "workbench": {
     "workspace": "工作区",
     "translate": "翻译",
-    "document": "文档翻译",
     "history": "历史",
     "glossary": "术语库",
     "recent_languages": "最近语言",
     "not_configured": "尚未配置",
     "subtitle": {
-      "translate": "工作台 · 多引擎对照",
+      "translate": "工作台 · 多服务对照",
       "settings": "设置"
     },
     "placeholder": {
-      "document": "文档翻译正在建设中",
       "history": "收藏与历史将在后续版本中提供",
       "glossary": "术语库管理正在建设中"
     },
@@ -202,7 +200,7 @@
       "search_placeholder": "搜索术语或指定译法",
       "search_label": "搜索术语库",
       "entry_count": "$name · $count 条",
-      "priority_note": "术语优先级高于任何引擎输出",
+      "priority_note": "术语优先级高于任何服务输出",
       "new_book": "新建术语库",
       "new_book_placeholder": "术语库名称",
       "rename_book": "重命名",
@@ -211,11 +209,11 @@
       "enable": "启用",
       "disable": "停用",
       "empty_title": "这个术语库还是空的",
-      "empty_description": "术语优先级高于任何引擎输出。可以逐条新增，也可以把 CSV 拖进来合并。",
+      "empty_description": "术语优先级高于任何服务输出。可以逐条新增，也可以把 CSV 拖进来合并。",
       "no_results_title": "没有匹配「$query」的术语",
       "no_results_description": "换个关键词，或直接新增一条。",
       "no_books_title": "还没有术语库",
-      "no_books_description": "术语库让指定译法在所有引擎里保持一致。先建一个，再往里加词。",
+      "no_books_description": "术语库让指定译法在所有服务里保持一致。先建一个，再往里加词。",
       "loading": "正在载入…"
     },
     "translation": {
@@ -229,7 +227,7 @@
       "translating": "正在翻译…",
       "failed": "翻译失败，请检查服务配置后重试",
       "empty": "译文将在这里显示",
-      "engine_compare": "引擎对比",
+      "service_compare": "服务对比",
       "main_translation": "主译文",
       "service_unavailable": "服务暂不可用",
       "waiting": "等待翻译",
@@ -237,7 +235,7 @@
       "copy": "复制",
       "favorite_unavailable": "收藏功能将在后续版本中提供",
       "preferred": "首选译文",
-      "other_engines": "其他引擎",
+      "other_services": "其他服务",
       "copy_result": "复制译文",
       "copied": "已复制",
       "favorite": "收藏",
@@ -246,7 +244,7 @@
       "quality": "质量信号",
       "quality_hint": "译文生成后计算。",
       "shortcuts": "快捷键",
-      "other_engines_disabled": "其他引擎已停用",
+      "other_services_disabled": "其他服务已停用",
       "input_hint_translate_to": "输入或粘贴要翻译的文本，翻译为$language"
     },
     "status": {
@@ -368,6 +366,7 @@
       },
       "detail": {
         "row": {
+          "id": "服务 ID",
           "name": "名称",
           "provider": "提供商",
           "type": "类型"
@@ -402,7 +401,9 @@
       },
       "editor": {
         "row": {
-          "id": "提供商 ID"
+          "id": "提供商 ID",
+          "type": "提供商类型",
+          "default_model": "默认模型"
         },
         "placeholder": {
           "id": "例如 deepl-main"
@@ -414,11 +415,37 @@
         },
         "tooltip": {
           "help": "帮助"
+        },
+        "step": {
+          "next": "继续",
+          "back": "上一步"
+        },
+        "add_title": "添加 {}",
+        "capability_note": {
+          "translation": "加入翻译候选",
+          "dictionary": "提供词典释义",
+          "ocr": "识别图片中的文字"
+        },
+        "test": {
+          "run": "测试连接",
+          "running": "正在测试连接 · 已用 {}s",
+          "passed_models": "连接正常 · {} 个模型可用",
+          "passed_service": "连接正常 · 服务可用",
+          "passed_footer": "已通过连接测试",
+          "retest": "重新测试",
+          "tips_title": "可以试试",
+          "tips_llm": "· 确认密钥与所选提供商类型一致\n· 检查 Base URL 是否需要包含 /v1\n· 在提供商控制台确认该模型已开通",
+          "tips_traditional": "· 确认密钥与所选提供商类型一致\n· 在提供商控制台确认服务已开通",
+          "failed_suffix": "验证失败",
+          "passed_suffix": "已验证"
         }
       },
       "detail": {
         "tooltip": {
           "edit": "编辑提供商"
+        },
+        "row": {
+          "id_hint": "创建后不可更改"
         },
         "section": {
           "configuration": "配置",
@@ -428,14 +455,17 @@
           "loading": "正在加载模型...",
           "empty": "未找到模型。",
           "retry": "重试",
+          "refresh": "刷新列表",
           "default_badge": "默认",
+          "set_default": "设为默认",
           "fetch_error": "无法从提供商 API 获取模型。"
         }
       },
       "capability": {
         "translation": "翻译",
         "dictionary": "词典",
-        "ocr": "OCR"
+        "ocr": "OCR",
+        "llm": "AI"
       },
       "description": {
         "all": "提供词典查询和文本翻译",

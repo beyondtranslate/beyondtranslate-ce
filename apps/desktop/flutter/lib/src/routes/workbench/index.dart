@@ -22,7 +22,6 @@ import '../settings/general.dart';
 import '../settings/index.dart';
 import '../settings/providers.dart';
 import '../settings/shortcuts.dart';
-import 'document.dart';
 import 'glossary.dart';
 import 'library.dart';
 import 'translation.dart';
@@ -41,13 +40,6 @@ List<RouteBase> get $appRoutes => <RouteBase>[
             pageBuilder: (_, state) => _noTransitionPage(
               state,
               const WorkbenchTranslationPage(),
-            ),
-          ),
-          GoRoute(
-            path: '/document',
-            pageBuilder: (_, state) => _noTransitionPage(
-              state,
-              const WorkbenchDocumentPage(),
             ),
           ),
           GoRoute(
@@ -155,12 +147,6 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
                 icon: FluentIcons.translate_20_regular,
                 selected: _selected('/translate'),
                 onTap: () => context.go('/translate'),
-              ),
-              NavigationItem(
-                label: t.workbench.document,
-                icon: FluentIcons.document_text_20_regular,
-                selected: _selected('/document'),
-                onTap: () => context.go('/document'),
               ),
               NavigationItem(
                 label: t.workbench.glossary,

@@ -164,28 +164,26 @@
     "result": {
       "translating": "正在翻譯…",
       "stale_requery": "原文已修改 · ⏎ 重新翻譯",
-      "compare_engines": "對比 $count 個引擎",
+      "compare_services": "對比 $count 個服務",
       "collapse_compare": "收起對比",
       "set_preferred": "設為首選",
       "retry": "重試",
-      "no_result": "所有引擎都沒有回傳結果 —— 檢查網路，或換一個引擎再試。",
+      "no_result": "所有服務都沒有回傳結果 —— 檢查網路，或換一個服務再試。",
       "no_result_note": "原文已保留，重試不會重複計入歷史。"
     }
   },
   "workbench": {
     "workspace": "工作區",
     "translate": "翻譯",
-    "document": "文件翻譯",
     "history": "歷史",
     "glossary": "術語庫",
     "recent_languages": "最近語言",
     "not_configured": "尚未設定",
     "subtitle": {
-      "translate": "工作台 · 多引擎對照",
+      "translate": "工作台 · 多服務對照",
       "settings": "設定"
     },
     "placeholder": {
-      "document": "文件翻譯正在建置中",
       "history": "收藏與歷史將在後續版本提供",
       "glossary": "術語庫管理正在建置中"
     },
@@ -202,7 +200,7 @@
       "search_placeholder": "搜尋術語或指定譯法",
       "search_label": "搜尋術語庫",
       "entry_count": "$name · $count 條",
-      "priority_note": "術語優先級高於任何引擎輸出",
+      "priority_note": "術語優先級高於任何服務輸出",
       "new_book": "新增術語庫",
       "new_book_placeholder": "術語庫名稱",
       "rename_book": "重新命名",
@@ -211,11 +209,11 @@
       "enable": "啟用",
       "disable": "停用",
       "empty_title": "這個術語庫還是空的",
-      "empty_description": "術語優先級高於任何引擎輸出。可以逐條新增，也可以把 CSV 拖進來合併。",
+      "empty_description": "術語優先級高於任何服務輸出。可以逐條新增，也可以把 CSV 拖進來合併。",
       "no_results_title": "沒有符合「$query」的術語",
       "no_results_description": "換個關鍵字，或直接新增一條。",
       "no_books_title": "還沒有術語庫",
-      "no_books_description": "術語庫讓指定譯法在所有引擎裡保持一致。先建一個，再往裡加詞。",
+      "no_books_description": "術語庫讓指定譯法在所有服務裡保持一致。先建一個，再往裡加詞。",
       "loading": "正在載入…"
     },
     "translation": {
@@ -229,7 +227,7 @@
       "translating": "正在翻譯…",
       "failed": "翻譯失敗，請檢查服務設定後重試",
       "empty": "譯文將顯示於此",
-      "engine_compare": "引擎比較",
+      "service_compare": "服務比較",
       "main_translation": "主譯文",
       "service_unavailable": "服務暫不可用",
       "waiting": "等待翻譯",
@@ -237,7 +235,7 @@
       "copy": "複製",
       "favorite_unavailable": "收藏功能將在後續版本提供",
       "preferred": "首選譯文",
-      "other_engines": "其他引擎",
+      "other_services": "其他服務",
       "copy_result": "複製譯文",
       "copied": "已複製",
       "favorite": "收藏",
@@ -246,7 +244,7 @@
       "quality": "品質信號",
       "quality_hint": "譯文產生後計算。",
       "shortcuts": "快捷鍵",
-      "other_engines_disabled": "其他引擎已停用",
+      "other_services_disabled": "其他服務已停用",
       "input_hint_translate_to": "輸入或貼上要翻譯的文字，翻譯為$language"
     },
     "status": {
@@ -368,6 +366,7 @@
       },
       "detail": {
         "row": {
+          "id": "服務 ID",
           "name": "名稱",
           "provider": "提供者",
           "type": "類型"
@@ -402,7 +401,9 @@
       },
       "editor": {
         "row": {
-          "id": "提供者 ID"
+          "id": "提供者 ID",
+          "type": "提供者類型",
+          "default_model": "預設模型"
         },
         "placeholder": {
           "id": "例如 deepl-main"
@@ -414,11 +415,37 @@
         },
         "tooltip": {
           "help": "說明"
+        },
+        "step": {
+          "next": "繼續",
+          "back": "上一步"
+        },
+        "add_title": "新增 {}",
+        "capability_note": {
+          "translation": "加入翻譯候選",
+          "dictionary": "提供辭典釋義",
+          "ocr": "辨識圖片中的文字"
+        },
+        "test": {
+          "run": "測試連線",
+          "running": "正在測試連線 · 已用 {}s",
+          "passed_models": "連線正常 · {} 個模型可用",
+          "passed_service": "連線正常 · 服務可用",
+          "passed_footer": "已通過連線測試",
+          "retest": "重新測試",
+          "tips_title": "可以試試",
+          "tips_llm": "· 確認金鑰與所選提供者類型一致\n· 檢查 Base URL 是否需要包含 /v1\n· 在提供者主控台確認該模型已開通",
+          "tips_traditional": "· 確認金鑰與所選提供者類型一致\n· 在提供者主控台確認服務已開通",
+          "failed_suffix": "驗證失敗",
+          "passed_suffix": "已驗證"
         }
       },
       "detail": {
         "tooltip": {
           "edit": "編輯提供者"
+        },
+        "row": {
+          "id_hint": "建立後不可變更"
         },
         "section": {
           "configuration": "配置",
@@ -428,14 +455,17 @@
           "loading": "正在載入模型...",
           "empty": "找不到模型。",
           "retry": "重試",
+          "refresh": "重新整理清單",
           "default_badge": "預設",
+          "set_default": "設為預設",
           "fetch_error": "無法從提供者 API 取得模型。"
         }
       },
       "capability": {
         "translation": "翻譯",
         "dictionary": "辭典",
-        "ocr": "OCR"
+        "ocr": "OCR",
+        "llm": "AI"
       },
       "description": {
         "all": "提供辭典查詢和文字翻譯",
