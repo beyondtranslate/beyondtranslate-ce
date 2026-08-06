@@ -1442,9 +1442,18 @@ class _TranslationsSettingsServicesEditorZhHans
 
   // Translations
   @override
-  String get coming_soon => '🚧 即将推出';
+  String get title => '添加服务';
   @override
-  String get coming_soon_description => '服务配置尚不可用。您可以在提供商标签页中管理服务提供商。';
+  String get subtitle => '为已配置的提供商新增一项服务';
+  @override
+  late final _TranslationsSettingsServicesEditorRowZhHans row =
+      _TranslationsSettingsServicesEditorRowZhHans._(_root);
+  @override
+  String get prompt_placeholder => '留空则使用该类型的默认提示词';
+  @override
+  String get variant_hint => '{} 已有一项{}服务，这条会作为并列的另一份配置。';
+  @override
+  String get traditional_note => '{} 是传统接口，没有模型与提示词可调；服务参数在提供商详情里配置。';
 }
 
 // Path: settings.services.detail
@@ -1709,6 +1718,22 @@ class _TranslationsSettingsGeneralEditorRowZhHans
   String get source_language => '源语言';
   @override
   String get target_language => '目标语言';
+}
+
+// Path: settings.services.editor.row
+class _TranslationsSettingsServicesEditorRowZhHans
+    extends TranslationsSettingsServicesEditorRowEn {
+  _TranslationsSettingsServicesEditorRowZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get model => '模型';
+  @override
+  String get system_prompt => '系统提示词';
 }
 
 // Path: settings.services.detail.row
@@ -2241,9 +2266,14 @@ extension on TranslationsZhHans {
       'settings.services.title' => '服务',
       'settings.services.button.add_service' => '添加服务...',
       'settings.services.section.available_services' => '可用服务',
-      'settings.services.editor.coming_soon' => '🚧 即将推出',
-      'settings.services.editor.coming_soon_description' =>
-        '服务配置尚不可用。您可以在提供商标签页中管理服务提供商。',
+      'settings.services.editor.title' => '添加服务',
+      'settings.services.editor.subtitle' => '为已配置的提供商新增一项服务',
+      'settings.services.editor.row.model' => '模型',
+      'settings.services.editor.row.system_prompt' => '系统提示词',
+      'settings.services.editor.prompt_placeholder' => '留空则使用该类型的默认提示词',
+      'settings.services.editor.variant_hint' => '{} 已有一项{}服务，这条会作为并列的另一份配置。',
+      'settings.services.editor.traditional_note' =>
+        '{} 是传统接口，没有模型与提示词可调；服务参数在提供商详情里配置。',
       'settings.services.detail.row.id' => '服务 ID',
       'settings.services.detail.row.name' => '名称',
       'settings.services.detail.row.provider' => '提供商',

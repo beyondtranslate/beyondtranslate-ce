@@ -361,8 +361,15 @@
         "available_services": "可用服務"
       },
       "editor": {
-        "coming_soon": "🚧 即將推出",
-        "coming_soon_description": "服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。"
+        "title": "新增服務",
+        "subtitle": "為已設定的提供者新增一項服務",
+        "row": {
+          "model": "模型",
+          "system_prompt": "系統提示詞"
+        },
+        "prompt_placeholder": "留空則使用該類型的預設提示詞",
+        "variant_hint": "{} 已有一項{}服務，這條會作為並列的另一份設定。",
+        "traditional_note": "{} 是傳統介面，沒有模型與提示詞可調；服務參數在提供者詳情頁設定。"
       },
       "detail": {
         "row": {

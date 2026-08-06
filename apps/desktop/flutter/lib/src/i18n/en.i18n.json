@@ -361,8 +361,15 @@
         "available_services": "Available Services"
       },
       "editor": {
-        "coming_soon": "🚧 Coming Soon",
-        "coming_soon_description": "Service configuration is not yet available. You can manage service providers from the providers tab."
+        "title": "Add Service",
+        "subtitle": "Add one more service to a configured provider",
+        "row": {
+          "model": "Model",
+          "system_prompt": "System Prompt"
+        },
+        "prompt_placeholder": "Leave blank to use the default prompt for this kind",
+        "variant_hint": "{} already has a {} service; this one is added alongside it as a second configuration.",
+        "traditional_note": "{} is a traditional endpoint — no model or prompt to tune. Its parameters live on the provider's detail page."
       },
       "detail": {
         "row": {

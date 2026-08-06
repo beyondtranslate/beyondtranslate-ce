@@ -1459,10 +1459,21 @@ class _TranslationsSettingsServicesEditorEs
 
   // Translations
   @override
-  String get coming_soon => '🚧 Próximamente';
+  String get title => 'Agregar servicio';
   @override
-  String get coming_soon_description =>
-      'La configuración del servicio aún no está disponible. Puede administrar los proveedores de servicios desde la pestaña de proveedores.';
+  String get subtitle => 'Agrega un servicio más a un proveedor configurado';
+  @override
+  late final _TranslationsSettingsServicesEditorRowEs row =
+      _TranslationsSettingsServicesEditorRowEs._(_root);
+  @override
+  String get prompt_placeholder =>
+      'Déjalo vacío para usar el prompt predeterminado de este tipo';
+  @override
+  String get variant_hint =>
+      '{} ya tiene un servicio de {}; este se agrega junto al anterior como una segunda configuración.';
+  @override
+  String get traditional_note =>
+      '{} es una interfaz tradicional: no hay modelo ni prompt que ajustar. Sus parámetros están en la página de detalle del proveedor.';
 }
 
 // Path: settings.services.detail
@@ -1731,6 +1742,22 @@ class _TranslationsSettingsGeneralEditorRowEs
   String get source_language => 'Idioma de origen';
   @override
   String get target_language => 'Idioma de destino';
+}
+
+// Path: settings.services.editor.row
+class _TranslationsSettingsServicesEditorRowEs
+    extends TranslationsSettingsServicesEditorRowEn {
+  _TranslationsSettingsServicesEditorRowEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get model => 'Modelo';
+  @override
+  String get system_prompt => 'Prompt del sistema';
 }
 
 // Path: settings.services.detail.row
@@ -2318,9 +2345,17 @@ extension on TranslationsEs {
       'settings.services.title' => 'Servicios',
       'settings.services.button.add_service' => 'Agregar Servicio...',
       'settings.services.section.available_services' => 'Servicios Disponibles',
-      'settings.services.editor.coming_soon' => '🚧 Próximamente',
-      'settings.services.editor.coming_soon_description' =>
-        'La configuración del servicio aún no está disponible. Puede administrar los proveedores de servicios desde la pestaña de proveedores.',
+      'settings.services.editor.title' => 'Agregar servicio',
+      'settings.services.editor.subtitle' =>
+        'Agrega un servicio más a un proveedor configurado',
+      'settings.services.editor.row.model' => 'Modelo',
+      'settings.services.editor.row.system_prompt' => 'Prompt del sistema',
+      'settings.services.editor.prompt_placeholder' =>
+        'Déjalo vacío para usar el prompt predeterminado de este tipo',
+      'settings.services.editor.variant_hint' =>
+        '{} ya tiene un servicio de {}; este se agrega junto al anterior como una segunda configuración.',
+      'settings.services.editor.traditional_note' =>
+        '{} es una interfaz tradicional: no hay modelo ni prompt que ajustar. Sus parámetros están en la página de detalle del proveedor.',
       'settings.services.detail.row.id' => 'ID del servicio',
       'settings.services.detail.row.name' => 'Nombre',
       'settings.services.detail.row.provider' => 'Proveedor',

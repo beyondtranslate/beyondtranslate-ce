@@ -1519,12 +1519,26 @@ class TranslationsSettingsServicesEditorEn {
 
   // Translations
 
-  /// en: '🚧 Coming Soon'
-  String get coming_soon => '🚧 Coming Soon';
+  /// en: 'Add Service'
+  String get title => 'Add Service';
 
-  /// en: 'Service configuration is not yet available. You can manage service providers from the providers tab.'
-  String get coming_soon_description =>
-      'Service configuration is not yet available. You can manage service providers from the providers tab.';
+  /// en: 'Add one more service to a configured provider'
+  String get subtitle => 'Add one more service to a configured provider';
+
+  late final TranslationsSettingsServicesEditorRowEn row =
+      TranslationsSettingsServicesEditorRowEn.internal(_root);
+
+  /// en: 'Leave blank to use the default prompt for this kind'
+  String get prompt_placeholder =>
+      'Leave blank to use the default prompt for this kind';
+
+  /// en: '{} already has a {} service; this one is added alongside it as a second configuration.'
+  String get variant_hint =>
+      '{} already has a {} service; this one is added alongside it as a second configuration.';
+
+  /// en: '{} is a traditional endpoint — no model or prompt to tune. Its parameters live on the provider's detail page.'
+  String get traditional_note =>
+      '{} is a traditional endpoint — no model or prompt to tune. Its parameters live on the provider\'s detail page.';
 }
 
 // Path: settings.services.detail
@@ -1764,6 +1778,21 @@ class TranslationsSettingsGeneralEditorRowEn {
 
   /// en: 'Target Language'
   String get target_language => 'Target Language';
+}
+
+// Path: settings.services.editor.row
+class TranslationsSettingsServicesEditorRowEn {
+  TranslationsSettingsServicesEditorRowEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Model'
+  String get model => 'Model';
+
+  /// en: 'System Prompt'
+  String get system_prompt => 'System Prompt';
 }
 
 // Path: settings.services.detail.row
@@ -2337,9 +2366,17 @@ extension on Translations {
       'settings.services.title' => 'Services',
       'settings.services.button.add_service' => 'Add Service...',
       'settings.services.section.available_services' => 'Available Services',
-      'settings.services.editor.coming_soon' => '🚧 Coming Soon',
-      'settings.services.editor.coming_soon_description' =>
-        'Service configuration is not yet available. You can manage service providers from the providers tab.',
+      'settings.services.editor.title' => 'Add Service',
+      'settings.services.editor.subtitle' =>
+        'Add one more service to a configured provider',
+      'settings.services.editor.row.model' => 'Model',
+      'settings.services.editor.row.system_prompt' => 'System Prompt',
+      'settings.services.editor.prompt_placeholder' =>
+        'Leave blank to use the default prompt for this kind',
+      'settings.services.editor.variant_hint' =>
+        '{} already has a {} service; this one is added alongside it as a second configuration.',
+      'settings.services.editor.traditional_note' =>
+        '{} is a traditional endpoint — no model or prompt to tune. Its parameters live on the provider\'s detail page.',
       'settings.services.detail.row.id' => 'Service ID',
       'settings.services.detail.row.name' => 'Name',
       'settings.services.detail.row.provider' => 'Provider',

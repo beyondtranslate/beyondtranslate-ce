@@ -1442,9 +1442,18 @@ class _TranslationsSettingsServicesEditorZhHant
 
   // Translations
   @override
-  String get coming_soon => '🚧 即將推出';
+  String get title => '新增服務';
   @override
-  String get coming_soon_description => '服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。';
+  String get subtitle => '為已設定的提供者新增一項服務';
+  @override
+  late final _TranslationsSettingsServicesEditorRowZhHant row =
+      _TranslationsSettingsServicesEditorRowZhHant._(_root);
+  @override
+  String get prompt_placeholder => '留空則使用該類型的預設提示詞';
+  @override
+  String get variant_hint => '{} 已有一項{}服務，這條會作為並列的另一份設定。';
+  @override
+  String get traditional_note => '{} 是傳統介面，沒有模型與提示詞可調；服務參數在提供者詳情頁設定。';
 }
 
 // Path: settings.services.detail
@@ -1709,6 +1718,22 @@ class _TranslationsSettingsGeneralEditorRowZhHant
   String get source_language => '源語言';
   @override
   String get target_language => '目標語言';
+}
+
+// Path: settings.services.editor.row
+class _TranslationsSettingsServicesEditorRowZhHant
+    extends TranslationsSettingsServicesEditorRowEn {
+  _TranslationsSettingsServicesEditorRowZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get model => '模型';
+  @override
+  String get system_prompt => '系統提示詞';
 }
 
 // Path: settings.services.detail.row
@@ -2241,9 +2266,14 @@ extension on TranslationsZhHant {
       'settings.services.title' => '服務',
       'settings.services.button.add_service' => '新增服務...',
       'settings.services.section.available_services' => '可用服務',
-      'settings.services.editor.coming_soon' => '🚧 即將推出',
-      'settings.services.editor.coming_soon_description' =>
-        '服務配置尚不可用。您可以在提供者標籤頁中管理服務提供者。',
+      'settings.services.editor.title' => '新增服務',
+      'settings.services.editor.subtitle' => '為已設定的提供者新增一項服務',
+      'settings.services.editor.row.model' => '模型',
+      'settings.services.editor.row.system_prompt' => '系統提示詞',
+      'settings.services.editor.prompt_placeholder' => '留空則使用該類型的預設提示詞',
+      'settings.services.editor.variant_hint' => '{} 已有一項{}服務，這條會作為並列的另一份設定。',
+      'settings.services.editor.traditional_note' =>
+        '{} 是傳統介面，沒有模型與提示詞可調；服務參數在提供者詳情頁設定。',
       'settings.services.detail.row.id' => '服務 ID',
       'settings.services.detail.row.name' => '名稱',
       'settings.services.detail.row.provider' => '提供者',

@@ -52,32 +52,37 @@ const Map<ProviderType, List<String>> kProviderFields = {
   ProviderType.youdao: ['appKey', 'appSecret'],
 };
 
-/// The fields a provider type cannot work without. Everything else in
-/// [kProviderFields] is optional: `defaultModel` falls back to the engine's
-/// pick, and `baseUrl` to the endpoint baked into the provider's spec — except
-/// for `openai_compatible`, which is nothing *but* an endpoint.
+/// The fields a provider type cannot be built without — these mirror the
+/// checks the engine's own constructors make, so a form that satisfies this
+/// map gets past `config validation failed`.
+///
+/// `defaultModel` is on every LLM type deliberately: `configured_default_model`
+/// in the engine rejects a blank one outright, there is no fallback pick. Only
+/// `baseUrl` is genuinely optional, falling back to the endpoint baked into the
+/// provider's spec — except for `openai_compatible`, which is nothing *but* an
+/// endpoint.
 const Map<ProviderType, List<String>> kRequiredProviderFields = {
-  ProviderType.anthropic: ['apiKey'],
+  ProviderType.anthropic: ['apiKey', 'defaultModel'],
   ProviderType.baidu: ['appId', 'appKey'],
   ProviderType.caiyun: ['token'],
   ProviderType.deepL: ['authKey'],
-  ProviderType.deepSeek: ['apiKey'],
-  ProviderType.doubao: ['apiKey'],
-  ProviderType.gemini: ['apiKey'],
+  ProviderType.deepSeek: ['apiKey', 'defaultModel'],
+  ProviderType.doubao: ['apiKey', 'defaultModel'],
+  ProviderType.gemini: ['apiKey', 'defaultModel'],
   ProviderType.google: ['apiKey'],
-  ProviderType.groq: ['apiKey'],
-  ProviderType.moonshot: ['apiKey'],
+  ProviderType.groq: ['apiKey', 'defaultModel'],
+  ProviderType.moonshot: ['apiKey', 'defaultModel'],
   // Self-hosted endpoints (vLLM, LM Studio, LiteLLM …) often take no key at
-  // all, so only the URL is asked for.
-  ProviderType.openAiCompatible: ['baseUrl'],
-  ProviderType.openAi: ['apiKey'],
-  ProviderType.ollama: [],
-  ProviderType.qwen: ['apiKey'],
+  // all, so the URL stands in for it.
+  ProviderType.openAiCompatible: ['baseUrl', 'defaultModel'],
+  ProviderType.openAi: ['apiKey', 'defaultModel'],
+  ProviderType.ollama: ['defaultModel'],
+  ProviderType.qwen: ['apiKey', 'defaultModel'],
   ProviderType.system: [],
   ProviderType.tencent: ['secretId', 'secretKey'],
-  ProviderType.xAi: ['apiKey'],
+  ProviderType.xAi: ['apiKey', 'defaultModel'],
   ProviderType.youdao: ['appKey', 'appSecret'],
-  ProviderType.zhipu: ['apiKey'],
+  ProviderType.zhipu: ['apiKey', 'defaultModel'],
 };
 
 /// What the engine derives from each provider type, mirroring which of

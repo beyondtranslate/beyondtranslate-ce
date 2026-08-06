@@ -55,11 +55,6 @@ class ProviderDetailPage extends StatefulWidget {
 class _ProviderDetailPageState extends State<ProviderDetailPage> {
   late Map<String, TextEditingController> _fieldControllers;
 
-  /// The model the provider answers with unless a service overrides it. Held
-  /// apart from the field controllers so 设为默认 can move it without the row
-  /// having an input of its own.
-  late String _defaultModel;
-
   List<String>? _models;
   bool _isLoadingModels = false;
   String? _modelsError;
@@ -72,15 +67,22 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
 
   bool get _hasModelRoster => isLlmProviderType(widget.provider.type);
 
+  /// The model the provider answers with unless a service overrides it. It is
+  /// an ordinary field with an ordinary input: the roster below only fills it
+  /// in, and a provider whose endpoint will not answer `listModels` still has
+  /// to be configurable by hand.
+  TextEditingController? get _defaultModelController =>
+      _fieldControllers['defaultModel'];
+
+  String get _defaultModel => _defaultModelController?.text.trim() ?? '';
+
   @override
   void initState() {
     super.initState();
     _fieldControllers = {
       for (final key in _fieldKeys)
-        if (key != 'defaultModel')
-          key: TextEditingController(text: widget.provider.fields[key] ?? ''),
+        key: TextEditingController(text: widget.provider.fields[key] ?? ''),
     };
-    _defaultModel = widget.provider.fields['defaultModel'] ?? '';
     if (_hasModelRoster) _loadModels();
   }
 
@@ -126,9 +128,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
         providerType: providerTypeValue(widget.provider.type),
         fields: {
           for (final entry in _fieldControllers.entries)
-            entry.key: entry.value.text,
-          if (_fieldKeys.contains('defaultModel'))
-            'defaultModel': _defaultModel,
+            entry.key: entry.value.text.trim(),
         },
       );
       await Future.wait([
@@ -276,7 +276,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 8, right: 8, bottom: 12),
                   child: Field(
-                    label: Text(entry.key),
+                    label: Text(_fieldLabel(entry.key)),
                     child: Input(
                       controller: entry.value,
                       obscureText: isSecretField(entry.key),
@@ -337,6 +337,20 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     setState(() => _isDirty = true);
   }
 
+  /// Config keys are shown as the runtime spells them — they are what the
+  /// provider's own documentation calls them — except the two the deck names
+  /// in prose.
+  String _fieldLabel(String key) {
+    switch (key) {
+      case 'baseUrl':
+        return 'Base URL';
+      case 'defaultModel':
+        return t.settings.providers.editor.row.default_model;
+      default:
+        return key;
+    }
+  }
+
   Widget _buildModels() {
     if (_isLoadingModels && _models == null) {
       return _Note(
@@ -374,11 +388,11 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
           _ModelRow(
             model: model,
             isDefault: model == _defaultModel,
+            // 设为默认 writes into the 默认模型 field rather than a state of its
+            // own, so the roster and the input can never disagree.
             onSetDefault: () {
-              setState(() {
-                _defaultModel = model;
-                _isDirty = true;
-              });
+              _defaultModelController?.text = model;
+              setState(() => _isDirty = true);
             },
           ),
       ],
