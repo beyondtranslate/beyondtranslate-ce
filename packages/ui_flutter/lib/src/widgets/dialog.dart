@@ -10,6 +10,11 @@ enum DialogTone {
 }
 
 /// Sheet shell for 添加提供商 and 导出译文.
+///
+/// It never grows past the viewport: the header and the footer keep their
+/// height and [DialogBody] absorbs whatever is left, scrolling inside itself
+/// when the content is taller than that. A short dialog still sizes to its
+/// content — the cap only bites once there is more than the screen can hold.
 class Dialog extends StatelessWidget {
   const Dialog({
     super.key,
@@ -22,32 +27,46 @@ class Dialog extends StatelessWidget {
   final DialogTone tone;
   final List<Widget> children;
 
+  /// Air left between the sheet and the edges of the screen.
+  static const _kViewportMargin = 48.0;
+
+  /// Used when nothing upstream knows how big the window is. The sheet has to
+  /// be given *some* finite height or [DialogBody] cannot flex inside it.
+  static const _kFallbackMaxHeight = 720.0;
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    final viewport = MediaQuery.maybeSizeOf(context)?.height;
+    final maxHeight = viewport == null
+        ? _kFallbackMaxHeight
+        : (viewport - _kViewportMargin).clamp(0.0, double.infinity);
 
     return Semantics(
       scopesRoute: true,
       explicitChildNodes: true,
-      child: Container(
-        width: width,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: colors.window,
-          borderRadius: BorderRadius.circular(tokens.radii.window),
-          border: Border.all(
-            color: tone == DialogTone.standard
-                ? colors.borderStrong
-                : colors.dangerBorder,
-            width: context.hairlineWidth,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: Container(
+          width: width,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: colors.window,
+            borderRadius: BorderRadius.circular(tokens.radii.window),
+            border: Border.all(
+              color: tone == DialogTone.standard
+                  ? colors.borderStrong
+                  : colors.dangerBorder,
+              width: context.hairlineWidth,
+            ),
+            boxShadow: tokens.shadows.popover,
           ),
-          boxShadow: tokens.shadows.popover,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: children,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: children,
+          ),
         ),
       ),
     );
@@ -115,23 +134,34 @@ class DialogHeader extends StatelessWidget {
   }
 }
 
+/// The sheet's content, and the only part of it that scrolls.
+///
+/// It takes whatever height the header and the footer leave and scrolls inside
+/// that, so those two never move. The padding belongs to the scroll view
+/// rather than sitting around it: the scrollable region reaches all the way to
+/// both bands, and content slides under them instead of stopping short.
+///
+/// Being a [Flexible] makes it the [Dialog] column's stretchy child, so it must
+/// be used inside one.
 class DialogBody extends StatelessWidget {
   const DialogBody({super.key, required this.children});
 
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) const SizedBox(height: 16),
-              children[i],
+  Widget build(BuildContext context) => Flexible(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0) const SizedBox(height: 16),
+                children[i],
+              ],
             ],
-          ],
+          ),
         ),
       );
 }
