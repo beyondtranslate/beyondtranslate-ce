@@ -1,6 +1,8 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/add_provider_dialog.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/provider_meta.dart';
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart' as ui
+    show Dialog, DialogFooter, DialogHeader;
 import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
     show DesignThemeProvider;
 import 'package:flutter/material.dart';
@@ -96,6 +98,60 @@ void main() {
       findsNWidgets(llmTypes.length),
     );
     expect(tester.takeException(), isNull);
+  });
+
+  group('the sheet keeps its header and footer while the body scrolls', () {
+    testWidgets('the body owns its padding, so it scrolls edge to edge', (
+      tester,
+    ) async {
+      await tester.pumpWidget(specimen());
+
+      final scroller = tester.widget<SingleChildScrollView>(
+        find.descendant(
+          of: find.byType(ui.Dialog),
+          matching: find.byType(SingleChildScrollView),
+        ),
+      );
+      // Padding inside the scroll view rather than around it: the scrollable
+      // region reaches both bands and the content slides under them.
+      expect(
+        scroller.padding,
+        const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      );
+    });
+
+    testWidgets('the sheet never grows past the viewport', (tester) async {
+      await tester.pumpWidget(specimen());
+
+      final surface = tester.view.physicalSize / tester.view.devicePixelRatio;
+      expect(
+        tester.getSize(find.byType(ui.Dialog)).height,
+        lessThanOrEqualTo(surface.height - 48),
+      );
+    });
+
+    testWidgets('scrolling the body leaves the header and footer put', (
+      tester,
+    ) async {
+      await tester.pumpWidget(specimen());
+
+      final headerBefore = tester.getRect(find.byType(ui.DialogHeader));
+      final footerBefore = tester.getRect(find.byType(ui.DialogFooter));
+
+      await tester.drag(
+        find.byType(SingleChildScrollView).first,
+        const Offset(0, -200),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.getRect(find.byType(ui.DialogHeader)), headerBefore);
+      expect(tester.getRect(find.byType(ui.DialogFooter)), footerBefore);
+      expect(
+        find.text(t.settings.providers.editor.step.next),
+        findsOneWidget,
+        reason: '继续 must stay reachable however far the list is scrolled',
+      );
+    });
   });
 
   group('the field tables match what the engine will accept', () {

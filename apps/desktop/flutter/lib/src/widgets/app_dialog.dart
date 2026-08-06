@@ -28,18 +28,18 @@ class AppDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // No scroll view around the sheet: the body is the scroller now, so the
+    // header and the footer stay put instead of scrolling off with it.
     return Center(
-      child: SingleChildScrollView(
-        child: Dialog(
-          width: width,
-          tone: tone,
-          children: [
-            DialogHeader(title: title, subtitle: subtitle),
-            if (content != null) DialogBody(children: [content!]),
-            if (actions.isNotEmpty)
-              DialogFooter(children: [const Spacer(), ...actions]),
-          ],
-        ),
+      child: Dialog(
+        width: width,
+        tone: tone,
+        children: [
+          DialogHeader(title: title, subtitle: subtitle),
+          if (content != null) DialogBody(children: [content!]),
+          if (actions.isNotEmpty)
+            DialogFooter(children: [const Spacer(), ...actions]),
+        ],
       ),
     );
   }

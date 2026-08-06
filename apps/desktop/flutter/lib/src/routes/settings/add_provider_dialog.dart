@@ -290,38 +290,10 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
     }
   }
 
-  /// How tall the sheet's body may get before it scrolls inside itself.
-  ///
-  /// The app window is 560 high and the deck only ever draws three provider
-  /// types; we offer nineteen. Letting the whole sheet grow would push its
-  /// footer — and 添加 with it — off the bottom of the window, so the body
-  /// scrolls and the header and footer stay where they are.
-  static const _kBodyMaxHeight = 360.0;
-
   @override
   Widget build(BuildContext context) {
     return Center(
       child: _configuring ? _buildConfigStep(context) : _buildTypeStep(),
-    );
-  }
-
-  /// The deck's 16px rhythm between blocks of a dialog body, kept by hand
-  /// because the body is one scrolling child rather than a list of them.
-  Widget _scrollingBody(List<Widget> blocks) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: _kBodyMaxHeight),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < blocks.length; i++) ...[
-              if (i > 0) const SizedBox(height: 16),
-              blocks[i],
-            ],
-          ],
-        ),
-      ),
     );
   }
 
@@ -341,50 +313,48 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
         ),
         DialogBody(
           children: [
-            _scrollingBody([
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final type in _llmTypes)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final type in _llmTypes)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _ProviderTypeRow(
+                      type: type,
+                      selected: type == _type,
+                      onSelect: () => setState(() => _type = type),
+                    ),
+                  ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: _DisclosureButton(
+                    open: _traditionalOpen,
+                    label: '${editor.type_picker.section_traditional}'
+                        ' · ${traditional.length}',
+                    onPressed: () => setState(
+                      () => _traditionalOpen = !_traditionalOpen,
+                    ),
+                  ),
+                ),
+                if (_traditionalOpen)
+                  for (final type in traditional)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(top: 8),
                       child: _ProviderTypeRow(
                         type: type,
                         selected: type == _type,
                         onSelect: () => setState(() => _type = type),
                       ),
                     ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: _DisclosureButton(
-                      open: _traditionalOpen,
-                      label: '${editor.type_picker.section_traditional}'
-                          ' · ${traditional.length}',
-                      onPressed: () => setState(
-                        () => _traditionalOpen = !_traditionalOpen,
-                      ),
-                    ),
-                  ),
-                  if (_traditionalOpen)
-                    for (final type in traditional)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: _ProviderTypeRow(
-                          type: type,
-                          selected: type == _type,
-                          onSelect: () => setState(() => _type = type),
-                        ),
-                      ),
-                ],
-              ),
-            ]),
+              ],
+            ),
           ],
         ),
         DialogFooter(
@@ -443,61 +413,59 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
         ),
         DialogBody(
           children: [
-            _scrollingBody([
+            Field(
+              label: Text(editor.row.id),
+              child: Input(
+                controller: _idController,
+                placeholder: editor.placeholder.id,
+                mono: true,
+                onChanged: (_) => setState(_resetPhase),
+              ),
+            ),
+            if (_fieldKeys.contains('baseUrl'))
               Field(
-                label: Text(editor.row.id),
+                label: const Text('Base URL'),
                 child: Input(
-                  controller: _idController,
-                  placeholder: editor.placeholder.id,
+                  controller: _fieldControllers['baseUrl'],
+                  // Left blank the engine uses its own endpoint, so the
+                  // default belongs in the placeholder, not the value.
+                  placeholder: defaultBaseUrl(_type),
                   mono: true,
                   onChanged: (_) => setState(_resetPhase),
                 ),
               ),
-              if (_fieldKeys.contains('baseUrl'))
-                Field(
-                  label: const Text('Base URL'),
-                  child: Input(
-                    controller: _fieldControllers['baseUrl'],
-                    // Left blank the engine uses its own endpoint, so the
-                    // default belongs in the placeholder, not the value.
-                    placeholder: defaultBaseUrl(_type),
-                    mono: true,
-                    onChanged: (_) => setState(_resetPhase),
+            if (credentialKeys.isNotEmpty || llm)
+              _buildCredentialRow(credentialKeys, llm: llm, failed: failed),
+            _buildCapabilities(),
+            if (testing)
+              Callout(
+                tone: CalloutTone.accent,
+                icon: const Spinner(size: SpinnerSize.sm),
+                action: Button(
+                  variant: ButtonVariant.plain,
+                  onPressed: _cancelTest,
+                  child: Text(t.common.ui.button.cancel),
+                ),
+                child: Text(
+                  formatTranslation(
+                    editor.test.running,
+                    args: [
+                      (_elapsed.inMilliseconds / 1000).toStringAsFixed(1),
+                    ],
                   ),
                 ),
-              if (credentialKeys.isNotEmpty || llm)
-                _buildCredentialRow(credentialKeys, llm: llm, failed: failed),
-              _buildCapabilities(),
-              if (testing)
-                Callout(
-                  tone: CalloutTone.accent,
-                  icon: const Spinner(size: SpinnerSize.sm),
-                  action: Button(
-                    variant: ButtonVariant.plain,
-                    onPressed: _cancelTest,
-                    child: Text(t.common.ui.button.cancel),
-                  ),
-                  child: Text(
-                    formatTranslation(
-                      editor.test.running,
-                      args: [
-                        (_elapsed.inMilliseconds / 1000).toStringAsFixed(1),
-                      ],
-                    ),
-                  ),
+              ),
+            if (passed)
+              Callout(
+                tone: CalloutTone.success,
+                action: Button(
+                  variant: ButtonVariant.plain,
+                  onPressed: _test,
+                  child: Text(editor.test.retest),
                 ),
-              if (passed)
-                Callout(
-                  tone: CalloutTone.success,
-                  action: Button(
-                    variant: ButtonVariant.plain,
-                    onPressed: _test,
-                    child: Text(editor.test.retest),
-                  ),
-                  child: Text(_passedMessage ?? editor.test.passed_service),
-                ),
-              if (failed) _TipsCard(reason: _failureMessage, llm: llm),
-            ]),
+                child: Text(_passedMessage ?? editor.test.passed_service),
+              ),
+            if (failed) _TipsCard(reason: _failureMessage, llm: llm),
           ],
         ),
         DialogFooter(
