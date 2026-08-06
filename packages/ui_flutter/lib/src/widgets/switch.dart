@@ -3,10 +3,11 @@ import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:flutter/widgets.dart';
 
 enum SwitchSize {
-  /// 36×21, used in the browser popup.
+  /// 28×16, used in the browser popup.
   sm,
 
-  /// 38×22, used in app windows.
+  /// 32×18 — the AppKit small switch, since the deck's 12px type reads a step
+  /// tighter than AppKit regular. Used in app windows.
   md,
 }
 
@@ -34,8 +35,8 @@ class Switch extends StatelessWidget {
     final disabled = !enabled || onChanged == null;
 
     final (double width, double height, double knob) = switch (size) {
-      SwitchSize.md => (38, 22, 16),
-      SwitchSize.sm => (36, 21, 15),
+      SwitchSize.md => (32, 18, 14),
+      SwitchSize.sm => (28, 16, 12),
     };
     final radius = BorderRadius.circular(tokens.radii.pill);
 
@@ -52,7 +53,7 @@ class Switch extends StatelessWidget {
           duration: kTransitionDuration,
           width: width,
           height: height,
-          padding: const EdgeInsets.symmetric(horizontal: 3),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
           alignment: checked ? Alignment.centerRight : Alignment.centerLeft,
           decoration: BoxDecoration(
             color: checked ? colors.accent : colors.track,

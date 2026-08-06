@@ -158,21 +158,21 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
               ),
               NavigationItem(
                 label: t.workbench.document,
-                icon: FluentIcons.document_20_regular,
+                icon: FluentIcons.document_text_20_regular,
                 selected: _selected('/document'),
                 onTap: () => context.go('/document'),
               ),
               NavigationItem(
-                label: t.workbench.history,
-                icon: FluentIcons.bookmark_20_regular,
-                selected: _selected('/history'),
-                onTap: () => context.go('/history'),
-              ),
-              NavigationItem(
                 label: t.workbench.glossary,
-                icon: FluentIcons.book_open_20_regular,
+                icon: FluentIcons.book_20_regular,
                 selected: _selected('/glossary'),
                 onTap: () => context.go('/glossary'),
+              ),
+              NavigationItem(
+                label: t.workbench.history,
+                icon: FluentIcons.history_20_regular,
+                selected: _selected('/history'),
+                onTap: () => context.go('/history'),
               ),
               NavigationItem(
                 label: t.settings.layout.title,
@@ -226,6 +226,7 @@ class _SidebarVersionState extends State<_SidebarVersion> {
     // No 版本 label: the number carries the line on its own, and the three
     // lines are then one fact, one status and one control.
     return SidebarCard(
+      gap: 6,
       children: [
         Text(
           sharedEnv.appVersion,
@@ -236,7 +237,6 @@ class _SidebarVersionState extends State<_SidebarVersion> {
             color: colors.fg,
           ),
         ),
-        const SizedBox(height: 6),
         Text(
           _checking ? t.workbench.version_checking : t.workbench.version_latest,
           style: tokens.typography.sansStyle(
@@ -245,13 +245,17 @@ class _SidebarVersionState extends State<_SidebarVersion> {
             color: colors.fgSubtle,
           ),
         ),
-        const SizedBox(height: 8),
-        Button(
-          size: ButtonSize.xs,
-          fullWidth: true,
-          enabled: !_checking,
-          onPressed: _check,
-          child: Text(t.workbench.check_updates),
+        // The updater sits a hair lower than the two lines above it, the
+        // deck's `mt-0.5`.
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Button(
+            size: ButtonSize.xs,
+            fullWidth: true,
+            enabled: !_checking,
+            onPressed: _check,
+            child: Text(t.workbench.check_updates),
+          ),
         ),
       ],
     );

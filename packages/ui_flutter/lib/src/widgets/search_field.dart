@@ -96,7 +96,10 @@ class _SearchFieldState extends State<SearchField> {
 
     return AnimatedContainer(
       duration: kTransitionDuration,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      // `h-7 px-3`: the same 28px box as an Input, so a search field can take
+      // an input's place in a toolbar without moving anything.
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: _focused ? colors.window : colors.card,
         border: Border.all(

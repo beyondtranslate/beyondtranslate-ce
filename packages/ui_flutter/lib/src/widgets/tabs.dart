@@ -55,10 +55,10 @@ class Tabs<T> extends StatelessWidget {
                   isButton: false,
                   builder: (context, state) => AnimatedContainer(
                     duration: kTransitionDuration,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
+                    // `h-6 px-3` — a fixed 24px pill.
+                    height: 24,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: active
                           ? colors.accent

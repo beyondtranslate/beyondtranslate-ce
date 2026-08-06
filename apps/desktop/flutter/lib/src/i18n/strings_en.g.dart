@@ -132,7 +132,7 @@ class TranslationsWorkbenchEn {
   String get document => 'Document Translation';
 
   /// en: 'Favorites & History'
-  String get history => 'Favorites & History';
+  String get history => 'History';
 
   /// en: 'Glossary'
   String get glossary => 'Glossary';
@@ -2044,7 +2044,7 @@ extension on Translations {
       'workbench.workspace' => 'Workspace',
       'workbench.translate' => 'Translate',
       'workbench.document' => 'Document Translation',
-      'workbench.history' => 'Favorites & History',
+      'workbench.history' => 'History',
       'workbench.glossary' => 'Glossary',
       'workbench.recent_languages' => 'Recent Languages',
       'workbench.not_configured' => 'Not configured',

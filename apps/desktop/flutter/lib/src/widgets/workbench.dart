@@ -43,26 +43,34 @@ class Workbench extends StatelessWidget {
     return _WorkbenchScope(
       collapsed: collapsed,
       onToggleCollapsed: onToggleCollapsed,
-      child: WindowBody(
+      // WindowBody is Flexible so it can also live inside WindowFrame in the
+      // component gallery. The app shell supplies the Flex parent here.
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (!collapsed)
-            Sidebar(
-              header: onToggleCollapsed == null
-                  ? const SizedBox.shrink()
-                  : Row(
-                      children: [
-                        const Spacer(),
-                        IconActionButton(
-                          icon: FluentIcons.panel_left_contract_20_regular,
-                          tooltip: '收起侧边栏',
-                          onPressed: onToggleCollapsed,
+          WindowBody(
+            children: [
+              if (!collapsed)
+                Sidebar(
+                  header: onToggleCollapsed == null
+                      ? const SizedBox.shrink()
+                      : Row(
+                          children: [
+                            const Spacer(),
+                            IconActionButton(
+                              icon: FluentIcons.panel_left_contract_20_regular,
+                              iconSize: 16,
+                              tooltip: '收起侧边栏',
+                              onPressed: onToggleCollapsed,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-              footer: sidebarFooter,
-              children: sidebar,
-            ),
-          WindowMain(children: [Expanded(child: child)]),
+                  footer: sidebarFooter,
+                  children: sidebar,
+                ),
+              WindowMain(children: [Expanded(child: child)]),
+            ],
+          ),
         ],
       ),
     );
@@ -122,6 +130,7 @@ class WorkbenchToolbar extends StatelessWidget {
                 if (kIsMacOS) const SizedBox(width: 56),
                 IconActionButton(
                   icon: FluentIcons.panel_left_expand_20_regular,
+                  iconSize: 16,
                   tooltip: '展开侧边栏',
                   onPressed: scope.onToggleCollapsed,
                 ),

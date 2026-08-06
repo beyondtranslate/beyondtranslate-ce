@@ -1,3 +1,4 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide ListTile;
 
 import '../../i18n/i18n.dart';
@@ -13,6 +14,7 @@ import '../../widgets/ui.dart'
     show
         Button,
         ButtonVariant,
+        DesignThemeContext,
         DialogTone,
         ListTile,
         Spinner,
@@ -324,38 +326,16 @@ class _ProviderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The deck's EngineListItem card: avatar, bold name over a subtle meta
-    // line, controls pinned right.
+    // The deck's ProviderListItem card: avatar, bold name with the meta beside
+    // it, controls pinned right — one 34px line.
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: _ProviderTypeIcon(type: provider.type),
         title: Text(_providerTypeDisplayName(provider.type)),
-        subtitle: Text(provider.id),
+        meta: Text(provider.id),
         trailing: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              switch (value) {
-                case 'edit':
-                  onEdit();
-                  break;
-                case 'delete':
-                  onDelete();
-                  break;
-              }
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem<String>(
-                value: 'edit',
-                child: Text(t.common.ui.button.edit),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem<String>(
-                value: 'delete',
-                child: Text(t.common.ui.button.delete),
-              ),
-            ],
-          ),
+          _RowMenuButton(onEdit: onEdit, onDelete: onDelete),
         ],
       ),
     );
@@ -385,36 +365,11 @@ class _ServiceRow extends StatelessWidget {
         leading:
             providerType == null ? null : _ProviderTypeIcon(type: providerType),
         title: Text(serviceName),
-        subtitle:
+        meta:
             Text('${_serviceTypeLabel(service.type)} · ${service.providerId}'),
         trailing: [
           if (onEdit != null || onDelete != null)
-            PopupMenuButton<String>(
-              onSelected: (value) {
-                switch (value) {
-                  case 'edit':
-                    onEdit?.call();
-                    break;
-                  case 'delete':
-                    onDelete?.call();
-                    break;
-                }
-              },
-              itemBuilder: (_) => [
-                if (onEdit != null)
-                  PopupMenuItem<String>(
-                    value: 'edit',
-                    child: Text(t.common.ui.button.edit),
-                  ),
-                if (onEdit != null && onDelete != null)
-                  const PopupMenuDivider(),
-                if (onDelete != null)
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Text(t.common.ui.button.delete),
-                  ),
-              ],
-            ),
+            _RowMenuButton(onEdit: onEdit, onDelete: onDelete),
         ],
       ),
     );
@@ -452,6 +407,62 @@ class _EmptyProviderRow extends StatelessWidget {
         ),
       ),
       accessoryView: const SizedBox.shrink(),
+    );
+  }
+}
+
+/// The row's overflow menu, drawn as the design system's 24pt affordance so a
+/// list row keeps the deck's 34px height.
+class _RowMenuButton extends StatelessWidget {
+  const _RowMenuButton({this.onEdit, this.onDelete});
+
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return PopupMenuButton<String>(
+      tooltip: '',
+      iconSize: 14,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 160),
+      icon: Icon(
+        FluentIcons.more_horizontal_20_regular,
+        size: 14,
+        color: colors.fgMuted,
+      ),
+      // The default IconButton box is 48pt; the deck's is 24.
+      style: const ButtonStyle(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: WidgetStatePropertyAll(Size(24, 24)),
+        fixedSize: WidgetStatePropertyAll(Size(24, 24)),
+        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+      ),
+      onSelected: (value) {
+        switch (value) {
+          case 'edit':
+            onEdit?.call();
+            break;
+          case 'delete':
+            onDelete?.call();
+            break;
+        }
+      },
+      itemBuilder: (_) => [
+        if (onEdit != null)
+          PopupMenuItem<String>(
+            value: 'edit',
+            child: Text(t.common.ui.button.edit),
+          ),
+        if (onEdit != null && onDelete != null) const PopupMenuDivider(),
+        if (onDelete != null)
+          PopupMenuItem<String>(
+            value: 'delete',
+            child: Text(t.common.ui.button.delete),
+          ),
+      ],
     );
   }
 }

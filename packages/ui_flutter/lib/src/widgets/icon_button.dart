@@ -15,6 +15,7 @@ class IconButton extends StatelessWidget {
     required this.label,
     required this.icon,
     this.active = false,
+    this.iconSize = 14,
     this.onPressed,
   });
 
@@ -24,6 +25,12 @@ class IconButton extends StatelessWidget {
   /// Persistent on-state — the pin button, for instance.
   final bool active;
   final Widget icon;
+
+  /// Glyph size, fed through [IconTheme]. The React kit sets it per call site
+  /// on the `<Icon>` child — 18 in the mini-window toolbar, 16 in the sidebar
+  /// header, 13 on the document zoom stepper.
+  final double iconSize;
+
   final VoidCallback? onPressed;
 
   @override
@@ -41,18 +48,23 @@ class IconButton extends StatelessWidget {
             ? colors.accentText
             : (state.hovered ? colors.fg : colors.fgMuted);
 
-        return AnimatedContainer(
-          duration: kTransitionDuration,
-          width: 24,
-          height: 24,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: !active && state.hovered ? colors.subtle : null,
-            borderRadius: radius,
-          ),
-          child: IconTheme(
-            data: IconThemeData(color: foreground, size: 14),
-            child: icon,
+        return Opacity(
+          // The deck dims a disabled affordance rather than recolouring it —
+          // `disabled:opacity-35`, with the hover wash withheld.
+          opacity: onPressed == null ? 0.35 : 1,
+          child: AnimatedContainer(
+            duration: kTransitionDuration,
+            width: 24,
+            height: 24,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: !active && state.hovered ? colors.subtle : null,
+              borderRadius: radius,
+            ),
+            child: IconTheme(
+              data: IconThemeData(color: foreground, size: iconSize),
+              child: icon,
+            ),
           ),
         );
       },

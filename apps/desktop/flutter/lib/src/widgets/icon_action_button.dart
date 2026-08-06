@@ -1,10 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide IconButton;
 
-import 'ui.dart' show DesignThemeContext, Pressable, kTransitionDuration;
+import 'ui.dart' show IconButton, kTransitionDuration;
 
-/// A 32pt square icon affordance for toolbars, built on the design system's
-/// [Pressable] so it gets the same hover, focus ring and keyboard activation
-/// as every other control.
+/// The design system's 24pt flat toolbar affordance, taking an [IconData]
+/// instead of a widget, wearing a native tooltip, and adding the optional
+/// rotation the mini translator's pin needs.
+///
+/// Everything visual — geometry, hover wash, active read, disabled dimming —
+/// comes from the package's [IconButton], so this stays a convenience adapter
+/// rather than a second implementation.
 class IconActionButton extends StatelessWidget {
   const IconActionButton({
     super.key,
@@ -13,6 +17,7 @@ class IconActionButton extends StatelessWidget {
     required this.onPressed,
     this.selected = false,
     this.iconTurns = 0,
+    this.iconSize = 14,
   });
 
   final IconData icon;
@@ -20,42 +25,25 @@ class IconActionButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool selected;
 
+  /// The deck sizes the glyph per call site: 18 in the mini-window toolbar,
+  /// 16 in the sidebar header, 13 on the document zoom stepper.
+  final double iconSize;
+
   /// Animated rotation of the glyph, in turns — the pin lies at -45° until
   /// pinned, matching the deck.
   final double iconTurns;
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.controlSm);
-
-    final button = Pressable(
+    final button = IconButton(
+      label: tooltip ?? '',
+      active: selected,
+      iconSize: iconSize,
       onPressed: onPressed,
-      enabled: onPressed != null,
-      borderRadius: radius,
-      semanticsLabel: tooltip,
-      builder: (context, state) => Container(
-        width: 32,
-        height: 32,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected
-              ? colors.accentSurface
-              : (state.hovered ? colors.controlHover : null),
-          borderRadius: radius,
-        ),
-        child: AnimatedRotation(
-          turns: iconTurns,
-          duration: kTransitionDuration,
-          child: Icon(
-            icon,
-            size: 17,
-            color: selected
-                ? colors.accentText
-                : (onPressed == null ? colors.fgFaint : colors.fgControl),
-          ),
-        ),
+      icon: AnimatedRotation(
+        turns: iconTurns,
+        duration: kTransitionDuration,
+        child: Icon(icon),
       ),
     );
 

@@ -2,7 +2,7 @@ import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
 import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
-/// xs 17px · sm 18px · md 24px · lg 26px, matching the deck.
+/// xs 16px · sm 18px · md 24px · lg 26px, matching the deck.
 enum AvatarSize { xs, sm, md, lg }
 
 /// The rounded-square identity mark used in cards, lists and the extension.
@@ -30,7 +30,7 @@ class Avatar extends StatelessWidget {
     final tokens = context.tokens;
 
     final (double box, double fontSize) = switch (size) {
-      AvatarSize.xs => (17, 11),
+      AvatarSize.xs => (16, 10),
       AvatarSize.sm => (18, 11),
       AvatarSize.md => (24, 12),
       AvatarSize.lg => (26, 13),

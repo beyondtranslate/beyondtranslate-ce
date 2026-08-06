@@ -214,8 +214,6 @@ abstract final class DesignThemes {
       90,
       const [Color(0xFF111C2E), Color(0xFFD6FF3F)],
     ),
-    // The preferred block gets a heavier acid rule here.
-    highlightRule: 2,
     colors: const DesignColors(
       canvas: Color(0xFFE6EADE),
       window: Color(0xFFFBFAF7),
@@ -348,7 +346,6 @@ abstract final class DesignThemes {
       90,
       const [Color(0xFFD6FF3F), Color(0xFFD6FF3F)],
     ),
-    highlightRule: 2,
     // Explicitly no glow — the deck: "不发光不刺眼".
     colors: const DesignColors(
       canvas: Color(0xFF0A111A),

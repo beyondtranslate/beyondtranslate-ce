@@ -158,7 +158,7 @@ class _TranslationsWorkbenchKo extends TranslationsWorkbenchEn {
   @override
   String get document => '문서 번역';
   @override
-  String get history => '즐겨찾기 및 기록';
+  String get history => '기록';
   @override
   String get glossary => '용어집';
   @override
@@ -1976,7 +1976,7 @@ extension on TranslationsKo {
       'workbench.workspace' => '작업 공간',
       'workbench.translate' => '번역',
       'workbench.document' => '문서 번역',
-      'workbench.history' => '즐겨찾기 및 기록',
+      'workbench.history' => '기록',
       'workbench.glossary' => '용어집',
       'workbench.recent_languages' => '최근 언어',
       'workbench.not_configured' => '설정되지 않음',

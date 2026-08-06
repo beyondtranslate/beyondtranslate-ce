@@ -58,12 +58,17 @@ class Kbd extends StatelessWidget {
     if (variant != KbdVariant.key) return label;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      // A fixed 22px box, so a wide glyph and a narrow one line up in the
+      // 快捷键 list.
+      height: 22,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: colors.inset,
         borderRadius: BorderRadius.circular(tokens.radii.chip),
       ),
-      child: label,
+      // `widthFactor` keeps the box hugging the glyph — a plain Align would
+      // stretch it to whatever width the row happens to offer.
+      child: Align(widthFactor: 1, child: label),
     );
   }
 }

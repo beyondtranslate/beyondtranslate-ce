@@ -204,7 +204,7 @@ class _MenuPanel extends StatelessWidget {
                       ),
                     ),
                     if (item.shortcut != null) ...[
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 8),
                       Kbd(item.shortcut!, size: KbdSize.sm),
                     ],
                   ],

@@ -28,7 +28,7 @@ mod word_tag;
 mod word_tense;
 
 pub use chat_message::{ChatMessage, ChatRole};
-pub use chat_request::ChatRequest;
+pub use chat_request::{ChatRequest, ResponseFormat};
 pub use chat_response::{ChatChoice, ChatResponse, ChatUsage};
 pub use detect_language_request::DetectLanguageRequest;
 pub use detect_language_response::DetectLanguageResponse;

@@ -3,6 +3,7 @@ import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:beyondtranslate_ui/src/theme/tokens.dart';
 import 'package:beyondtranslate_ui/src/widgets/label.dart';
 import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart' show CupertinoTextField;
 import 'package:flutter/widgets.dart';
 
@@ -41,7 +42,18 @@ BoxDecoration controlDecoration(
   );
 }
 
+/// `px-3 py-[7px]`: 7px over a 12px line lands the control on 28px, level with
+/// an md Button — desktop dialogs keep buttons and fields the same height.
 const EdgeInsets _kControlPadding =
+    EdgeInsets.symmetric(horizontal: 12, vertical: 7);
+
+/// The height that padding is pinned to, so a control never drifts off the
+/// button line because of a font's metrics.
+const double _kControlHeight = 28;
+
+/// A textarea is not a single-line control: it keeps the wider `py-2.5` inset
+/// and grows from `min-h-20`.
+const EdgeInsets _kTextAreaPadding =
     EdgeInsets.symmetric(horizontal: 12, vertical: 10);
 
 class Input extends StatefulWidget {
@@ -131,6 +143,7 @@ class _InputState extends State<Input> {
       label: widget.semanticsLabel,
       child: AnimatedContainer(
         duration: kTransitionDuration,
+        height: _kControlHeight,
         decoration: controlDecoration(
           tokens,
           state: widget.state,
@@ -142,6 +155,7 @@ class _InputState extends State<Input> {
           focusNode: _node,
           enabled: widget.enabled,
           obscureText: widget.obscureText,
+          textAlignVertical: TextAlignVertical.center,
           padding: _kControlPadding,
           placeholder: widget.placeholder,
           placeholderStyle: style.copyWith(color: colors.fgFaint),
@@ -241,7 +255,7 @@ class _TextAreaState extends State<TextArea> {
         controller: widget.controller,
         focusNode: _node,
         enabled: widget.enabled,
-        padding: _kControlPadding,
+        padding: _kTextAreaPadding,
         placeholder: widget.placeholder,
         placeholderStyle: style.copyWith(color: colors.fgFaint),
         style: style,
@@ -401,7 +415,11 @@ class _SelectState<T> extends State<Select<T>> {
         builder: (context, state) => Opacity(
           opacity: disabled ? 0.6 : 1,
           child: Container(
-            padding: _kControlPadding,
+            height: _kControlHeight,
+            // `pr-7` on the control with the chevron inset at `right-2.5`:
+            // 12 + 6 + 12 + 10 back from the right edge is the same 28px the
+            // native arrow reserves.
+            padding: const EdgeInsets.fromLTRB(12, 7, 10, 7),
             decoration: controlDecoration(
               tokens,
               state: widget.state,
@@ -417,12 +435,13 @@ class _SelectState<T> extends State<Select<T>> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
-                // A native select draws its own arrow, so this one is painted
-                // rather than set in a glyph the host font may not carry.
-                CustomPaint(
-                  size: const Size(9, 6),
-                  painter: _ChevronPainter(color: colors.fgSubtle),
+                const SizedBox(width: 6),
+                // The native arrow ignores padding, so the control draws the
+                // same Fluent chevron every other trailing glyph uses.
+                Icon(
+                  FluentIcons.chevron_down_20_regular,
+                  size: 12,
+                  color: colors.fgSubtle,
                 ),
               ],
             ),
@@ -563,29 +582,4 @@ class FieldValue extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ChevronPainter extends CustomPainter {
-  const _ChevronPainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawPath(
-      Path()
-        ..moveTo(0, 0)
-        ..lineTo(size.width / 2, size.height)
-        ..lineTo(size.width, 0),
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_ChevronPainter oldDelegate) => oldDelegate.color != color;
 }

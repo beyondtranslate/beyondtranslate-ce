@@ -188,6 +188,7 @@ class MiniTranslatorTopBar extends StatelessWidget {
           IconActionButton(
             key: _moreButtonKey,
             icon: FluentIcons.more_horizontal_20_regular,
+            iconSize: 18,
             tooltip: t.mini_translator.toolbar.tooltip.more_actions,
             onPressed: _showMoreMenu,
           ),
@@ -195,6 +196,7 @@ class MiniTranslatorTopBar extends StatelessWidget {
             icon: isAlwaysOnTop
                 ? FluentIcons.pin_20_filled
                 : FluentIcons.pin_20_regular,
+            iconSize: 18,
             tooltip: t.mini_translator.toolbar.tooltip.pin,
             selected: isAlwaysOnTop,
             // The pin lies at -45° until pinned, matching the deck.

@@ -158,7 +158,7 @@ class _TranslationsWorkbenchJa extends TranslationsWorkbenchEn {
   @override
   String get document => '文書翻訳';
   @override
-  String get history => 'お気に入りと履歴';
+  String get history => '履歴';
   @override
   String get glossary => '用語集';
   @override
@@ -1974,7 +1974,7 @@ extension on TranslationsJa {
       'workbench.workspace' => 'ワークスペース',
       'workbench.translate' => '翻訳',
       'workbench.document' => '文書翻訳',
-      'workbench.history' => 'お気に入りと履歴',
+      'workbench.history' => '履歴',
       'workbench.glossary' => '用語集',
       'workbench.recent_languages' => '最近の言語',
       'workbench.not_configured' => '未設定',

@@ -29,12 +29,14 @@ import '../../widgets/ui.dart'
         DesignTypographyStyles,
         DetailBlock,
         HighlightBlock,
+        HighlightRule,
         Kbd,
         KbdSize,
         Label,
         LabelTone,
         Pressable,
         SidebarCard,
+        SwapPairSize,
         kTransitionDuration;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import '../settings/general.dart' show GeneralSettingsPage;
@@ -171,6 +173,13 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     });
   }
 
+  /// Whether the selected engine came back with nothing but an error.
+  static bool _isFailed(WorkbenchEngineResult? result) =>
+      result != null &&
+      result.error != null &&
+      result.text.isEmpty &&
+      !result.loading;
+
   @override
   Widget build(BuildContext context) {
     final detected = _controller.detectedLanguage;
@@ -179,6 +188,10 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       for (final entry in _controller.results)
         if (entry.service.id != result?.service.id) entry,
     ];
+
+    // 三个引擎都失败 — the deck's error state, which replaces the preferred
+    // block (and with it the accent rule that normally divides the pane).
+    final failed = _isFailed(result);
 
     // Collapsed, the preferred block runs to the pane's foot like an output
     // area; expanded (or with a dictionary card below), it takes its natural
@@ -212,10 +225,11 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           WorkbenchToolbar(
             title: t.workbench.translate,
             children: [
-              const SizedBox(width: 4),
               // The mini translator's capsule: both ends open the same native
-              // language menus, so the two windows pick languages alike.
+              // language menus, so the two windows pick languages alike. The
+              // main window draws it a step smaller than the popover's.
               LanguageSelector(
+                size: SwapPairSize.sm,
                 sourceLanguage: _controller.sourceLanguage,
                 targetLanguage: _controller.targetLanguage,
                 detectedLanguage: detected,
@@ -243,7 +257,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _buildSourceBlock(context),
+                              _buildSourceBlock(context, failed: failed),
                               if (stretchPreferred)
                                 Expanded(
                                   child: _buildPreferredBlock(
@@ -285,7 +299,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   /// 原文 — the editable source block at the top of the pane: the label row
   /// with the ⌥⏎ 重译 hint, the input, and the deck's idle footer (⇧⏎ 换行
   /// beside the 翻译 button).
-  Widget _buildSourceBlock(BuildContext context) {
+  Widget _buildSourceBlock(BuildContext context, {required bool failed}) {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final hasResult = (_controller.selectedResult?.text ?? '').isNotEmpty;
@@ -293,12 +307,17 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 16, 22, 16),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.border,
-            width: context.hairlineWidth,
-          ),
-        ),
+        // The accent rule on the preferred block below is the divider, so 原文
+        // drops its own hairline rather than stacking a second line. The failed
+        // state has no such block, and keeps it.
+        border: failed
+            ? Border(
+                bottom: BorderSide(
+                  color: colors.border,
+                  width: context.hairlineWidth,
+                ),
+              )
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -308,34 +327,13 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               Label(child: Text(t.workbench.translation.source)),
               const Spacer(),
               // The deck draws this as a static hint; here it is a real
-              // control, so it gets a padded hit target.
-              if (hasResult)
-                Pressable(
-                  onPressed: _controller.submitting ? null : _submit,
-                  borderRadius: BorderRadius.circular(tokens.radii.chip),
-                  builder: (context, state) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: state.hovered ? colors.inset : null,
-                      borderRadius: BorderRadius.circular(tokens.radii.chip),
-                    ),
-                    child: Text(
-                      '⌥⏎ ${t.mini_translator.result.retry}',
-                      style: tokens.typography.displayStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        height: 1,
-                        color: state.hovered ? colors.fgSubtle : colors.fgFaint,
-                      ),
-                    ),
-                  ),
-                ),
+              // control, so it gets a padded hit target. `-my-1.5` keeps that
+              // padding outside the label's line box instead of growing the
+              // row, so the block's header stays 11px tall.
+              if (hasResult) _buildRetryHint(context),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Focus(
             onKeyEvent: _handleKeyEvent,
             child: TextField(
@@ -361,7 +359,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               onSubmitted: (_) => _submit(),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           // 翻译 belongs to the box you type in, not to the empty result
           // block below it.
           Row(
@@ -391,6 +389,40 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     );
   }
 
+  /// ⌥⏎ 重译 — the source block's trailing hint, drawn as a real control.
+  Widget _buildRetryHint(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final radius = BorderRadius.circular(tokens.radii.chip);
+
+    return SizedBox(
+      height: 11,
+      child: OverflowBox(
+        maxHeight: double.infinity,
+        child: Pressable(
+          onPressed: _controller.submitting ? null : _submit,
+          borderRadius: radius,
+          builder: (context, state) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: state.hovered ? colors.inset : null,
+              borderRadius: radius,
+            ),
+            child: Text(
+              '⌥⏎ ${t.mini_translator.result.retry}',
+              style: tokens.typography.displayStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                height: 1,
+                color: state.hovered ? colors.fgSubtle : colors.fgFaint,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// 首选译文 — the one accent block, in the deck's HighlightBlock shape.
   Widget _buildPreferredBlock(
     BuildContext context,
@@ -407,12 +439,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             ? result.service.id
             : result.service.name);
 
-    // 三个引擎都失败 — the deck's error state: callout with 重试.
-    final failed = result != null &&
-        result.error != null &&
-        text.isEmpty &&
-        !result.loading;
-    if (failed) {
+    if (_isFailed(result)) {
       return Container(
         padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
         child: Column(
@@ -427,7 +454,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               ),
               child: Text(translation.failed),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
               t.mini_translator.result.no_result_note,
               style: tokens.typography.sansStyle(
@@ -468,6 +495,9 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     final shownText = _override ?? text;
 
     return HighlightBlock(
+      // The accent rule fences the block from the 原文 above it — it is the
+      // pane's divider, which is why 原文 draws no hairline of its own.
+      rule: HighlightRule.top,
       stretch: stretch,
       label: Text('$engineName · ${translation.preferred}'),
       meta: translating
@@ -477,82 +507,79 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               : idle
                   ? const Text('⌥Space 唤起迷你翻译器')
                   : null,
-      actions: idle
+      // 翻译中不给动作行 —— 复制/朗读和对比开关都等结果落地再出现.
+      actions: idle || translating
           ? null
-          : translating
-              ? Row(children: [compareToggle])
-              : _editing
-                  ? Row(
-                      children: [
-                        Button(
-                          variant: ButtonVariant.primary,
-                          onPressed: () => setState(() {
-                            final draft = _draftController.text.trim();
-                            _override = draft.isEmpty ? null : draft;
-                            _editing = false;
-                          }),
-                          child: const Text('保存并记为偏好'),
-                        ),
-                        const SizedBox(width: 7),
-                        Button(
-                          variant: ButtonVariant.secondary,
-                          onPressed: () => setState(() => _editing = false),
-                          child: const Text('取消'),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '保存后同一术语的后续段落沿用你的写法',
-                          style: tokens.typography.sansStyle(
-                            fontSize: 11,
-                            height: 1,
-                            color: colors.fgSubtle,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        Button(
-                          variant: ButtonVariant.primary,
-                          enabled: shownText.isNotEmpty,
-                          onPressed: () => _copyResult(shownText),
-                          child: Text(
-                            _copied
-                                ? translation.copied
-                                : translation.copy_result,
-                          ),
-                        ),
-                        const SizedBox(width: 7),
-                        Button(
-                          variant: ButtonVariant.secondary,
-                          enabled: result?.audioUrl != null,
-                          onPressed: () {
-                            final url = result?.audioUrl;
-                            if (url != null) {
-                              globalAudioPlayer.play(UrlSource(url));
-                            }
-                          },
-                          child: Text(translation.read),
-                        ),
-                        const SizedBox(width: 7),
-                        Button(
-                          variant: ButtonVariant.secondary,
-                          onPressed: () => setState(() => _starred = !_starred),
-                          child: Text(_starred ? '已收藏' : translation.favorite),
-                        ),
-                        const Spacer(),
-                        Button(
-                          variant: ButtonVariant.plain,
-                          onPressed: () {
-                            _draftController.text = shownText;
-                            setState(() => _editing = true);
-                          },
-                          child: const Text('编辑并记为偏好'),
-                        ),
-                        const SizedBox(width: 7),
-                        compareToggle,
-                      ],
+          : _editing
+              ? Row(
+                  children: [
+                    Button(
+                      variant: ButtonVariant.primary,
+                      onPressed: () => setState(() {
+                        final draft = _draftController.text.trim();
+                        _override = draft.isEmpty ? null : draft;
+                        _editing = false;
+                      }),
+                      child: const Text('保存并记为偏好'),
                     ),
+                    const SizedBox(width: 7),
+                    Button(
+                      variant: ButtonVariant.secondary,
+                      onPressed: () => setState(() => _editing = false),
+                      child: const Text('取消'),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '保存后同一术语的后续段落沿用你的写法',
+                      style: tokens.typography.sansStyle(
+                        fontSize: 11,
+                        height: 1,
+                        color: colors.fgSubtle,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Button(
+                      variant: ButtonVariant.primary,
+                      enabled: shownText.isNotEmpty,
+                      onPressed: () => _copyResult(shownText),
+                      child: Text(
+                        _copied ? translation.copied : translation.copy_result,
+                      ),
+                    ),
+                    const SizedBox(width: 7),
+                    Button(
+                      variant: ButtonVariant.secondary,
+                      enabled: result?.audioUrl != null,
+                      onPressed: () {
+                        final url = result?.audioUrl;
+                        if (url != null) {
+                          globalAudioPlayer.play(UrlSource(url));
+                        }
+                      },
+                      child: Text(translation.read),
+                    ),
+                    const SizedBox(width: 7),
+                    Button(
+                      variant: ButtonVariant.secondary,
+                      onPressed: () => setState(() => _starred = !_starred),
+                      child: Text(_starred ? '已收藏' : translation.favorite),
+                    ),
+                    const Spacer(),
+                    Button(
+                      variant: ButtonVariant.plain,
+                      onPressed: () {
+                        _draftController.text = shownText;
+                        setState(() => _editing = true);
+                      },
+                      child: const Text('编辑并记为偏好'),
+                    ),
+                    const SizedBox(width: 7),
+                    compareToggle,
+                  ],
+                ),
       child: idle
           ? Text(
               translation.empty,
@@ -580,7 +607,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                         padding: EdgeInsets.zero,
                         style: tokens.typography
                             .translationStyle(color: colors.fg),
-                        minLines: 2,
+                        // `rows={3}` in the deck.
+                        minLines: 3,
                         maxLines: 8,
                       ),
                     )
@@ -624,7 +652,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < others.length; i++) ...[
-            if (i > 0) const SizedBox(height: 8),
+            if (i > 0) const SizedBox(height: 14),
             _buildEngineCard(context, others[i]),
           ],
         ],
@@ -747,8 +775,10 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               builder: (context, state) => Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Label(
-                    tone: LabelTone.faint,
+                  DefaultTextStyle(
+                    style: tokens.typography.labelStyle(
+                      color: state.hovered ? colors.fgTertiary : colors.fgFaint,
+                    ),
                     child: Text(translation.terms),
                   ),
                   const SizedBox(width: 4),
@@ -845,7 +875,8 @@ class _CompareToggle extends StatelessWidget {
       semanticsLabel: label,
       builder: (context, state) => AnimatedContainer(
         duration: kTransitionDuration,
-        padding: const EdgeInsets.fromLTRB(9, 4, 7, 4),
+        height: 18,
+        padding: const EdgeInsets.symmetric(horizontal: 9),
         decoration: BoxDecoration(
           color: colors.accent.withValues(alpha: state.hovered ? 0.20 : 0.12),
           borderRadius: radius,
@@ -892,7 +923,7 @@ class _TranslationSkeletonState extends State<_TranslationSkeleton>
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1000),
-    lowerBound: 0.4,
+    lowerBound: 0.5,
     upperBound: 1,
   )..repeat(reverse: true);
 
@@ -921,19 +952,19 @@ class _TranslationSkeletonState extends State<_TranslationSkeleton>
 
     return FadeTransition(
       opacity: _controller,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5), child: bar(1)),
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: bar(0.92)),
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: bar(0.64)),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            bar(1),
+            const SizedBox(height: 10),
+            bar(0.92),
+            const SizedBox(height: 10),
+            bar(0.64),
+          ],
+        ),
       ),
     );
   }
