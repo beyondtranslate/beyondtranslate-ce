@@ -13,6 +13,8 @@ import 'package:path_provider/path_provider.dart';
 
 import '../extensions/window_controller.dart';
 import '../i18n/i18n.dart';
+import '../services/dock_icon_controller.dart';
+import '../services/mac_app_presentation.dart';
 import '../services/settings_store.dart';
 import '../theme/app_theme.dart';
 import '../utils/language_util.dart';
@@ -70,7 +72,11 @@ final workbenchWindowController = RegularWindowController(
   size: _kWorkbenchWindowSize,
   title: _kWorkbenchWindowTitle,
   delegate: _HideOnCloseDelegate(),
-)..setWillShowHook((window) {
+)
+  ..setWillShowHook((window) {
+    // Driving the Dock icon from the window hooks rather than from the call
+    // sites keeps the two in sync no matter who shows or hides the workbench.
+    dockIconController.setWorkbenchWindowVisible(true);
     if (window.isFirstShow) {
       window.titleBarStyle = TitleBarStyle.hidden;
       window.setMinimumSize(
@@ -84,6 +90,10 @@ final workbenchWindowController = RegularWindowController(
       window.center();
       return true;
     }
+    return true;
+  })
+  ..setWillHideHook((window) {
+    dockIconController.setWorkbenchWindowVisible(false);
     return true;
   });
 
@@ -530,6 +540,13 @@ class _RootBodyViewState extends State<_RootBodyView> {
     _showInMenuBar = settingsStore.general.showInMenuBar;
     settingsStore.addListener(_handleChanged);
     _setupTrayIcon();
+    MacAppPresentation.setHandlers(
+      // The Dock icon only exists while the app is promoted, and the workbench
+      // is the only window worth restoring from it — the mini translator is
+      // tray/shortcut driven and closes on blur.
+      onReopen: showWorkbenchWindow,
+      onOpenSettings: showSettingsWindow,
+    );
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showWorkbenchWindow();
@@ -561,6 +578,9 @@ class _RootBodyViewState extends State<_RootBodyView> {
       _showInMenuBar = newShowInMenuBar;
       _trayIcon.isVisible = newShowInMenuBar;
       _mainTrayIcon = newShowInMenuBar ? _trayIcon : null;
+      // Dropping the tray icon would leave the app with no visible entry
+      // point, so the Dock icon takes over.
+      dockIconController.setTrayIconVisible(newShowInMenuBar);
     }
   }
 
@@ -574,6 +594,7 @@ class _RootBodyViewState extends State<_RootBodyView> {
     final icon = Image.fromAsset('resources/images/tray_icon.png');
     if (icon != null) _trayIcon.icon = icon;
     _trayIcon.isVisible = _showInMenuBar;
+    dockIconController.setTrayIconVisible(_showInMenuBar);
     _trayIcon.contextMenu = _buildContextMenu();
     _trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
     _trayIcon.on<TrayIconClickedEvent>((event) {

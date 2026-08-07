@@ -4,8 +4,13 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>LSUIElement</key>
-	<true/>
+	<!-- Deliberately NOT LSUIElement. The app opens the workbench window on
+	     every launch, so `regular` is the correct starting policy and AppKit
+	     installs the main menu bar the normal way. Launching as `accessory` and
+	     promoting afterwards raced: the process went frontmost while still
+	     accessory (owning no menu bar), and by the time the promotion landed the
+	     focus had moved on, leaving the window up under another app's menu bar.
+	     DockIconController demotes to `accessory` once the workbench closes. -->
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -20,6 +25,11 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
+	<!-- FlutterAppDelegate substitutes this for the APP_NAME placeholders in
+	     MainMenu.xib, and macOS uses it for the app menu title. Without it the
+	     menu falls back to CFBundleName, i.e. the lowercase target name. -->
+	<key>CFBundleDisplayName</key>
+	<string>BeyondTranslate</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>NSAppTransportSecurity</key>

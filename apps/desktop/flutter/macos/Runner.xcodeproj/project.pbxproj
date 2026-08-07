@@ -23,6 +23,7 @@
 /* Begin PBXBuildFile section */
 		2A0D6A422E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A412E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift */; };
 		2A0D6A452E0A100100A1B2C3 /* NativeTextFieldPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */; };
+		2A0D6A492E0A100100A1B2C3 /* MacAppPresentationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A482E0A100100A1B2C3 /* MacAppPresentationPlugin.swift */; };
 		331C80D8294CF71000263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C80D7294CF71000263BE5 /* RunnerTests.swift */; };
 		335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */; };
 		33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC10F02044A3C60003C045 /* AppDelegate.swift */; };
@@ -98,6 +99,7 @@
 /* Begin PBXFileReference section */
 		2A0D6A412E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacWindowAppearancePlugin.swift; sourceTree = "<group>"; };
 		2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTextFieldPlugin.swift; sourceTree = "<group>"; };
+		2A0D6A482E0A100100A1B2C3 /* MacAppPresentationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppPresentationPlugin.swift; sourceTree = "<group>"; };
 		331C80D5294CF71000263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		331C80D7294CF71000263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 		2A0D6A3F2E0A100100A1B2C3 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				2A0D6A482E0A100100A1B2C3 /* MacAppPresentationPlugin.swift */,
 				2A0D6A412E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift */,
 				2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */,
 			);
@@ -598,6 +601,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A0D6A492E0A100100A1B2C3 /* MacAppPresentationPlugin.swift in Sources */,
 				2A0D6A422E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift in Sources */,
 				2A0D6A452E0A100100A1B2C3 /* NativeTextFieldPlugin.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
