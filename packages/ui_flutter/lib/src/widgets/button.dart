@@ -127,7 +127,7 @@ class Button extends StatelessWidget {
               background = hovered ? colors.subtle : colors.window;
               foreground = colors.fgControl;
               border = Border.all(
-                color: colors.borderStrong,
+                color: colors.hairlineStrong,
                 width: context.hairlineWidth,
               );
             }

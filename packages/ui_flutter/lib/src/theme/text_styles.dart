@@ -114,23 +114,4 @@ extension DesignTypographyStyles on DesignTypography {
         letterSpacing: -0.01 * (fontSize ?? body),
         fontFeatures: const [FontFeature.tabularFigures()],
       );
-
-  /// `.bt-translation` — body copy for translated output: larger and airier
-  /// than source text.
-  TextStyle translationStyle({Color? color}) => _style(
-        cjk,
-        fontSize: translationSize,
-        fontWeight: FontWeight.w400,
-        height: translationLeading,
-        color: color,
-      );
-
-  /// `.bt-source` — source text: same body size as the rest of the chrome,
-  /// receded in colour.
-  TextStyle sourceStyle({Color? color}) => _style(
-        sans,
-        fontSize: body,
-        height: 1.7,
-        color: color,
-      );
 }

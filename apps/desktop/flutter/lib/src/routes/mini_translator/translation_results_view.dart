@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import '../../i18n/i18n.dart';
 import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
+import '../../theme/product_tokens.dart'
+    show ProductTokens, ProductTokensContext;
 import '../../utils/language_util.dart';
+import '../../widgets/data_display.dart' show DetailBlock;
 import '../../widgets/ui.dart'
     show
         Button,
@@ -14,7 +17,6 @@ import '../../widgets/ui.dart'
         CalloutTone,
         DesignThemeContext,
         DesignTypographyStyles,
-        DetailBlock,
         Kbd,
         KbdSize,
         Label,
@@ -158,8 +160,8 @@ class MiniTranslatorTranslation extends StatelessWidget {
             color: colors.accentSurface,
             border: Border(
               top: BorderSide(
-                color: colors.accentBorder,
-                width: tokens.highlightRule,
+                color: colors.accentHairline,
+                width: ProductTokens.highlightRule,
               ),
             ),
           ),
@@ -239,7 +241,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: colors.accentText,
                         shape: BoxShape.circle,
-                        boxShadow: tokens.highlightGlow,
+                        boxShadow: context.product.highlightGlow,
                       ),
                     ),
                     const SizedBox(width: 7),
@@ -278,7 +280,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
               color: colors.panel,
               border: Border(
                 top: BorderSide(
-                  color: colors.borderHairline,
+                  color: colors.hairlineSoft,
                   width: context.hairlineWidth,
                 ),
               ),

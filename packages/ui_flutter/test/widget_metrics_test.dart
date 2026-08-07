@@ -194,47 +194,6 @@ void main() {
     expect(label.left - tester.getRect(find.byType(SidebarGroup)).left, 10);
   });
 
-  testWidgets('the highlight rule fences the block on the requested edge', (
-    tester,
-  ) async {
-    Border borderOf(HighlightRule rule) {
-      final decoration = tester
-          .widgetList<Container>(
-            find.descendant(
-              of: find.byType(HighlightBlock),
-              matching: find.byType(Container),
-            ),
-          )
-          .map((container) => container.decoration)
-          .whereType<BoxDecoration>()
-          .firstWhere((decoration) => decoration.border != null);
-      return decoration.border! as Border;
-    }
-
-    for (final (rule, top, bottom) in const [
-      (HighlightRule.top, true, false),
-      (HighlightRule.bottom, false, true),
-    ]) {
-      await tester.pumpWidget(
-        specimen(
-          SizedBox(
-            width: 400,
-            child: HighlightBlock(
-              rule: rule,
-              label: const Text('内置模型 · 首选译文'),
-              child: const Text('注意力就是你所需要的一切。'),
-            ),
-          ),
-        ),
-      );
-
-      final border = borderOf(rule);
-      // 2px in every theme, and only on the edge the block was asked for.
-      expect(border.top.width, top ? 2 : 0, reason: '$rule top');
-      expect(border.bottom.width, bottom ? 2 : 0, reason: '$rule bottom');
-    }
-  });
-
   testWidgets('a Rail pins its trailing action and its footer to the foot', (
     tester,
   ) async {
@@ -261,26 +220,5 @@ void main() {
       tester.getBottomLeft(find.byType(RailAction)).dy,
       greaterThan(200),
     );
-  });
-
-  testWidgets('the language capsule is 30px tall at both ends', (tester) async {
-    final plain = await sizeOf(
-      tester,
-      const SwapPair(start: 'English', end: '简体中文'),
-      SwapPair,
-    );
-    expect(plain.height, 30);
-
-    final triggers = await sizeOf(
-      tester,
-      SwapPair(
-        start: 'English',
-        end: '简体中文',
-        onStartPressed: () {},
-        onEndPressed: () {},
-      ),
-      SwapPair,
-    );
-    expect(triggers.height, 30);
   });
 }

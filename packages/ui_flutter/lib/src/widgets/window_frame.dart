@@ -108,7 +108,7 @@ class WindowFrame extends StatelessWidget {
           decoration: BoxDecoration(
             color: colors.window,
             border: Border.all(
-              color: colors.border,
+              color: colors.hairline,
               width: context.hairlineWidth,
             ),
             borderRadius: BorderRadius.circular(tokens.radii.window),
@@ -177,7 +177,7 @@ class WindowTitlebar extends StatelessWidget {
         color: colors.chrome,
         border: Border(
           bottom: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -297,7 +297,7 @@ class WindowFooter extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.chrome,
         border: Border(
-          top: BorderSide(color: colors.border, width: context.hairlineWidth),
+          top: BorderSide(color: colors.hairline, width: context.hairlineWidth),
         ),
       ),
       child: Row(

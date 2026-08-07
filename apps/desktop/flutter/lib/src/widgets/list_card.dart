@@ -1,7 +1,11 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:flutter/widgets.dart';
+
+import 'ui.dart'
+    show
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Pressable,
+        kTransitionDuration;
 
 /// A selectable two-line row under a labelled header — one entry of a feed or
 /// a history list.
@@ -52,7 +56,7 @@ class ListCard extends StatelessWidget {
               : (state.hovered ? colors.subtle : null),
           border: Border(
             bottom: BorderSide(
-              color: colors.borderHairline,
+              color: colors.hairlineSoft,
               width: context.hairlineWidth,
             ),
           ),

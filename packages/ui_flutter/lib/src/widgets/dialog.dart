@@ -56,8 +56,8 @@ class Dialog extends StatelessWidget {
             borderRadius: BorderRadius.circular(tokens.radii.window),
             border: Border.all(
               color: tone == DialogTone.standard
-                  ? colors.borderStrong
-                  : colors.dangerBorder,
+                  ? colors.hairlineStrong
+                  : colors.dangerHairline,
               width: context.hairlineWidth,
             ),
             boxShadow: tokens.shadows.popover,
@@ -95,7 +95,7 @@ class DialogHeader extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -179,7 +179,7 @@ class DialogFooter extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.chrome,
         border: Border(
-          top: BorderSide(color: colors.border, width: context.hairlineWidth),
+          top: BorderSide(color: colors.hairline, width: context.hairlineWidth),
         ),
       ),
       child: Row(

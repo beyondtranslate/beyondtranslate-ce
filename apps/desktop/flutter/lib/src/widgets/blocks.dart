@@ -1,11 +1,18 @@
 import 'dart:async';
 
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/theme/tokens.dart';
-import 'package:beyondtranslate_ui/src/widgets/focus_ring.dart';
-import 'package:beyondtranslate_ui/src/widgets/label.dart';
 import 'package:flutter/widgets.dart';
+
+import '../theme/product_tokens.dart'
+    show ProductTokens, ProductTokensContext, ProductTypographyStyles;
+import 'ui.dart'
+    show
+        DesignTheme,
+        DesignThemeContext,
+        DesignTokens,
+        DesignTypographyStyles,
+        FocusRing,
+        Label,
+        LabelTone;
 
 enum MarkTone {
   /// The term is under control — a glossary hit that was honoured.
@@ -288,7 +295,7 @@ class _MarkPopover extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.window,
         border: Border.all(
-          color: colors.borderStrong,
+          color: colors.hairlineStrong,
           width: context.hairlineWidth,
         ),
         borderRadius: BorderRadius.circular(tokens.radii.box),
@@ -416,7 +423,7 @@ class TextBlock extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -499,8 +506,8 @@ class HighlightBlock extends StatelessWidget {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final side = BorderSide(
-      color: colors.accentBorder,
-      width: tokens.highlightRule,
+      color: colors.accentHairline,
+      width: ProductTokens.highlightRule,
     );
 
     return Container(
@@ -524,7 +531,7 @@ class HighlightBlock extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: colors.accentText,
                   shape: BoxShape.circle,
-                  boxShadow: tokens.highlightGlow,
+                  boxShadow: context.product.highlightGlow,
                 ),
               ),
               const SizedBox(width: 10),
@@ -594,7 +601,7 @@ class TitledCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         border: Border.all(
-          color: colors.border,
+          color: colors.hairline,
           width: context.hairlineWidth,
         ),
         borderRadius: BorderRadius.circular(tokens.radii.card),

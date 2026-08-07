@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart' show Callout, CalloutTone, Mark;
+import 'blocks.dart' show Mark;
+import 'ui.dart' show Callout, CalloutTone;
 
 /// A term the glossary matched, shown as an accent aside beside the text.
 class GlossaryHit extends StatelessWidget {

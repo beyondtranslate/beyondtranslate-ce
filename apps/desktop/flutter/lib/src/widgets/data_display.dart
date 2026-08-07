@@ -1,8 +1,12 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/label.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:flutter/widgets.dart';
+
+import 'ui.dart'
+    show
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Label,
+        LabelTone,
+        Pressable;
 
 /// A compact title/subtitle card for a sidebar column.
 class InfoCard extends StatelessWidget {
@@ -29,7 +33,7 @@ class InfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.raised,
         border: Border.all(
-          color: colors.border,
+          color: colors.hairline,
           width: context.hairlineWidth,
         ),
         borderRadius: BorderRadius.circular(tokens.radii.box),
@@ -113,7 +117,7 @@ class DetailBlock extends StatelessWidget {
         color: colors.inset,
         border: Border(
           top: BorderSide(
-            color: colors.borderHairline,
+            color: colors.hairlineSoft,
             width: context.hairlineWidth,
           ),
         ),

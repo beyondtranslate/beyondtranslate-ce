@@ -45,18 +45,18 @@ class Callout extends StatelessWidget {
         switch (tone) {
       CalloutTone.accent => (
           colors.accentSurface,
-          colors.accentBorder,
+          colors.accentHairline,
           colors.accentTextStrong,
         ),
-      CalloutTone.neutral => (colors.card, colors.border, colors.fgTertiary),
+      CalloutTone.neutral => (colors.card, colors.hairline, colors.fgTertiary),
       CalloutTone.warn => (
           colors.warnSurface,
-          colors.warnBorder,
+          colors.warnHairline,
           colors.warnFg,
         ),
       CalloutTone.danger => (
           colors.dangerSurface,
-          colors.dangerBorder,
+          colors.dangerHairline,
           colors.dangerFg,
         ),
       CalloutTone.success => (

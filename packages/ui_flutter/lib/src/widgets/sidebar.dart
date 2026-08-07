@@ -32,7 +32,7 @@ class Sidebar extends StatelessWidget {
         color: colors.sidebar,
         border: Border(
           right: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -237,7 +237,7 @@ class SidebarCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.raised,
         border: Border.all(
-          color: colors.border,
+          color: colors.hairline,
           width: context.hairlineWidth,
         ),
         borderRadius: BorderRadius.circular(tokens.radii.card),
@@ -287,7 +287,7 @@ class Rail extends StatelessWidget {
         color: colors.rail,
         border: Border(
           right: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -446,7 +446,7 @@ class Aside extends StatelessWidget {
         color: colors.sidebar,
         border: Border(
           left: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),

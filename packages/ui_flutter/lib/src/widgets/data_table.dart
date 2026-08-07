@@ -32,7 +32,7 @@ class DataTableHead extends StatelessWidget {
         color: colors.chrome,
         border: Border(
           bottom: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -70,7 +70,7 @@ class DataTableRow extends StatelessWidget {
                 ? colors.accentSurface
                 : (hovered ? colors.subtle : null),
             border: Border(
-              bottom: BorderSide(color: colors.borderHairline, width: hairline),
+              bottom: BorderSide(color: colors.hairlineSoft, width: hairline),
             ),
           ),
           child: Row(children: children),

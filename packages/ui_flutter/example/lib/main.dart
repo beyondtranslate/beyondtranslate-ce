@@ -51,14 +51,13 @@ class _GalleryState extends State<Gallery> {
       shadows: base.shadows,
       backdrop: base.backdrop,
       progressGradient: base.progressGradient,
-      highlightRule: base.highlightRule,
-      highlightGlow: base.highlightGlow,
       typography: widget.typography!,
     );
   }
 
   @override
   Widget build(BuildContext context) => DesignThemeProvider(
+        theme: _theme,
         tokens: _tokens,
         child: Builder(
           builder: (context) => ColoredBox(
@@ -93,7 +92,7 @@ class _ThemeBar extends StatelessWidget {
         color: tokens.colors.chrome,
         border: Border(
           bottom: BorderSide(
-            color: tokens.colors.border,
+            color: tokens.colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -143,7 +142,6 @@ class _AtomsState extends State<_Atoms> {
   String _format = 'pdf';
   String _search = '';
   String _model = 'sonnet';
-  int _page = 2;
   bool _unfocused = false;
   bool _pinned = true;
   String _targetLanguage = '简体中文';
@@ -222,7 +220,7 @@ class _AtomsState extends State<_Atoms> {
               ],
             ),
             _Section(
-              title: 'IconButton · Menu · SwapPair',
+              title: 'IconButton · Menu',
               children: [
                 _Row([
                   IconButton(
@@ -286,25 +284,17 @@ class _AtomsState extends State<_Atoms> {
                               setState(() => _targetLanguage = language),
                         ),
                     ],
-                    trigger: (context, open, toggle) => SwapPair(
-                      start: 'English',
-                      end: _targetLanguage,
-                      onSwap: () {},
-                      onEndPressed: toggle,
-                      endOpen: open,
+                    trigger: (context, open, toggle) => Button(
+                      variant: ButtonVariant.quiet,
+                      onPressed: toggle,
+                      child: Text(_targetLanguage),
                     ),
-                  ),
-                  SwapPair(
-                    start: 'English',
-                    end: '简体中文',
-                    onSwap: () {},
-                    size: SwapPairSize.sm,
                   ),
                 ]),
               ],
             ),
             _Section(
-              title: 'Badge · Kbd · Label · Avatar',
+              title: 'Badge · Kbd · Label',
               children: const [
                 _Row([
                   Badge(child: Text('默认')),
@@ -338,7 +328,6 @@ class _AtomsState extends State<_Atoms> {
                     child: Text('密钥无效'),
                   ),
                 ]),
-                _AvatarRow(),
               ],
             ),
             _Section(
@@ -566,54 +555,6 @@ class _AtomsState extends State<_Atoms> {
               ],
             ),
             _Section(
-              title: 'InfoCard · Stat · SettingRow · DetailBlock',
-              children: const [
-                _Row([
-                  SizedBox(
-                    width: 210,
-                    child: InfoCard(
-                      title: Text('token'),
-                      subtitle: Text('词元'),
-                      note: Text('（非「标记」）'),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 210,
-                    child: Surface(
-                      tone: SurfaceTone.raised,
-                      child: Stat(
-                        label: Text('今日'),
-                        value: Text('148'),
-                        unit: Text('段'),
-                        child: SegmentGauge(filled: 2, partial: true),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 240,
-                    child: SettingRow(
-                      label: Text('划词翻译'),
-                      trailing: Kbd('⌥Space', variant: KbdVariant.key),
-                    ),
-                  ),
-                ]),
-                SizedBox(
-                  width: 420,
-                  child: Surface(
-                    tone: SurfaceTone.none,
-                    padding: SurfacePadding.none,
-                    clip: true,
-                    child: DetailBlock(
-                      title: Text('inference'),
-                      subtitle: Text('/ˈɪnf(ə)rəns/'),
-                      trailing: Badge(child: Text('术语库')),
-                      child: Text('名词 · 推理；模型据输入生成输出的过程。'),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            _Section(
               title: 'DataTable',
               children: [
                 SizedBox(
@@ -675,195 +616,8 @@ class _AtomsState extends State<_Atoms> {
               ],
             ),
             _Section(
-              title: 'TextBlock · HighlightBlock · TitledCard',
+              title: 'EmptyState',
               children: [
-                SizedBox(
-                  width: 560,
-                  child: Surface(
-                    tone: SurfaceTone.raised,
-                    padding: SurfacePadding.none,
-                    clip: true,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const TextBlock(
-                          label: Text('原文 · 第 12 / 38 段'),
-                          meta: Text('⌥⏎ 重译'),
-                          child: Text(
-                            'The model emits one token at a time, and each '
-                            'inference step conditions on everything before it.',
-                          ),
-                        ),
-                        HighlightBlock(
-                          label: const Text('内置模型 · 首选译文'),
-                          meta: const Text('2 处术语已对齐'),
-                          actions: ActionBar(
-                            children: [
-                              Button(
-                                size: ButtonSize.xs,
-                                onPressed: () {},
-                                child: const Text('朗读'),
-                              ),
-                              Button(
-                                size: ButtonSize.xs,
-                                onPressed: () {},
-                                child: const Text('复制'),
-                              ),
-                            ],
-                          ),
-                          child: Builder(
-                            builder: (context) => Text.rich(
-                              TextSpan(
-                                children: [
-                                  const TextSpan(text: '模型每次只产生一个'),
-                                  markSpan(
-                                    context.tokens,
-                                    '词元',
-                                    detail: const MarkDetail(
-                                      term: 'token',
-                                      translation: '词元',
-                                      forbidden: '标记',
-                                      book: '机器学习 · 术语库',
-                                      hits: 42,
-                                    ),
-                                    onActivate: () {},
-                                  ),
-                                  const TextSpan(text: '，每一步'),
-                                  markSpan(
-                                    context.tokens,
-                                    '推断',
-                                    tone: MarkTone.warn,
-                                  ),
-                                  const TextSpan(text: '都以此前的全部内容为条件。'),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: TitledCard(
-                                  title: const Text('Claude'),
-                                  avatar: Avatar(
-                                    label: 'C',
-                                    color: context.colors.providerClaude,
-                                  ),
-                                  shortcut: const Kbd('⌥2'),
-                                  footer: Button(
-                                    variant: ButtonVariant.quiet,
-                                    onPressed: () {},
-                                    child: const Text('设为首选'),
-                                  ),
-                                  child:
-                                      const Text('模型逐个生成词元，每步推理都基于之前的全部上下文。'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TitledCard(
-                                  title: const Text('DeepL'),
-                                  avatar: Avatar(
-                                    label: 'D',
-                                    color: context.colors.providerDeepl,
-                                  ),
-                                  shortcut: const Kbd('⌥3'),
-                                  child: const Text(
-                                    '该模型一次发出一个标记，每个推理步骤都以之前的内容为条件。',
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            _Section(
-              title: 'ListCard · ListTile · EmptyState',
-              children: [
-                SizedBox(
-                  width: 520,
-                  child: Surface(
-                    tone: SurfaceTone.raised,
-                    padding: SurfacePadding.none,
-                    clip: true,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ListCard(
-                          active: true,
-                          onPressed: () {},
-                          eyebrow: const Text('内置模型'),
-                          meta: const Text('今天 14:22 · arxiv.org'),
-                          flag: const Text('我改过'),
-                          primary: const Text('Attention is all you need.'),
-                          secondary: const Text('注意力就是你所需要的一切。'),
-                        ),
-                        ListCard(
-                          onPressed: () {},
-                          eyebrow: const Text('Claude'),
-                          meta: const Text('昨天 09:10'),
-                          primary: const Text(
-                            'Scaling laws for neural language models.',
-                          ),
-                          secondary: const Text('神经语言模型的缩放定律。'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 520,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ListTile(
-                        leading: Avatar(
-                          label: 'B',
-                          color: context.colors.providerBuiltin,
-                        ),
-                        title: const Text('内置模型'),
-                        meta: const Text('本地运行 · 无需密钥'),
-                        badge: const Badge(child: Text('默认')),
-                        tone: ListTileTone.accent,
-                        trailing: [
-                          const Kbd('⌥1'),
-                          Switch(
-                            checked: _toggle,
-                            semanticsLabel: '启用内置模型',
-                            onChanged: (value) =>
-                                setState(() => _toggle = value),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ListTile(
-                        leading: Avatar(
-                          label: 'C',
-                          color: context.colors.providerClaude,
-                        ),
-                        title: const Text('Claude'),
-                        meta: const Text('密钥已过期 · 需重新验证'),
-                        tone: ListTileTone.warn,
-                        trailing: [
-                          const Kbd('⌥2'),
-                          Switch(
-                            checked: false,
-                            semanticsLabel: '启用 Claude',
-                            onChanged: (_) {},
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
                 SizedBox(
                   width: 520,
                   child: Surface(
@@ -887,7 +641,7 @@ class _AtomsState extends State<_Atoms> {
               ],
             ),
             _Section(
-              title: 'Dialog · Popover · PopoverCard · Thumbnail',
+              title: 'Dialog · Popover',
               children: [
                 _Row([
                   Dialog(
@@ -951,89 +705,34 @@ class _AtomsState extends State<_Atoms> {
                   ),
                   PopoverWindow(
                     child: PopoverPanel(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: SwapPair(
-                              start: 'English',
-                              end: '简体中文',
-                              onSwap: () {},
-                            ),
-                          ),
-                          DetailBlock(
-                            title: const Text('inference'),
-                            subtitle: const Text('/ˈɪnf(ə)rəns/'),
-                            trailing: const Badge(child: Text('术语库')),
-                            onTitlePressed: () {},
-                            child: const Text('名词 · 推理。'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ]),
-                _Row([
-                  PopoverCard(
-                    title: const Text('inference'),
-                    trailing: const Text('名词 · 术语'),
-                    body: const Text('推理'),
-                    note: const Text('模型据输入生成输出的过程。'),
-                    attribution: const Badge(child: Text('术语库 · ML')),
-                    secondaryLabel: const Text('整句'),
-                    secondary: const Text('每一步推理都以此前的全部内容为条件。'),
-                    actions: ActionBar(
-                      children: [
-                        Button(
-                          size: ButtonSize.xs,
-                          onPressed: () {},
-                          child: const Text('朗读'),
-                        ),
-                        Button(
-                          size: ButtonSize.xs,
-                          onPressed: () {},
-                          child: const Text('收藏'),
-                        ),
-                      ],
-                    ),
-                    hint: const Kbd('⌥Space 展开全文'),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final page in [1, 2, 3, 4])
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: SizedBox(
-                                width: 56,
-                                child: Thumbnail(
-                                  page: page,
-                                  active: page == _page,
-                                  dimmed: page > _page + 1,
-                                  onPressed: () => setState(() => _page = page),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Label(child: Text('译文')),
+                            const SizedBox(height: 8),
+                            const Text('推理'),
+                            const SizedBox(height: 12),
+                            ActionBar(
+                              children: [
+                                Button(
+                                  size: ButtonSize.xs,
+                                  onPressed: () {},
+                                  child: const Text('朗读'),
                                 ),
-                              ),
+                                Button(
+                                  size: ButtonSize.xs,
+                                  onPressed: () {},
+                                  child: const Text('收藏'),
+                                ),
+                              ],
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      const _Row([
-                        FloatingBall(),
-                        FloatingBall(state: FloatingBallState.resting),
-                        FloatingBall(state: FloatingBallState.translating),
-                        FloatingBall(
-                          state: FloatingBallState.translating,
-                          progress: 62,
+                          ],
                         ),
-                        FloatingBall(state: FloatingBallState.translated),
-                        FloatingBall(state: FloatingBallState.expanded),
-                      ]),
-                    ],
+                      ),
+                    ),
                   ),
                 ]),
               ],
@@ -1052,12 +751,9 @@ class _AtomsState extends State<_Atoms> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const AnnotatedParagraph(
-                          source: Text(
-                            'The dominant sequence transduction models are '
-                            'based on complex recurrent networks.',
-                          ),
-                          annotation: Text('主流的序列转换模型建立在复杂的循环网络之上。'),
+                        const Text(
+                          'The dominant sequence transduction models are '
+                          'based on complex recurrent networks.',
                         ),
                         const SizedBox(height: 16),
                         Align(
@@ -1137,16 +833,7 @@ class _AtomsState extends State<_Atoms> {
                               ),
                               const SidebarCard(
                                 label: Text('今日'),
-                                children: [
-                                  Stat(
-                                    value: Text('148'),
-                                    unit: Text('段'),
-                                    child: SegmentGauge(
-                                      filled: 2,
-                                      partial: true,
-                                    ),
-                                  ),
-                                ],
+                                children: [Text('148 段'), Text('已译 168')],
                               ),
                             ],
                           ),
@@ -1158,10 +845,10 @@ class _AtomsState extends State<_Atoms> {
                                 subtitle: const Text('English → 简体中文'),
                                 children: [
                                   const Spacer(),
-                                  SwapPair(
-                                    start: 'English',
-                                    end: '简体中文',
-                                    onSwap: () {},
+                                  Button(
+                                    variant: ButtonVariant.quiet,
+                                    onPressed: () {},
+                                    child: const Text('切换语言'),
                                   ),
                                 ],
                               ),
@@ -1182,21 +869,23 @@ class _AtomsState extends State<_Atoms> {
                                   ),
                                   const Expanded(
                                     child: SingleChildScrollView(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          TextBlock(
-                                            label: Text('原文 · 第 12 / 38 段'),
-                                            child: Text(
-                                              'Attention is all you need.',
-                                            ),
-                                          ),
-                                          HighlightBlock(
-                                            label: Text('内置模型 · 首选译文'),
-                                            child: Text('注意力就是你所需要的一切。'),
-                                          ),
-                                        ],
+                                      child: Padding(
+                                        padding: EdgeInsets.all(20),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Label(
+                                                child:
+                                                    Text('原文 · 第 12 / 38 段')),
+                                            SizedBox(height: 8),
+                                            Text('Attention is all you need.'),
+                                            SizedBox(height: 16),
+                                            Divider(),
+                                            SizedBox(height: 16),
+                                            Text('注意力就是你所需要的一切。'),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -1211,10 +900,6 @@ class _AtomsState extends State<_Atoms> {
                                         label: Text('风格贴合'),
                                         value: 71,
                                         tone: ProgressTone.warn,
-                                      ),
-                                      InfoCard(
-                                        title: Text('token'),
-                                        subtitle: Text('词元'),
                                       ),
                                     ],
                                   ),
@@ -1282,22 +967,6 @@ class _Section extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-/// The avatar sizes, in the shipped provider colours.
-class _AvatarRow extends StatelessWidget {
-  const _AvatarRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return _Row([
-      Avatar(label: 'B', color: colors.providerBuiltin, size: AvatarSize.xs),
-      Avatar(label: 'C', color: colors.providerClaude),
-      Avatar(label: 'D', color: colors.providerDeepl, size: AvatarSize.md),
-      Avatar(label: '词', color: colors.providerDict, size: AvatarSize.lg),
-    ]);
   }
 }
 

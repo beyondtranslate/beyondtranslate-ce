@@ -1,10 +1,15 @@
 import 'dart:math' as math;
 
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
-import 'package:beyondtranslate_ui/src/widgets/progress.dart';
 import 'package:flutter/widgets.dart';
+
+import 'ui.dart'
+    show
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Pressable,
+        Spinner,
+        SpinnerSize,
+        kTransitionDuration;
 
 enum FloatingBallState {
   /// Outline mark — the page has not been translated yet.
@@ -67,7 +72,7 @@ class FloatingBall extends StatelessWidget {
           color: colors.window,
           borderRadius: radius,
           border: Border.all(
-            color: colors.borderStrong,
+            color: colors.hairlineStrong,
             width: context.hairlineWidth,
           ),
           boxShadow: tokens.shadows.lift,
@@ -128,7 +133,7 @@ class FloatingBall extends StatelessWidget {
                     color: colors.window,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: colors.borderStrong,
+                      color: colors.hairlineStrong,
                       width: context.hairlineWidth,
                     ),
                   ),
@@ -183,7 +188,7 @@ class FloatingBall extends StatelessWidget {
             border: solid
                 ? null
                 : Border.all(
-                    color: colors.borderStrong,
+                    color: colors.hairlineStrong,
                     width: context.hairlineWidth,
                   ),
             boxShadow: solid ? tokens.shadows.ball : tokens.shadows.lift,

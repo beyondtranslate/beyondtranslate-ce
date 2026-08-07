@@ -1,7 +1,7 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/label.dart';
 import 'package:flutter/widgets.dart';
+
+import 'ui.dart'
+    show DesignThemeContext, DesignTypographyStyles, Label, LabelTone;
 
 /// A floating card with up to four bands: a body, a labelled secondary band,
 /// an action row and a hint strip. The pop-up over a text selection is built
@@ -52,7 +52,7 @@ class PopoverCard extends StatelessWidget {
     final colors = tokens.colors;
     final hairline = context.hairlineWidth;
     final topBorder = Border(
-      top: BorderSide(color: colors.border, width: hairline),
+      top: BorderSide(color: colors.hairline, width: hairline),
     );
 
     return Container(
@@ -60,7 +60,7 @@ class PopoverCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colors.window,
-        border: Border.all(color: colors.borderStrong, width: hairline),
+        border: Border.all(color: colors.hairlineStrong, width: hairline),
         borderRadius: BorderRadius.circular(tokens.radii.card),
         boxShadow: tokens.shadows.float,
       ),

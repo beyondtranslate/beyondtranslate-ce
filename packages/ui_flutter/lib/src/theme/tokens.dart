@@ -50,10 +50,10 @@ class DesignColors {
     this.accentSurfaceAlt = const Color(0xFFF0EEFE),
 
     // Hairlines
-    this.border = const Color(0x12141628), // rgba(20, 22, 40, 0.07)
-    this.borderStrong = const Color(0x1A141628), // rgba(20, 22, 40, 0.1)
-    this.borderHairline = const Color(0x0F141628), // rgba(20, 22, 40, 0.06)
-    this.accentBorder = const Color(0x336B4DFF), // rgba(107, 77, 255, 0.2)
+    this.hairline = const Color(0x12141628), // rgba(20, 22, 40, 0.07)
+    this.hairlineStrong = const Color(0x1A141628), // rgba(20, 22, 40, 0.1)
+    this.hairlineSoft = const Color(0x0F141628), // rgba(20, 22, 40, 0.06)
+    this.accentHairline = const Color(0x336B4DFF), // rgba(107, 77, 255, 0.2)
 
     // Foreground ramp
     this.fg = const Color(0xFF12142A),
@@ -93,19 +93,13 @@ class DesignColors {
     this.warnStrong = const Color(0xFFB96F12),
     this.warnFg = const Color(0xFF8A5210),
     this.warnSurface = const Color(0xFFFDF6EA),
-    this.warnBorder = const Color(0x4CE0912A), // rgba(224, 145, 42, 0.3)
+    this.warnHairline = const Color(0x4CE0912A), // rgba(224, 145, 42, 0.3)
     this.warnMark = const Color(0xFFFFE6C7),
     this.danger = const Color(0xFFD64040),
     this.dangerFg = const Color(0xFFC4342F),
     this.dangerDeep = const Color(0xFF7E1F1C),
     this.dangerSurface = const Color(0xFFFDF2F2),
-    this.dangerBorder = const Color(0x57D64040), // rgba(214, 64, 64, 0.34)
-
-    // Provider identity — brand colours, stable across themes
-    this.providerBuiltin = const Color(0xFF6B4DFF),
-    this.providerClaude = const Color(0xFFD97757),
-    this.providerDeepl = const Color(0xFF3A7BFD),
-    this.providerDict = const Color(0xFF5B7F6B),
+    this.dangerHairline = const Color(0x57D64040), // rgba(214, 64, 64, 0.34)
 
     // macOS traffic lights
     this.trafficClose = const Color(0xFFFF5F57),
@@ -132,10 +126,10 @@ class DesignColors {
   final Color panel;
   final Color accentSurface;
   final Color accentSurfaceAlt;
-  final Color border;
-  final Color borderStrong;
-  final Color borderHairline;
-  final Color accentBorder;
+  final Color hairline;
+  final Color hairlineStrong;
+  final Color hairlineSoft;
+  final Color accentHairline;
   final Color fg;
   final Color fgSecondary;
   final Color fgTertiary;
@@ -162,17 +156,13 @@ class DesignColors {
   final Color warnStrong;
   final Color warnFg;
   final Color warnSurface;
-  final Color warnBorder;
+  final Color warnHairline;
   final Color warnMark;
   final Color danger;
   final Color dangerFg;
   final Color dangerDeep;
   final Color dangerSurface;
-  final Color dangerBorder;
-  final Color providerBuiltin;
-  final Color providerClaude;
-  final Color providerDeepl;
-  final Color providerDict;
+  final Color dangerHairline;
   final Color trafficClose;
   final Color trafficMinimize;
   final Color trafficZoom;
@@ -262,8 +252,6 @@ class DesignTypography {
     this.body = 13,
     this.emphasis = 15,
     this.title = 17,
-    this.translationSize = 17,
-    this.translationLeading = 1.75,
   });
 
   final DesignFont display;
@@ -276,8 +264,6 @@ class DesignTypography {
   final double body;
   final double emphasis;
   final double title;
-  final double translationSize;
-  final double translationLeading;
 }
 
 /// Window shadows are tight and neutral, and controls carry no coloured glow —
@@ -352,14 +338,6 @@ class DesignTokens {
     this.metrics = const DesignMetrics(),
     this.typography = const DesignTypography(),
     this.shadows = const DesignShadows(),
-
-    /// Marker weight on the preferred-translation block. `--bt-highlight-rule`
-    /// is 2px in every theme; it stays a token because the marker's weight is a
-    /// scheme decision, not a widget's.
-    this.highlightRule = 2,
-
-    /// Glow behind the preferred-translation dot — dark themes only.
-    this.highlightGlow = const <BoxShadow>[],
     Color? selection,
     Color? selectionFg,
   })  : _selection = selection,
@@ -373,8 +351,6 @@ class DesignTokens {
   final DesignShadows shadows;
   final Gradient backdrop;
   final Gradient progressGradient;
-  final double highlightRule;
-  final List<BoxShadow> highlightGlow;
 
   final Color? _selection;
   final Color? _selectionFg;
@@ -401,8 +377,6 @@ class DesignTokens {
         shadows: shadows,
         backdrop: backdrop,
         progressGradient: progressGradient,
-        highlightRule: highlightRule,
-        highlightGlow: highlightGlow,
         selection: selection ?? _selection,
         selectionFg: selectionFg ?? _selectionFg,
       );

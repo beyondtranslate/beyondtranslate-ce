@@ -25,7 +25,36 @@ class DesignTheme extends InheritedWidget {
   bool updateShouldNotify(DesignTheme oldWidget) => tokens != oldWidget.tokens;
 }
 
-/// Scopes a theme to a subtree and establishes the `.bt-root` defaults: the
+/// Which of the four palettes a subtree is rendered under.
+///
+/// Deliberately separate from [DesignTheme]: widgets re-scope *tokens* fairly
+/// often — the menu and select overlays carry them across into the app's
+/// overlay, [WindowFrame] swaps the selection pair — and none of those change
+/// which theme is active. React draws the same line, where a nested element may
+/// override CSS variables while `data-theme` stays on the provider and
+/// `useTheme()` walks past to find it.
+///
+/// The product layer needs this because it has tokens of its own that vary by
+/// theme (see the app's `product_tokens.dart`).
+class DesignThemeScope extends InheritedWidget {
+  const DesignThemeScope({
+    super.key,
+    required this.name,
+    required super.child,
+  });
+
+  final DesignThemeName name;
+
+  /// The active theme, Studio Light outside any provider.
+  static DesignThemeName of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<DesignThemeScope>()?.name ??
+      DesignThemeName.studioLight;
+
+  @override
+  bool updateShouldNotify(DesignThemeScope oldWidget) => name != oldWidget.name;
+}
+
+/// Scopes a theme to a subtree and establishes the `.theme-root` defaults: the
 /// sans face and the primary foreground colour.
 class DesignThemeProvider extends StatelessWidget {
   const DesignThemeProvider({
@@ -35,7 +64,9 @@ class DesignThemeProvider extends StatelessWidget {
     required this.child,
   });
 
-  /// Named theme to apply. Ignored when [tokens] is given.
+  /// Which palette is active. Still the subtree's identity when [tokens]
+  /// overrides the values, the way `data-theme` stays on the element no matter
+  /// what a consumer's own CSS does to the variables under it.
   final DesignThemeName theme;
 
   /// An explicit token set, for consumers that customise the palette.
@@ -46,14 +77,17 @@ class DesignThemeProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolved = tokens ?? theme.tokens;
-    return DesignTheme(
-      tokens: resolved,
-      child: DefaultTextStyle(
-        style: resolved.typography.sansStyle(
-          fontSize: resolved.typography.body,
-          color: resolved.colors.fg,
+    return DesignThemeScope(
+      name: theme,
+      child: DesignTheme(
+        tokens: resolved,
+        child: DefaultTextStyle(
+          style: resolved.typography.sansStyle(
+            fontSize: resolved.typography.body,
+            color: resolved.colors.fg,
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
   }
@@ -62,6 +96,9 @@ class DesignThemeProvider extends StatelessWidget {
 /// Convenience accessors, mirroring how the React components reach for a token.
 extension DesignThemeContext on BuildContext {
   DesignTokens get tokens => DesignTheme.of(this);
+
+  /// The active palette — React's `useTheme().theme`.
+  DesignThemeName get themeName => DesignThemeScope.of(this);
 
   DesignColors get colors => DesignTheme.of(this).colors;
 

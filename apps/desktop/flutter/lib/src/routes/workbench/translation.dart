@@ -10,15 +10,19 @@ import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' show InputSubmitMode;
 import '../../services/settings_store.dart';
 import '../../services/workbench_translation_controller.dart';
+import '../../theme/product_tokens.dart'
+    show ProductTokens, ProductTypographyStyles;
 import '../../utils/global_audio_player.dart';
 import '../../utils/language_util.dart';
+import '../../widgets/avatar.dart' show Avatar, AvatarSize;
+import '../../widgets/blocks.dart' show HighlightBlock, HighlightRule;
+import '../../widgets/data_display.dart' show DetailBlock;
 import '../../widgets/language_selector.dart' show LanguageSelector;
+import '../../widgets/swap_pair.dart' show SwapPairSize;
 import '../../widgets/text_field.dart' show TextField;
 import '../../widgets/ui.dart'
     show
         Aside,
-        Avatar,
-        AvatarSize,
         Badge,
         BadgeSize,
         Button,
@@ -27,16 +31,12 @@ import '../../widgets/ui.dart'
         CalloutTone,
         DesignThemeContext,
         DesignTypographyStyles,
-        DetailBlock,
-        HighlightBlock,
-        HighlightRule,
         Kbd,
         KbdSize,
         Label,
         LabelTone,
         Pressable,
         SidebarCard,
-        SwapPairSize,
         kTransitionDuration;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import '../settings/general.dart' show GeneralSettingsPage;
@@ -313,7 +313,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         border: failed
             ? Border(
                 bottom: BorderSide(
-                  color: colors.border,
+                  color: colors.hairline,
                   width: context.hairlineWidth,
                 ),
               )
@@ -674,10 +674,10 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     final index = _controller.results
         .indexWhere((entry) => entry.service.id == result.service.id);
     final avatarColors = [
-      colors.providerBuiltin,
-      colors.providerClaude,
-      colors.providerDeepl,
-      colors.providerDict,
+      ProductTokens.providerBuiltin,
+      ProductTokens.providerClaude,
+      ProductTokens.providerDeepl,
+      ProductTokens.providerDict,
     ];
 
     return Container(

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../theme/product_tokens.dart' show ProductTokens;
 import '../../utils/r.dart';
 import '../ui.dart' show DesignThemeContext, DesignTypographyStyles;
 
@@ -73,7 +74,7 @@ class ProviderIcon extends StatelessWidget {
         borderRadius: radius,
         border: border ??
             Border.all(
-              color: tokens.colors.border,
+              color: tokens.colors.hairline,
               width: context.hairlineWidth,
             ),
       ),
@@ -97,12 +98,11 @@ class _LetterMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    final colors = tokens.colors;
     final background = switch (type) {
-      'system' => colors.providerBuiltin,
-      'anthropic' => colors.providerClaude,
-      'deepl' => colors.providerDeepl,
-      _ => colors.providerDict,
+      'system' => ProductTokens.providerBuiltin,
+      'anthropic' => ProductTokens.providerClaude,
+      'deepl' => ProductTokens.providerDeepl,
+      _ => ProductTokens.providerDict,
     };
 
     return ExcludeSemantics(

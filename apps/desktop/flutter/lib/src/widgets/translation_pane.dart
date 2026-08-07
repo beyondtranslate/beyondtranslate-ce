@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart' hide TextField;
 
+import '../theme/product_tokens.dart'
+    show ProductTokensContext, ProductTypographyStyles;
 import 'text_field.dart' show TextField;
-import 'ui.dart'
-    show DesignThemeContext, DesignTypographyStyles, Label, LabelTone;
+import 'ui.dart' show DesignThemeContext, Label, LabelTone;
 
 class TranslationPane extends StatelessWidget {
   const TranslationPane({
@@ -54,7 +55,7 @@ class TranslationPane extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: highlighted ? colors.accentBorder : colors.border,
+                  color: highlighted ? colors.accentHairline : colors.hairline,
                   width: context.hairlineWidth,
                 ),
               ),
@@ -68,7 +69,7 @@ class TranslationPane extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: colors.highlight,
                       shape: BoxShape.circle,
-                      boxShadow: tokens.highlightGlow,
+                      boxShadow: context.product.highlightGlow,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -126,7 +127,8 @@ class TranslationPane extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: highlighted ? colors.accentBorder : colors.border,
+                    color:
+                        highlighted ? colors.accentHairline : colors.hairline,
                     width: context.hairlineWidth,
                   ),
                 ),

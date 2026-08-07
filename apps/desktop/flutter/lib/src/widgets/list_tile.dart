@@ -1,7 +1,12 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:flutter/widgets.dart';
+
+import 'ui.dart'
+    show
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Pressable,
+        PressableState,
+        kTransitionDuration;
 
 enum ListTileTone {
   standard,
@@ -75,9 +80,9 @@ class ListTile extends StatelessWidget {
     );
 
     final (Color background, Color borderColor) = switch (tone) {
-      ListTileTone.standard => (colors.card, colors.border),
-      ListTileTone.accent => (colors.accentSurface, colors.accentBorder),
-      ListTileTone.warn => (colors.warnSurface, colors.warnBorder),
+      ListTileTone.standard => (colors.card, colors.hairline),
+      ListTileTone.accent => (colors.accentSurface, colors.accentHairline),
+      ListTileTone.warn => (colors.warnSurface, colors.warnHairline),
     };
 
     Widget row(BuildContext context, PressableState state) {
@@ -95,7 +100,7 @@ class ListTile extends StatelessWidget {
           border: card
               ? Border.all(
                   color: onPressed != null && state.hovered
-                      ? colors.accentBorder
+                      ? colors.accentHairline
                       : borderColor,
                   width: context.hairlineWidth,
                 )

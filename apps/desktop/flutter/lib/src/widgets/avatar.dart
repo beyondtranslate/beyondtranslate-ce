@@ -1,6 +1,6 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+
+import 'ui.dart' show DesignThemeContext, DesignTypographyStyles;
 
 /// xs 16px · sm 18px · md 24px · lg 26px, matching the deck.
 enum AvatarSize { xs, sm, md, lg }
