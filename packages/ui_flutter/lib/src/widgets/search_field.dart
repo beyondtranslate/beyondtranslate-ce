@@ -103,7 +103,7 @@ class _SearchFieldState extends State<SearchField> {
       decoration: BoxDecoration(
         color: _focused ? colors.window : colors.card,
         border: Border.all(
-          color: _focused ? colors.accent : colors.borderStrong,
+          color: _focused ? colors.accent : colors.hairlineStrong,
           width: _focused ? 1 : context.hairlineWidth,
         ),
         borderRadius: radius,

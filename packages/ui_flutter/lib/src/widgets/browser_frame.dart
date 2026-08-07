@@ -31,7 +31,7 @@ class BrowserFrame extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colors.window,
-        border: Border.all(color: colors.borderStrong, width: hairline),
+        border: Border.all(color: colors.hairlineStrong, width: hairline),
         borderRadius: BorderRadius.circular(14),
         boxShadow: tokens.shadows.popover,
       ),
@@ -44,7 +44,7 @@ class BrowserFrame extends StatelessWidget {
             decoration: BoxDecoration(
               color: colors.inset,
               border: Border(
-                bottom: BorderSide(color: colors.border, width: hairline),
+                bottom: BorderSide(color: colors.hairline, width: hairline),
               ),
             ),
             child: Row(
@@ -60,7 +60,7 @@ class BrowserFrame extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: colors.window,
                       border: Border.all(
-                        color: colors.borderStrong,
+                        color: colors.hairlineStrong,
                         width: hairline,
                       ),
                       borderRadius: BorderRadius.circular(tokens.radii.chip),
@@ -86,74 +86,6 @@ class BrowserFrame extends StatelessWidget {
   }
 }
 
-enum ParagraphMode {
-  /// Keeps the source above the annotation.
-  insert,
-
-  /// Hides the source and shows the annotation alone.
-  replace,
-}
-
-/// A paragraph with a highlighted block inserted underneath it.
-class AnnotatedParagraph extends StatelessWidget {
-  const AnnotatedParagraph({
-    super.key,
-    required this.source,
-    required this.annotation,
-    this.mode = ParagraphMode.insert,
-  });
-
-  final Widget source;
-  final Widget annotation;
-  final ParagraphMode mode;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (mode == ParagraphMode.insert) ...[
-          DefaultTextStyle(
-            style: tokens.typography.sansStyle(
-              fontSize: 13,
-              height: 1.8,
-              color: colors.fgSecondary,
-            ),
-            child: source,
-          ),
-          const SizedBox(height: 7),
-        ],
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-          decoration: BoxDecoration(
-            color: colors.accentSurface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border(
-              left: BorderSide(
-                color: colors.highlight,
-                // The rule is a theme token, floored at 2px here.
-                width: tokens.highlightRule < 2 ? 2 : tokens.highlightRule,
-              ),
-            ),
-          ),
-          child: DefaultTextStyle(
-            style: tokens.typography.cjkStyle(
-              fontSize: 15,
-              height: 1.85,
-              color: colors.fg,
-            ),
-            child: annotation,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// The collapsed control bar that sits over a translated page.
 class FloatingToolbar extends StatelessWidget {
   const FloatingToolbar({super.key, required this.children});
@@ -170,7 +102,7 @@ class FloatingToolbar extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.window,
         border: Border.all(
-          color: colors.borderStrong,
+          color: colors.hairlineStrong,
           width: context.hairlineWidth,
         ),
         borderRadius: BorderRadius.circular(tokens.radii.pill),
@@ -198,7 +130,7 @@ class ToolbarSeparator extends StatelessWidget {
         child: Container(
           width: context.hairlineWidth,
           height: 14,
-          color: context.colors.borderStrong,
+          color: context.colors.hairlineStrong,
         ),
       );
 }

@@ -9,6 +9,7 @@ import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
+import '../../widgets/list_tile.dart' show ListTile, ListTileVariant;
 import '../../widgets/preference_list/preference_list_section.dart';
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/settings_page.dart';
@@ -23,8 +24,6 @@ import '../../widgets/ui.dart'
         DialogTone,
         Label,
         LabelTone,
-        ListTile,
-        ListTileVariant,
         Spinner,
         SpinnerSize;
 import 'add_provider_dialog.dart';

@@ -8,9 +8,14 @@
 /// import '../../widgets/ui.dart' show Button, ButtonVariant;
 /// ```
 ///
-/// Several of the exported names (`Divider`, `ListTile`, `Radio`, `Switch`,
-/// `Dialog`, `Badge`, `Checkbox`) collide with Material's. When a file shows
-/// one of those and also imports Material, hide Material's — for example
+/// The package holds primitives only — the same boundary React draws around
+/// `@beyondtranslate/ui`. The product's own widgets that compose them sit beside
+/// this file (`swap_pair.dart`, `blocks.dart`, `list_tile.dart`, …) and are
+/// imported directly, not through here.
+///
+/// Several of the exported names (`Divider`, `Radio`, `Switch`, `Dialog`,
+/// `Badge`, `Checkbox`) collide with Material's. When a file shows one of those
+/// and also imports Material, hide Material's — for example
 /// `import 'package:flutter/material.dart' hide Divider;`.
 ///
 /// Reaching for `context.colors` / `context.tokens` / `context.typography`

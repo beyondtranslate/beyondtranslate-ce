@@ -38,7 +38,7 @@ class OptionCard extends StatelessWidget {
               : (state.hovered ? colors.subtle : colors.card),
           borderRadius: radius,
           border: Border.all(
-            color: selected ? colors.highlight : colors.border,
+            color: selected ? colors.highlight : colors.hairline,
             width: selected ? 1.5 : context.hairlineWidth,
           ),
         ),

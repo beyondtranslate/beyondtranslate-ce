@@ -115,6 +115,7 @@ void main() {
 
       await tester.pumpWidget(
         DesignThemeProvider(
+          theme: theme,
           tokens: theme.tokens.copyWith(typography: _typography),
           child: Directionality(
             textDirection: TextDirection.ltr,
@@ -300,13 +301,6 @@ void main() {
               TabItem(value: 'starred', label: Text('收藏'), count: 64),
             ],
           ),
-          SwapPair(
-            start: 'English',
-            end: '简体中文',
-            onSwap: () {},
-            onStartPressed: () {},
-            onEndPressed: () {},
-          ),
         ]),
       );
     });
@@ -347,52 +341,6 @@ void main() {
       );
     });
 
-    testWidgets('translation blocks', (tester) async {
-      await expectGolden(
-        tester,
-        'translation_blocks',
-        width: 460,
-        column([
-          const TextBlock(
-            label: Text('原文'),
-            meta: Text('⌥⏎ 重译'),
-            child: Text('Attention is all you need.'),
-          ),
-          const HighlightBlock(
-            rule: HighlightRule.top,
-            label: Text('内置模型 · 首选译文'),
-            meta: Text('2 处术语已对齐'),
-            child: Text('注意力就是你所需要的一切。'),
-          ),
-        ], gap: 0),
-      );
-    });
-
-    testWidgets('list rows', (tester) async {
-      await expectGolden(
-        tester,
-        'list_rows',
-        width: 420,
-        column([
-          ListTile(
-            leading: const Avatar(label: 'C', color: Color(0xFFD97757)),
-            title: const Text('Claude'),
-            meta: const Text('claude-sonnet-4-5 · 密钥有效'),
-            badge: const Badge(child: Text('默认')),
-            trailing: [Switch(checked: true, onChanged: (_) {})],
-          ),
-          ListTile(
-            variant: ListTileVariant.row,
-            tone: ListTileTone.warn,
-            leading: const Avatar(label: 'D', color: Color(0xFF3A7BFD)),
-            title: const Text('DeepL'),
-            meta: const Text('密钥已过期'),
-            onPressed: () {},
-          ),
-        ]),
-      );
-    });
-
     testWidgets('surfaces in every theme', (tester) async {
       for (final theme in DesignThemeName.values) {
         await expectGolden(
@@ -410,7 +358,6 @@ void main() {
               child: Text('白卡片'),
             ),
             const Meter(label: Text('术语一致性'), value: 92),
-            const SegmentGauge(filled: 2, partial: true),
           ]),
         );
       }

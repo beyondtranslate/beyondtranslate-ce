@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../i18n/i18n.dart';
+import '../../widgets/list_card.dart' show ListCard;
 import '../../widgets/ui.dart'
     show
         Button,
@@ -11,7 +12,6 @@ import '../../widgets/ui.dart'
         EmptyState,
         Kbd,
         Label,
-        ListCard,
         Rail,
         RailItem,
         SearchField,
@@ -175,7 +175,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -234,7 +234,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
                               decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                    color: colors.borderHairline,
+                                    color: colors.hairlineSoft,
                                     width: context.hairlineWidth,
                                   ),
                                 ),

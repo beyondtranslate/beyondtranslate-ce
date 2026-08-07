@@ -381,7 +381,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.border,
+            color: colors.hairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -401,7 +401,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
         color: colors.accentSurface,
         border: Border(
           bottom: BorderSide(
-            color: colors.accentBorder,
+            color: colors.accentHairline,
             width: context.hairlineWidth,
           ),
         ),

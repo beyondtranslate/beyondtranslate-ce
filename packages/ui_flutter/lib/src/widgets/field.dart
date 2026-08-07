@@ -27,7 +27,7 @@ BoxDecoration controlDecoration(
     border: Border.all(
       color: error
           ? colors.danger
-          : (focused ? colors.accent : colors.borderStrong),
+          : (focused ? colors.accent : colors.hairlineStrong),
       width: error || focused ? 1 : hairline,
     ),
     borderRadius: BorderRadius.circular(radius ?? tokens.radii.control),
@@ -353,7 +353,7 @@ class _SelectState<T> extends State<Select<T>> {
                   decoration: BoxDecoration(
                     color: colors.panel,
                     border: Border.all(
-                      color: colors.borderStrong,
+                      color: colors.hairlineStrong,
                       width: overlayContext.hairlineWidth,
                     ),
                     borderRadius: BorderRadius.circular(tokens.radii.popover),
@@ -568,7 +568,7 @@ class FieldValue extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         border: Border.all(
-          color: colors.borderStrong,
+          color: colors.hairlineStrong,
           width: context.hairlineWidth,
         ),
         borderRadius: BorderRadius.circular(tokens.radii.control),

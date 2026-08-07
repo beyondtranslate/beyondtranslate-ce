@@ -1,6 +1,8 @@
+import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
 import 'package:beyondtranslate_desktop/src/widgets/icon_action_button.dart';
 import 'package:beyondtranslate_desktop/src/widgets/language_selector.dart';
 import 'package:beyondtranslate_desktop/src/widgets/navigation_item.dart';
+import 'package:beyondtranslate_desktop/src/widgets/swap_pair.dart';
 import 'package:beyondtranslate_desktop/src/widgets/ui.dart';
 import 'package:beyondtranslate_desktop/src/widgets/workbench.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -128,5 +130,73 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(tester.getBottomRight(find.byType(SidebarCard)).dy, 282);
+  });
+
+  testWidgets('the highlight rule fences the block on the requested edge', (
+    tester,
+  ) async {
+    Border borderOf() {
+      final decoration = tester
+          .widgetList<Container>(
+            find.descendant(
+              of: find.byType(HighlightBlock),
+              matching: find.byType(Container),
+            ),
+          )
+          .map((container) => container.decoration)
+          .whereType<BoxDecoration>()
+          .firstWhere((decoration) => decoration.border != null);
+      return decoration.border! as Border;
+    }
+
+    for (final (rule, top, bottom) in const [
+      (HighlightRule.top, true, false),
+      (HighlightRule.bottom, false, true),
+    ]) {
+      await tester.pumpWidget(
+        specimen(
+          Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 400,
+              child: HighlightBlock(
+                rule: rule,
+                label: const Text('内置模型 · 首选译文'),
+                child: const Text('注意力就是你所需要的一切。'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final border = borderOf();
+      // 2px in every theme, and only on the edge the block was asked for.
+      expect(border.top.width, top ? 2 : 0, reason: '$rule top');
+      expect(border.bottom.width, bottom ? 2 : 0, reason: '$rule bottom');
+    }
+  });
+
+  testWidgets('the language capsule is 30px tall at both ends', (tester) async {
+    await tester.pumpWidget(
+      specimen(const Center(child: SwapPair(start: 'English', end: '简体中文'))),
+    );
+    // The capsule is an AnimatedContainer, so let it reach its resting size.
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(SwapPair)).height, 30);
+
+    await tester.pumpWidget(
+      specimen(
+        Center(
+          child: SwapPair(
+            start: 'English',
+            end: '简体中文',
+            onStartPressed: () {},
+            onEndPressed: () {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(SwapPair)).height, 30);
   });
 }

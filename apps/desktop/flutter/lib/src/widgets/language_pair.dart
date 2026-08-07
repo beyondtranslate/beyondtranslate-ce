@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart' show Badge, BadgeSize, BadgeTone, SwapPair;
+import 'swap_pair.dart' show SwapPair;
+import 'ui.dart' show Badge, BadgeSize, BadgeTone;
 
 /// The language capsule that anchors a translation view, with a badge naming
 /// how the source was chosen.

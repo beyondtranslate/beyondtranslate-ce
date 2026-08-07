@@ -3,7 +3,8 @@ import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../i18n/i18n.dart';
 import '../utils/language_util.dart';
-import 'ui.dart' show Badge, BadgeTone, SwapPair, SwapPairSize;
+import 'swap_pair.dart' show SwapPair, SwapPairSize;
+import 'ui.dart' show Badge, BadgeTone;
 
 /// Opens [menu] just under the widget [anchorKey] is attached to.
 ///

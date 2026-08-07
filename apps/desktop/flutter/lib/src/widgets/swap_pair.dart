@@ -1,8 +1,12 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
+
+import 'ui.dart'
+    show
+        DesignThemeContext,
+        DesignTypographyStyles,
+        Pressable,
+        kTransitionDuration;
 
 enum SwapPairSize { sm, md }
 

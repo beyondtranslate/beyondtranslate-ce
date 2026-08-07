@@ -67,13 +67,13 @@ class Surface extends StatelessWidget {
     final hairline = context.hairlineWidth;
 
     final (Color? background, Color? borderColor) = switch (tone) {
-      SurfaceTone.raised => (colors.raised, colors.border),
-      SurfaceTone.card => (colors.card, colors.border),
+      SurfaceTone.raised => (colors.raised, colors.hairline),
+      SurfaceTone.card => (colors.card, colors.hairline),
       SurfaceTone.subtle => (colors.subtle, null),
-      SurfaceTone.accent => (colors.accentSurface, colors.accentBorder),
-      SurfaceTone.warn => (colors.warnSurface, colors.warnBorder),
-      SurfaceTone.danger => (colors.dangerSurface, colors.dangerBorder),
-      SurfaceTone.outline => (null, colors.border),
+      SurfaceTone.accent => (colors.accentSurface, colors.accentHairline),
+      SurfaceTone.warn => (colors.warnSurface, colors.warnHairline),
+      SurfaceTone.danger => (colors.dangerSurface, colors.dangerHairline),
+      SurfaceTone.outline => (null, colors.hairline),
       SurfaceTone.none => (null, null),
     };
 
@@ -133,9 +133,9 @@ class Divider extends StatelessWidget {
       height: context.hairlineWidth,
       width: double.infinity,
       color: switch (tone) {
-        DividerTone.standard => colors.border,
-        DividerTone.soft => colors.borderHairline,
-        DividerTone.strong => colors.borderStrong,
+        DividerTone.standard => colors.hairline,
+        DividerTone.soft => colors.hairlineSoft,
+        DividerTone.strong => colors.hairlineStrong,
       },
     );
   }

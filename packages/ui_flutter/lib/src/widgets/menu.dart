@@ -138,7 +138,7 @@ class _MenuPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.window,
         border: Border.all(
-          color: colors.borderStrong,
+          color: colors.hairlineStrong,
           width: context.hairlineWidth,
         ),
         borderRadius: BorderRadius.circular(tokens.radii.box),

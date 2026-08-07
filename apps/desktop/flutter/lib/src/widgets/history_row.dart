@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart' show ListCard;
+import 'list_card.dart' show ListCard;
 
 class HistoryRow extends StatelessWidget {
   const HistoryRow({

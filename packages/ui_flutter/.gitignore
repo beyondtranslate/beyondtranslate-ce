@@ -1,0 +1,16 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Golden diffs, written when a golden test fails
+test/failures/
+
+# IDEs
+.idea/
+*.iml
+.vscode/

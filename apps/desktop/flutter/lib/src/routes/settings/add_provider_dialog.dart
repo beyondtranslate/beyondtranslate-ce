@@ -639,7 +639,7 @@ class _ProviderTypeRow extends StatelessWidget {
               ? colors.accent.withValues(alpha: 0.08)
               : (state.hovered ? colors.subtle : colors.card),
           border: Border.all(
-            color: selected ? colors.accent : colors.border,
+            color: selected ? colors.accent : colors.hairline,
             width: context.hairlineWidth,
           ),
           borderRadius: radius,
@@ -784,7 +784,8 @@ class _TipsCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: colors.card,
-        border: Border.all(color: colors.border, width: context.hairlineWidth),
+        border:
+            Border.all(color: colors.hairline, width: context.hairlineWidth),
         borderRadius: BorderRadius.circular(tokens.radii.box),
       ),
       child: Column(
