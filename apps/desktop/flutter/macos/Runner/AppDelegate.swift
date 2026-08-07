@@ -24,6 +24,9 @@ class AppDelegate: FlutterAppDelegate {
     NativeTextFieldPlugin.register(
       with: engine.registrar(forPlugin: "NativeTextFieldPlugin")
     )
+    MacAppPresentationPlugin.register(
+      with: engine.registrar(forPlugin: "MacAppPresentationPlugin")
+    )
     self.engine = engine
     return engine
   }
@@ -32,9 +35,49 @@ class AppDelegate: FlutterAppDelegate {
     return true
   }
 
+  /// This is a menu bar app: closing the last window hides it rather than
+  /// quitting, so the process must survive an empty window list.
+  override func applicationShouldTerminateAfterLastWindowClosed(
+    _ sender: NSApplication
+  ) -> Bool {
+    return false
+  }
+
+  /// Reached when the user clicks the Dock icon, which only exists while
+  /// `DockIconController` has promoted the app to `.regular`. Dart decides what
+  /// to bring forward; returning false stops AppKit from unhiding windows on
+  /// its own.
+  override func applicationShouldHandleReopen(
+    _ sender: NSApplication,
+    hasVisibleWindows flag: Bool
+  ) -> Bool {
+    MacAppPresentationPlugin.shared?.notifyReopen()
+    return false
+  }
+
   override func applicationDidFinishLaunching(_ notification: Notification) {
     _ = flutterEngine
     observeWindows()
+    connectPreferencesMenuItem()
+  }
+
+  /// The template's Preferences… item ships with no action, so it renders
+  /// disabled once the menu bar becomes visible. Point it at the Dart side.
+  private func connectPreferencesMenuItem() {
+    guard let appMenu = NSApp.mainMenu?.items.first?.submenu else { return }
+
+    for item in appMenu.items
+    where item.keyEquivalent == ","
+      && item.keyEquivalentModifierMask == .command
+    {
+      item.target = self
+      item.action = #selector(openSettings(_:))
+      return
+    }
+  }
+
+  @objc private func openSettings(_ sender: Any?) {
+    MacAppPresentationPlugin.shared?.notifyOpenSettings()
   }
 
   /// Windows are created by the Flutter multi-window API, so there is no

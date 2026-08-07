@@ -148,6 +148,46 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     super.mouseDown(with: event)
   }
 
+  /// AppKit normally routes ⌘C/⌘V/… through the Edit menu's key equivalents,
+  /// which do not exist while the app runs as `.accessory` — the mini
+  /// translator has no menu bar. Dispatch the standard editing commands down
+  /// the responder chain ourselves so the field behaves the same either way.
+  override func performKeyEquivalent(with event: NSEvent) -> Bool {
+    let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+    guard modifiers.subtracting(.shift) == .command,
+      let action = Self.editingAction(
+        for: event.charactersIgnoringModifiers?.lowercased(),
+        shift: modifiers.contains(.shift)
+      ),
+      let responder = window?.firstResponder,
+      responder === textField?.currentEditor() || responder === textView
+    else {
+      return super.performKeyEquivalent(with: event)
+    }
+
+    // `to: nil` makes AppKit walk the responder chain exactly the way the Edit
+    // menu would. Sending straight to the editor would break undo/redo, which
+    // are served by a supplemental target rather than the editor itself.
+    return NSApp.sendAction(action, to: nil, from: self)
+  }
+
+  /// The same actions the Edit menu would send. `undo:` / `redo:` are spelled
+  /// out because they are only declared on `NSResponder` as informal
+  /// first-responder actions, with nothing for `#selector` to point at.
+  private static func editingAction(for key: String?, shift: Bool) -> Selector? {
+    switch key {
+    case "x": return #selector(NSText.cut(_:))
+    case "c": return #selector(NSText.copy(_:))
+    case "v":
+      return shift
+        ? #selector(NSTextView.pasteAsPlainText(_:))
+        : #selector(NSText.paste(_:))
+    case "a": return #selector(NSStandardKeyBindingResponding.selectAll(_:))
+    case "z": return shift ? Selector(("redo:")) : Selector(("undo:"))
+    default: return nil
+    }
+  }
+
   func controlTextDidBeginEditing(_ obj: Notification) {
     channel.invokeMethod("focused", arguments: nil)
   }
