@@ -5,7 +5,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use beyondtranslate_core::TranslationTarget;
 use beyondtranslate_engine::{ProviderConfig, ProviderType};
-use serde::de::Error as DeError;
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
@@ -260,7 +259,11 @@ pub struct Settings {
         deserialize_with = "deserialize_providers"
     )]
     pub providers: HashMap<String, ProviderConfigEntry>,
-    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    #[serde(
+        default,
+        skip_serializing_if = "HashMap::is_empty",
+        deserialize_with = "deserialize_services"
+    )]
     pub services: HashMap<String, ServiceConfigEntry>,
     #[serde(default)]
     pub general: GeneralSettings,
@@ -385,14 +388,14 @@ where
     D: Deserializer<'de>,
 {
     let providers = HashMap::<String, Value>::deserialize(deserializer)?;
-    providers
+    Ok(providers
         .into_iter()
-        .map(|(provider_id, value)| {
+        .filter_map(|(provider_id, value)| {
             provider_entry_from_value(&provider_id, value)
+                .ok()
                 .map(|entry| (provider_id, entry))
-                .map_err(D::Error::custom)
         })
-        .collect()
+        .collect())
 }
 
 fn provider_entry_from_value(
@@ -402,6 +405,28 @@ fn provider_entry_from_value(
     let config = serde_json::from_value::<ProviderConfig>(value)
         .map_err(|error| format!("invalid provider config `{provider_id}`: {error}"))?;
     provider_entry_from_config(provider_id, &config)
+}
+
+/// Deserializes the `Settings::services` map leniently: service entries whose
+/// `type` is unknown (for example a `tts` service from an older schema that
+/// was removed) are skipped instead of failing the whole settings load. This
+/// keeps a single stale entry from bricking app startup; the next `save()`
+/// rewrites a cleaned, schema-valid file.
+fn deserialize_services<'de, D>(
+    deserializer: D,
+) -> Result<HashMap<String, ServiceConfigEntry>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let services = HashMap::<String, Value>::deserialize(deserializer)?;
+    Ok(services
+        .into_iter()
+        .filter_map(|(service_id, value)| {
+            serde_json::from_value::<ServiceConfigEntry>(value)
+                .ok()
+                .map(|entry| (service_id, entry))
+        })
+        .collect())
 }
 
 pub fn provider_entry_from_config(
@@ -569,6 +594,53 @@ mod tests {
             parsed.options.get("appKey"),
             Some(&serde_yaml::Value::String("test-key".to_owned()))
         );
+    }
+
+    #[test]
+    fn load_skips_services_with_unknown_type() {
+        // Regression test: a stale `tts` service entry (removed from the schema)
+        // must not brick the whole settings load. Valid entries are kept and the
+        // unknown one is dropped.
+        let path = temp_settings_file();
+        fs::create_dir_all(path.parent().unwrap()).expect("failed to create temp dir");
+        fs::write(
+            &path,
+            r#"{
+  "general": {
+    "defaultTtsService": "system+tts"
+  },
+  "providers": {
+    "system": { "type": "system" }
+  },
+  "services": {
+    "system+tts": {
+      "fields": {},
+      "id": "system+tts",
+      "name": "System TTS",
+      "providerId": "system",
+      "type": "tts"
+    },
+    "system+translation": {
+      "fields": {},
+      "id": "system+translation",
+      "name": "System Translation",
+      "providerId": "system",
+      "type": "translation"
+    }
+  }
+}"#,
+        )
+        .expect("failed to write settings");
+
+        let settings = Settings::load(&path).expect("failed to load settings");
+
+        // The stale `tts` entry is skipped, the valid one is preserved.
+        assert!(!settings.services.contains_key("system+tts"));
+        assert!(settings.services.contains_key("system+translation"));
+        assert_eq!(settings.services.len(), 1);
+        let translation = settings.services.get("system+translation").unwrap();
+        assert_eq!(translation.provider_id, "system");
+        assert_eq!(translation.r#type, ServiceType::Translation);
     }
 
     #[test]

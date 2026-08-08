@@ -25,26 +25,31 @@ class ProviderIcon extends StatelessWidget {
   final Color? color;
   final Border? border;
 
-  /// Brand artwork lives in two folders that grew at different times. The
-  /// bundle is compiled in, so membership has to be spelled out — an
-  /// `AssetImage` for a file that is not there throws at paint time.
+  /// Brand artwork is grouped under `provider_icons/` — LLM providers in
+  /// `llm/`, traditional translation engines in `traditional/`. The bundle is
+  /// compiled in, so membership has to be spelled out — an `AssetImage` for a
+  /// file that is not there throws at paint time.
   static const Map<String, String> _assets = {
-    'anthropic': 'ai_provider_icons/anthropic.png',
-    'baidu': 'translation_engine_icons/baidu.png',
-    'caiyun': 'translation_engine_icons/caiyun.png',
-    'deepl': 'translation_engine_icons/deepl.png',
-    'deepseek': 'ai_provider_icons/deepseek.png',
-    'gemini': 'ai_provider_icons/gemini.png',
-    'google': 'translation_engine_icons/google.png',
-    'grok': 'ai_provider_icons/grok.png',
-    'iciba': 'translation_engine_icons/iciba.png',
-    'ollama': 'ai_provider_icons/ollama.png',
-    'openai': 'translation_engine_icons/openai.png',
-    'qwen': 'ai_provider_icons/qwen.png',
-    'sogou': 'translation_engine_icons/sogou.png',
-    'tencent': 'translation_engine_icons/tencent.png',
-    'xai': 'ai_provider_icons/xai.png',
-    'youdao': 'translation_engine_icons/youdao.png',
+    'anthropic': 'provider_icons/llm/anthropic.png',
+    'baidu': 'provider_icons/traditional/baidu.png',
+    'caiyun': 'provider_icons/traditional/caiyun.png',
+    'deepl': 'provider_icons/traditional/deepl.png',
+    'deepseek': 'provider_icons/llm/deepseek.png',
+    'doubao': 'provider_icons/llm/doubao.png',
+    'gemini': 'provider_icons/llm/gemini.png',
+    'google': 'provider_icons/traditional/google.png',
+    'grok': 'provider_icons/llm/grok.png',
+    'groq': 'provider_icons/llm/groq.png',
+    'iciba': 'provider_icons/traditional/iciba.png',
+    'moonshot': 'provider_icons/llm/moonshot.png',
+    'ollama': 'provider_icons/llm/ollama.png',
+    'openai': 'provider_icons/llm/openai.png',
+    'qwen': 'provider_icons/llm/qwen.png',
+    'sogou': 'provider_icons/traditional/sogou.png',
+    'tencent': 'provider_icons/traditional/tencent.png',
+    'xai': 'provider_icons/llm/xai.png',
+    'youdao': 'provider_icons/traditional/youdao.png',
+    'zhipu': 'provider_icons/llm/zhipu.png',
   };
 
   /// True when [type] has brand artwork — callers that need to know before
