@@ -43,10 +43,11 @@ enum WorkbenchDestination {
   history('/history'),
   glossary('/glossary'),
   settingsGeneral('/settings/general'),
-  settingsAppearance('/settings/appearance'),
+  settingsServices('/settings/services'),
   settingsShortcuts('/settings/shortcuts'),
   settingsProviders('/settings/providers'),
-  settingsAdvanced('/settings/advanced');
+  settingsAdvanced('/settings/advanced'),
+  settingsAbout('/settings/about');
 
   const WorkbenchDestination(this.location);
 
@@ -68,34 +69,35 @@ class _HideOnCloseDelegate extends RegularWindowControllerDelegate {
   }
 }
 
-final workbenchWindowController = RegularWindowController(
-  size: _kWorkbenchWindowSize,
-  title: _kWorkbenchWindowTitle,
-  delegate: _HideOnCloseDelegate(),
-)
-  ..setWillShowHook((window) {
-    // Driving the Dock icon from the window hooks rather than from the call
-    // sites keeps the two in sync no matter who shows or hides the workbench.
-    dockIconController.setWorkbenchWindowVisible(true);
-    if (window.isFirstShow) {
-      window.titleBarStyle = TitleBarStyle.hidden;
-      window.setMinimumSize(
-        _kWorkbenchWindowMinimumSize.width,
-        _kWorkbenchWindowMinimumSize.height,
-      );
-      window.setSize(
-        _kWorkbenchWindowSize.width,
-        _kWorkbenchWindowSize.height,
-      );
-      window.center();
-      return true;
-    }
-    return true;
-  })
-  ..setWillHideHook((window) {
-    dockIconController.setWorkbenchWindowVisible(false);
-    return true;
-  });
+final workbenchWindowController =
+    RegularWindowController(
+        size: _kWorkbenchWindowSize,
+        title: _kWorkbenchWindowTitle,
+        delegate: _HideOnCloseDelegate(),
+      )
+      ..setWillShowHook((window) {
+        // Driving the Dock icon from the window hooks rather than from the call
+        // sites keeps the two in sync no matter who shows or hides the workbench.
+        dockIconController.setWorkbenchWindowVisible(true);
+        if (window.isFirstShow) {
+          window.titleBarStyle = TitleBarStyle.hidden;
+          window.setMinimumSize(
+            _kWorkbenchWindowMinimumSize.width,
+            _kWorkbenchWindowMinimumSize.height,
+          );
+          window.setSize(
+            _kWorkbenchWindowSize.width,
+            _kWorkbenchWindowSize.height,
+          );
+          window.center();
+          return true;
+        }
+        return true;
+      })
+      ..setWillHideHook((window) {
+        dockIconController.setWorkbenchWindowVisible(false);
+        return true;
+      });
 
 void showWorkbenchWindow({
   WorkbenchDestination destination = WorkbenchDestination.translate,
@@ -115,21 +117,22 @@ void showSettingsWindow() {
   showWorkbenchWindow(destination: WorkbenchDestination.settingsGeneral);
 }
 
-final miniTranslatorWindowController = RegularWindowController(
-  // The deck's mini popover width (`--bt-mini-width`).
-  size: const Size(396, 420),
-  title: _kMiniTranslatorAppTitle,
-)..setWillShowHook((window) {
-    if (window.isFirstShow) {
-      window.titleBarStyle = TitleBarStyle.hidden;
-      window.windowControlButtonsVisible = false;
-      if (kIsMacOS) {
-        // Mini translator uses solid background, no transparency needed.
+final miniTranslatorWindowController =
+    RegularWindowController(
+      // The deck's mini popover width (`--bt-mini-width`).
+      size: const Size(396, 420),
+      title: _kMiniTranslatorAppTitle,
+    )..setWillShowHook((window) {
+      if (window.isFirstShow) {
+        window.titleBarStyle = TitleBarStyle.hidden;
+        window.windowControlButtonsVisible = false;
+        if (kIsMacOS) {
+          // Mini translator uses solid background, no transparency needed.
+        }
+        return false;
       }
-      return false;
-    }
-    return true;
-  });
+      return true;
+    });
 
 /// Shows the mini translator window.
 void showMiniTranslatorWindow({Offset? position, bool belowTray = false}) {
@@ -212,11 +215,7 @@ Offset _clampPositionToDisplay(
 ) {
   final workArea = display.workArea;
   return Offset(
-    _clampDouble(
-      position.dx,
-      workArea.left,
-      workArea.right - windowSize.width,
-    ),
+    _clampDouble(position.dx, workArea.left, workArea.right - windowSize.width),
     _clampDouble(
       position.dy,
       workArea.top,
@@ -322,10 +321,7 @@ double _clampDouble(double value, double min, double max) {
 }
 
 class _TrayAnchor {
-  const _TrayAnchor({
-    required this.display,
-    required this.bounds,
-  });
+  const _TrayAnchor({required this.display, required this.bounds});
 
   final Display display;
   final Rect bounds;
@@ -340,9 +336,7 @@ class _TrayAnchor {
 /// TanStack Start-inspired organization:
 /// - each route lives in its own module/file
 /// - this file is the composition root for router setup
-GoRouter createWorkbenchAppRouter({
-  String? initialLocation,
-}) {
+GoRouter createWorkbenchAppRouter({String? initialLocation}) {
   return GoRouter(
     routes: <RouteBase>[
       ...$appRoutes,
@@ -518,9 +512,7 @@ class RootView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TranslationProvider(
-      child: const _RootBodyView(),
-    );
+    return TranslationProvider(child: const _RootBodyView());
   }
 }
 
@@ -637,26 +629,22 @@ class _RootBodyViewState extends State<_RootBodyView> {
     }
 
     // ── Check for updates (暂不实现) ──
-    menu.addItem(
-      MenuItem(t.app.tray.context_menu.check_for_updates),
-    );
+    menu.addItem(MenuItem(t.app.tray.context_menu.check_for_updates));
 
     // ── 设置 ──
     menu.addItem(
-      MenuItem(t.app.tray.context_menu.settings)
-        ..on<MenuItemClickedEvent>((_) {
-          showSettingsWindow();
-        }),
+      MenuItem(t.app.tray.context_menu.settings)..on<MenuItemClickedEvent>((_) {
+        showSettingsWindow();
+      }),
     );
 
     menu.addSeparator();
 
     // ── 退出 ──
     menu.addItem(
-      MenuItem(t.app.tray.context_menu.quit)
-        ..on<MenuItemClickedEvent>((_) {
-          exit(0);
-        }),
+      MenuItem(t.app.tray.context_menu.quit)..on<MenuItemClickedEvent>((_) {
+        exit(0);
+      }),
     );
 
     return menu;
@@ -664,11 +652,6 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
   @override
   Widget build(BuildContext context) {
-    return const ViewCollection(
-      views: [
-        WorkbenchApp(),
-        MiniTranslatorApp(),
-      ],
-    );
+    return const ViewCollection(views: [WorkbenchApp(), MiniTranslatorApp()]);
   }
 }

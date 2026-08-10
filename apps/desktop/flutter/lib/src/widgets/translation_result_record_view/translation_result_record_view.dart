@@ -49,7 +49,8 @@ class TranslationResultRecordView extends StatelessWidget {
   }) : super(key: key);
 
   bool get _isErrorOccurred {
-    final hasResponse = translationResultRecord.lookUpResponse != null ||
+    final hasResponse =
+        translationResultRecord.lookUpResponse != null ||
         translationResultRecord.translateResponse != null;
     if (hasResponse) return false;
     return translationResultRecord.lookUpError != null ||
@@ -125,7 +126,8 @@ class TranslationResultRecordView extends StatelessWidget {
         translationResultRecord.translateResponse?.translations;
 
     // 是否显示为查词结果
-    bool isShowAsLookUpResult = (definitions ?? []).isNotEmpty ||
+    bool isShowAsLookUpResult =
+        (definitions ?? []).isNotEmpty ||
         (pronunciations ?? []).isNotEmpty ||
         (images ?? []).isNotEmpty ||
         (lookUpTranslations ?? []).isNotEmpty ||
@@ -137,14 +139,8 @@ class TranslationResultRecordView extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.only(
-        left: 12,
-        right: 12,
-        bottom: 14,
-      ),
-      constraints: const BoxConstraints(
-        minHeight: 40,
-      ),
+      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 14),
+      constraints: const BoxConstraints(minHeight: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -171,7 +167,7 @@ class TranslationResultRecordView extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: <Widget>[
                   for (WordPronunciation wordPronunciation in pronunciations!)
-                    WordPronunciationView(wordPronunciation)
+                    WordPronunciationView(wordPronunciation),
                 ],
               ),
             ),
@@ -193,16 +189,15 @@ class TranslationResultRecordView extends StatelessWidget {
                           if ((definitions[i].name ?? '').isNotEmpty)
                             const TextSpan(text: ' '),
                           TextSpan(
-                              text: (definitions[i].values ?? []).join('；')),
+                            text: (definitions[i].values ?? []).join('；'),
+                          ),
                           if (i < definitions.length - 1)
                             const TextSpan(text: '\n'),
                         ],
                       ),
                   ],
                 ),
-                style: textTheme.bodyMedium!.copyWith(
-                  height: 1.5,
-                ),
+                style: textTheme.bodyMedium!.copyWith(height: 1.5),
               ),
             ),
           // 时态
@@ -215,9 +210,7 @@ class TranslationResultRecordView extends StatelessWidget {
                     for (var i = 0; i < tenses!.length; i++)
                       TextSpan(
                         children: [
-                          TextSpan(
-                            text: '${tenses[i].name}',
-                          ),
+                          TextSpan(text: '${tenses[i].name}'),
                           for (var tenseValue in (tenses[i].values ?? []))
                             TextSpan(
                               text: ' $tenseValue ',
@@ -229,15 +222,12 @@ class TranslationResultRecordView extends StatelessWidget {
                                 ..onTap = () => onTextTapped(tenseValue),
                             ),
                         ],
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                              fontSize: 13,
-                            ),
+                        style: Theme.of(context).textTheme.bodySmall!
+                            .copyWith(fontSize: 13),
                       ),
                   ],
                 ),
-                style: textTheme.bodyMedium!.copyWith(
-                  height: 1.5,
-                ),
+                style: textTheme.bodyMedium!.copyWith(height: 1.5),
               ),
             ),
           // // 常用短词/短句
@@ -322,9 +312,7 @@ class TranslationResultRecordView extends StatelessWidget {
               child: Wrap(
                 spacing: 6,
                 runSpacing: 6,
-                children: [
-                  for (WordTag wordTag in tags!) WordTagView(wordTag),
-                ],
+                children: [for (WordTag wordTag in tags!) WordTagView(wordTag)],
               ),
             ),
           // AI actions
@@ -357,42 +345,26 @@ class TranslationResultRecordView extends StatelessWidget {
         }
       },
       child: Container(
-        constraints: const BoxConstraints(
-          minHeight: 40,
-        ),
+        constraints: const BoxConstraints(minHeight: 40),
         padding: padding,
         alignment: Alignment.centerLeft,
         child: SelectableText.rich(
-          TextSpan(
-            children: [
-              TextSpan(text: textTranslation.text),
-            ],
-          ),
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                height: 1.4,
-              ),
+          TextSpan(children: [TextSpan(text: textTranslation.text)]),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
         ),
       ),
     );
   }
 
   Widget _buildRequestError(BuildContext context) {
-    final error = translationResultRecord.lookUpError ??
+    final error =
+        translationResultRecord.lookUpError ??
         translationResultRecord.translateError ??
-        const TranslationError(
-          message: 'Unknown Error',
-        );
+        const TranslationError(message: 'Unknown Error');
 
     return Container(
-      constraints: const BoxConstraints(
-        minHeight: 40,
-      ),
-      padding: const EdgeInsets.only(
-        left: 12,
-        right: 12,
-        top: 7,
-        bottom: 7,
-      ),
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: const EdgeInsets.only(left: 12, right: 12, top: 7, bottom: 7),
       alignment: Alignment.centerLeft,
       child: SelectableText(
         error.message,
@@ -403,25 +375,20 @@ class TranslationResultRecordView extends StatelessWidget {
 
   Widget _buildRequestLoading(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(
-        minHeight: 40,
-      ),
-      padding: const EdgeInsets.only(
-        left: 12,
-        right: 12,
-      ),
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: const EdgeInsets.only(left: 12, right: 12),
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Spinner(size: SpinnerSize.sm),
-        ],
+        children: [Spinner(size: SpinnerSize.sm)],
       ),
     );
   }
 
   Widget _buildEtymologySection(
-      BuildContext context, List<WordEtymology> etymology) {
+    BuildContext context,
+    List<WordEtymology> etymology,
+  ) {
     final textTheme = Theme.of(context).textTheme;
     final originText = etymology
         .where((e) => e.origin != null && e.origin!.isNotEmpty)
@@ -443,10 +410,7 @@ class TranslationResultRecordView extends StatelessWidget {
             SelectableText(
               originText,
               style: textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.color
+                color: Theme.of(context).textTheme.bodySmall?.color
                     ?.withValues(alpha: 0.7),
                 fontStyle: FontStyle.italic,
               ),
@@ -457,10 +421,7 @@ class TranslationResultRecordView extends StatelessWidget {
               child: SelectableText(
                 rootTexts.join(' · '),
                 style: textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.color
+                  color: Theme.of(context).textTheme.bodySmall?.color
                       ?.withValues(alpha: 0.7),
                 ),
               ),
@@ -471,10 +432,13 @@ class TranslationResultRecordView extends StatelessWidget {
   }
 
   Widget _buildSynonymsSection(
-      BuildContext context, List<WordSynonym> synonyms) {
+    BuildContext context,
+    List<WordSynonym> synonyms,
+  ) {
     // Group synonyms by type
-    final synonymList =
-        synonyms.where((s) => s.type == null || s.type == 'synonym').toList();
+    final synonymList = synonyms
+        .where((s) => s.type == null || s.type == 'synonym')
+        .toList();
     final antonymList = synonyms.where((s) => s.type == 'antonym').toList();
 
     return Column(
@@ -492,14 +456,19 @@ class TranslationResultRecordView extends StatelessWidget {
   }
 
   Widget _buildSynonymGroup(
-      BuildContext context, List<WordSynonym> items, String label) {
-    final chips = items.map((s) {
-      final text = s.word;
-      if (s.definitions != null && s.definitions!.isNotEmpty) {
-        return '$text (${s.definitions!.join("; ")})';
-      }
-      return text;
-    }).join(' · ');
+    BuildContext context,
+    List<WordSynonym> items,
+    String label,
+  ) {
+    final chips = items
+        .map((s) {
+          final text = s.word;
+          if (s.definitions != null && s.definitions!.isNotEmpty) {
+            return '$text (${s.definitions!.join("; ")})';
+          }
+          return text;
+        })
+        .join(' · ');
 
     final theme = Theme.of(context);
     return GestureDetector(
@@ -593,9 +562,7 @@ class TranslationResultRecordView extends StatelessWidget {
         title: Text(title),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 360),
-          child: SingleChildScrollView(
-            child: SelectableText(content),
-          ),
+          child: SingleChildScrollView(child: SelectableText(content)),
         ),
         actions: [
           Button(

@@ -49,10 +49,7 @@ class Sidebar extends StatelessWidget {
             ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 14,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -105,10 +102,7 @@ class SidebarGroup extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
           child: Align(
             alignment: AlignmentDirectional.centerStart,
-            child: Label(
-              tone: LabelTone.faint,
-              child: label!,
-            ),
+            child: Label(tone: LabelTone.faint, child: label!),
           ),
         ),
       ...children,
@@ -169,8 +163,8 @@ class NavItem extends StatelessWidget {
             color: active
                 ? tokens.selection
                 : (state.hovered
-                    ? colors.accent.withValues(alpha: 0.08)
-                    : null),
+                      ? colors.accent.withValues(alpha: 0.08)
+                      : null),
             borderRadius: radius,
           ),
           child: DefaultTextStyle(
@@ -249,10 +243,7 @@ class SidebarCard extends StatelessWidget {
           if (label != null) ...[
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: Label(
-                tone: LabelTone.faint,
-                child: label!,
-              ),
+              child: Label(tone: LabelTone.faint, child: label!),
             ),
             SizedBox(height: gap),
           ],
@@ -306,8 +297,10 @@ class Rail extends StatelessWidget {
                     children.length > 1 && children.last is RailAction;
 
                 return SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 14,
+                  ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: minContentHeight),
                     child: IntrinsicHeight(
@@ -337,6 +330,60 @@ class Rail extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 14),
               child: footer,
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A run of rail rows, optionally named — the rail's counterpart to
+/// [SidebarGroup]. The first run in a rail usually goes unlabelled: it is what
+/// the pane is already called, and naming it twice says nothing. A second run
+/// is the one that needs the label, because a gap alone leaves the reader to
+/// guess what the rows below it have in common.
+///
+/// The gaps are tighter than [SidebarGroup]'s — a rail is a narrower column and
+/// its runs sit closer together before they read as separate lists.
+class RailGroup extends StatelessWidget {
+  const RailGroup({
+    super.key,
+    this.label,
+    this.first = false,
+    required this.children,
+  });
+
+  final Widget? label;
+
+  /// The React source uses `first:mt-0`; set this on the first run.
+  final bool first;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+
+    final rows = <Widget>[
+      if (label != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Label(tone: LabelTone.faint, child: label!),
+          ),
+        ),
+      ...children,
+    ];
+
+    return Padding(
+      padding: EdgeInsets.only(top: first ? 0 : 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) SizedBox(height: tokens.metrics.navGap),
+            rows[i],
+          ],
         ],
       ),
     );
@@ -453,8 +500,9 @@ class Aside extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final minContentHeight =
-              constraints.maxHeight > 36 ? constraints.maxHeight - 36 : 0.0;
+          final minContentHeight = constraints.maxHeight > 36
+              ? constraints.maxHeight - 36
+              : 0.0;
           final pinsLastCard =
               children.length > 1 && children.last is SidebarCard;
 

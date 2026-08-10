@@ -178,13 +178,16 @@ class _InteractiveMarkState extends State<_InteractiveMark> {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final (Color background, Color foreground, Color accentColor) =
-        switch (widget.tone) {
+    final (
+      Color background,
+      Color foreground,
+      Color accentColor,
+    ) = switch (widget.tone) {
       MarkTone.accent => (
-          colors.accentMark,
-          colors.accentMarkFg,
-          colors.accent,
-        ),
+        colors.accentMark,
+        colors.accentMarkFg,
+        colors.accent,
+      ),
       MarkTone.warn => (colors.warnMark, colors.warnFg, colors.warn),
     };
     const radius = BorderRadius.all(Radius.circular(5));
@@ -255,16 +258,17 @@ class _InteractiveMarkState extends State<_InteractiveMark> {
                 borderRadius: radius,
                 width: 2,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     color: background,
                     borderRadius: radius,
                   ),
                   child: Text(
                     widget.text,
-                    style: DefaultTextStyle.of(context)
-                        .style
+                    style: DefaultTextStyle.of(context).style
                         .copyWith(color: foreground),
                   ),
                 ),
@@ -386,26 +390,15 @@ InlineSpan markSpan(
   MarkTone tone = MarkTone.accent,
   MarkDetail? detail,
   VoidCallback? onActivate,
-}) =>
-    WidgetSpan(
-      alignment: PlaceholderAlignment.baseline,
-      baseline: TextBaseline.alphabetic,
-      child: Mark(
-        tone: tone,
-        text: text,
-        detail: detail,
-        onActivate: onActivate,
-      ),
-    );
+}) => WidgetSpan(
+  alignment: PlaceholderAlignment.baseline,
+  baseline: TextBaseline.alphabetic,
+  child: Mark(tone: tone, text: text, detail: detail, onActivate: onActivate),
+);
 
 /// A paragraph with its column heading; receded relative to the block below.
 class TextBlock extends StatelessWidget {
-  const TextBlock({
-    super.key,
-    this.label,
-    this.meta,
-    required this.child,
-  });
+  const TextBlock({super.key, this.label, this.meta, required this.child});
 
   final Widget? label;
 
@@ -538,10 +531,7 @@ class HighlightBlock extends StatelessWidget {
               Expanded(
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Label(
-                    tone: LabelTone.accent,
-                    child: label,
-                  ),
+                  child: Label(tone: LabelTone.accent, child: label),
                 ),
               ),
               if (meta != null)

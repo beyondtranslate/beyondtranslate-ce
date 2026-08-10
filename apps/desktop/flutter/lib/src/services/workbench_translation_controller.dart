@@ -80,19 +80,13 @@ class RuntimeWorkbenchTranslationGateway
   }
 
   @override
-  Future<LookUpResponse> lookUp(
-    String serviceId,
-    LookUpRequest request,
-  ) {
+  Future<LookUpResponse> lookUp(String serviceId, LookUpRequest request) {
     return runtime.dictionary(providerId: serviceId).lookup(request: request);
   }
 }
 
 class WorkbenchServiceResult {
-  WorkbenchServiceResult({
-    required this.service,
-    required this.provider,
-  });
+  WorkbenchServiceResult({required this.service, required this.provider});
 
   final ServiceConfigEntry service;
   final ProviderConfigEntry? provider;
@@ -109,9 +103,9 @@ class WorkbenchTranslationController extends ChangeNotifier {
   WorkbenchTranslationController({
     WorkbenchTranslationGateway? gateway,
     String initialTargetLanguage = 'en',
-  })  : _gateway = gateway ?? RuntimeWorkbenchTranslationGateway(),
-        _usesRuntimeDefaults = gateway == null,
-        targetLanguage = initialTargetLanguage;
+  }) : _gateway = gateway ?? RuntimeWorkbenchTranslationGateway(),
+       _usesRuntimeDefaults = gateway == null,
+       targetLanguage = initialTargetLanguage;
 
   final WorkbenchTranslationGateway _gateway;
   final bool _usesRuntimeDefaults;
@@ -136,9 +130,9 @@ class WorkbenchTranslationController extends ChangeNotifier {
   WorkbenchServiceResult? get selectedResult {
     if (results.isEmpty) return null;
     return results.cast<WorkbenchServiceResult?>().firstWhere(
-          (result) => result?.service.id == selectedServiceId,
-          orElse: () => results.first,
-        );
+      (result) => result?.service.id == selectedServiceId,
+      orElse: () => results.first,
+    );
   }
 
   List<ServiceConfigEntry> get translationServices => services
@@ -272,8 +266,9 @@ class WorkbenchTranslationController extends ChangeNotifier {
         final response = await _gateway.translate(
           result.service.id,
           TranslateRequest(
-            sourceLanguage:
-                isAutoSource(sourceLanguage) ? null : sourceLanguage,
+            sourceLanguage: isAutoSource(sourceLanguage)
+                ? null
+                : sourceLanguage,
             targetLanguage: targetLanguage,
             text: query,
           ),

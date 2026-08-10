@@ -105,24 +105,24 @@ class RadioList<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-        label: semanticsLabel,
-        container: semanticsLabel != null,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < options.length; i++) ...[
-              if (i > 0) const SizedBox(height: 10),
-              Radio(
-                checked: options[i].value == value,
-                enabled: options[i].enabled,
-                onSelect: onChanged == null
-                    ? null
-                    : () => onChanged!(options[i].value),
-                child: options[i].label,
-              ),
-            ],
-          ],
-        ),
-      );
+    label: semanticsLabel,
+    container: semanticsLabel != null,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < options.length; i++) ...[
+          if (i > 0) const SizedBox(height: 10),
+          Radio(
+            checked: options[i].value == value,
+            enabled: options[i].enabled,
+            onSelect: onChanged == null
+                ? null
+                : () => onChanged!(options[i].value),
+            child: options[i].label,
+          ),
+        ],
+      ],
+    ),
+  );
 }

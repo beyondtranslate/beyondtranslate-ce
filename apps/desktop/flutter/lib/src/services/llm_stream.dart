@@ -40,7 +40,8 @@ class LlmStream {
       onFinish: (reason) {
         if (!controller.isClosed) {
           controller.add(
-              StreamChunkData(content: '', isDone: true, finishReason: reason));
+            StreamChunkData(content: '', isDone: true, finishReason: reason),
+          );
           controller.close();
         }
       },
@@ -53,7 +54,9 @@ class LlmStream {
     );
 
     try {
-      runtime.llm(providerId: providerId).translateStream(
+      runtime
+          .llm(providerId: providerId)
+          .translateStream(
             sourceLang: sourceLang,
             targetLang: targetLang,
             text: text,
@@ -93,9 +96,9 @@ class _StreamCallbackImpl extends StreamCallback {
     required void Function(String) onChunk,
     required void Function(String) onFinish,
     required void Function(String) onError,
-  })  : _onChunk = onChunk,
-        _onFinish = onFinish,
-        _onError = onError;
+  }) : _onChunk = onChunk,
+       _onFinish = onFinish,
+       _onError = onError;
 
   @override
   void onChunk(String content) => _onChunk(content);

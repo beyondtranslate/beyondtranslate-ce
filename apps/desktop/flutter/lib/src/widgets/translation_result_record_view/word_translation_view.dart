@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../services/runtime.dart';
 
 import '../sound_play_button/sound_play_button.dart';
 
 class WordTranslationView extends StatefulWidget {
-  const WordTranslationView(
-    this.wordTranslation, {
-    Key? key,
-  }) : super(key: key);
+  const WordTranslationView(this.wordTranslation, {Key? key}) : super(key: key);
   final TextTranslation wordTranslation;
 
   @override
@@ -31,27 +29,16 @@ class _WordTranslationViewState extends State<WordTranslationView> {
       },
       child: Container(
         width: double.infinity,
-        constraints: const BoxConstraints(
-          minHeight: 40,
-        ),
-        padding: const EdgeInsets.only(
-          top: 7,
-          bottom: 7,
-        ),
+        constraints: const BoxConstraints(minHeight: 40),
+        padding: const EdgeInsets.only(top: 7, bottom: 7),
         alignment: Alignment.centerLeft,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
             SelectableText.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: widget.wordTranslation.text),
-                ],
-              ),
-              style: textTheme.bodyMedium!.copyWith(
-                height: 1.4,
-              ),
+              TextSpan(children: [TextSpan(text: widget.wordTranslation.text)]),
+              style: textTheme.bodyMedium!.copyWith(height: 1.4),
             ),
             Container(
               margin: const EdgeInsets.only(top: 2, left: 4),
@@ -64,10 +51,7 @@ class _WordTranslationViewState extends State<WordTranslationView> {
               ),
               child: const Text(
                 '常见释义',
-                style: TextStyle(
-                  color: Color(0xff80838a),
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: Color(0xff80838a), fontSize: 10),
               ),
             ),
             if ((widget.wordTranslation.audioUrl ?? '').isNotEmpty &&

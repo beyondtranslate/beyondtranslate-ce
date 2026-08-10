@@ -13,9 +13,7 @@ void main() {
   Widget specimen(Widget child) {
     return DesignThemeProvider(
       child: MaterialApp(
-        home: Scaffold(
-          body: SizedBox(width: 840, height: 560, child: child),
-        ),
+        home: Scaffold(body: SizedBox(width: 840, height: 560, child: child)),
       ),
     );
   }
@@ -178,7 +176,11 @@ void main() {
 
   testWidgets('the language capsule is 30px tall at both ends', (tester) async {
     await tester.pumpWidget(
-      specimen(const Center(child: SwapPair(start: 'English', end: '简体中文'))),
+      specimen(
+        const Center(
+          child: SwapPair(start: 'English', end: '简体中文'),
+        ),
+      ),
     );
     // The capsule is an AnimatedContainer, so let it reach its resting size.
     await tester.pumpAndSettle();

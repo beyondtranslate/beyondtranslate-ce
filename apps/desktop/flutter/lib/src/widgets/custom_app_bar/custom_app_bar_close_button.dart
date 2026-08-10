@@ -5,10 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../ui.dart' show Button, ButtonVariant, DesignThemeContext;
 
 class CustomAppBarCloseButton extends StatelessWidget {
-  const CustomAppBarCloseButton({
-    Key? key,
-    this.onPressed,
-  }) : super(key: key);
+  const CustomAppBarCloseButton({Key? key, this.onPressed}) : super(key: key);
 
   final VoidCallback? onPressed;
 

@@ -1,4 +1,5 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
+
 import 'translation_result_record.dart';
 
 class TranslationResult {
@@ -22,9 +23,11 @@ class TranslationResult {
     return TranslationResult(
       id: json['id'],
       translationTarget: TranslationTarget(
-        source: json['translationTarget']['source'] ??
+        source:
+            json['translationTarget']['source'] ??
             json['translationTarget']['sourceLanguage'],
-        target: json['translationTarget']['target'] ??
+        target:
+            json['translationTarget']['target'] ??
             json['translationTarget']['targetLanguage'],
         enabled: true,
       ),
@@ -49,8 +52,9 @@ class TranslationResult {
               'source': translationTarget!.source,
               'target': translationTarget!.target,
             },
-      'translationResultRecordList':
-          translationResultRecordList?.map((e) => e.toJson()).toList(),
+      'translationResultRecordList': translationResultRecordList
+          ?.map((e) => e.toJson())
+          .toList(),
       'unsupportedServiceIdList': unsupportedServiceIdList,
     };
   }

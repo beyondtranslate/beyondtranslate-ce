@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Switch;
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' as runtime_service;
 import '../../services/runtime.dart' show AdvancedSettingsPatch;
 import '../../services/settings_store.dart';
-import '../../widgets/preference_list/preference_list_item.dart';
-import '../../widgets/preference_list/preference_list_section.dart';
 import '../../widgets/settings_page.dart';
-import '../../widgets/ui.dart' show Input;
+import '../../widgets/ui.dart'
+    show Input, PreferenceRow, PreferenceSection, Switch;
 
 /// Mirrors macOS `AdvancedView.swift`.
 class AdvancedSettingsPage extends StatefulWidget {
@@ -59,9 +58,9 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
 
   Future<void> _updatePort(String value) async {
     final port = int.tryParse(value.trim()) ?? 0;
-    await settingsStore.updateAdvanced(AdvancedSettingsPatch(
-      apiServerPort: port.clamp(0, 65535),
-    ));
+    await settingsStore.updateAdvanced(
+      AdvancedSettingsPatch(apiServerPort: port.clamp(0, 65535)),
+    );
   }
 
   @override
@@ -72,32 +71,47 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
 
     return SettingsPage(
       children: [
-        PreferenceListSection(
-          title: Text(t.settings.advanced.api_server),
-          description: advanced.apiServerEnabled
-              ? apiInfo == null
-                  ? Text(t.settings.advanced.disabled)
-                  : _ApiServerLinkText(baseUrl: address)
-              : Text(t.settings.advanced.api_server_description),
+        PreferenceSection(
+          label: Text(t.settings.advanced.api_server),
           children: [
-            PreferenceListSwitchItem(
+            // The state of the thing is the row's second line, not the
+            // section's footnote — the deck reads 运行于 … under the name it
+            // belongs to.
+            PreferenceRow(
               title: Text(t.settings.advanced.api_server),
-              value: advanced.apiServerEnabled,
-              onChanged: (value) {
-                settingsStore.updateAdvanced(AdvancedSettingsPatch(
-                  apiServerEnabled: value,
-                ));
-              },
+              subtitle: advanced.apiServerEnabled
+                  ? apiInfo == null
+                        ? Text(t.settings.advanced.disabled)
+                        : _ApiServerLinkText(baseUrl: address)
+                  : Text(t.settings.advanced.api_server_description),
+              trailing: [
+                Switch(
+                  checked: advanced.apiServerEnabled,
+                  semanticsLabel: t.settings.advanced.api_server,
+                  onChanged: (value) {
+                    settingsStore.updateAdvanced(
+                      AdvancedSettingsPatch(apiServerEnabled: value),
+                    );
+                  },
+                ),
+              ],
             ),
-            if (advanced.apiServerEnabled) ...[
-              _CompactTextFieldItem(
-                title: t.settings.advanced.port,
-                controller: _portController,
-                placeholder: '0',
-                onSubmitted: _updatePort,
-                onEditingComplete: () => _updatePort(_portController.text),
+            if (advanced.apiServerEnabled)
+              PreferenceRow(
+                title: Text(t.settings.advanced.port),
+                trailing: [
+                  SizedBox(
+                    width: 96,
+                    child: Input(
+                      mono: true,
+                      controller: _portController,
+                      placeholder: '0',
+                      semanticsLabel: t.settings.advanced.port,
+                      onSubmitted: _updatePort,
+                    ),
+                  ),
+                ],
               ),
-            ],
           ],
         ),
       ],
@@ -146,41 +160,5 @@ Future<void> _openUrl(String url) async {
     await Process.start('rundll32', ['url.dll,FileProtocolHandler', url]);
   } else {
     await Process.start('xdg-open', [url]);
-  }
-}
-
-class _CompactTextFieldItem extends StatelessWidget {
-  const _CompactTextFieldItem({
-    required this.title,
-    required this.controller,
-    this.placeholder,
-    this.onSubmitted,
-    this.onEditingComplete,
-  });
-
-  final String title;
-  final TextEditingController controller;
-  final String? placeholder;
-  final ValueChanged<String>? onSubmitted;
-  final VoidCallback? onEditingComplete;
-
-  @override
-  Widget build(BuildContext context) {
-    return PreferenceListItem(
-      title: Text(title),
-      detailText: SizedBox(
-        width: 96,
-        child: Input(
-          controller: controller,
-          placeholder: placeholder,
-          mono: true,
-          onSubmitted: (value) {
-            onEditingComplete?.call();
-            onSubmitted?.call(value);
-          },
-        ),
-      ),
-      accessoryView: const SizedBox.shrink(),
-    );
   }
 }

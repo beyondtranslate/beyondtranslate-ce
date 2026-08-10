@@ -121,10 +121,7 @@ class PreferenceListItem extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (title != null)
-                          DefaultTextStyle(
-                            style: titleStyle,
-                            child: title!,
-                          ),
+                          DefaultTextStyle(style: titleStyle, child: title!),
                         if (summary != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 4),
@@ -167,15 +164,15 @@ class PreferenceListRadioItem<T> extends PreferenceListItem {
     required this.groupValue,
     required this.onChanged,
   }) : super(
-          key: key,
-          padding: padding,
-          icon: icon,
-          title: title,
-          summary: summary,
-          detailText: detailText,
-          accessoryView: accessoryView,
-          onTap: onTap,
-        );
+         key: key,
+         padding: padding,
+         icon: icon,
+         title: title,
+         summary: summary,
+         detailText: detailText,
+         accessoryView: accessoryView,
+         onTap: onTap,
+       );
   final T value;
   final T groupValue;
   final ValueChanged<T> onChanged;
@@ -218,15 +215,15 @@ class PreferenceListSwitchItem extends PreferenceListItem {
     required this.value,
     required this.onChanged,
   }) : super(
-          key: key,
-          icon: icon,
-          title: title,
-          summary: summary,
-          detailText: detailText,
-          accessoryView: accessoryView,
-          disabled: disabled,
-          onTap: onTap,
-        );
+         key: key,
+         icon: icon,
+         title: title,
+         summary: summary,
+         detailText: detailText,
+         accessoryView: accessoryView,
+         disabled: disabled,
+         onTap: onTap,
+       );
   final bool value;
   final ValueChanged<bool> onChanged;
 
@@ -265,13 +262,13 @@ class PreferenceListTextFieldItem extends PreferenceListItem {
     this.onEditingComplete,
     this.onSubmitted,
   }) : super(
-          key: key,
-          icon: icon,
-          title: title,
-          summary: summary,
-          accessoryView: accessoryView,
-          onTap: onTap,
-        );
+         key: key,
+         icon: icon,
+         title: title,
+         summary: summary,
+         accessoryView: accessoryView,
+         onTap: onTap,
+       );
   final TextEditingController? controller;
   final String? placeholder;
   final ValueChanged<String>? onChanged;

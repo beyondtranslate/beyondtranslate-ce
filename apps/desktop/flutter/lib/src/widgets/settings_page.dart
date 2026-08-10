@@ -29,13 +29,18 @@ class SettingsPage extends StatelessWidget {
       ...children,
     ];
     return ListView.separated(
-      padding:
-          EdgeInsets.fromLTRB(horizontalPadding, 22, horizontalPadding, 24),
+      padding: EdgeInsets.fromLTRB(
+        horizontalPadding,
+        22,
+        horizontalPadding,
+        24,
+      ),
       itemCount: blocks.length,
       itemBuilder: (_, index) => blocks[index],
       // A rule brings its own air, so the page does not add the usual gap
       // around it as well.
-      separatorBuilder: (_, index) => blocks[index] is SettingsSectionDivider ||
+      separatorBuilder: (_, index) =>
+          blocks[index] is SettingsSectionDivider ||
               blocks[index + 1] is SettingsSectionDivider
           ? const SizedBox.shrink()
           : const SizedBox(height: 22),

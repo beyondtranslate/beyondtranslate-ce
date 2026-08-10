@@ -34,7 +34,8 @@ class CustomAppBarActionItem extends StatelessWidget {
             context.pop();
           }
         },
-        child: child ??
+        child:
+            child ??
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [

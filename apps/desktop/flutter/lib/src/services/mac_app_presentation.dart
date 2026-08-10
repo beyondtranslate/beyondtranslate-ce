@@ -9,8 +9,9 @@ import 'package:flutter/services.dart';
 /// — back up. The policy itself lives in [DockIconController]; the routing of
 /// the callbacks lives in `app_router.dart`.
 class MacAppPresentation {
-  static const MethodChannel _channel =
-      MethodChannel('beyondtranslate/mac_app_presentation');
+  static const MethodChannel _channel = MethodChannel(
+    'beyondtranslate/mac_app_presentation',
+  );
 
   static VoidCallback? _onReopen;
   static VoidCallback? _onOpenSettings;
@@ -22,10 +23,9 @@ class MacAppPresentation {
   static Future<void> setDockIconVisible(bool visible) async {
     if (!Platform.isMacOS) return;
 
-    await _channel.invokeMethod<void>(
-      'setDockIconVisible',
-      {'visible': visible},
-    );
+    await _channel.invokeMethod<void>('setDockIconVisible', {
+      'visible': visible,
+    });
   }
 
   /// Registers what to do when the user clicks the Dock icon ([onReopen]) or

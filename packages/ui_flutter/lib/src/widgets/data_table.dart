@@ -12,10 +12,10 @@ class DataTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      );
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.min,
+    children: children,
+  );
 }
 
 class DataTableHead extends StatelessWidget {
@@ -63,18 +63,16 @@ class DataTableRow extends StatelessWidget {
     final hairline = context.hairlineWidth;
 
     Widget buildRow(bool hovered) => AnimatedContainer(
-          duration: kTransitionDuration,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: BoxDecoration(
-            color: active
-                ? colors.accentSurface
-                : (hovered ? colors.subtle : null),
-            border: Border(
-              bottom: BorderSide(color: colors.hairlineSoft, width: hairline),
-            ),
-          ),
-          child: Row(children: children),
-        );
+      duration: kTransitionDuration,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: active ? colors.accentSurface : (hovered ? colors.subtle : null),
+        border: Border(
+          bottom: BorderSide(color: colors.hairlineSoft, width: hairline),
+        ),
+      ),
+      child: Row(children: children),
+    );
 
     if (onPressed == null) return buildRow(false);
 

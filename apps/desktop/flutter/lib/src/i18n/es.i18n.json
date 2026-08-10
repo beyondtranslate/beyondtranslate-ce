@@ -261,13 +261,16 @@
     "general": {
       "title": "General",
       "section": {
-        "permissions": "Permisos",
+        "permissions": "Permisos del sistema",
         "ocr": "Reconocimiento de texto",
         "directory": "Directorio",
         "translation": "Traducción",
         "translation_target": "Idioma de destino",
         "languages": "Idiomas",
-        "input": "Configuración de entrada"
+        "input": "Configuración de entrada",
+        "startup": "Inicio e integración",
+        "ocr_behaviour": "Comportamiento de captura",
+        "translation_behaviour": "Comportamiento de traducción"
       },
       "row": {
         "launch_at_login": "Iniciar al iniciar sesión",
@@ -289,7 +292,10 @@
         "common_languages_all": "Todos los idiomas",
         "double_click_copy_result": "Doble clic para copiar el resultado de la traducción",
         "submit_with_enter": "Enviar con Enter",
-        "submit_with_meta_enter_mac": "Enviar con ⌘ + Enter"
+        "submit_with_meta_enter_mac": "Enviar con ⌘ + Enter",
+        "screen_capture_access_hint": "Capturar texto de la pantalla requiere leer su contenido.",
+        "screen_selection_access_hint": "Capturar el texto seleccionado requiere leer selecciones de otras aplicaciones.",
+        "no_translation_targets": "Aún no hay destinos de traducción; añade uno para fijar el idioma predeterminado."
       },
       "button": {
         "add_provider": "Agregar...",
@@ -321,13 +327,15 @@
         "app_language": "Idioma de la interfaz",
         "theme_mode": "Modo de tema",
         "theme_style": "Estilo del tema"
-      }
+      },
+      "footer": "Los cambios se aplican de inmediato a toda la ventana."
     },
     "shortcuts": {
       "title": "Atajos",
       "section": {
         "text_extraction": "Extracción de texto",
-        "input_assist": "Función de asistencia de entrada"
+        "input_assist": "Función de asistencia de entrada",
+        "submit_mode": "Enviar con"
       },
       "row": {
         "toggle_mini_translator": "Mostrar/Ocultar ventana",
@@ -341,7 +349,18 @@
         "message": "¿Estás seguro de que deseas restablecer todos los atajos a sus valores predeterminados?",
         "confirm": "Restablecer",
         "cancel": "Cancelar"
-      }
+      },
+      "group": {
+        "global": {
+          "title": "Atajos globales",
+          "description": "Funcionan en cualquier aplicación."
+        },
+        "in_app": {
+          "title": "Teclas en la aplicación",
+          "description": "Solo se aplican en los campos de texto de esta aplicación."
+        }
+      },
+      "reset": "Restaurar valores predeterminados..."
     },
     "advanced": {
       "title": "Avanzado",
@@ -383,6 +402,10 @@
           "message": "Este servicio se eliminará del proveedor."
         },
         "prompt_variables": "Variables disponibles: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
+      },
+      "make_default": "Establecer como predeterminado",
+      "item": {
+        "none_of_kind": "Aún no hay servicios de {} disponibles."
       }
     },
     "providers": {
@@ -493,7 +516,8 @@
       },
       "groups": "Grupos",
       "effect_hint": "Los cambios se aplican al instante",
-      "footer_note": "Las traducciones y claves se guardan solo en este equipo"
+      "footer_note": "Las traducciones y claves se guardan solo en este equipo",
+      "support": "Soporte"
     },
     "about": {
       "title": "Acerca de",
@@ -505,7 +529,8 @@
       "github": "GitHub",
       "report_issue": "Informar de un problema",
       "license": "Licencia",
-      "open_changelog": "Abrir registro de cambios"
+      "open_changelog": "Abrir registro de cambios",
+      "update": "Actualización"
     }
   }
 }

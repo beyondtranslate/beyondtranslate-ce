@@ -249,10 +249,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
         ),
         if (detected != null && detected != widget.sourceLanguage) ...[
           const SizedBox(width: 8),
-          Badge(
-            tone: BadgeTone.accent,
-            child: Text(getLanguageName(detected)),
-          ),
+          Badge(tone: BadgeTone.accent, child: Text(getLanguageName(detected))),
         ],
       ],
     );

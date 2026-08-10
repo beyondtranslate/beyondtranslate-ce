@@ -22,13 +22,18 @@ BoxDecoration controlDecoration(
   final error = state == FieldState.error;
 
   return BoxDecoration(
-    color:
-        error ? colors.dangerSurface : (focused ? colors.window : colors.card),
+    color: error
+        ? colors.dangerSurface
+        : (focused ? colors.window : colors.card),
+    // Focus and error change the border's *colour* only — React sets both with
+    // `border-accent` / `border-danger` over the same `border` utility, so the
+    // width stays on the hairline in every state. Thickening it here would
+    // shift the text by half a pixel the moment the field takes focus.
     border: Border.all(
       color: error
           ? colors.danger
           : (focused ? colors.accent : colors.hairlineStrong),
-      width: error || focused ? 1 : hairline,
+      width: hairline,
     ),
     borderRadius: BorderRadius.circular(radius ?? tokens.radii.control),
     boxShadow: focused
@@ -44,8 +49,10 @@ BoxDecoration controlDecoration(
 
 /// `px-3 py-[7px]`: 7px over a 12px line lands the control on 28px, level with
 /// an md Button — desktop dialogs keep buttons and fields the same height.
-const EdgeInsets _kControlPadding =
-    EdgeInsets.symmetric(horizontal: 12, vertical: 7);
+const EdgeInsets _kControlPadding = EdgeInsets.symmetric(
+  horizontal: 12,
+  vertical: 7,
+);
 
 /// The height that padding is pinned to, so a control never drifts off the
 /// button line because of a font's metrics.
@@ -53,8 +60,10 @@ const double _kControlHeight = 28;
 
 /// A textarea is not a single-line control: it keeps the wider `py-2.5` inset
 /// and grows from `min-h-20`.
-const EdgeInsets _kTextAreaPadding =
-    EdgeInsets.symmetric(horizontal: 12, vertical: 10);
+const EdgeInsets _kTextAreaPadding = EdgeInsets.symmetric(
+  horizontal: 12,
+  vertical: 10,
+);
 
 class Input extends StatefulWidget {
   const Input({
@@ -231,13 +240,14 @@ class _TextAreaState extends State<TextArea> {
     final colors = tokens.colors;
     final error = widget.state == FieldState.error;
 
-    final style = (widget.mono
-            ? tokens.typography.monoStyle(fontSize: 12)
-            : tokens.typography.sansStyle(fontSize: 12))
-        .copyWith(
-      height: 1.6,
-      color: error ? colors.dangerDeep : colors.fg,
-    );
+    final style =
+        (widget.mono
+                ? tokens.typography.monoStyle(fontSize: 12)
+                : tokens.typography.sansStyle(fontSize: 12))
+            .copyWith(
+              height: 1.6,
+              color: error ? colors.dangerDeep : colors.fg,
+            );
 
     return AnimatedContainer(
       duration: kTransitionDuration,
@@ -397,13 +407,11 @@ class _SelectState<T> extends State<Select<T>> {
         .map((item) => item.label)
         .firstOrNull;
 
-    final style = (widget.mono
-            ? tokens.typography.monoStyle(fontSize: 12)
-            : tokens.typography.sansStyle(fontSize: 12))
-        .copyWith(
-      height: 1,
-      color: error ? colors.dangerDeep : colors.fg,
-    );
+    final style =
+        (widget.mono
+                ? tokens.typography.monoStyle(fontSize: 12)
+                : tokens.typography.sansStyle(fontSize: 12))
+            .copyWith(height: 1, color: error ? colors.dangerDeep : colors.fg);
 
     return CompositedTransformTarget(
       link: _link,
@@ -482,13 +490,14 @@ class _SelectRow extends StatelessWidget {
             : (state.hovered ? colors.subtle : null),
         child: Text(
           label,
-          style: (mono
-                  ? tokens.typography.monoStyle(fontSize: 12)
-                  : tokens.typography.sansStyle(fontSize: 12))
-              .copyWith(
-            height: 1,
-            color: selected ? tokens.selectionFg : colors.fg,
-          ),
+          style:
+              (mono
+                      ? tokens.typography.monoStyle(fontSize: 12)
+                      : tokens.typography.sansStyle(fontSize: 12))
+                  .copyWith(
+                    height: 1,
+                    color: selected ? tokens.selectionFg : colors.fg,
+                  ),
         ),
       ),
     );
@@ -524,8 +533,9 @@ class Field extends StatelessWidget {
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: Label(
-            tone:
-                state == FieldState.error ? LabelTone.danger : LabelTone.subtle,
+            tone: state == FieldState.error
+                ? LabelTone.danger
+                : LabelTone.subtle,
             child: label,
           ),
         ),
@@ -538,8 +548,9 @@ class Field extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w500,
               height: 1.6,
-              color:
-                  state == FieldState.error ? colors.dangerFg : colors.fgSubtle,
+              color: state == FieldState.error
+                  ? colors.dangerFg
+                  : colors.fgSubtle,
             ),
             child: hint!,
           ),
@@ -574,10 +585,11 @@ class FieldValue extends StatelessWidget {
         borderRadius: BorderRadius.circular(tokens.radii.control),
       ),
       child: DefaultTextStyle(
-        style: (mono
-                ? tokens.typography.monoStyle(fontSize: 12)
-                : tokens.typography.sansStyle(fontSize: 12))
-            .copyWith(height: 1, color: colors.fg),
+        style:
+            (mono
+                    ? tokens.typography.monoStyle(fontSize: 12)
+                    : tokens.typography.sansStyle(fontSize: 12))
+                .copyWith(height: 1, color: colors.fg),
         child: child,
       ),
     );

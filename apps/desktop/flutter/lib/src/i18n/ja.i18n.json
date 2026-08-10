@@ -261,13 +261,16 @@
     "general": {
       "title": "一般",
       "section": {
-        "permissions": "権限",
+        "permissions": "システム権限",
         "ocr": "テキスト認識",
         "directory": "辞書",
         "translation": "翻訳",
         "translation_target": "翻訳先",
         "languages": "言語",
-        "input": "入力設定"
+        "input": "入力設定",
+        "startup": "起動と連携",
+        "ocr_behaviour": "取得の動作",
+        "translation_behaviour": "翻訳の動作"
       },
       "row": {
         "launch_at_login": "ログイン時に起動",
@@ -289,7 +292,10 @@
         "common_languages_all": "すべての言語",
         "double_click_copy_result": "ダブルクリックで翻訳結果をコピー",
         "submit_with_enter": "Enterで送信",
-        "submit_with_meta_enter_mac": "⌘ + Enterで送信"
+        "submit_with_meta_enter_mac": "⌘ + Enterで送信",
+        "screen_capture_access_hint": "画面からの文字取得には画面内容の読み取りが必要です。",
+        "screen_selection_access_hint": "選択テキストの取得には他アプリの選択内容の読み取りが必要です。",
+        "no_translation_targets": "翻訳ターゲットがありません。既定の翻訳先を決めるには追加してください。"
       },
       "button": {
         "add_provider": "追加...",
@@ -321,13 +327,15 @@
         "app_language": "表示言語",
         "theme_mode": "テーマモード",
         "theme_style": "テーマスタイル"
-      }
+      },
+      "footer": "変更はウインドウ全体にすぐ適用されます。"
     },
     "shortcuts": {
       "title": "ショートカット",
       "section": {
         "text_extraction": "テキスト抽出",
-        "input_assist": "入力補助機能"
+        "input_assist": "入力補助機能",
+        "submit_mode": "送信方法"
       },
       "row": {
         "toggle_mini_translator": "ウィンドウの表示/非表示",
@@ -341,7 +349,18 @@
         "message": "すべてのショートカットをデフォルト値にリセットしますか？",
         "confirm": "リセット",
         "cancel": "キャンセル"
-      }
+      },
+      "group": {
+        "global": {
+          "title": "グローバルショートカット",
+          "description": "どのアプリでも動作します。"
+        },
+        "in_app": {
+          "title": "アプリ内キー",
+          "description": "このアプリの入力欄でのみ有効です。"
+        }
+      },
+      "reset": "デフォルトに戻す..."
     },
     "advanced": {
       "title": "詳細設定",
@@ -383,6 +402,10 @@
           "message": "このサービスはプロバイダーから削除されます。"
         },
         "prompt_variables": "利用可能な変数: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
+      },
+      "make_default": "デフォルトにする",
+      "item": {
+        "none_of_kind": "利用できる{}サービスがまだありません。"
       }
     },
     "providers": {
@@ -493,7 +516,8 @@
       },
       "groups": "設定グループ",
       "effect_hint": "変更は即時反映",
-      "footer_note": "訳文とキーはこのMacにのみ保存されます"
+      "footer_note": "訳文とキーはこのMacにのみ保存されます",
+      "support": "サポート"
     },
     "about": {
       "title": "情報",
@@ -505,7 +529,8 @@
       "github": "GitHub",
       "report_issue": "問題を報告",
       "license": "ライセンス",
-      "open_changelog": "更新履歴を開く"
+      "open_changelog": "更新履歴を開く",
+      "update": "アップデート"
     }
   }
 }

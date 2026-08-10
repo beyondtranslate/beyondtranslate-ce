@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
 import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
@@ -82,9 +83,9 @@ class Meter extends StatelessWidget {
     this.display,
     this.tone = ProgressTone.success,
   }) : assert(
-          tone != ProgressTone.gradient,
-          'A meter reads a single value, so it takes a solid tone.',
-        );
+         tone != ProgressTone.gradient,
+         'A meter reads a single value, so it takes a solid tone.',
+       );
 
   final Widget label;
   final double value;
@@ -113,8 +114,10 @@ class Meter extends StatelessWidget {
           children: [
             Expanded(
               child: DefaultTextStyle(
-                style: tokens.typography
-                    .sansStyle(fontSize: 12, color: colors.fgTertiary),
+                style: tokens.typography.sansStyle(
+                  fontSize: 12,
+                  color: colors.fgTertiary,
+                ),
                 child: label,
               ),
             ),
@@ -141,11 +144,7 @@ enum SpinnerSize { sm, md, lg }
 
 /// The ring spinner: a two-tone ring with the top quarter in the accent.
 class Spinner extends StatefulWidget {
-  const Spinner({
-    super.key,
-    this.size = SpinnerSize.md,
-    this.onAccent = false,
-  });
+  const Spinner({super.key, this.size = SpinnerSize.md, this.onAccent = false});
 
   final SpinnerSize size;
 
@@ -209,8 +208,12 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect =
-        Rect.fromLTWH(0, 0, size.width, size.height).deflate(strokeWidth / 2);
+    final rect = Rect.fromLTWH(
+      0,
+      0,
+      size.width,
+      size.height,
+    ).deflate(strokeWidth / 2);
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth

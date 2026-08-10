@@ -37,11 +37,7 @@ class DesignTheme extends InheritedWidget {
 /// The product layer needs this because it has tokens of its own that vary by
 /// theme (see the app's `product_tokens.dart`).
 class DesignThemeScope extends InheritedWidget {
-  const DesignThemeScope({
-    super.key,
-    required this.name,
-    required super.child,
-  });
+  const DesignThemeScope({super.key, required this.name, required super.child});
 
   final DesignThemeName name;
 

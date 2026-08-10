@@ -44,11 +44,7 @@ void main() {
         tip: null,
         tags: [WordTag(name: 'noun')],
         definitions: [
-          WordDefinition(
-            type: 'n',
-            name: 'noun',
-            values: ['hello'],
-          ),
+          WordDefinition(type: 'n', name: 'noun', values: ['hello']),
         ],
         pronunciations: null,
         images: null,

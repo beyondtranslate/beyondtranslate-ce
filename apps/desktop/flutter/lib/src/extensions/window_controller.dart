@@ -18,8 +18,8 @@ void setupGlobalWillShowHook() {
   _globalWillShowHookInitialized = true;
   WindowManager.instance.setWillShowHook((windowId) {
     final window = WindowManager.instance.getAll().firstWhereOrNull(
-          (e) => e.id == windowId,
-        );
+      (e) => e.id == windowId,
+    );
     if (window != null) {
       window._incrementShowCount();
       final hook = _windowWillShowHooks[window.title];
@@ -36,8 +36,8 @@ void setupGlobalWillHideHook() {
   _globalWillHideHookInitialized = true;
   WindowManager.instance.setWillHideHook((windowId) {
     final window = WindowManager.instance.getAll().firstWhereOrNull(
-          (e) => e.id == windowId,
-        );
+      (e) => e.id == windowId,
+    );
     if (window != null) {
       final hook = _windowWillHideHooks[window.title];
       if (hook != null) {

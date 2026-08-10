@@ -146,8 +146,9 @@ class Button extends StatelessWidget {
               background = colors.track;
               foreground = colors.fgFaint;
             } else {
-              background =
-                  colors.accent.withValues(alpha: hovered ? 0.20 : 0.12);
+              background = colors.accent.withValues(
+                alpha: hovered ? 0.20 : 0.12,
+              );
               foreground = colors.accentText;
             }
           case ButtonVariant.quiet:
@@ -177,11 +178,19 @@ class Button extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               color: background,
-              border: border,
               borderRadius: radius,
               boxShadow: shadow,
             ),
-            child: DefaultTextStyle(
+            // The hairline rides in the *foreground* decoration rather than the
+            // background one: a `BoxDecoration.border` insets the content box by
+            // its own width, which would make `secondary` a hairline wider than
+            // the `ghost` next to it. React makes the same point by drawing the
+            // ring as an inset box-shadow instead of a real border.
+            foregroundDecoration: border == null
+                ? null
+                : BoxDecoration(border: border, borderRadius: radius),
+            child: AnimatedDefaultTextStyle(
+              duration: kTransitionDuration,
               style: style,
               softWrap: false,
               child: Row(
@@ -193,7 +202,8 @@ class Button extends StatelessWidget {
                     const SizedBox(width: 8),
                     Opacity(
                       opacity: 0.7,
-                      child: DefaultTextStyle(
+                      child: AnimatedDefaultTextStyle(
+                        duration: kTransitionDuration,
                         style: tokens.typography.displayStyle(
                           fontSize: fontSize,
                           fontWeight: weight,

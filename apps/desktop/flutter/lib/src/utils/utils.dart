@@ -18,8 +18,9 @@ Future<Directory> getAppDirectory() async {
     final docDir = await getApplicationDocumentsDirectory();
 
     if (kIsLinux || kIsWindows) {
-      _dataDirectory =
-          Directory(path.join(docDir.parent.path, '.beyondtranslate'));
+      _dataDirectory = Directory(
+        path.join(docDir.parent.path, '.beyondtranslate'),
+      );
       if (!_dataDirectory!.existsSync()) {
         _dataDirectory!.createSync(recursive: true);
       }

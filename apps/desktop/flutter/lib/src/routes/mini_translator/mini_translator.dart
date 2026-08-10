@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, unused_element
 
 import 'dart:async';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +12,7 @@ import '../../extensions/window_controller.dart';
 import '../../i18n/i18n.dart';
 import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
-import '../../routes/settings/general.dart' show GeneralSettingsPage;
+import '../../routes/settings/services.dart' show ServicesSettingsPage;
 import '../../services/llm_stream.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
@@ -111,10 +112,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     }
     _loadData();
     super.initState();
-    _scheduleWindowResize(
-      animate: false,
-      settle: true,
-    );
+    _scheduleWindowResize(animate: false, settle: true);
   }
 
   @override
@@ -158,10 +156,12 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   void _init() async {
     if (kIsMacOS) {
-      _isAllowedScreenCaptureAccess =
-          await runtime.permission().isScreenRecordingPermissionGranted();
-      _isAllowedScreenSelectionAccess =
-          await runtime.permission().isAccessibilityPermissionGranted();
+      _isAllowedScreenCaptureAccess = await runtime
+          .permission()
+          .isScreenRecordingPermissionGranted();
+      _isAllowedScreenSelectionAccess = await runtime
+          .permission()
+          .isAccessibilityPermissionGranted();
     }
 
     ShortcutService.instance.start();
@@ -192,25 +192,25 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   void _registerWindowEvents() {
     _windowFocusedListenerId = nativeapi.WindowManager.instance
         .on<nativeapi.WindowFocusedEvent>((event) {
-      if (event.windowId == _window.id) {
-        _focusNode.requestFocus();
-      }
-    });
+          if (event.windowId == _window.id) {
+            _focusNode.requestFocus();
+          }
+        });
     _windowBlurredListenerId = nativeapi.WindowManager.instance
         .on<nativeapi.WindowBlurredEvent>((event) {
-      if (event.windowId == _window.id) {
-        _focusNode.unfocus();
-        if (!_window.isAlwaysOnTop) {
-          _window.hide();
-        }
-      }
-    });
+          if (event.windowId == _window.id) {
+            _focusNode.unfocus();
+            if (!_window.isAlwaysOnTop) {
+              _window.hide();
+            }
+          }
+        });
     _windowMovedListenerId = nativeapi.WindowManager.instance
         .on<nativeapi.WindowMovedEvent>((event) {
-      if (event.windowId == _window.id) {
-        _lastShownPosition = event.position;
-      }
-    });
+          if (event.windowId == _window.id) {
+            _lastShownPosition = event.position;
+          }
+        });
   }
 
   void _unregisterWindowEvents() {
@@ -263,10 +263,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     } else {
       _window.focus();
     }
-    _scheduleWindowResize(
-      animate: false,
-      settle: true,
-    );
+    _scheduleWindowResize(animate: false, settle: true);
 
     if (kIsLinux && !isAlwaysOnTop) {
       _window.isAlwaysOnTop = true;
@@ -281,10 +278,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     _window.hide();
   }
 
-  void _scheduleWindowResize({
-    bool animate = true,
-    bool settle = false,
-  }) {
+  void _scheduleWindowResize({bool animate = true, bool settle = false}) {
     if (!(kIsLinux || kIsMacOS || kIsWindows)) return;
 
     _pendingWindowResizeAnimate = _isWindowResizeScheduled
@@ -309,26 +303,17 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     });
   }
 
-  void _windowResize({
-    bool animate = true,
-  }) {
+  void _windowResize({bool animate = true}) {
     if (context.canPop()) return;
 
     try {
       final oldSize = _window.size;
       final newHeight = _measureWindowHeight();
-      final newSize = Size(
-        oldSize.width,
-        newHeight.clamp(0, _maxWindowHeight),
-      );
+      final newSize = Size(oldSize.width, newHeight.clamp(0, _maxWindowHeight));
       if (oldSize.width == newSize.width && oldSize.height == newSize.height) {
         return;
       }
-      _window.setSize(
-        newSize.width,
-        newSize.height,
-        animate: animate,
-      );
+      _window.setSize(newSize.width, newSize.height, animate: animate);
     } catch (error) {
       // ignore
     }
@@ -350,9 +335,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     return renderBox?.size.height ?? 0;
   }
 
-  void _scheduleSettledWindowResize({
-    bool animate = true,
-  }) {
+  void _scheduleSettledWindowResize({bool animate = true}) {
     _resizeSettledTimer?.cancel();
     _resizeSettledTimer = Timer(const Duration(milliseconds: 120), () {
       if (!mounted) return;
@@ -382,12 +365,14 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     final services = await settings.listServices();
     final generalSettings = await settings.getGeneral();
     final providersById = {
-      for (final provider in providers) provider.id: provider
+      for (final provider in providers) provider.id: provider,
     };
     final queryServices = services
-        .where((service) =>
-            service.type == ServiceType.dictionary ||
-            service.type == ServiceType.translation)
+        .where(
+          (service) =>
+              service.type == ServiceType.dictionary ||
+              service.type == ServiceType.translation,
+        )
         .toList();
     _serviceNameById = {
       for (final service in queryServices) service.id: service.name,
@@ -405,9 +390,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         );
         final detectResponse = await runtime
             .translation(providerId: translationService.id)
-            .detectLanguage(
-              request: DetectLanguageRequest(texts: [_text]),
-            );
+            .detectLanguage(request: DetectLanguageRequest(texts: [_text]));
         final detections = detectResponse.detections;
         if (detections != null && detections.isNotEmpty) {
           _detectedLanguage = detections.first.detectedLanguage;
@@ -422,15 +405,14 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     }
 
     final activeTargets = await _activeTranslationTargets(generalSettings);
-    final nextTranslationResultList =
-        _createPendingTranslationResults(activeTargets, queryServices);
-
-    _setStateAndScheduleWindowResize(
-      () {
-        _translationResultList = nextTranslationResultList;
-      },
-      animate: false,
+    final nextTranslationResultList = _createPendingTranslationResults(
+      activeTargets,
+      queryServices,
     );
+
+    _setStateAndScheduleWindowResize(() {
+      _translationResultList = nextTranslationResultList;
+    }, animate: false);
 
     final futures = <Future<bool>>[];
     for (int i = 0; i < _translationResultList.length; i++) {
@@ -442,12 +424,14 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       }
 
       for (int j = 0; j < translationResultRecordList.length; j++) {
-        futures.add(_queryProvider(
-          service: queryServices[j],
-          provider: providersById[queryServices[j].providerId],
-          translationTarget: translationTarget,
-          translationResultRecord: translationResultRecordList[j],
-        ));
+        futures.add(
+          _queryProvider(
+            service: queryServices[j],
+            provider: providersById[queryServices[j].providerId],
+            translationTarget: translationTarget,
+            translationResultRecord: translationResultRecordList[j],
+          ),
+        );
       }
     }
 
@@ -464,9 +448,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           translationTarget: translationTarget,
           translationResultRecordList: [
             for (final service in services)
-              TranslationResultRecord(
-                translationServiceId: service.id,
-              ),
+              TranslationResultRecord(translationServiceId: service.id),
           ],
           unsupportedServiceIdList: [],
         ),
@@ -511,7 +493,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
     if (service.type == ServiceType.translation) {
       final providerType = provider?.type;
-      final isLlmProvider = providerType == ProviderType.openAi ||
+      final isLlmProvider =
+          providerType == ProviderType.openAi ||
           providerType == ProviderType.anthropic ||
           providerType == ProviderType.ollama ||
           providerType == ProviderType.xAi;
@@ -690,19 +673,16 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   }
 
   void _handleManageCommonLanguages() {
-    GeneralSettingsPage.pendingOpenCommonLanguages = true;
+    ServicesSettingsPage.pendingOpenCommonLanguages = true;
     showSettingsWindow();
   }
 
   void _handleAddTarget() {
-    GeneralSettingsPage.pendingOpenAddTarget = true;
+    ServicesSettingsPage.pendingOpenAddTarget = true;
     showSettingsWindow();
   }
 
-  void _handleTextChanged(
-    String? newValue, {
-    bool isRequery = false,
-  }) {
+  void _handleTextChanged(String? newValue, {bool isRequery = false}) {
     _setStateAndScheduleWindowResize(() {
       final previousText = _text;
       _text = (newValue ?? '').trim();
@@ -799,8 +779,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   }
 
   void _handleButtonTappedCopy() {
-    final preferred =
-        preferredTranslation(_translationResultList, _preferredServiceId);
+    final preferred = preferredTranslation(
+      _translationResultList,
+      _preferredServiceId,
+    );
     if (preferred == null) return;
     Clipboard.setData(ClipboardData(text: preferred.text));
     setState(() => _copied = true);
@@ -846,10 +828,12 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         isAllowedScreenCaptureAccess: _isAllowedScreenCaptureAccess,
         isAllowedScreenSelectionAccess: _isAllowedScreenSelectionAccess,
         onTappedRecheckIsAllowedAllAccess: () async {
-          _isAllowedScreenCaptureAccess =
-              await runtime.permission().isScreenRecordingPermissionGranted();
-          _isAllowedScreenSelectionAccess =
-              await runtime.permission().isAccessibilityPermissionGranted();
+          _isAllowedScreenCaptureAccess = await runtime
+              .permission()
+              .isScreenRecordingPermissionGranted();
+          _isAllowedScreenSelectionAccess = await runtime
+              .permission()
+              .isAccessibilityPermissionGranted();
 
           _setStateAndScheduleWindowResize(() {});
 
@@ -873,7 +857,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   Widget _buildBody(BuildContext context) {
     final hasTranslation =
         preferredTranslation(_translationResultList, _preferredServiceId) !=
-            null;
+        null;
 
     return Column(
       key: _contentViewKey,
@@ -953,7 +937,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
             SingleActivator(
               LogicalKeyboardKey(LogicalKeyboardKey.digit1.keyId + digit - 1),
               alt: true,
-            ): () => _handlePreferServiceAt(digit - 1),
+            ): () =>
+                _handlePreferServiceAt(digit - 1),
         },
         child: SingleChildScrollView(
           controller: _scrollController,
@@ -970,8 +955,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 persistentTargets: settingsStore.general.translationTargets,
                 commonLanguageCodes:
                     settingsStore.general.commonLanguages.isNotEmpty
-                        ? settingsStore.general.commonLanguages
-                        : defaultCommonLanguages(),
+                    ? settingsStore.general.commonLanguages
+                    : defaultCommonLanguages(),
                 onSourceChanged: _handleSourceChanged,
                 onTargetLanguageChanged: _handleTargetLanguageChanged,
                 onConfigTargetSelected: _handleConfigTargetSelected,

@@ -41,10 +41,11 @@ class SettingsRouteTree {
 
   final String path = '/settings';
   final String general = '/settings/general';
-  final String appearance = '/settings/appearance';
+  final String services = '/settings/services';
   final String shortcuts = '/settings/shortcuts';
   final String advanced = '/settings/advanced';
   final String providers = '/settings/providers';
+  final String about = '/settings/about';
 }
 
 /// Optional metadata carrier for future route registration/indexing.
@@ -53,21 +54,13 @@ class RouteNode {
   final String path;
   final String? parentId;
 
-  const RouteNode({
-    required this.id,
-    required this.path,
-    this.parentId,
-  });
+  const RouteNode({required this.id, required this.path, this.parentId});
 }
 
 /// Flat list placeholder for future expansion.
 /// Keep this list sorted by `path` for readability.
 final List<RouteNode> routeNodes = <RouteNode>[
-  RouteNode(
-    id: 'debug',
-    path: RouteTree.debug.path,
-    parentId: 'root',
-  ),
+  RouteNode(id: 'debug', path: RouteTree.debug.path, parentId: 'root'),
   RouteNode(
     id: 'debug-widgets',
     path: RouteTree.debug.widgets,
@@ -94,19 +87,20 @@ final List<RouteNode> routeNodes = <RouteNode>[
     path: RouteTree.workbench.translate,
     parentId: 'root',
   ),
-  RouteNode(
-    id: 'settings',
-    path: RouteTree.settings.path,
-    parentId: 'root',
-  ),
+  RouteNode(id: 'settings', path: RouteTree.settings.path, parentId: 'root'),
   RouteNode(
     id: 'settings-advanced',
     path: RouteTree.settings.advanced,
     parentId: 'settings',
   ),
   RouteNode(
-    id: 'settings-appearance',
-    path: RouteTree.settings.appearance,
+    id: 'settings-services',
+    path: RouteTree.settings.services,
+    parentId: 'settings',
+  ),
+  RouteNode(
+    id: 'settings-about',
+    path: RouteTree.settings.about,
     parentId: 'settings',
   ),
   RouteNode(

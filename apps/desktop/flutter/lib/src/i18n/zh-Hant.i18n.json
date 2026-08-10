@@ -261,13 +261,16 @@
     "general": {
       "title": "一般",
       "section": {
-        "permissions": "權限",
+        "permissions": "系統權限",
         "ocr": "文字辨識",
         "directory": "辭典",
         "translation": "翻譯",
         "translation_target": "翻譯目標",
         "languages": "語言",
-        "input": "輸入設定"
+        "input": "輸入設定",
+        "startup": "啟動與整合",
+        "ocr_behaviour": "取詞行為",
+        "translation_behaviour": "翻譯行為"
       },
       "row": {
         "launch_at_login": "登入時啟動",
@@ -289,7 +292,10 @@
         "common_languages_all": "所有語言",
         "double_click_copy_result": "雙擊複製翻譯結果",
         "submit_with_enter": "按 Enter 提交",
-        "submit_with_meta_enter_mac": "按 ⌘ + Enter 提交"
+        "submit_with_meta_enter_mac": "按 ⌘ + Enter 提交",
+        "screen_capture_access_hint": "截圖取詞需要讀取螢幕內容。",
+        "screen_selection_access_hint": "劃詞取詞需要讀取其他應用程式中選取的文字。",
+        "no_translation_targets": "還沒有翻譯目標，新增一條來決定預設譯入哪種語言。"
       },
       "button": {
         "add_provider": "新增…",
@@ -321,13 +327,15 @@
         "app_language": "顯示語言",
         "theme_mode": "主題模式",
         "theme_style": "主題風格"
-      }
+      },
+      "footer": "變更立即套用到整個視窗。"
     },
     "shortcuts": {
       "title": "快捷鍵",
       "section": {
         "text_extraction": "文字擷取",
-        "input_assist": "輸入輔助功能"
+        "input_assist": "輸入輔助功能",
+        "submit_mode": "提交方式"
       },
       "row": {
         "toggle_mini_translator": "顯示/隱藏視窗",
@@ -341,7 +349,18 @@
         "message": "確定要重設所有快捷鍵為預設值嗎？",
         "confirm": "重設",
         "cancel": "取消"
-      }
+      },
+      "group": {
+        "global": {
+          "title": "全域快速鍵",
+          "description": "在任何應用程式裡都能觸發。"
+        },
+        "in_app": {
+          "title": "應用程式內按鍵",
+          "description": "僅在應用程式自己的輸入框內生效。"
+        }
+      },
+      "reset": "恢復預設..."
     },
     "advanced": {
       "title": "進階",
@@ -383,6 +402,10 @@
           "message": "此服務將從提供者中移除。"
         },
         "prompt_variables": "可用變數：{{sourceLanguage}}、{{targetLanguage}}、{{text}}"
+      },
+      "make_default": "設為預設",
+      "item": {
+        "none_of_kind": "還沒有可用的{}服務。"
       }
     },
     "providers": {
@@ -493,7 +516,8 @@
       },
       "groups": "設定分組",
       "effect_hint": "更改即時生效",
-      "footer_note": "譯文與金鑰僅保存在本機"
+      "footer_note": "譯文與金鑰僅保存在本機",
+      "support": "支援"
     },
     "about": {
       "title": "關於",
@@ -505,7 +529,8 @@
       "github": "GitHub",
       "report_issue": "回報問題",
       "license": "授權條款",
-      "open_changelog": "查看更新日誌"
+      "open_changelog": "查看更新日誌",
+      "update": "更新"
     }
   }
 }

@@ -1,7 +1,8 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/add_provider_dialog.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/provider_meta.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart' as ui
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
+    as ui
     show Dialog, DialogFooter, DialogHeader;
 import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
     show DesignThemeProvider;
@@ -16,19 +17,16 @@ void main() {
     return const DesignThemeProvider(
       child: MaterialApp(
         home: Scaffold(
-          body: SizedBox(
-            width: 840,
-            height: 620,
-            child: AddProviderDialog(),
-          ),
+          body: SizedBox(width: 840, height: 620, child: AddProviderDialog()),
         ),
       ),
     );
   }
 
   final llmTypes = kKnownProviderTypes.where(isLlmProviderType).toList();
-  final traditionalTypes =
-      kKnownProviderTypes.where((type) => !isLlmProviderType(type)).toList();
+  final traditionalTypes = kKnownProviderTypes
+      .where((type) => !isLlmProviderType(type))
+      .toList();
 
   testWidgets('opens on the type picker with the LLM types listed', (
     tester,
@@ -37,8 +35,10 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text(t.settings.providers.button.add), findsOneWidget);
-    expect(find.text(t.settings.providers.editor.type_picker.prompt),
-        findsOneWidget);
+    expect(
+      find.text(t.settings.providers.editor.type_picker.prompt),
+      findsOneWidget,
+    );
     for (final type in llmTypes) {
       expect(
         find.text(providerTypeDisplayName(type)),
@@ -162,7 +162,8 @@ void main() {
           expect(
             offered,
             contains(key),
-            reason: '${providerTypeValue(type)} requires "$key" but the form '
+            reason:
+                '${providerTypeValue(type)} requires "$key" but the form '
                 'never renders a field for it',
           );
         }

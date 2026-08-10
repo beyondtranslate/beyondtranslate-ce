@@ -135,9 +135,9 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
   }
 
   static List<String> _parseForbidden(String value) => [
-        for (final part in value.split('/'))
-          if (part.trim().isNotEmpty) part.trim(),
-      ];
+    for (final part in value.split('/'))
+      if (part.trim().isNotEmpty) part.trim(),
+  ];
 
   // ── Book editing ───────────────────────────────────────────────────────
 
@@ -230,7 +230,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                         entry.enabled
                             ? '${entry.name} ${entry.entryCount}'
                             : '${entry.name} · '
-                                '${t.workbench.glossary_page.disabled}',
+                                  '${t.workbench.glossary_page.disabled}',
                       ),
                     ),
                   RailAction(
@@ -353,10 +353,8 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
             const SizedBox(width: 12),
             Button(
               variant: ButtonVariant.plain,
-              onPressed: () => _openHeader(
-                _HeaderMode.renaming,
-                bookName: book?.name ?? '',
-              ),
+              onPressed: () =>
+                  _openHeader(_HeaderMode.renaming, bookName: book?.name ?? ''),
               child: Text(strings.rename_book),
             ),
             const SizedBox(width: 12),
@@ -522,9 +520,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                 active: entry.id == _editing?.id,
                 onPressed: () => _openDraft(entry),
                 children: [
-                  DataTableCell(
-                    child: Text(entry.term, style: styles.term),
-                  ),
+                  DataTableCell(child: Text(entry.term, style: styles.term)),
                   DataTableCell(
                     child: Text(entry.translation, style: styles.translation),
                   ),
@@ -569,8 +565,9 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
             style: tokens.typography.sansStyle(
               fontSize: 11,
               height: 1,
-              color:
-                  error == null ? tokens.colors.fgSubtle : tokens.colors.danger,
+              color: error == null
+                  ? tokens.colors.fgSubtle
+                  : tokens.colors.danger,
             ),
           ),
         ),

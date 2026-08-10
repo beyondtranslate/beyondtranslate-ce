@@ -85,10 +85,7 @@ class TranslationPane extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 22,
-                vertical: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
               child: editable
                   ? TextField(
                       controller: controller,
@@ -101,8 +98,9 @@ class TranslationPane extends StatelessWidget {
                       onChanged: onChanged,
                       onSubmitted: onSubmitted,
                       placeholder: hintText,
-                      placeholderStyle:
-                          tokens.typography.sourceStyle(color: colors.fgFaint),
+                      placeholderStyle: tokens.typography.sourceStyle(
+                        color: colors.fgFaint,
+                      ),
                       style: tokens.typography.sourceStyle(color: colors.fg),
                       padding: EdgeInsets.zero,
                     )
@@ -110,8 +108,9 @@ class TranslationPane extends StatelessWidget {
                       child: SelectableText(
                         text,
                         style: highlighted
-                            ? tokens.typography
-                                .translationStyle(color: colors.fg)
+                            ? tokens.typography.translationStyle(
+                                color: colors.fg,
+                              )
                             : tokens.typography.sourceStyle(color: colors.fg),
                       ),
                     ),
@@ -120,15 +119,13 @@ class TranslationPane extends StatelessWidget {
           if (footer != null)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 22,
-                vertical: 14,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color:
-                        highlighted ? colors.accentHairline : colors.hairline,
+                    color: highlighted
+                        ? colors.accentHairline
+                        : colors.hairline,
                     width: context.hairlineWidth,
                   ),
                 ),

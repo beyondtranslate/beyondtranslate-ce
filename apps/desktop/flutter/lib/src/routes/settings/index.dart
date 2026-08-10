@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../i18n/i18n.dart';
-import '../../widgets/ui.dart' show DesignThemeContext, Kbd, Rail, RailItem;
+import '../../widgets/ui.dart'
+    show DesignThemeContext, Kbd, Rail, RailGroup, RailItem;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
+import 'about.dart';
 import 'advanced.dart';
-import 'appearance.dart';
 import 'general.dart';
 import 'providers.dart';
+import 'services.dart';
 import 'shortcuts.dart';
 
 part 'index.g.dart';
@@ -16,10 +18,11 @@ part 'index.g.dart';
 @TypedShellRoute<SettingsShellRoute>(
   routes: <TypedRoute<RouteData>>[
     TypedGoRoute<GeneralSettingsRoute>(path: '/settings/general'),
-    TypedGoRoute<ProvidersSettingsRoute>(path: '/settings/providers'),
-    TypedGoRoute<AppearanceSettingsRoute>(path: '/settings/appearance'),
+    TypedGoRoute<ServicesSettingsRoute>(path: '/settings/services'),
     TypedGoRoute<ShortcutsSettingsRoute>(path: '/settings/shortcuts'),
+    TypedGoRoute<ProvidersSettingsRoute>(path: '/settings/providers'),
     TypedGoRoute<AdvancedSettingsRoute>(path: '/settings/advanced'),
+    TypedGoRoute<AboutSettingsRoute>(path: '/settings/about'),
   ],
 )
 class SettingsShellRoute extends ShellRouteData {
@@ -27,10 +30,7 @@ class SettingsShellRoute extends ShellRouteData {
 
   @override
   Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
-    return SettingsTabsShell(
-      location: state.uri.path,
-      child: navigator,
-    );
+    return SettingsTabsShell(location: state.uri.path, child: navigator);
   }
 }
 
@@ -44,28 +44,38 @@ class GeneralSettingsRoute extends GoRouteData with $GeneralSettingsRoute {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return _buildSettingsPage(
-      state: state,
-      child: const GeneralSettingsPage(),
-    );
+    return _buildSettingsPage(state: state, child: const GeneralSettingsPage());
   }
 }
 
-class AppearanceSettingsRoute extends GoRouteData
-    with $AppearanceSettingsRoute {
-  const AppearanceSettingsRoute();
+class ServicesSettingsRoute extends GoRouteData with $ServicesSettingsRoute {
+  const ServicesSettingsRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const AppearanceSettingsPage();
+    return const ServicesSettingsPage();
   }
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return _buildSettingsPage(
       state: state,
-      child: const AppearanceSettingsPage(),
+      child: const ServicesSettingsPage(),
     );
+  }
+}
+
+class AboutSettingsRoute extends GoRouteData with $AboutSettingsRoute {
+  const AboutSettingsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AboutSettingsPage();
+  }
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildSettingsPage(state: state, child: const AboutSettingsPage());
   }
 }
 
@@ -124,14 +134,15 @@ Page<void> _buildSettingsPage({
   required GoRouterState state,
   required Widget child,
 }) {
-  return NoTransitionPage<void>(
-    key: state.pageKey,
-    child: child,
-  );
+  return NoTransitionPage<void>(key: state.pageKey, child: child);
 }
 
-/// One row of the settings rail: a group and its route.
-typedef _SettingsGroup = ({String location, String label});
+/// One row of the settings rail: a page and its route.
+typedef _SettingsPage = ({String location, String label});
+
+/// One run of the rail. The first run goes unlabelled — the pane's own title
+/// already says what it is.
+typedef _SettingsRun = ({String? label, List<_SettingsPage> pages});
 
 /// The settings shell in the deck's layout: the toolbar names the view, and
 /// under it the settings rail sits beside the content column — inside the
@@ -151,32 +162,52 @@ class SettingsTabsShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final groups = <_SettingsGroup>[
+    final runs = <_SettingsRun>[
       (
-        location: const GeneralSettingsRoute().location,
-        label: t.settings.general.title,
+        label: null,
+        pages: [
+          (
+            location: const GeneralSettingsRoute().location,
+            label: t.settings.general.title,
+          ),
+          (
+            location: const ServicesSettingsRoute().location,
+            label: t.settings.services.title,
+          ),
+          (
+            location: const ShortcutsSettingsRoute().location,
+            label: t.settings.shortcuts.title,
+          ),
+          (
+            location: const ProvidersSettingsRoute().location,
+            label: t.settings.providers.title,
+          ),
+          (
+            location: const AdvancedSettingsRoute().location,
+            label: t.settings.advanced.title,
+          ),
+        ],
       ),
+      // 关于 sits in its own run: everything above it is something you change,
+      // and this run is what the app says about itself. 支持 rather than 其他,
+      // because we can already name what lands here next — 帮助、反馈、诊断 —
+      // and a run called 其他 is one nobody ever knows to look in.
       (
-        location: const AppearanceSettingsRoute().location,
-        label: t.settings.appearance.title,
-      ),
-      (
-        location: const ShortcutsSettingsRoute().location,
-        label: t.settings.shortcuts.title,
-      ),
-      (
-        location: const ProvidersSettingsRoute().location,
-        label: t.settings.providers.title,
-      ),
-      (
-        location: const AdvancedSettingsRoute().location,
-        label: t.settings.advanced.title,
+        label: t.settings.layout.support,
+        pages: [
+          (
+            location: const AboutSettingsRoute().location,
+            label: t.settings.about.title,
+          ),
+        ],
       ),
     ];
-    final active = groups
-            .firstWhereOrNull((group) => location.startsWith(group.location))
+    final pages = [for (final run in runs) ...run.pages];
+    final active =
+        pages
+            .firstWhereOrNull((page) => location.startsWith(page.location))
             ?.location ??
-        groups.first.location;
+        pages.first.location;
 
     return ColoredBox(
       color: colors.window,
@@ -185,10 +216,7 @@ class SettingsTabsShell extends StatelessWidget {
         children: [
           WorkbenchToolbar(
             title: t.settings.layout.title,
-            children: [
-              const Spacer(),
-              Kbd(t.settings.layout.effect_hint),
-            ],
+            children: [const Spacer(), Kbd(t.settings.layout.effect_hint)],
           ),
           Expanded(
             child: Row(
@@ -196,11 +224,20 @@ class SettingsTabsShell extends StatelessWidget {
               children: [
                 Rail(
                   children: [
-                    for (final group in groups)
-                      RailItem(
-                        active: group.location == active,
-                        onPressed: () => context.go(group.location),
-                        child: Text(group.label),
+                    for (var i = 0; i < runs.length; i++)
+                      RailGroup(
+                        first: i == 0,
+                        label: runs[i].label == null
+                            ? null
+                            : Text(runs[i].label!),
+                        children: [
+                          for (final page in runs[i].pages)
+                            RailItem(
+                              active: page.location == active,
+                              onPressed: () => context.go(page.location),
+                              child: Text(page.label),
+                            ),
+                        ],
                       ),
                   ],
                 ),

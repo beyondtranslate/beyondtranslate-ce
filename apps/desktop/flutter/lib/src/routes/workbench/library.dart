@@ -327,8 +327,9 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   }
 
   Widget _buildRow(_HistoryEntry entry) {
-    final active =
-        _selecting ? _selected.contains(entry.id) : entry.id == _active;
+    final active = _selecting
+        ? _selected.contains(entry.id)
+        : entry.id == _active;
     return ListCard(
       eyebrow: Text(entry.service),
       meta: Text(entry.meta),

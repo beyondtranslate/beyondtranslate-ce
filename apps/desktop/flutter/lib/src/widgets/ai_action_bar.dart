@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../services/runtime.dart';
 import 'custom_alert_dialog/show_dialog.dart';
 import 'translation_chat_dialog.dart';
@@ -127,16 +128,16 @@ class AiActionBar extends StatelessWidget {
           .polish(text: translatedText, style: 'natural and fluent');
       onPolish?.call(result);
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Polish failed: $e')),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('Polish failed: $e')));
     }
   }
 
   Future<void> _handleAlternatives(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final result = await runtime.llm(providerId: llmProviderId).alternatives(
+      final result = await runtime
+          .llm(providerId: llmProviderId)
+          .alternatives(
             text: sourceText,
             sourceLang: 'auto',
             targetLang: 'en',
@@ -154,15 +155,12 @@ class AiActionBar extends StatelessWidget {
   Future<void> _handleExplain(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final result = await runtime.llm(providerId: llmProviderId).explain(
-            source: sourceText,
-            translation: translatedText,
-          );
+      final result = await runtime
+          .llm(providerId: llmProviderId)
+          .explain(source: sourceText, translation: translatedText);
       onExplain?.call(result);
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Explain failed: $e')),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('Explain failed: $e')));
     }
   }
 

@@ -48,6 +48,7 @@ export 'src/widgets/label.dart';
 export 'src/widgets/menu.dart';
 export 'src/widgets/option_card.dart';
 export 'src/widgets/popover.dart';
+export 'src/widgets/preference.dart';
 export 'src/widgets/pressable.dart';
 export 'src/widgets/progress.dart';
 export 'src/widgets/radio.dart';

@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 /// asserted rather than left to look right.
 void main() {
   Widget specimen(Widget child) => DesignThemeProvider(
-        child: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Align(alignment: Alignment.topLeft, child: child),
-        ),
-      );
+    child: Directionality(
+      textDirection: TextDirection.ltr,
+      child: Align(alignment: Alignment.topLeft, child: child),
+    ),
+  );
 
   Future<Size> sizeOf(WidgetTester tester, Widget child, Type type) async {
     await tester.pumpWidget(specimen(child));
@@ -54,6 +54,52 @@ void main() {
     expect(box.height, 26);
   });
 
+  testWidgets('a dialog header holds its floor and its footer the 52px band', (
+    tester,
+  ) async {
+    // `min-h-11`: a title on its own only measures 35.5, which reads too short
+    // over the footer, so the band floors at 44 and centres in it.
+    final bare = await sizeOf(
+      tester,
+      const SizedBox(width: 440, child: DialogHeader(title: Text('导出译文'))),
+      DialogHeader,
+    );
+    expect(bare.height, 44);
+
+    // 12 + 13 + 3 + 15 + 12, over the hairline. The subtitle's line box is a
+    // flat 15px: at 11 × 1.4 the band lands on a fractional height and its
+    // hairline falls between device pixels.
+    final withSubtitle = await sizeOf(
+      tester,
+      const SizedBox(
+        width: 440,
+        child: DialogHeader(title: Text('导出译文'), subtitle: Text('15 页 · PDF')),
+      ),
+      DialogHeader,
+    );
+    expect(withSubtitle.height, 55.5);
+
+    // 12 over and under an md Button lands the footer on the 52px titlebar
+    // metric — a sheet should not out-measure the window it sits over.
+    final footer = await sizeOf(
+      tester,
+      SizedBox(
+        width: 440,
+        child: DialogFooter(
+          children: [
+            Button(
+              size: ButtonSize.md,
+              onPressed: () {},
+              child: const Text('导出'),
+            ),
+          ],
+        ),
+      ),
+      DialogFooter,
+    );
+    expect(footer.height, 52 + 0.5);
+  });
+
   testWidgets('Input and SearchField sit on the md-Button line', (
     tester,
   ) async {
@@ -73,6 +119,94 @@ void main() {
       SearchField,
     );
     expect(search.height, 28);
+  });
+
+  testWidgets('a preference row floors at 28px whatever control it carries', (
+    tester,
+  ) async {
+    // Without the floor a switch row is 18px and a select row 28px, and the
+    // space between two titles would change with the controls beside them.
+    final box = await sizeOf(
+      tester,
+      SizedBox(
+        width: 420,
+        child: PreferenceRow(
+          title: const Text('开机时启动'),
+          trailing: [Switch(checked: true, onChanged: (_) {})],
+        ),
+      ),
+      PreferenceRow,
+    );
+    expect(box.height, 28);
+  });
+
+  testWidgets('a heading action does not grow the heading line', (
+    tester,
+  ) async {
+    // The action sits in a zero-height slot and overhangs it, so a section
+    // that carries a 26px button starts at the same height as one that does
+    // not — otherwise two sections on a page lose their shared rhythm.
+    const row = PreferenceRow(title: Text('开机时启动'));
+
+    final plain = await sizeOf(
+      tester,
+      const SizedBox(
+        width: 420,
+        child: PreferenceSection(label: Text('通用'), children: [row]),
+      ),
+      PreferenceSection,
+    );
+    final withAction = await sizeOf(
+      tester,
+      SizedBox(
+        width: 420,
+        child: PreferenceSection(
+          label: const Text('通用'),
+          action: Button(onPressed: () {}, child: const Text('恢复默认')),
+          children: const [row],
+        ),
+      ),
+      PreferenceSection,
+    );
+
+    // 11px label + 12px heading gap + the 28px row.
+    expect(plain.height, 51);
+    expect(withAction.height, plain.height);
+  });
+
+  testWidgets('a heading action still takes the pointer it overhangs', (
+    tester,
+  ) async {
+    // The slot is zero-height so the control cannot push the heading around,
+    // and Flutter drops any pointer outside a box's own size — so the slot has
+    // to forward the hit itself. Without that the button draws perfectly and
+    // does nothing at all.
+    var taps = 0;
+    await tester.pumpWidget(
+      specimen(
+        SizedBox(
+          width: 420,
+          child: PreferenceSection(
+            label: const Text('可用服务'),
+            action: Button(
+              onPressed: () => taps++,
+              child: const Text('添加服务...'),
+            ),
+            children: const [PreferenceRow(title: Text('内置翻译'))],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // The control is centred on the line it reports no height for.
+    final rect = tester.getRect(find.byType(Button));
+    expect(rect.height, 26);
+    expect(rect.center.dy, closeTo(5.5, 0.01));
+
+    await tester.tap(find.byType(Button));
+    await tester.pump();
+    expect(taps, 1);
   });
 
   testWidgets('Switch draws the AppKit small switch', (tester) async {
@@ -169,7 +303,10 @@ void main() {
                 label: const Text('工作区'),
                 children: [
                   NavItem(
-                      active: true, onPressed: () {}, child: const Text('翻译')),
+                    active: true,
+                    onPressed: () {},
+                    child: const Text('翻译'),
+                  ),
                   NavItem(onPressed: () {}, child: const Text('文档翻译')),
                 ],
               ),
@@ -216,9 +353,6 @@ void main() {
     // The footer keeps the column's 14px bottom inset…
     expect(tester.getBottomLeft(find.text('已完成')).dy, 286);
     // …and `mt-auto` pushes the action down to sit just above it.
-    expect(
-      tester.getBottomLeft(find.byType(RailAction)).dy,
-      greaterThan(200),
-    );
+    expect(tester.getBottomLeft(find.byType(RailAction)).dy, greaterThan(200));
   });
 }

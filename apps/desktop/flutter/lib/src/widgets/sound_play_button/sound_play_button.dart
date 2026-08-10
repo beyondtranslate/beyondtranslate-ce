@@ -10,10 +10,7 @@ import '../ui.dart' show Button, ButtonVariant;
 const _kIconSize = 16.0;
 
 class SoundPlayButton extends StatefulWidget {
-  const SoundPlayButton({
-    Key? key,
-    required this.audioUrl,
-  }) : super(key: key);
+  const SoundPlayButton({Key? key, required this.audioUrl}) : super(key: key);
 
   final String audioUrl;
 
@@ -44,17 +41,16 @@ class _SoundPlayButtonState extends State<SoundPlayButton>
 
   void _startPlayingAnimTimer() {
     _stopPlayingAnimTimer();
-    _playingAnimTimer = Timer.periodic(
-      const Duration(milliseconds: 300),
-      (Timer timer) {
-        int nextIndex = _playingAnimImageIndex - 1;
-        if (nextIndex < 0) {
-          nextIndex = 2;
-        }
-        _playingAnimImageIndex = nextIndex;
-        setState(() {});
-      },
-    );
+    _playingAnimTimer = Timer.periodic(const Duration(milliseconds: 300), (
+      Timer timer,
+    ) {
+      int nextIndex = _playingAnimImageIndex - 1;
+      if (nextIndex < 0) {
+        nextIndex = 2;
+      }
+      _playingAnimImageIndex = nextIndex;
+      setState(() {});
+    });
     _playingAnimImageIndex = 2;
     if (mounted) setState(() {});
   }

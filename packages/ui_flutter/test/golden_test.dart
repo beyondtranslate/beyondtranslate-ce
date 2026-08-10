@@ -30,7 +30,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// asset bundle: the bundle's root depends on which directory `flutter test`
 /// was invoked from, and these goldens have to render the same either way.
 Directory _packageRoot(String package) {
-  for (var dir = Directory.current;; dir = dir.parent) {
+  for (var dir = Directory.current; ; dir = dir.parent) {
     final config = File('${dir.path}/.dart_tool/package_config.json');
     if (config.existsSync()) {
       final packages =
@@ -38,12 +38,14 @@ Directory _packageRoot(String package) {
       for (final entry in packages.cast<Map<String, dynamic>>()) {
         if (entry['name'] != package) continue;
         return Directory.fromUri(
-            config.uri.resolve(entry['rootUri'] as String));
+          config.uri.resolve(entry['rootUri'] as String),
+        );
       }
     }
     if (dir.parent.path == dir.path) {
       fail(
-          '$package is not in any package_config.json above ${Directory.current.path}');
+        '$package is not in any package_config.json above ${Directory.current.path}',
+      );
     }
   }
 }
@@ -90,8 +92,9 @@ void main() {
       }
       final icons = _packageRoot('fluentui_system_icons');
       for (final font in const ['Regular', 'Filled']) {
-        final file =
-            File('${icons.path}/lib/fonts/FluentSystemIcons-$font.ttf');
+        final file = File(
+          '${icons.path}/lib/fonts/FluentSystemIcons-$font.ttf',
+        );
         if (!file.existsSync()) fail('missing icon font: ${file.path}');
         await _load(
           'packages/fluentui_system_icons/FluentSystemIcons-$font',
@@ -145,25 +148,25 @@ void main() {
     }
 
     Widget column(List<Widget> children, {double gap = 10}) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) SizedBox(height: gap),
-              children[i],
-            ],
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) SizedBox(height: gap),
+          children[i],
+        ],
+      ],
+    );
 
     Widget row(List<Widget> children, {double gap = 8}) => Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) SizedBox(width: gap),
-              children[i],
-            ],
-          ],
-        );
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) SizedBox(width: gap),
+          children[i],
+        ],
+      ],
+    );
 
     testWidgets('button variants', (tester) async {
       await expectGolden(
@@ -353,10 +356,7 @@ void main() {
               tone: CalloutTone.accent,
               child: Text('正在测试连接 · 已用 1.4s'),
             ),
-            const Surface(
-              tone: SurfaceTone.raised,
-              child: Text('白卡片'),
-            ),
+            const Surface(tone: SurfaceTone.raised, child: Text('白卡片')),
             const Meter(label: Text('术语一致性'), value: 92),
           ]),
         );

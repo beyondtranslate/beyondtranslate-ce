@@ -104,7 +104,8 @@ class _PressableState extends State<Pressable> {
 
     result = FocusableActionDetector(
       enabled: _interactive,
-      mouseCursor: widget.cursor ??
+      mouseCursor:
+          widget.cursor ??
           (widget.enabled
               ? SystemMouseCursors.click
               : SystemMouseCursors.forbidden),
@@ -174,10 +175,10 @@ class _HoverRegionState extends State<HoverRegion> {
 
   @override
   Widget build(BuildContext context) => MouseRegion(
-        onEnter: (_) {
-          if (widget.enabled) setState(() => _hovered = true);
-        },
-        onExit: (_) => setState(() => _hovered = false),
-        child: widget.builder(context, _hovered && widget.enabled),
-      );
+    onEnter: (_) {
+      if (widget.enabled) setState(() => _hovered = true);
+    },
+    onExit: (_) => setState(() => _hovered = false),
+    child: widget.builder(context, _hovered && widget.enabled),
+  );
 }
