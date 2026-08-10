@@ -4,7 +4,7 @@ use serde_json::Value;
 
 use crate::{utils, ApiError};
 
-const OPENAPI_YAML: &str = include_str!("../../../apps/api/openapi.yaml");
+const OPENAPI_YAML: &str = include_str!("../openapi.yaml");
 const API_REFERENCE_SCRIPT_URL: &str = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
 
 #[derive(Debug, Serialize)]

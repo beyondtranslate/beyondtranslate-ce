@@ -23,12 +23,6 @@ beyondtranslate/
 │   │   ├── windows/              # Windows platform-specific files
 │   │   ├── resources/            # Static assets (images, fonts)
 │   │   └── pubspec.yaml
-│   └── api/                      # Rust API server (Cloudflare Workers + Rust)
-│       ├── src/                  # Rust source code
-│       ├── scripts/              # Build/deploy scripts
-│       ├── config.yaml
-│       ├── openapi.yaml
-│       └── wrangler.toml
 ├── crates/
 │   ├── core/                     # Rust crate: core logic (shared)
 │   │   ├── src/                  # Rust source
@@ -62,7 +56,6 @@ beyondtranslate/
 | Directory | Language | Role |
 |-----------|----------|------|
 | `apps/desktop` | Dart (Flutter) | Main desktop application |
-| `apps/api` | Rust + Cloudflare Workers | Backend API server |
 | `crates/core` | Rust | Shared core logic (models, utilities) |
 | `crates/engine` | Rust | Translation engine interface/logic |
 | `packages/runtime` | Dart + Rust + Swift | FFI bridge between Flutter and Rust; generates **Dart** bindings for Flutter and **Swift** bindings for the macOS SPM package |
@@ -80,7 +73,6 @@ beyondtranslate/
 - **Flutter** (SDK >=3.27.0) — Desktop UI framework. Dart SDK constraints for workspace packages are `>=3.6.0 <4.0.0` because Pub Workspaces require Dart 3.6+.
 - **Melos** (^7.0.0) — Monorepo orchestration. Configuration lives under the root `pubspec.yaml` `melos:` section.
 - **Cargo** — Rust build system
-- **wrangler** — Cloudflare Workers deployment (API server)
 - **go_router** — Flutter routing
 - **slang / slang_flutter** — Internationalization (i18n)
 - **bot_toast** — Toast notifications
@@ -417,18 +409,6 @@ The `packages/runtime` package uses **uniffi** to generate Dart FFI bindings for
 2. **OCR (optional):** Text can be extracted from images using built-in or Youdao OCR engines.
 3. **Translation:** Text is sent to the translation engine (`crates/engine`) which supports multiple providers.
 4. **Display:** Results are shown in the UI with pronunciation, definitions, and examples.
-
-### API Server
-The `apps/api` directory contains a Rust-based API server deployed via Cloudflare Workers. It uses `wrangler.toml` for configuration and is independent of the desktop app.
-
-Common API commands:
-
-```bash
-cd apps/api
-npm run dev      # Run wrangler dev
-npm run build    # Build the Cloudflare Worker
-npm run deploy   # Deploy the Cloudflare Worker
-```
 
 ---
 
