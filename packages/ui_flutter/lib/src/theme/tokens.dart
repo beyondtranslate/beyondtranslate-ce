@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 /// BeyondTranslate design tokens — the Dart mirror of `tokens.css`.
@@ -54,7 +55,6 @@ class DesignColors {
     this.hairlineStrong = const Color(0x1A141628), // rgba(20, 22, 40, 0.1)
     this.hairlineSoft = const Color(0x0F141628), // rgba(20, 22, 40, 0.06)
     this.accentHairline = const Color(0x336B4DFF), // rgba(107, 77, 255, 0.2)
-
     // Foreground ramp
     this.fg = const Color(0xFF12142A),
     this.fgSecondary = const Color(0xFF3C405C),
@@ -79,7 +79,6 @@ class DesignColors {
     this.accentTextStrong = const Color(0xFF4C33CC),
     this.highlight = const Color(0xFF6B4DFF),
     this.accentRing = const Color(0x246B4DFF), // rgba(107, 77, 255, 0.14)
-
     /// Keyboard focus: a ring hugging the control, no gap.
     /// `rgba(107, 77, 255, 0.45)`
     this.focusRing = const Color(0x736B4DFF),
@@ -100,7 +99,6 @@ class DesignColors {
     this.dangerDeep = const Color(0xFF7E1F1C),
     this.dangerSurface = const Color(0xFFFDF2F2),
     this.dangerHairline = const Color(0x57D64040), // rgba(214, 64, 64, 0.34)
-
     // macOS traffic lights
     this.trafficClose = const Color(0xFFFF5F57),
     this.trafficMinimize = const Color(0xFFFEBC2E),
@@ -245,8 +243,10 @@ class DesignTypography {
     this.sans = const DesignFont(fallback: ['PingFang SC']),
     this.cjk = const DesignFont(family: 'PingFang SC'),
     this.label = const DesignFont(),
-    this.mono =
-        const DesignFont(family: 'SF Mono', fallback: ['Menlo', 'monospace']),
+    this.mono = const DesignFont(
+      family: 'SF Mono',
+      fallback: ['Menlo', 'monospace'],
+    ),
     this.caption = 11,
     this.small = 12,
     this.body = 13,
@@ -274,11 +274,17 @@ class DesignShadows {
   const DesignShadows({
     this.window = const [
       BoxShadow(
-          offset: Offset(0, 12), blurRadius: 32, color: Color(0x3D000000)),
+        offset: Offset(0, 12),
+        blurRadius: 32,
+        color: Color(0x3D000000),
+      ),
     ],
     this.popover = const [
       BoxShadow(
-          offset: Offset(0, 10), blurRadius: 30, color: Color(0x38000000)),
+        offset: Offset(0, 10),
+        blurRadius: 30,
+        color: Color(0x38000000),
+      ),
     ],
     this.float = const [
       BoxShadow(offset: Offset(0, 8), blurRadius: 24, color: Color(0x33000000)),
@@ -340,8 +346,8 @@ class DesignTokens {
     this.shadows = const DesignShadows(),
     Color? selection,
     Color? selectionFg,
-  })  : _selection = selection,
-        _selectionFg = selectionFg;
+  }) : _selection = selection,
+       _selectionFg = selectionFg;
 
   final Brightness brightness;
   final DesignColors colors;
@@ -367,17 +373,16 @@ class DesignTokens {
     Color? selection,
     Color? selectionFg,
     DesignTypography? typography,
-  }) =>
-      DesignTokens(
-        brightness: brightness,
-        colors: colors,
-        radii: radii,
-        metrics: metrics,
-        typography: typography ?? this.typography,
-        shadows: shadows,
-        backdrop: backdrop,
-        progressGradient: progressGradient,
-        selection: selection ?? _selection,
-        selectionFg: selectionFg ?? _selectionFg,
-      );
+  }) => DesignTokens(
+    brightness: brightness,
+    colors: colors,
+    radii: radii,
+    metrics: metrics,
+    typography: typography ?? this.typography,
+    shadows: shadows,
+    backdrop: backdrop,
+    progressGradient: progressGradient,
+    selection: selection ?? _selection,
+    selectionFg: selectionFg ?? _selectionFg,
+  );
 }

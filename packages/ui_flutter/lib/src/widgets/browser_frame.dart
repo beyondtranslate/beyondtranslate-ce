@@ -127,10 +127,10 @@ class ToolbarSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-        child: Container(
-          width: context.hairlineWidth,
-          height: 14,
-          color: context.colors.hairlineStrong,
-        ),
-      );
+    child: Container(
+      width: context.hairlineWidth,
+      height: 14,
+      color: context.colors.hairlineStrong,
+    ),
+  );
 }

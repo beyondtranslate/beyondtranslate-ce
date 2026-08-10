@@ -261,13 +261,16 @@
     "general": {
       "title": "General",
       "section": {
-        "permissions": "Permissions",
+        "permissions": "System Permissions",
         "ocr": "Text Recognition",
         "directory": "Directory",
         "translation": "Translation",
         "translation_target": "Translation Target",
         "languages": "Languages",
-        "input": "Input Settings"
+        "input": "Input Settings",
+        "startup": "Startup & Integration",
+        "ocr_behaviour": "Capture Behaviour",
+        "translation_behaviour": "Translation Behaviour"
       },
       "row": {
         "launch_at_login": "Launch when you log in",
@@ -289,7 +292,10 @@
         "common_languages_search": "Search languages...",
         "common_languages_all": "All Languages",
         "submit_with_enter": "Submit with Enter",
-        "submit_with_meta_enter_mac": "Submit with ⌘ + Enter"
+        "submit_with_meta_enter_mac": "Submit with ⌘ + Enter",
+        "screen_capture_access_hint": "Capturing text from the screen needs to read screen contents.",
+        "screen_selection_access_hint": "Capturing selected text needs to read selections in other apps.",
+        "no_translation_targets": "No translation targets yet — add one to set the default language to translate into."
       },
       "button": {
         "add_provider": "Add...",
@@ -321,13 +327,15 @@
         "app_language": "Display Language",
         "theme_mode": "Theme Mode",
         "theme_style": "Theme style"
-      }
+      },
+      "footer": "Changes apply to the whole window immediately."
     },
     "shortcuts": {
       "title": "Shortcuts",
       "section": {
         "text_extraction": "Text Extraction",
-        "input_assist": "Input Assist Function"
+        "input_assist": "Input Assist Function",
+        "submit_mode": "Submit With"
       },
       "row": {
         "toggle_mini_translator": "Show/Hide Window",
@@ -341,7 +349,18 @@
         "message": "Are you sure you want to reset all shortcuts to their default values?",
         "confirm": "Reset",
         "cancel": "Cancel"
-      }
+      },
+      "group": {
+        "global": {
+          "title": "Global Shortcuts",
+          "description": "Work in any app."
+        },
+        "in_app": {
+          "title": "In-App Keys",
+          "description": "Only apply inside this app’s own text fields."
+        }
+      },
+      "reset": "Restore Defaults..."
     },
     "advanced": {
       "title": "Advanced",
@@ -383,6 +402,10 @@
           "message": "This service will be removed from the provider."
         },
         "prompt_variables": "Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
+      },
+      "make_default": "Make Default",
+      "item": {
+        "none_of_kind": "No {} service available yet."
       }
     },
     "providers": {
@@ -493,7 +516,8 @@
       },
       "groups": "Groups",
       "effect_hint": "Changes apply immediately",
-      "footer_note": "Translations and keys stay on this Mac"
+      "footer_note": "Translations and keys stay on this Mac",
+      "support": "Support"
     },
     "about": {
       "title": "About",
@@ -505,7 +529,8 @@
       "github": "GitHub",
       "report_issue": "Report an Issue",
       "license": "License",
-      "open_changelog": "Open Changelog"
+      "open_changelog": "Open Changelog",
+      "update": "Update"
     }
   }
 }

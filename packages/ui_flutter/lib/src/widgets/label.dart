@@ -8,11 +8,7 @@ enum LabelTone { subtle, faint, accent, warn, danger }
 /// The micro-heading that organises every pane: 11pt semibold, sentence case.
 /// AppKit uses a single size for these, so tone is the only variant.
 class Label extends StatelessWidget {
-  const Label({
-    super.key,
-    this.tone = LabelTone.subtle,
-    required this.child,
-  });
+  const Label({super.key, this.tone = LabelTone.subtle, required this.child});
 
   final LabelTone tone;
   final Widget child;

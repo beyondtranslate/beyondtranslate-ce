@@ -5,10 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../ui.dart' show Button, ButtonVariant, DesignThemeContext;
 
 class CustomAppBarBackButton extends StatelessWidget {
-  const CustomAppBarBackButton({
-    Key? key,
-    this.onPressed,
-  }) : super(key: key);
+  const CustomAppBarBackButton({Key? key, this.onPressed}) : super(key: key);
 
   final VoidCallback? onPressed;
 

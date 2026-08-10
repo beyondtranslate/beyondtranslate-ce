@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// A text widget that reveals its content character by character
@@ -101,9 +102,7 @@ class _TypewriterTextState extends State<TypewriterText>
                 opacity: _cursorController,
                 child: Text(
                   '|',
-                  style: widget.style?.copyWith(
-                    color: widget.cursorColor,
-                  ),
+                  style: widget.style?.copyWith(color: widget.cursorColor),
                 ),
               ),
             ),

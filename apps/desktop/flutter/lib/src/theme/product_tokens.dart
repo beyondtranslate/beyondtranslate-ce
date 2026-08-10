@@ -77,16 +77,13 @@ extension ProductTokensContext on BuildContext {
 extension ProductTypographyStyles on DesignTypography {
   /// 译文正文：CJK face, larger and airier than the source text.
   TextStyle translationStyle({Color? color}) => cjkStyle(
-        fontSize: ProductTokens.translationSize,
-        fontWeight: FontWeight.w400,
-        height: ProductTokens.translationLeading,
-        color: color,
-      );
+    fontSize: ProductTokens.translationSize,
+    fontWeight: FontWeight.w400,
+    height: ProductTokens.translationLeading,
+    color: color,
+  );
 
   /// 原文：same body size as the surrounding chrome, receded in colour.
-  TextStyle sourceStyle({Color? color}) => sansStyle(
-        fontSize: body,
-        height: 1.7,
-        color: color,
-      );
+  TextStyle sourceStyle({Color? color}) =>
+      sansStyle(fontSize: body, height: 1.7, color: color);
 }

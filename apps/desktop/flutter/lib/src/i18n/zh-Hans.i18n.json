@@ -261,13 +261,16 @@
     "general": {
       "title": "常规",
       "section": {
-        "permissions": "权限",
+        "permissions": "系统权限",
         "ocr": "文字识别",
         "directory": "词典",
         "translation": "翻译",
         "translation_target": "翻译目标",
         "languages": "语言",
-        "input": "输入设置"
+        "input": "输入设置",
+        "startup": "启动与集成",
+        "ocr_behaviour": "取词行为",
+        "translation_behaviour": "翻译行为"
       },
       "row": {
         "launch_at_login": "登录时启动",
@@ -289,7 +292,10 @@
         "common_languages_all": "所有语言",
         "double_click_copy_result": "双击复制翻译结果",
         "submit_with_enter": "按 Enter 提交",
-        "submit_with_meta_enter_mac": "按 ⌘ + Enter 提交"
+        "submit_with_meta_enter_mac": "按 ⌘ + Enter 提交",
+        "screen_capture_access_hint": "截图取词需要读取屏幕内容。",
+        "screen_selection_access_hint": "划词取词需要读取其他应用中选中的文本。",
+        "no_translation_targets": "还没有翻译目标，添加一条来决定默认译入哪种语言。"
       },
       "button": {
         "add_provider": "添加...",
@@ -321,13 +327,15 @@
         "app_language": "显示语言",
         "theme_mode": "主题模式",
         "theme_style": "主题风格"
-      }
+      },
+      "footer": "更改立即应用到整个窗口。"
     },
     "shortcuts": {
       "title": "快捷键",
       "section": {
         "text_extraction": "文字提取",
-        "input_assist": "输入辅助功能"
+        "input_assist": "输入辅助功能",
+        "submit_mode": "提交方式"
       },
       "row": {
         "toggle_mini_translator": "显示/隐藏窗口",
@@ -341,7 +349,18 @@
         "message": "确定要重置所有快捷键为默认值吗？",
         "confirm": "重置",
         "cancel": "取消"
-      }
+      },
+      "group": {
+        "global": {
+          "title": "全局快捷键",
+          "description": "在任何应用里都能触发。"
+        },
+        "in_app": {
+          "title": "应用内按键",
+          "description": "仅在应用自己的输入框内生效。"
+        }
+      },
+      "reset": "恢复默认..."
     },
     "advanced": {
       "title": "高级",
@@ -383,6 +402,10 @@
           "message": "此服务将从提供商中移除。"
         },
         "prompt_variables": "可用变量：{{sourceLanguage}}、{{targetLanguage}}、{{text}}"
+      },
+      "make_default": "设为默认",
+      "item": {
+        "none_of_kind": "还没有可用的{}服务。"
       }
     },
     "providers": {
@@ -493,7 +516,8 @@
       },
       "groups": "设置分组",
       "effect_hint": "更改即时生效",
-      "footer_note": "译文与密钥仅保存在本机"
+      "footer_note": "译文与密钥仅保存在本机",
+      "support": "支持"
     },
     "about": {
       "title": "关于",
@@ -505,7 +529,8 @@
       "github": "GitHub",
       "report_issue": "提交问题",
       "license": "许可证",
-      "open_changelog": "查看更新日志"
+      "open_changelog": "查看更新日志",
+      "update": "更新"
     }
   }
 }

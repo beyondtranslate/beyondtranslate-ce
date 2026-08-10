@@ -5,10 +5,8 @@ import '../../services/runtime.dart';
 import '../sound_play_button/sound_play_button.dart';
 
 class WordPronunciationView extends StatelessWidget {
-  const WordPronunciationView(
-    this.wordPronunciation, {
-    Key? key,
-  }) : super(key: key);
+  const WordPronunciationView(this.wordPronunciation, {Key? key})
+    : super(key: key);
 
   final WordPronunciation wordPronunciation;
 
@@ -29,26 +27,18 @@ class WordPronunciationView extends StatelessWidget {
                 if ((wordPronunciation.type ?? '').isNotEmpty)
                   TextSpan(
                     text: '${wordPronunciation.localType} ',
-                    style: textTheme.bodyMedium!.copyWith(
-                      fontSize: 13,
-                    ),
+                    style: textTheme.bodyMedium!.copyWith(fontSize: 13),
                   ),
                 if ((wordPronunciation.phoneticSymbol ?? '').isNotEmpty)
-                  TextSpan(
-                    text: '[${wordPronunciation.phoneticSymbol}]',
-                  )
+                  TextSpan(text: '[${wordPronunciation.phoneticSymbol}]'),
               ],
             ),
-            style: textTheme.bodySmall!.copyWith(
-              fontSize: 13,
-            ),
+            style: textTheme.bodySmall!.copyWith(fontSize: 13),
           ),
           if ((wordPronunciation.audioUrl ?? '').isNotEmpty)
             Container(
               margin: const EdgeInsets.only(left: 10, top: 2),
-              child: SoundPlayButton(
-                audioUrl: wordPronunciation.audioUrl!,
-              ),
+              child: SoundPlayButton(audioUrl: wordPronunciation.audioUrl!),
             ),
         ],
       ),

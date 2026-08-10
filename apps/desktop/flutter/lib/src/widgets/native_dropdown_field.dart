@@ -51,14 +51,14 @@ class NativeDropdownField<T> extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final effectiveDecoration =
-        (decoration ?? const InputDecoration()).copyWith(
-      suffixIcon: Icon(
-        Icons.arrow_drop_down_rounded,
-        color: colorScheme.onSurface.withValues(alpha: 0.6),
-        size: 20,
-      ),
-    );
+    final effectiveDecoration = (decoration ?? const InputDecoration())
+        .copyWith(
+          suffixIcon: Icon(
+            Icons.arrow_drop_down_rounded,
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
+            size: 20,
+          ),
+        );
 
     return InputDecorator(
       decoration: effectiveDecoration,

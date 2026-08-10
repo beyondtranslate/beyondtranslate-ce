@@ -3,13 +3,8 @@ import 'package:flutter/material.dart';
 import '../ui.dart' show DesignThemeContext, Spinner, SpinnerSize;
 
 class CustomImage extends StatelessWidget {
-  const CustomImage(
-    this.url, {
-    Key? key,
-    this.width,
-    this.height,
-    this.fit,
-  }) : super(key: key);
+  const CustomImage(this.url, {Key? key, this.width, this.height, this.fit})
+    : super(key: key);
 
   final String url;
   final double? width;

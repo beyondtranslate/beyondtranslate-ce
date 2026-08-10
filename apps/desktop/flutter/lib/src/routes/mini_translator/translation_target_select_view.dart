@@ -68,16 +68,18 @@ class MiniTranslatorTopBar extends StatelessWidget {
       t.mini_translator.toolbar.menu.extract_from_screen_capture,
       nativeapi.MenuItemType.normal,
     );
-    captureItem
-        .on<nativeapi.MenuItemClickedEvent>((_) => onExtractScreenCapture());
+    captureItem.on<nativeapi.MenuItemClickedEvent>(
+      (_) => onExtractScreenCapture(),
+    );
     menu.addItem(captureItem);
 
     final clipboardItem = nativeapi.MenuItem(
       t.mini_translator.toolbar.menu.extract_from_clipboard,
       nativeapi.MenuItemType.normal,
     );
-    clipboardItem
-        .on<nativeapi.MenuItemClickedEvent>((_) => onExtractClipboard());
+    clipboardItem.on<nativeapi.MenuItemClickedEvent>(
+      (_) => onExtractClipboard(),
+    );
     menu.addItem(clipboardItem);
 
     menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
@@ -116,7 +118,8 @@ class MiniTranslatorTopBar extends StatelessWidget {
       autoLabel,
       nativeapi.MenuItemType.checkbox,
     );
-    autoItem.state = activeConfigIndex == -1 &&
+    autoItem.state =
+        activeConfigIndex == -1 &&
             isAutoSource(sourceLanguage) &&
             selectedTargetLanguage == null
         ? nativeapi.MenuItemState.checked

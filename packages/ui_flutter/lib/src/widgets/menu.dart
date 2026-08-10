@@ -42,7 +42,7 @@ class Menu extends StatefulWidget {
 
   /// Renders the trigger; receives the open state and a toggle callback.
   final Widget Function(BuildContext context, bool open, VoidCallback toggle)
-      trigger;
+  trigger;
   final List<MenuItem> items;
   final MenuAlign align;
 
@@ -169,10 +169,7 @@ class _MenuPanel extends StatelessWidget {
                         width: 12,
                         child: item.checked!
                             ? IconTheme(
-                                data: IconThemeData(
-                                  color: colors.fg,
-                                  size: 12,
-                                ),
+                                data: IconThemeData(color: colors.fg, size: 12),
                                 child: const Icon(
                                   FluentIcons.checkmark_20_regular,
                                 ),
@@ -183,10 +180,7 @@ class _MenuPanel extends StatelessWidget {
                     ],
                     if (item.icon != null) ...[
                       IconTheme(
-                        data: IconThemeData(
-                          color: colors.fgTertiary,
-                          size: 14,
-                        ),
+                        data: IconThemeData(color: colors.fgTertiary, size: 14),
                         child: item.icon!,
                       ),
                       const SizedBox(width: 8),

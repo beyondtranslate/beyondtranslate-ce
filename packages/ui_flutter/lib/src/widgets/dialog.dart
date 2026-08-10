@@ -91,7 +91,11 @@ class DialogHeader extends StatelessWidget {
     final colors = tokens.colors;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      // `min-h-11`: the band is content-driven, which collapses it to 37
+      // without a subtitle — too short over a 52px footer. 44 is the floor the
+      // content centres in.
+      constraints: const BoxConstraints(minHeight: 44),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -102,6 +106,7 @@ class DialogHeader extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           // Same scale as the window titlebar — a sheet's title should not
@@ -119,9 +124,11 @@ class DialogHeader extends StatelessWidget {
           if (subtitle != null) ...[
             const SizedBox(height: 3),
             DefaultTextStyle(
+              // A flat 15px line box, not 1.4: 11 × 1.4 = 15.4 leaves the band
+              // on a fractional height and its hairline between device pixels.
               style: tokens.typography.sansStyle(
                 fontSize: 11,
-                height: 1.4,
+                height: 15 / 11,
                 color: colors.fgSubtle,
               ),
               child: subtitle!,
@@ -150,20 +157,20 @@ class DialogBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Flexible(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0) const SizedBox(height: 16),
-                children[i],
-              ],
-            ],
-          ),
-        ),
-      );
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(height: 16),
+            children[i],
+          ],
+        ],
+      ),
+    ),
+  );
 }
 
 class DialogFooter extends StatelessWidget {
@@ -175,7 +182,10 @@ class DialogFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      // 12 puts an md Button's band on 52, matching the titlebar metric — a
+      // sheet should not out-measure the window it sits over. Chrome pads 12,
+      // content pads 18.
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: colors.chrome,
         border: Border(

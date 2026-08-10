@@ -10,14 +10,18 @@ List<String>? _appLanguages;
 List<String>? _supportedLanguages;
 
 List<String> get appLanguages {
-  _appLanguages ??=
-      runtime.listAppLanguages().map((lang) => lang.code).toList();
+  _appLanguages ??= runtime
+      .listAppLanguages()
+      .map((lang) => lang.code)
+      .toList();
   return _appLanguages!;
 }
 
 List<String> get supportedLanguages {
-  _supportedLanguages ??=
-      runtime.listLanguages().map((lang) => lang.code).toList();
+  _supportedLanguages ??= runtime
+      .listLanguages()
+      .map((lang) => lang.code)
+      .toList();
   return _supportedLanguages!;
 }
 

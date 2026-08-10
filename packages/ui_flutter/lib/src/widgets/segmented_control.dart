@@ -108,8 +108,8 @@ class SegmentedControl<T> extends StatelessWidget {
                   color: activeAccent
                       ? colors.onAccent
                       : active
-                          ? colors.fg
-                          : (state.hovered ? colors.fg : colors.fgSecondary),
+                      ? colors.fg
+                      : (state.hovered ? colors.fg : colors.fgSecondary),
                 ),
                 child: item.label,
               ),

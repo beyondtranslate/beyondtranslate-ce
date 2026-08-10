@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../services/runtime.dart';
 
 class WordSentenceView extends StatelessWidget {
-  const WordSentenceView(
-    this.wordSentence, {
-    Key? key,
-  }) : super(key: key);
+  const WordSentenceView(this.wordSentence, {Key? key}) : super(key: key);
 
   final WordSentence wordSentence;
 
@@ -27,15 +25,11 @@ class WordSentenceView extends StatelessWidget {
                 const TextSpan(text: '\n'),
                 TextSpan(
                   text: wordSentence.translations.first,
-                  style: textTheme.bodySmall!.copyWith(
-                    fontSize: 13,
-                  ),
+                  style: textTheme.bodySmall!.copyWith(fontSize: 13),
                 ),
               ],
             ),
-            style: textTheme.bodyMedium!.copyWith(
-              height: 1.4,
-            ),
+            style: textTheme.bodyMedium!.copyWith(height: 1.4),
           ),
         ],
       ),

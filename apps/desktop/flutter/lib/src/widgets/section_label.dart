@@ -4,11 +4,7 @@ import 'ui.dart' show DesignThemeContext, DesignTypographyStyles, Label;
 
 /// A numbered section heading — `01  质量信号`.
 class SectionLabel extends StatelessWidget {
-  const SectionLabel({
-    super.key,
-    required this.index,
-    required this.label,
-  });
+  const SectionLabel({super.key, required this.index, required this.label});
 
   final String index;
   final String label;

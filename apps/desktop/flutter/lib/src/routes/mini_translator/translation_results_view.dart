@@ -35,18 +35,19 @@ typedef ServiceTranslation = ({
 
 /// Every service translation with text, in service order — the first target's
 /// records first, then any additional configured targets.
-List<ServiceTranslation> serviceTranslations(
-  List<TranslationResult> results,
-) {
+List<ServiceTranslation> serviceTranslations(List<TranslationResult> results) {
   final translations = <ServiceTranslation>[];
   for (final result in results) {
-    for (final record in result.translationResultRecordList ??
-        const <TranslationResultRecord>[]) {
+    for (final record
+        in result.translationResultRecordList ??
+            const <TranslationResultRecord>[]) {
       final texts = record.translateResponse?.translations ?? [];
       if (texts.isEmpty || texts.first.text.isEmpty) continue;
-      translations.add(
-        (result: result, record: record, text: texts.first.text),
-      );
+      translations.add((
+        result: result,
+        record: record,
+        text: texts.first.text,
+      ));
     }
   }
   return translations;
@@ -123,8 +124,9 @@ class MiniTranslatorTranslation extends StatelessWidget {
     var pendingCount = 0;
     var failedCount = 0;
     for (final result in results) {
-      for (final record in result.translationResultRecordList ??
-          const <TranslationResultRecord>[]) {
+      for (final record
+          in result.translationResultRecordList ??
+              const <TranslationResultRecord>[]) {
         if (!translationServiceIds.contains(record.translationServiceId)) {
           continue;
         }
@@ -298,8 +300,8 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     onPrefer: candidates[i].record.translationServiceId == null
                         ? null
                         : () => onPreferService(
-                              candidates[i].record.translationServiceId!,
-                            ),
+                            candidates[i].record.translationServiceId!,
+                          ),
                   ),
                 ],
               ],
@@ -371,8 +373,9 @@ class _CompareToggle extends StatelessWidget {
             Text(
               expanded
                   ? t.mini_translator.result.collapse_compare
-                  : t.mini_translator.result
-                      .compare_services(count: serviceCount),
+                  : t.mini_translator.result.compare_services(
+                      count: serviceCount,
+                    ),
               style: tokens.typography.sansStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -429,10 +432,7 @@ class _CandidateCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Label(
-                  tone: LabelTone.subtle,
-                  child: Text(name),
-                ),
+                child: Label(tone: LabelTone.subtle, child: Text(name)),
               ),
               if (shortcut != null) Kbd(shortcut!, size: KbdSize.sm),
             ],

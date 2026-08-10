@@ -1,13 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import '../../services/runtime.dart';
 
 class WordPhraseView extends StatelessWidget {
-  const WordPhraseView(
-    this.wordPhrase, {
-    Key? key,
-    required this.onTextTapped,
-  }) : super(key: key);
+  const WordPhraseView(this.wordPhrase, {Key? key, required this.onTextTapped})
+    : super(key: key);
 
   final WordPhrase wordPhrase;
   final ValueChanged<String> onTextTapped;
@@ -38,15 +36,12 @@ class WordPhraseView extends StatelessWidget {
                 const TextSpan(text: ' '),
                 TextSpan(
                   text: wordPhrase.translations.first,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                        fontSize: 13,
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall!
+                      .copyWith(fontSize: 13),
                 ),
               ],
             ),
-            style: textTheme.bodyMedium!.copyWith(
-              height: 1.4,
-            ),
+            style: textTheme.bodyMedium!.copyWith(height: 1.4),
           ),
         ],
       ),

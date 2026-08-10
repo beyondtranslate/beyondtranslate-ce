@@ -16,6 +16,7 @@ class SearchField extends StatefulWidget {
     this.shortcut = '⌘F',
     this.autofocus = false,
     this.onDismiss,
+    this.clearLabel = '清除',
     this.semanticsLabel,
   });
 
@@ -31,6 +32,9 @@ class SearchField extends StatefulWidget {
 
   /// Called on Escape; the caller usually closes the field.
   final VoidCallback? onDismiss;
+
+  /// Accessible name of the ✕ button. Relabel it to localise.
+  final String clearLabel;
   final String? semanticsLabel;
 
   @override
@@ -38,8 +42,9 @@ class SearchField extends StatefulWidget {
 }
 
 class _SearchFieldState extends State<SearchField> {
-  late final TextEditingController _controller =
-      TextEditingController(text: widget.value);
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.value,
+  );
   late final FocusNode _node = FocusNode();
   bool _focused = false;
 
@@ -102,9 +107,11 @@ class _SearchFieldState extends State<SearchField> {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: _focused ? colors.window : colors.card,
+        // `focus-within:border-accent` recolours the hairline without
+        // rewidening it — the ring below carries the focus, not the border.
         border: Border.all(
           color: _focused ? colors.accent : colors.hairlineStrong,
-          width: _focused ? 1 : context.hairlineWidth,
+          width: context.hairlineWidth,
         ),
         borderRadius: radius,
         boxShadow: _focused
@@ -116,8 +123,11 @@ class _SearchFieldState extends State<SearchField> {
           ExcludeSemantics(
             child: Text(
               '⌕',
-              style: tokens.typography
-                  .sansStyle(fontSize: 12, height: 1, color: colors.fgFaint),
+              style: tokens.typography.sansStyle(
+                fontSize: 12,
+                height: 1,
+                color: colors.fgFaint,
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -146,7 +156,7 @@ class _SearchFieldState extends State<SearchField> {
           if (widget.value.isNotEmpty)
             Pressable(
               onPressed: () => widget.onChanged(''),
-              semanticsLabel: '清除搜索',
+              semanticsLabel: widget.clearLabel,
               borderRadius: BorderRadius.circular(999),
               builder: (context, state) => Text(
                 '✕',

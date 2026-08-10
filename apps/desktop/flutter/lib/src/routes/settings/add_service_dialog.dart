@@ -54,6 +54,7 @@ class AddServiceDialog extends StatefulWidget {
     required this.existing,
     this.service,
     this.defaultProviderId,
+    this.defaultType,
   });
 
   final List<ProviderConfigEntry> providers;
@@ -67,6 +68,10 @@ class AddServiceDialog extends StatefulWidget {
   final ServiceConfigEntry? service;
 
   final String? defaultProviderId;
+
+  /// The capability the sheet was opened from. 服务 raises this dialog from
+  /// inside a capability's own group, which already decides the kind.
+  final ServiceType? defaultType;
 
   @override
   State<AddServiceDialog> createState() => _AddServiceDialogState();
@@ -86,9 +91,9 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
   bool get _isEditing => widget.service != null;
 
   ProviderConfigEntry get _provider => widget.providers.firstWhere(
-        (entry) => entry.id == _providerId,
-        orElse: () => widget.providers.first,
-      );
+    (entry) => entry.id == _providerId,
+    orElse: () => widget.providers.first,
+  );
 
   bool get _isLlm => isLlmProviderType(_provider.type);
 
@@ -100,11 +105,12 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
     super.initState();
     final service = widget.service;
     final preferred = service?.providerId ?? widget.defaultProviderId;
-    _providerId = preferred != null &&
+    _providerId =
+        preferred != null &&
             widget.providers.any((entry) => entry.id == preferred)
         ? preferred
         : widget.providers.first.id;
-    _type = service?.type ?? _kinds.first;
+    _type = service?.type ?? widget.defaultType ?? _kinds.first;
     if (!_kinds.contains(_type)) _type = _kinds.first;
 
     _nameController = TextEditingController(
@@ -159,8 +165,9 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
       _modelsFailed = false;
     });
     try {
-      final models =
-          await runtime.settings().listModels(providerId: providerId);
+      final models = await runtime.settings().listModels(
+        providerId: providerId,
+      );
       if (!mounted || providerId != _providerId) return;
       setState(() {
         _models = models;

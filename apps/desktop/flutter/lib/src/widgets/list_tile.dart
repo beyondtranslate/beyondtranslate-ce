@@ -95,8 +95,8 @@ class ListTile extends StatelessWidget {
           color: card
               ? background
               : (onPressed != null && state.hovered
-                  ? colors.accent.withValues(alpha: 0.08)
-                  : null),
+                    ? colors.accent.withValues(alpha: 0.08)
+                    : null),
           border: card
               ? Border.all(
                   color: onPressed != null && state.hovered

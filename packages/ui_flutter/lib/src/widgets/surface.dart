@@ -91,8 +91,10 @@ class Surface extends StatelessWidget {
       SurfacePadding.none => EdgeInsets.zero,
       SurfacePadding.xs => const EdgeInsets.all(10),
       SurfacePadding.sm => const EdgeInsets.all(12),
-      SurfacePadding.md =>
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      SurfacePadding.md => const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
       SurfacePadding.lg => const EdgeInsets.all(16),
     };
 

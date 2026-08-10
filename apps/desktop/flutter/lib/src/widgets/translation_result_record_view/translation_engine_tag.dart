@@ -7,10 +7,8 @@ import '../provider_icon/provider_icon.dart';
 import '../ui.dart' show Button, ButtonVariant;
 
 class TranslationEngineTag extends StatefulWidget {
-  const TranslationEngineTag({
-    Key? key,
-    required this.translationResultRecord,
-  }) : super(key: key);
+  const TranslationEngineTag({Key? key, required this.translationResultRecord})
+    : super(key: key);
 
   final TranslationResultRecord translationResultRecord;
 
@@ -115,15 +113,15 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
 
     try {
       final serviceConfigEntry = await runtime.settings().getService(
-            serviceId: translationServiceId,
-          );
+        serviceId: translationServiceId,
+      );
       final providerConfigEntry = serviceConfigEntry == null
-          ? await runtime
-              .settings()
-              .getProvider(providerId: translationServiceId)
-          : await runtime
-              .settings()
-              .getProvider(providerId: serviceConfigEntry.providerId);
+          ? await runtime.settings().getProvider(
+              providerId: translationServiceId,
+            )
+          : await runtime.settings().getProvider(
+              providerId: serviceConfigEntry.providerId,
+            );
       if (!mounted || translationServiceId != _translationServiceId) {
         return;
       }
@@ -167,12 +165,7 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
               bottomLeft: Radius.circular(12),
             ),
           ),
-          padding: const EdgeInsets.only(
-            top: 3,
-            bottom: 3,
-            left: 4,
-            right: 2,
-          ),
+          padding: const EdgeInsets.only(top: 3, bottom: 3, left: 4, right: 2),
           child: Button(
             variant: ButtonVariant.quiet,
             onPressed: () {},
@@ -184,11 +177,7 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
               firstCurve: Curves.ease,
               secondCurve: Curves.ease,
               sizeCurve: Curves.ease,
-              firstChild: Row(
-                children: [
-                  _buildIcon(translationEngineType),
-                ],
-              ),
+              firstChild: Row(children: [_buildIcon(translationEngineType)]),
               secondChild: Row(
                 children: [
                   _buildIcon(translationEngineType),
@@ -196,9 +185,8 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
                     padding: const EdgeInsets.only(left: 4, right: 2),
                     child: Text(
                       translationEngineName,
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontSize: 10,
-                          ),
+                      style: Theme.of(context).textTheme.bodySmall!
+                          .copyWith(fontSize: 10),
                     ),
                   ),
                 ],

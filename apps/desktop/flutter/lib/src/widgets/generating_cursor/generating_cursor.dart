@@ -34,12 +34,7 @@ class _GeneratingCursorState extends State<GeneratingCursor>
       child: AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
-          return Text(
-            '|',
-            style: textTheme.bodyMedium!.copyWith(
-              height: 1.4,
-            ),
-          );
+          return Text('|', style: textTheme.bodyMedium!.copyWith(height: 1.4));
         },
       ),
     );

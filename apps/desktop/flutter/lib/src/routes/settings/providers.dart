@@ -120,12 +120,12 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
 
     try {
       await runtime.settings().updateService(
-            serviceId: draft.id,
-            providerId: draft.providerId,
-            serviceType: draft.type,
-            name: draft.name,
-            fields: draft.fields,
-          );
+        serviceId: draft.id,
+        providerId: draft.providerId,
+        serviceType: draft.type,
+        name: draft.name,
+        fields: draft.fields,
+      );
       await settingsStore.reloadServices();
     } catch (error) {
       if (!mounted) return;
@@ -182,8 +182,8 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
     final detail = _detailProviderId == null
         ? null
         : providers
-            .where((provider) => provider.id == _detailProviderId)
-            .firstOrNull;
+              .where((provider) => provider.id == _detailProviderId)
+              .firstOrNull;
     // The provider can vanish under us — deleted here, or from the macOS
     // settings window sharing the same runtime. Fall back to the list.
     if (_detailProviderId != null && detail == null) {
@@ -271,8 +271,9 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
       for (final (index, type) in types.indexed)
         _ServiceGroup(
           type: type,
-          services:
-              services.where((s) => s.type == type).toList(growable: false),
+          services: services
+              .where((s) => s.type == type)
+              .toList(growable: false),
           providers: providers,
           isLast: index == types.length - 1,
           onEdit: (service) => _openServiceEditor(existing: service),

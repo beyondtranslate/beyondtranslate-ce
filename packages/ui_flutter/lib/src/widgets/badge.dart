@@ -31,9 +31,9 @@ class Badge extends StatelessWidget {
 
     final (Color background, Color foreground) = switch (tone) {
       BadgeTone.accent => (
-          colors.accent.withValues(alpha: 0.12),
-          colors.accentText,
-        ),
+        colors.accent.withValues(alpha: 0.12),
+        colors.accentText,
+      ),
       BadgeTone.neutral => (colors.window, colors.fgTertiary),
       BadgeTone.solid => (colors.accent, colors.onAccent),
       BadgeTone.success => (colors.successSurface, colors.success),

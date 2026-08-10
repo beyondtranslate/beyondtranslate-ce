@@ -8,13 +8,13 @@ import '../../widgets/ui.dart'
     show Button, ButtonVariant, Field, Input, Spinner, SpinnerSize, TextArea;
 
 List<RouteBase> get $appRoutes => <RouteBase>[
-      GoRoute(
-        path: '/debug/runtime',
-        builder: (BuildContext context, GoRouterState state) {
-          return const RuntimeDebugRoutePage();
-        },
-      ),
-    ];
+  GoRoute(
+    path: '/debug/runtime',
+    builder: (BuildContext context, GoRouterState state) {
+      return const RuntimeDebugRoutePage();
+    },
+  ),
+];
 
 class RuntimeDebugRoutePage extends StatelessWidget {
   const RuntimeDebugRoutePage({super.key});
@@ -22,9 +22,7 @@ class RuntimeDebugRoutePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      appBar: CustomAppBar(
-        title: Text('Runtime Debug'),
-      ),
+      appBar: CustomAppBar(title: Text('Runtime Debug')),
       body: RuntimeDebugPage(),
     );
   }
@@ -102,16 +100,17 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
     });
 
     try {
-      final response =
-          await runtime.translation(providerId: providerId).translate(
-                request: TranslateRequest(
-                  sourceLanguage: _sourceLanguageController.text.trim().isEmpty
-                      ? null
-                      : _sourceLanguageController.text.trim(),
-                  targetLanguage: _targetLanguageController.text.trim(),
-                  text: _textController.text,
-                ),
-              );
+      final response = await runtime
+          .translation(providerId: providerId)
+          .translate(
+            request: TranslateRequest(
+              sourceLanguage: _sourceLanguageController.text.trim().isEmpty
+                  ? null
+                  : _sourceLanguageController.text.trim(),
+              targetLanguage: _targetLanguageController.text.trim(),
+              text: _textController.text,
+            ),
+          );
 
       if (!mounted) {
         return;
@@ -173,13 +172,13 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
     final title = isError
         ? 'Rust runtime error'
         : hasResult
-            ? 'Rust runtime response'
-            : 'Result';
+        ? 'Rust runtime response'
+        : 'Result';
     final content = isError
         ? _errorText!
         : _response != null
-            ? _formatResponse(_response!)
-            : 'Submit a request to see the Rust runtime response here.';
+        ? _formatResponse(_response!)
+        : 'Submit a request to see the Rust runtime response here.';
 
     return Container(
       width: double.infinity,
@@ -196,17 +195,12 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           SelectableText(
             content,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontFamily: 'Roboto Mono',
-                  height: 1.4,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(fontFamily: 'Roboto Mono', height: 1.4),
           ),
         ],
       ),
@@ -248,17 +242,11 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
             ),
           ],
           const SizedBox(height: 20),
-          Text(
-            'Provider',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Provider', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           _buildProviderPicker(context),
           const SizedBox(height: 20),
-          Text(
-            'Request',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Request', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           Field(
             label: const Text('Source language (optional)'),
@@ -285,13 +273,11 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
                 variant: ButtonVariant.primary,
                 onPressed:
                     _submitting || _loadingProviders || _providerId == null
-                        ? null
-                        : _submit,
+                    ? null
+                    : _submit,
                 child: _submitting
                     ? const Spinner(size: SpinnerSize.sm, onAccent: true)
-                    : const Text(
-                        'Translate with Rust runtime',
-                      ),
+                    : const Text('Translate with Rust runtime'),
               ),
             ],
           ),

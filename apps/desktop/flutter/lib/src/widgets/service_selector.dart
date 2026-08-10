@@ -31,10 +31,7 @@ class ServiceSelector extends StatelessWidget {
                   children: [
                     Expanded(child: Text(service.name)),
                     if (service.tag != null)
-                      Badge(
-                        tone: BadgeTone.accent,
-                        child: Text(service.tag!),
-                      ),
+                      Badge(tone: BadgeTone.accent, child: Text(service.tag!)),
                   ],
                 ),
                 description: Text(

@@ -50,8 +50,9 @@ class _FocusRingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // The stroke is centred on the path, so offsetting by half the width puts
     // the whole ring outside the box — CSS's `outline-offset: 0`.
-    final rect =
-        borderRadius.toRRect(Offset.zero & size).inflate(strokeWidth / 2);
+    final rect = borderRadius
+        .toRRect(Offset.zero & size)
+        .inflate(strokeWidth / 2);
     canvas.drawRRect(
       rect,
       Paint()

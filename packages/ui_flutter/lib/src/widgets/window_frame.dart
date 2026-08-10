@@ -32,10 +32,10 @@ class TrafficLights extends StatelessWidget {
     final gap = size == TrafficLightsSize.md ? 8.0 : 7.0;
 
     Color fill(TrafficLight button) => switch (button) {
-          TrafficLight.close => colors.trafficClose,
-          TrafficLight.minimize => colors.trafficMinimize,
-          TrafficLight.zoom => colors.trafficZoom,
-        };
+      TrafficLight.close => colors.trafficClose,
+      TrafficLight.minimize => colors.trafficMinimize,
+      TrafficLight.zoom => colors.trafficZoom,
+    };
 
     return ExcludeSemantics(
       child: Row(
@@ -184,14 +184,8 @@ class WindowTitlebar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          if (lights) ...[
-            const TrafficLights(),
-            const SizedBox(width: 14),
-          ],
-          if (leading != null) ...[
-            leading!,
-            const SizedBox(width: 14),
-          ],
+          if (lights) ...[const TrafficLights(), const SizedBox(width: 14)],
+          if (leading != null) ...[leading!, const SizedBox(width: 14)],
           if (title != null) ...[
             DefaultTextStyle(
               style: tokens.typography.displayStyle(
@@ -207,8 +201,10 @@ class WindowTitlebar extends StatelessWidget {
           ],
           if (subtitle != null) ...[
             DefaultTextStyle(
-              style: tokens.typography
-                  .sansStyle(fontSize: 12, color: colors.fgSubtle),
+              style: tokens.typography.sansStyle(
+                fontSize: 12,
+                color: colors.fgSubtle,
+              ),
               child: subtitle!,
             ),
             const SizedBox(width: 14),
@@ -256,13 +252,13 @@ class WindowMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-        child: ClipRect(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: children,
-          ),
-        ),
-      );
+    child: ClipRect(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+    ),
+  );
 }
 
 /// The row band under a [WindowMain] toolbar. Views render a rail, a main
@@ -274,13 +270,13 @@ class WindowContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-        child: ClipRect(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: children,
-          ),
-        ),
-      );
+    child: ClipRect(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+    ),
+  );
 }
 
 /// Footer strip inside a window or dialog.

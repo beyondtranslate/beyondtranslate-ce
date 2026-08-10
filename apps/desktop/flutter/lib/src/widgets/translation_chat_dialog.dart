@@ -51,7 +51,8 @@ class _TranslationChatDialogState extends State<TranslationChatDialog> {
   final _scrollController = ScrollController();
   bool _isLoading = false;
 
-  String get _systemPrompt => '''
+  String get _systemPrompt =>
+      '''
 You are a translation assistant discussing a translation.
 
 Source language: ${widget.sourceLang}
@@ -115,10 +116,9 @@ Be concise and helpful. Respond in the same language as the user's question.''';
           ),
       ];
 
-      final response = await runtime.llm(providerId: widget.llmProviderId).chat(
-            model: widget.llmModel ?? '',
-            messages: messages,
-          );
+      final response = await runtime
+          .llm(providerId: widget.llmProviderId)
+          .chat(model: widget.llmModel ?? '', messages: messages);
 
       final reply = response.choices.first.message.content;
 
@@ -132,10 +132,12 @@ Be concise and helpful. Respond in the same language as the user's question.''';
     } catch (e) {
       if (mounted) {
         setState(() {
-          _messages.add(_ChatEntry(
-            role: 'assistant',
-            content: 'Sorry, something went wrong: $e',
-          ));
+          _messages.add(
+            _ChatEntry(
+              role: 'assistant',
+              content: 'Sorry, something went wrong: $e',
+            ),
+          );
           _isLoading = false;
         });
         _scrollToBottom();
@@ -260,8 +262,9 @@ class _ChatBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Flexible(
@@ -273,10 +276,7 @@ class _ChatBubble extends StatelessWidget {
                     : theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: SelectableText(
-                content,
-                style: theme.textTheme.bodySmall,
-              ),
+              child: SelectableText(content, style: theme.textTheme.bodySmall),
             ),
           ),
         ],

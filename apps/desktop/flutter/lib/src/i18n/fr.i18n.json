@@ -261,13 +261,16 @@
     "general": {
       "title": "Général",
       "section": {
-        "permissions": "Autorisations",
+        "permissions": "Autorisations système",
         "ocr": "Reconnaissance de texte",
         "directory": "Répertoire",
         "translation": "Traduction",
         "translation_target": "Cible de traduction",
         "languages": "Langues",
-        "input": "Paramètres de saisie"
+        "input": "Paramètres de saisie",
+        "startup": "Démarrage et intégration",
+        "ocr_behaviour": "Comportement de capture",
+        "translation_behaviour": "Comportement de traduction"
       },
       "row": {
         "launch_at_login": "Lancer à l'ouverture de session",
@@ -289,7 +292,10 @@
         "common_languages_all": "Toutes les langues",
         "double_click_copy_result": "Double-cliquer pour copier le résultat de la traduction",
         "submit_with_enter": "Valider avec Entrée",
-        "submit_with_meta_enter_mac": "Valider avec ⌘ + Entrée"
+        "submit_with_meta_enter_mac": "Valider avec ⌘ + Entrée",
+        "screen_capture_access_hint": "La capture de texte à l’écran nécessite de lire son contenu.",
+        "screen_selection_access_hint": "La capture du texte sélectionné nécessite de lire les sélections des autres applications.",
+        "no_translation_targets": "Aucune cible de traduction — ajoutez-en une pour définir la langue par défaut."
       },
       "button": {
         "add_provider": "Ajouter...",
@@ -321,13 +327,15 @@
         "app_language": "Langue d'affichage",
         "theme_mode": "Mode du thème",
         "theme_style": "Style de thème"
-      }
+      },
+      "footer": "Les modifications s’appliquent immédiatement à toute la fenêtre."
     },
     "shortcuts": {
       "title": "Raccourcis",
       "section": {
         "text_extraction": "Extraction de texte",
-        "input_assist": "Fonction d'aide à la saisie"
+        "input_assist": "Fonction d'aide à la saisie",
+        "submit_mode": "Envoyer avec"
       },
       "row": {
         "toggle_mini_translator": "Afficher/Masquer la fenêtre",
@@ -341,7 +349,18 @@
         "message": "Êtes-vous sûr de vouloir réinitialiser tous les raccourcis à leurs valeurs par défaut ?",
         "confirm": "Réinitialiser",
         "cancel": "Annuler"
-      }
+      },
+      "group": {
+        "global": {
+          "title": "Raccourcis globaux",
+          "description": "Fonctionnent dans toutes les applications."
+        },
+        "in_app": {
+          "title": "Touches de l’application",
+          "description": "S’appliquent uniquement aux champs de saisie de cette application."
+        }
+      },
+      "reset": "Rétablir les valeurs par défaut..."
     },
     "advanced": {
       "title": "Avancé",
@@ -383,6 +402,10 @@
           "message": "Ce service sera supprimé du fournisseur."
         },
         "prompt_variables": "Variables disponibles : {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
+      },
+      "make_default": "Définir par défaut",
+      "item": {
+        "none_of_kind": "Aucun service de {} disponible pour l’instant."
       }
     },
     "providers": {
@@ -493,7 +516,8 @@
       },
       "groups": "Groupes",
       "effect_hint": "Les changements prennent effet immédiatement",
-      "footer_note": "Traductions et clés restent sur cet appareil"
+      "footer_note": "Traductions et clés restent sur cet appareil",
+      "support": "Assistance"
     },
     "about": {
       "title": "À propos",
@@ -505,7 +529,8 @@
       "github": "GitHub",
       "report_issue": "Signaler un problème",
       "license": "Licence",
-      "open_changelog": "Ouvrir le journal des modifications"
+      "open_changelog": "Ouvrir le journal des modifications",
+      "update": "Mise à jour"
     }
   }
 }

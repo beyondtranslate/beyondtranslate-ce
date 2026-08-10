@@ -28,7 +28,8 @@ Future<void> main(List<String> args) async {
     // code assets have actually been requested.
     if (!input.config.buildCodeAssets) {
       stdout.writeln(
-          '[beyondtranslate_runtime] no code-asset config; skipping cargo');
+        '[beyondtranslate_runtime] no code-asset config; skipping cargo',
+      );
       return;
     }
 

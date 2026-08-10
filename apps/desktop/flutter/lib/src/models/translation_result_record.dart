@@ -9,10 +9,10 @@ WordDefinition _parseWordDefinition(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _wordDefinitionToJson(WordDefinition d) => {
-      'type': d.type,
-      'name': d.name,
-      'values': d.values,
-    };
+  'type': d.type,
+  'name': d.name,
+  'values': d.values,
+};
 
 WordPronunciation _parseWordPronunciation(Map<String, dynamic> json) {
   return WordPronunciation(
@@ -23,10 +23,10 @@ WordPronunciation _parseWordPronunciation(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _wordPronunciationToJson(WordPronunciation p) => {
-      'type': p.type,
-      'phoneticSymbol': p.phoneticSymbol,
-      'audioUrl': p.audioUrl,
-    };
+  'type': p.type,
+  'phoneticSymbol': p.phoneticSymbol,
+  'audioUrl': p.audioUrl,
+};
 
 WordTag _parseWordTag(Map<String, dynamic> json) {
   return WordTag(name: json['name']);
@@ -48,9 +48,9 @@ WordPhrase _parseWordPhrase(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _wordPhraseToJson(WordPhrase p) => {
-      'text': p.text,
-      'translations': p.translations,
-    };
+  'text': p.text,
+  'translations': p.translations,
+};
 
 WordTense _parseWordTense(Map<String, dynamic> json) {
   return WordTense(
@@ -61,10 +61,10 @@ WordTense _parseWordTense(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _wordTenseToJson(WordTense t) => {
-      'type': t.type,
-      'name': t.name,
-      'values': t.values,
-    };
+  'type': t.type,
+  'name': t.name,
+  'values': t.values,
+};
 
 WordSentence _parseWordSentence(Map<String, dynamic> json) {
   return WordSentence(
@@ -74,9 +74,9 @@ WordSentence _parseWordSentence(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _wordSentenceToJson(WordSentence s) => {
-      'text': s.text,
-      'translations': s.translations,
-    };
+  'text': s.text,
+  'translations': s.translations,
+};
 
 WordEtymology _parseWordEtymology(Map<String, dynamic> json) {
   return WordEtymology(
@@ -86,9 +86,9 @@ WordEtymology _parseWordEtymology(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _wordEtymologyToJson(WordEtymology e) => {
-      'origin': e.origin,
-      'root': e.root,
-    };
+  'origin': e.origin,
+  'root': e.root,
+};
 
 WordSynonym _parseWordSynonym(Map<String, dynamic> json) {
   return WordSynonym(
@@ -101,10 +101,10 @@ WordSynonym _parseWordSynonym(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _wordSynonymToJson(WordSynonym s) => {
-      'type': s.type,
-      'word': s.word,
-      'definitions': s.definitions,
-    };
+  'type': s.type,
+  'word': s.word,
+  'definitions': s.definitions,
+};
 
 class TranslationResultRecord {
   TranslationResultRecord({
@@ -135,58 +135,60 @@ class TranslationResultRecord {
           ? LookUpResponse(
               translations:
                   (json['lookUpResponse']['translations'] as List? ?? [])
-                      .map((e) => TextTranslation(
-                            text: e['text'],
-                            detectedSourceLanguage: e['detectedSourceLanguage'],
-                            audioUrl: e['audioUrl'],
-                          ))
+                      .map(
+                        (e) => TextTranslation(
+                          text: e['text'],
+                          detectedSourceLanguage: e['detectedSourceLanguage'],
+                          audioUrl: e['audioUrl'],
+                        ),
+                      )
                       .toList(),
               word: json['lookUpResponse']['word'],
               tip: json['lookUpResponse']['tip'],
               tags: json['lookUpResponse']['tags'] != null
                   ? (json['lookUpResponse']['tags'] as List)
-                      .map((e) => _parseWordTag(e))
-                      .toList()
+                        .map((e) => _parseWordTag(e))
+                        .toList()
                   : null,
               definitions: json['lookUpResponse']['definitions'] != null
                   ? (json['lookUpResponse']['definitions'] as List)
-                      .map((e) => _parseWordDefinition(e))
-                      .toList()
+                        .map((e) => _parseWordDefinition(e))
+                        .toList()
                   : null,
               pronunciations: json['lookUpResponse']['pronunciations'] != null
                   ? (json['lookUpResponse']['pronunciations'] as List)
-                      .map((e) => _parseWordPronunciation(e))
-                      .toList()
+                        .map((e) => _parseWordPronunciation(e))
+                        .toList()
                   : null,
               images: json['lookUpResponse']['images'] != null
                   ? (json['lookUpResponse']['images'] as List)
-                      .map((e) => _parseWordImage(e))
-                      .toList()
+                        .map((e) => _parseWordImage(e))
+                        .toList()
                   : null,
               phrases: json['lookUpResponse']['phrases'] != null
                   ? (json['lookUpResponse']['phrases'] as List)
-                      .map((e) => _parseWordPhrase(e))
-                      .toList()
+                        .map((e) => _parseWordPhrase(e))
+                        .toList()
                   : null,
               tenses: json['lookUpResponse']['tenses'] != null
                   ? (json['lookUpResponse']['tenses'] as List)
-                      .map((e) => _parseWordTense(e))
-                      .toList()
+                        .map((e) => _parseWordTense(e))
+                        .toList()
                   : null,
               sentences: json['lookUpResponse']['sentences'] != null
                   ? (json['lookUpResponse']['sentences'] as List)
-                      .map((e) => _parseWordSentence(e))
-                      .toList()
+                        .map((e) => _parseWordSentence(e))
+                        .toList()
                   : null,
               etymology: json['lookUpResponse']['etymology'] != null
                   ? (json['lookUpResponse']['etymology'] as List)
-                      .map((e) => _parseWordEtymology(e))
-                      .toList()
+                        .map((e) => _parseWordEtymology(e))
+                        .toList()
                   : null,
               synonyms: json['lookUpResponse']['synonyms'] != null
                   ? (json['lookUpResponse']['synonyms'] as List)
-                      .map((e) => _parseWordSynonym(e))
-                      .toList()
+                        .map((e) => _parseWordSynonym(e))
+                        .toList()
                   : null,
             )
           : null,
@@ -203,11 +205,13 @@ class TranslationResultRecord {
       translateResponse: json['translateResponse'] != null
           ? TranslateResponse(
               translations: (json['translateResponse']['translations'] as List)
-                  .map((e) => TextTranslation(
-                        text: e['text'],
-                        detectedSourceLanguage: e['detectedSourceLanguage'],
-                        audioUrl: e['audioUrl'],
-                      ))
+                  .map(
+                    (e) => TextTranslation(
+                      text: e['text'],
+                      detectedSourceLanguage: e['detectedSourceLanguage'],
+                      audioUrl: e['audioUrl'],
+                    ),
+                  )
                   .toList(),
             )
           : null,
@@ -242,11 +246,13 @@ class TranslationResultRecord {
       'lookUpResponse': lookUpResponse != null
           ? {
               'translations': lookUpResponse!.translations
-                  .map((e) => {
-                        'text': e.text,
-                        'detectedSourceLanguage': e.detectedSourceLanguage,
-                        'audioUrl': e.audioUrl,
-                      })
+                  .map(
+                    (e) => {
+                      'text': e.text,
+                      'detectedSourceLanguage': e.detectedSourceLanguage,
+                      'audioUrl': e.audioUrl,
+                    },
+                  )
                   .toList(),
               'word': lookUpResponse!.word,
               'tip': lookUpResponse!.tip,
@@ -261,14 +267,17 @@ class TranslationResultRecord {
                     .map(_wordPronunciationToJson)
                     .toList(),
               if (lookUpResponse!.images != null)
-                'images':
-                    lookUpResponse!.images!.map(_wordImageToJson).toList(),
+                'images': lookUpResponse!.images!
+                    .map(_wordImageToJson)
+                    .toList(),
               if (lookUpResponse!.phrases != null)
-                'phrases':
-                    lookUpResponse!.phrases!.map(_wordPhraseToJson).toList(),
+                'phrases': lookUpResponse!.phrases!
+                    .map(_wordPhraseToJson)
+                    .toList(),
               if (lookUpResponse!.tenses != null)
-                'tenses':
-                    lookUpResponse!.tenses!.map(_wordTenseToJson).toList(),
+                'tenses': lookUpResponse!.tenses!
+                    .map(_wordTenseToJson)
+                    .toList(),
               if (lookUpResponse!.sentences != null)
                 'sentences': lookUpResponse!.sentences!
                     .map(_wordSentenceToJson)
@@ -278,8 +287,9 @@ class TranslationResultRecord {
                     .map(_wordEtymologyToJson)
                     .toList(),
               if (lookUpResponse!.synonyms != null)
-                'synonyms':
-                    lookUpResponse!.synonyms!.map(_wordSynonymToJson).toList(),
+                'synonyms': lookUpResponse!.synonyms!
+                    .map(_wordSynonymToJson)
+                    .toList(),
             }
           : null,
       'lookUpError': lookUpError?.toJson(),
@@ -293,11 +303,13 @@ class TranslationResultRecord {
       'translateResponse': translateResponse != null
           ? {
               'translations': translateResponse!.translations
-                  .map((e) => {
-                        'text': e.text,
-                        'detectedSourceLanguage': e.detectedSourceLanguage,
-                        'audioUrl': e.audioUrl,
-                      })
+                  .map(
+                    (e) => {
+                      'text': e.text,
+                      'detectedSourceLanguage': e.detectedSourceLanguage,
+                      'audioUrl': e.audioUrl,
+                    },
+                  )
                   .toList(),
             }
           : null,

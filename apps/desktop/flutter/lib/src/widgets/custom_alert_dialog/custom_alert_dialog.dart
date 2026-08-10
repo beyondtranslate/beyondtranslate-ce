@@ -44,12 +44,8 @@ class CustomDialogAction extends StatelessWidget {
 }
 
 class CustomAlertDialog extends StatelessWidget {
-  const CustomAlertDialog({
-    Key? key,
-    this.title,
-    this.content,
-    this.actions,
-  }) : super(key: key);
+  const CustomAlertDialog({Key? key, this.title, this.content, this.actions})
+    : super(key: key);
   final Widget? title;
   final Widget? content;
   final List<Widget>? actions;
@@ -60,15 +56,11 @@ class CustomAlertDialog extends StatelessWidget {
     TextTheme textTheme = theme.textTheme;
     return Container(
       alignment: Alignment.center,
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: DefaultTextStyle(
         style: textTheme.bodyMedium!,
         child: Container(
-          constraints: const BoxConstraints(
-            minHeight: 100,
-          ),
+          constraints: const BoxConstraints(minHeight: 100),
           decoration: BoxDecoration(
             color: theme.dialogTheme.backgroundColor ?? theme.canvasColor,
             borderRadius: BorderRadius.circular(2),
@@ -82,9 +74,7 @@ class CustomAlertDialog extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: DefaultTextStyle(
-                  style: textTheme.bodyMedium!.copyWith(
-                    fontSize: 16,
-                  ),
+                  style: textTheme.bodyMedium!.copyWith(fontSize: 16),
                   child: title ?? Container(),
                 ),
               ),

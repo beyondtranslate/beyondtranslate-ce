@@ -14,23 +14,23 @@ enum DesignThemeName {
   /// The `data-theme` value the React package uses, so both sides can share a
   /// theme name over the wire.
   String get id => switch (this) {
-        DesignThemeName.studioLight => 'studio-light',
-        DesignThemeName.studioDark => 'studio-dark',
-        DesignThemeName.brightLight => 'bright-light',
-        DesignThemeName.brightDark => 'bright-dark',
-      };
+    DesignThemeName.studioLight => 'studio-light',
+    DesignThemeName.studioDark => 'studio-dark',
+    DesignThemeName.brightLight => 'bright-light',
+    DesignThemeName.brightDark => 'bright-dark',
+  };
 
   static DesignThemeName fromId(String id) => DesignThemeName.values.firstWhere(
-        (theme) => theme.id == id,
-        orElse: () => DesignThemeName.studioLight,
-      );
+    (theme) => theme.id == id,
+    orElse: () => DesignThemeName.studioLight,
+  );
 
   DesignTokens get tokens => switch (this) {
-        DesignThemeName.studioLight => DesignThemes.studioLight,
-        DesignThemeName.studioDark => DesignThemes.studioDark,
-        DesignThemeName.brightLight => DesignThemes.brightLight,
-        DesignThemeName.brightDark => DesignThemes.brightDark,
-      };
+    DesignThemeName.studioLight => DesignThemes.studioLight,
+    DesignThemeName.studioDark => DesignThemes.studioDark,
+    DesignThemeName.brightLight => DesignThemes.brightLight,
+    DesignThemeName.brightDark => DesignThemes.brightDark,
+  };
 }
 
 @immutable
@@ -72,9 +72,9 @@ const Map<DesignThemeName, DesignThemeMeta> designThemeMeta = {
 /// The four token tables. `studioLight` is the baseline; the others are
 /// written as "the baseline, plus these overrides", exactly like the CSS.
 abstract final class DesignThemes {
-// ------------------------------------------------------------------ //
-// Studio Light — the baseline
-// ------------------------------------------------------------------ //
+  // ------------------------------------------------------------------ //
+  // Studio Light — the baseline
+  // ------------------------------------------------------------------ //
 
   /// Every field of [DesignColors], [DesignRadii] and [DesignShadows] already defaults to the
   /// Studio Light value, so the baseline theme only has to name the two gradients.
@@ -85,15 +85,15 @@ abstract final class DesignThemes {
       const [Color(0xFFE9E6FF), Color(0xFFDCDAF0), Color(0xFFC9C7DD)],
       const [0, 0.55, 1],
     ),
-    progressGradient: linearGradientFromAngle(
-      90,
-      const [Color(0xFF6B4DFF), Color(0xFFA08CFF)],
-    ),
+    progressGradient: linearGradientFromAngle(90, const [
+      Color(0xFF6B4DFF),
+      Color(0xFFA08CFF),
+    ]),
   );
 
-// ------------------------------------------------------------------ //
-// Studio Dark — same skeleton, near-black canvas, violet-electric
-// ------------------------------------------------------------------ //
+  // ------------------------------------------------------------------ //
+  // Studio Dark — same skeleton, near-black canvas, violet-electric
+  // ------------------------------------------------------------------ //
 
   static final DesignTokens studioDark = DesignTokens(
     brightness: Brightness.dark,
@@ -102,10 +102,10 @@ abstract final class DesignThemes {
       const [Color(0xFF3A2C6B), Color(0xFF171A2E), Color(0xFF0A0B10)],
       const [0, 0.55, 1],
     ),
-    progressGradient: linearGradientFromAngle(
-      90,
-      const [Color(0xFF7C5CFF), Color(0xFFB9A8FF)],
-    ),
+    progressGradient: linearGradientFromAngle(90, const [
+      Color(0xFF7C5CFF),
+      Color(0xFFB9A8FF),
+    ]),
     colors: const DesignColors(
       canvas: Color(0xFF0A0B10),
       window: Color(0xFF0D0F14),
@@ -167,38 +167,59 @@ abstract final class DesignThemes {
     shadows: const DesignShadows(
       window: [
         BoxShadow(
-            offset: Offset(0, 16), blurRadius: 40, color: Color(0x99000000)),
+          offset: Offset(0, 16),
+          blurRadius: 40,
+          color: Color(0x99000000),
+        ),
       ],
       popover: [
         BoxShadow(
-            offset: Offset(0, 14), blurRadius: 36, color: Color(0x94000000)),
+          offset: Offset(0, 14),
+          blurRadius: 36,
+          color: Color(0x94000000),
+        ),
       ],
       float: [
         BoxShadow(
-            offset: Offset(0, 10), blurRadius: 28, color: Color(0x8C000000)),
+          offset: Offset(0, 10),
+          blurRadius: 28,
+          color: Color(0x8C000000),
+        ),
       ],
       lift: [
         BoxShadow(
-            offset: Offset(0, 4), blurRadius: 14, color: Color(0x73000000)),
+          offset: Offset(0, 4),
+          blurRadius: 14,
+          color: Color(0x73000000),
+        ),
       ],
       accent: [
         BoxShadow(
-            offset: Offset(0, 1), blurRadius: 2, color: Color(0x66000000)),
+          offset: Offset(0, 1),
+          blurRadius: 2,
+          color: Color(0x66000000),
+        ),
       ],
       accentLg: [
         BoxShadow(
-            offset: Offset(0, 1), blurRadius: 3, color: Color(0x73000000)),
+          offset: Offset(0, 1),
+          blurRadius: 3,
+          color: Color(0x73000000),
+        ),
       ],
       ball: [
         BoxShadow(
-            offset: Offset(0, 4), blurRadius: 14, color: Color(0x80000000)),
+          offset: Offset(0, 4),
+          blurRadius: 14,
+          color: Color(0x80000000),
+        ),
       ],
     ),
   );
 
-// ------------------------------------------------------------------ //
-// Bright Light — warm paper, ink navy, acid green marker, pill controls
-// ------------------------------------------------------------------ //
+  // ------------------------------------------------------------------ //
+  // Bright Light — warm paper, ink navy, acid green marker, pill controls
+  // ------------------------------------------------------------------ //
 
   static final DesignTokens brightLight = DesignTokens(
     brightness: Brightness.light,
@@ -207,10 +228,10 @@ abstract final class DesignThemes {
       const [Color(0xFFDFE7D5), Color(0xFFB9C3AE), Color(0xFF8B9782)],
       const [0, 0.5, 1],
     ),
-    progressGradient: linearGradientFromAngle(
-      90,
-      const [Color(0xFF111C2E), Color(0xFFD6FF3F)],
-    ),
+    progressGradient: linearGradientFromAngle(90, const [
+      Color(0xFF111C2E),
+      Color(0xFFD6FF3F),
+    ]),
     colors: const DesignColors(
       canvas: Color(0xFFE6EADE),
       window: Color(0xFFFBFAF7),
@@ -292,42 +313,63 @@ abstract final class DesignThemes {
     shadows: const DesignShadows(
       window: [
         BoxShadow(
-            offset: Offset(0, 12), blurRadius: 32, color: Color(0x33111C2E)),
+          offset: Offset(0, 12),
+          blurRadius: 32,
+          color: Color(0x33111C2E),
+        ),
       ],
       popover: [
         BoxShadow(
-            offset: Offset(0, 10), blurRadius: 30, color: Color(0x2E111C2E)),
+          offset: Offset(0, 10),
+          blurRadius: 30,
+          color: Color(0x2E111C2E),
+        ),
       ],
       float: [
         BoxShadow(
-            offset: Offset(0, 8), blurRadius: 24, color: Color(0x2E111C2E)),
+          offset: Offset(0, 8),
+          blurRadius: 24,
+          color: Color(0x2E111C2E),
+        ),
       ],
       lift: [
         BoxShadow(
-            offset: Offset(0, 4), blurRadius: 12, color: Color(0x24111C2E)),
+          offset: Offset(0, 4),
+          blurRadius: 12,
+          color: Color(0x24111C2E),
+        ),
       ],
       accent: [
         BoxShadow(
-            offset: Offset(0, 1), blurRadius: 2, color: Color(0x1F111C2E)),
+          offset: Offset(0, 1),
+          blurRadius: 2,
+          color: Color(0x1F111C2E),
+        ),
       ],
       accentLg: [
         BoxShadow(
-            offset: Offset(0, 1), blurRadius: 3, color: Color(0x24111C2E)),
+          offset: Offset(0, 1),
+          blurRadius: 3,
+          color: Color(0x24111C2E),
+        ),
       ],
       ball: [
         BoxShadow(
-            offset: Offset(0, 4), blurRadius: 12, color: Color(0x3D111C2E)),
+          offset: Offset(0, 4),
+          blurRadius: 12,
+          color: Color(0x3D111C2E),
+        ),
       ],
     ),
   );
 
-// ------------------------------------------------------------------ //
-// Bright Dark — deck section 4e: Bright Light with the roles swapped.
-// Ink navy moves from text to canvas, warm paper from canvas to text.
-// Acid green keeps its single job (marking the block being read) but its
-// surface becomes a low-alpha tint — "8% 低透明填色，不发光不刺眼" — while
-// primary actions invert to acid green printed with ink navy.
-// ------------------------------------------------------------------ //
+  // ------------------------------------------------------------------ //
+  // Bright Dark — deck section 4e: Bright Light with the roles swapped.
+  // Ink navy moves from text to canvas, warm paper from canvas to text.
+  // Acid green keeps its single job (marking the block being read) but its
+  // surface becomes a low-alpha tint — "8% 低透明填色，不发光不刺眼" — while
+  // primary actions invert to acid green printed with ink navy.
+  // ------------------------------------------------------------------ //
 
   static final DesignTokens brightDark = DesignTokens(
     brightness: Brightness.dark,
@@ -338,10 +380,10 @@ abstract final class DesignThemes {
     ),
     // The deck fills progress solid acid; two identical stops keep the token
     // a gradient because Progress paints it as one.
-    progressGradient: linearGradientFromAngle(
-      90,
-      const [Color(0xFFD6FF3F), Color(0xFFD6FF3F)],
-    ),
+    progressGradient: linearGradientFromAngle(90, const [
+      Color(0xFFD6FF3F),
+      Color(0xFFD6FF3F),
+    ]),
     // Explicitly no glow — the deck: "不发光不刺眼".
     colors: const DesignColors(
       canvas: Color(0xFF0A111A),
@@ -425,31 +467,52 @@ abstract final class DesignThemes {
     shadows: const DesignShadows(
       window: [
         BoxShadow(
-            offset: Offset(0, 16), blurRadius: 40, color: Color(0x8C000000)),
+          offset: Offset(0, 16),
+          blurRadius: 40,
+          color: Color(0x8C000000),
+        ),
       ],
       popover: [
         BoxShadow(
-            offset: Offset(0, 14), blurRadius: 36, color: Color(0x85000000)),
+          offset: Offset(0, 14),
+          blurRadius: 36,
+          color: Color(0x85000000),
+        ),
       ],
       float: [
         BoxShadow(
-            offset: Offset(0, 10), blurRadius: 28, color: Color(0x80000000)),
+          offset: Offset(0, 10),
+          blurRadius: 28,
+          color: Color(0x80000000),
+        ),
       ],
       lift: [
         BoxShadow(
-            offset: Offset(0, 4), blurRadius: 14, color: Color(0x6B000000)),
+          offset: Offset(0, 4),
+          blurRadius: 14,
+          color: Color(0x6B000000),
+        ),
       ],
       accent: [
         BoxShadow(
-            offset: Offset(0, 1), blurRadius: 2, color: Color(0x66000000)),
+          offset: Offset(0, 1),
+          blurRadius: 2,
+          color: Color(0x66000000),
+        ),
       ],
       accentLg: [
         BoxShadow(
-            offset: Offset(0, 1), blurRadius: 3, color: Color(0x73000000)),
+          offset: Offset(0, 1),
+          blurRadius: 3,
+          color: Color(0x73000000),
+        ),
       ],
       ball: [
         BoxShadow(
-            offset: Offset(0, 4), blurRadius: 14, color: Color(0x80000000)),
+          offset: Offset(0, 4),
+          blurRadius: 14,
+          color: Color(0x80000000),
+        ),
       ],
     ),
   );

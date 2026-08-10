@@ -68,16 +68,15 @@ class EmptyState extends StatelessWidget {
                 ),
               ),
             ],
-            if (action != null) ...[
-              const SizedBox(height: 16),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: 16), action!],
             if (hint != null) ...[
               const SizedBox(height: 12),
               DefaultTextStyle(
                 textAlign: TextAlign.center,
-                style: tokens.typography
-                    .sansStyle(fontSize: 11, color: colors.fgFaint),
+                style: tokens.typography.sansStyle(
+                  fontSize: 11,
+                  color: colors.fgFaint,
+                ),
                 child: hint!,
               ),
             ],

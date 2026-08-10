@@ -43,8 +43,9 @@ class MiniTranslatorInput extends StatelessWidget {
     final colors = tokens.colors;
     final placeholder = targetLanguageName == null
         ? t.mini_translator.input.hint
-        : t.mini_translator.input
-            .hint_translate_to(language: targetLanguageName!);
+        : t.mini_translator.input.hint_translate_to(
+            language: targetLanguageName!,
+          );
 
     // Inside the panel card; the result block below draws the separation.
     return Padding(

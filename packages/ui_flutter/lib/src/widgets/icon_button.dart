@@ -16,6 +16,7 @@ class IconButton extends StatelessWidget {
     required this.icon,
     this.active = false,
     this.iconSize = 14,
+    this.enabled = true,
     this.onPressed,
   });
 
@@ -24,6 +25,11 @@ class IconButton extends StatelessWidget {
 
   /// Persistent on-state — the pin button, for instance.
   final bool active;
+
+  /// Mirrors the `disabled` attribute React passes straight to the `<button>`.
+  /// Kept separate from a null [onPressed] so a caller can grey the affordance
+  /// out without having to drop the handler it already has.
+  final bool enabled;
   final Widget icon;
 
   /// Glyph size, fed through [IconTheme]. The React kit sets it per call site
@@ -38,9 +44,11 @@ class IconButton extends StatelessWidget {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final radius = BorderRadius.circular(tokens.radii.controlSm);
+    final disabled = !enabled || onPressed == null;
 
     return Pressable(
-      onPressed: onPressed,
+      onPressed: enabled ? onPressed : null,
+      enabled: !disabled,
       borderRadius: radius,
       semanticsLabel: label,
       builder: (context, state) {
@@ -49,9 +57,11 @@ class IconButton extends StatelessWidget {
             : (state.hovered ? colors.fg : colors.fgMuted);
 
         return Opacity(
-          // The deck dims a disabled affordance rather than recolouring it —
-          // `disabled:opacity-35`, with the hover wash withheld.
-          opacity: onPressed == null ? 0.35 : 1,
+          // React leaves a disabled icon button to the browser's own `:disabled`
+          // rendering; on a `<button>` carrying no box that reads as no change
+          // at all, so both native ports dim the glyph instead and withhold the
+          // hover wash.
+          opacity: disabled ? 0.35 : 1,
           child: AnimatedContainer(
             duration: kTransitionDuration,
             width: 24,
@@ -61,8 +71,15 @@ class IconButton extends StatelessWidget {
               color: !active && state.hovered ? colors.subtle : null,
               borderRadius: radius,
             ),
-            child: IconTheme(
-              data: IconThemeData(color: foreground, size: iconSize),
+            // `transition-colors` covers the glyph as well as the wash behind
+            // it, and an [IconTheme] does not animate on its own.
+            child: TweenAnimationBuilder<Color?>(
+              duration: kTransitionDuration,
+              tween: ColorTween(end: foreground),
+              builder: (context, color, child) => IconTheme(
+                data: IconThemeData(color: color, size: iconSize),
+                child: child!,
+              ),
               child: icon,
             ),
           ),

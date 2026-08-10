@@ -131,8 +131,8 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
     var suggestion = '';
     try {
       suggestion = await runtime.settings().generateProviderId(
-            providerType: providerTypeValue(_type),
-          );
+        providerType: providerTypeValue(_type),
+      );
     } catch (_) {
       suggestion = providerTypeValue(_type);
     }
@@ -180,9 +180,9 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
   String get _providerId => _idController.text.trim();
 
   Map<String, String> get _fields => {
-        for (final entry in _fieldControllers.entries)
-          entry.key: entry.value.text.trim(),
-      };
+    for (final entry in _fieldControllers.entries)
+      entry.key: entry.value.text.trim(),
+  };
 
   bool get _isComplete {
     if (_providerId.isEmpty) return false;
@@ -201,10 +201,10 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
       _provisionalId = null;
     }
     await runtime.settings().updateProvider(
-          providerId: _providerId,
-          providerType: providerTypeValue(_type),
-          fields: _fields,
-        );
+      providerId: _providerId,
+      providerType: providerTypeValue(_type),
+      fields: _fields,
+    );
     _provisionalId = _providerId;
     await Future.wait([
       settingsStore.reloadProviders(),
@@ -260,7 +260,9 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
   Future<String> _probeTranslation() async {
     // `translation()` resolves a bare provider id straight to the provider, so
     // this reaches the endpoint without a service having to exist yet.
-    await runtime.translation(providerId: _providerId).translate(
+    await runtime
+        .translation(providerId: _providerId)
+        .translate(
           request: TranslateRequest(
             sourceLanguage: 'en',
             targetLanguage: 'zh-Hans',
@@ -336,11 +338,11 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
                   alignment: AlignmentDirectional.centerStart,
                   child: _DisclosureButton(
                     open: _traditionalOpen,
-                    label: '${editor.type_picker.section_traditional}'
+                    label:
+                        '${editor.type_picker.section_traditional}'
                         ' · ${traditional.length}',
-                    onPressed: () => setState(
-                      () => _traditionalOpen = !_traditionalOpen,
-                    ),
+                    onPressed: () =>
+                        setState(() => _traditionalOpen = !_traditionalOpen),
                   ),
                 ),
                 if (_traditionalOpen)
@@ -449,9 +451,7 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
                 child: Text(
                   formatTranslation(
                     editor.test.running,
-                    args: [
-                      (_elapsed.inMilliseconds / 1000).toStringAsFixed(1),
-                    ],
+                    args: [(_elapsed.inMilliseconds / 1000).toStringAsFixed(1)],
                   ),
                 ),
               ),
@@ -784,8 +784,10 @@ class _TipsCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: colors.card,
-        border:
-            Border.all(color: colors.hairline, width: context.hairlineWidth),
+        border: Border.all(
+          color: colors.hairline,
+          width: context.hairlineWidth,
+        ),
         borderRadius: BorderRadius.circular(tokens.radii.box),
       ),
       child: Column(

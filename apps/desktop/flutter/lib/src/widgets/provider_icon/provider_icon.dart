@@ -73,11 +73,13 @@ class ProviderIcon extends StatelessWidget {
         image: DecorationImage(
           image: AssetImage(R.image(asset)),
           fit: BoxFit.cover,
-          colorFilter:
-              color != null ? ColorFilter.mode(color!, BlendMode.color) : null,
+          colorFilter: color != null
+              ? ColorFilter.mode(color!, BlendMode.color)
+              : null,
         ),
         borderRadius: radius,
-        border: border ??
+        border:
+            border ??
             Border.all(
               color: tokens.colors.hairline,
               width: context.hairlineWidth,

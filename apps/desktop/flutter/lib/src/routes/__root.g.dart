@@ -6,22 +6,16 @@ part of '__root.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [
-      $rootRoute,
-    ];
+List<RouteBase> get $appRoutes => [$rootRoute];
 
-RouteBase get $rootRoute => GoRouteData.$route(
-      path: '/',
-      factory: $RootRoute._fromState,
-    );
+RouteBase get $rootRoute =>
+    GoRouteData.$route(path: '/', factory: $RootRoute._fromState);
 
 mixin $RootRoute on GoRouteData {
   static RootRoute _fromState(GoRouterState state) => const RootRoute();
 
   @override
-  String get location => GoRouteData.$location(
-        '/',
-      );
+  String get location => GoRouteData.$location('/');
 
   @override
   void go(BuildContext context) => context.go(location);

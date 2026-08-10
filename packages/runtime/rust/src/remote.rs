@@ -1,9 +1,9 @@
 //! UniFFI remote-type mirrors for the shared `beyondtranslate_core` crate.
 //!
 //! `beyondtranslate_core` is a plain Rust crate with no uniffi annotations, so
-//! its records can be reused by non-uniffi consumers (e.g. the Cloudflare
-//! Worker in `apps/api`). To still expose those records to Dart/Swift through
-//! this crate, we register them here as
+//! its records can be reused by non-uniffi consumers (e.g. the embedded
+//! `crates/api-core` API server). To still expose those records to Dart/Swift
+//! through this crate, we register them here as
 //! [remote types](https://mozilla.github.io/uniffi-rs/0.31/types/remote_ext_types.html).
 //!
 //! Each block below is a "shadow definition" whose body must mirror the real

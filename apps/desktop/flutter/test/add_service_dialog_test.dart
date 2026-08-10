@@ -33,10 +33,7 @@ void main() {
           body: SizedBox(
             width: 840,
             height: 620,
-            child: AddServiceDialog(
-              providers: [_deepl],
-              existing: existing,
-            ),
+            child: AddServiceDialog(providers: [_deepl], existing: existing),
           ),
         ),
       ),
@@ -87,9 +84,7 @@ void main() {
   ) async {
     // `list_services` synthesises `deepl+translation` from the provider, so the
     // first service the user adds by hand is already the second of its kind.
-    await tester.pumpWidget(
-      specimen(existing: [_derivedTranslation('deepl')]),
-    );
+    await tester.pumpWidget(specimen(existing: [_derivedTranslation('deepl')]));
 
     expect(find.text('deepl+translation'), findsNothing);
     expect(find.text('deepl+translation-2'), findsOneWidget);

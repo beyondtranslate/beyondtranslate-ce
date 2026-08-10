@@ -261,13 +261,16 @@
     "general": {
       "title": "일반",
       "section": {
-        "permissions": "권한",
+        "permissions": "시스템 권한",
         "ocr": "텍스트 인식",
         "directory": "사전",
         "translation": "번역",
         "translation_target": "번역 대상",
         "languages": "언어",
-        "input": "입력 설정"
+        "input": "입력 설정",
+        "startup": "시작 및 통합",
+        "ocr_behaviour": "가져오기 동작",
+        "translation_behaviour": "번역 동작"
       },
       "row": {
         "launch_at_login": "로그인할 때 시작",
@@ -289,7 +292,10 @@
         "common_languages_all": "모든 언어",
         "double_click_copy_result": "더블 클릭으로 번역 결과 복사",
         "submit_with_enter": "Enter로 제출",
-        "submit_with_meta_enter_mac": "⌘ + Enter로 제출"
+        "submit_with_meta_enter_mac": "⌘ + Enter로 제출",
+        "screen_capture_access_hint": "화면에서 텍스트를 가져오려면 화면 내용을 읽어야 합니다.",
+        "screen_selection_access_hint": "선택한 텍스트를 가져오려면 다른 앱의 선택 항목을 읽어야 합니다.",
+        "no_translation_targets": "번역 대상이 없습니다. 기본 번역 언어를 정하려면 하나 추가하세요."
       },
       "button": {
         "add_provider": "추가...",
@@ -321,13 +327,15 @@
         "app_language": "표시 언어",
         "theme_mode": "테마 모드",
         "theme_style": "테마 스타일"
-      }
+      },
+      "footer": "변경 사항은 창 전체에 즉시 적용됩니다."
     },
     "shortcuts": {
       "title": "단축키",
       "section": {
         "text_extraction": "텍스트 추출",
-        "input_assist": "입력 보조 기능"
+        "input_assist": "입력 보조 기능",
+        "submit_mode": "전송 방식"
       },
       "row": {
         "toggle_mini_translator": "창 보이기/숨기기",
@@ -341,7 +349,18 @@
         "message": "모든 단축키를 기본값으로 초기화하시겠습니까?",
         "confirm": "초기화",
         "cancel": "취소"
-      }
+      },
+      "group": {
+        "global": {
+          "title": "전역 단축키",
+          "description": "모든 앱에서 작동합니다."
+        },
+        "in_app": {
+          "title": "앱 내 키",
+          "description": "이 앱의 입력란에서만 적용됩니다."
+        }
+      },
+      "reset": "기본값 복원..."
     },
     "advanced": {
       "title": "고급",
@@ -383,6 +402,10 @@
           "message": "이 서비스가 제공자에서 제거됩니다."
         },
         "prompt_variables": "사용 가능한 변수: {{sourceLanguage}}, {{targetLanguage}}, {{text}}"
+      },
+      "make_default": "기본으로 설정",
+      "item": {
+        "none_of_kind": "사용할 수 있는 {} 서비스가 아직 없습니다."
       }
     },
     "providers": {
@@ -493,7 +516,8 @@
       },
       "groups": "설정 그룹",
       "effect_hint": "변경 사항 즉시 적용",
-      "footer_note": "번역과 키는 이 기기에만 저장됩니다"
+      "footer_note": "번역과 키는 이 기기에만 저장됩니다",
+      "support": "지원"
     },
     "about": {
       "title": "정보",
@@ -505,7 +529,8 @@
       "github": "GitHub",
       "report_issue": "문제 보고",
       "license": "라이선스",
-      "open_changelog": "변경 내역 열기"
+      "open_changelog": "변경 내역 열기",
+      "update": "업데이트"
     }
   }
 }

@@ -155,10 +155,7 @@ class GlossaryStore extends ChangeNotifier {
   Future<GlossaryBook?> createBook(String name) async {
     return _run(() async {
       final book = await _glossary.upsertBook(
-        input: GlossaryBookInput(
-          name: name,
-          enabled: true,
-        ),
+        input: GlossaryBookInput(name: name, enabled: true),
       );
       _selectedBookId = book.id;
       _query = '';
@@ -177,19 +174,21 @@ class GlossaryStore extends ChangeNotifier {
     bool clearSourceLanguage = false,
     bool clearTargetLanguage = false,
   }) async {
-    return _run(() => _glossary.upsertBook(
-          input: GlossaryBookInput(
-            id: book.id,
-            name: name ?? book.name,
-            enabled: enabled ?? book.enabled,
-            sourceLanguage: clearSourceLanguage
-                ? null
-                : (sourceLanguage ?? book.sourceLanguage),
-            targetLanguage: clearTargetLanguage
-                ? null
-                : (targetLanguage ?? book.targetLanguage),
-          ),
-        ));
+    return _run(
+      () => _glossary.upsertBook(
+        input: GlossaryBookInput(
+          id: book.id,
+          name: name ?? book.name,
+          enabled: enabled ?? book.enabled,
+          sourceLanguage: clearSourceLanguage
+              ? null
+              : (sourceLanguage ?? book.sourceLanguage),
+          targetLanguage: clearTargetLanguage
+              ? null
+              : (targetLanguage ?? book.targetLanguage),
+        ),
+      ),
+    );
   }
 
   Future<bool> deleteBook(String bookId) async {
@@ -209,18 +208,20 @@ class GlossaryStore extends ChangeNotifier {
   }) async {
     final bookId = _selectedBookId;
     if (bookId == null) return null;
-    return _run(() => _glossary.upsertEntry(
-          bookId: bookId,
-          input: GlossaryEntryInput(
-            id: entry?.id,
-            term: term,
-            translation: translation,
-            forbidden: forbidden,
-            note: note,
-            caseSensitive: caseSensitive,
-            wholeWord: wholeWord,
-          ),
-        ));
+    return _run(
+      () => _glossary.upsertEntry(
+        bookId: bookId,
+        input: GlossaryEntryInput(
+          id: entry?.id,
+          term: term,
+          translation: translation,
+          forbidden: forbidden,
+          note: note,
+          caseSensitive: caseSensitive,
+          wholeWord: wholeWord,
+        ),
+      ),
+    );
   }
 
   Future<bool> deleteEntry(String entryId) async {
@@ -248,8 +249,10 @@ class GlossaryStore extends ChangeNotifier {
         targetLanguage: targetLanguage,
       );
     } catch (error, stackTrace) {
-      debugPrint('GlossaryStore failed to check translation: '
-          '$error\n$stackTrace');
+      debugPrint(
+        'GlossaryStore failed to check translation: '
+        '$error\n$stackTrace',
+      );
       return const [];
     }
   }

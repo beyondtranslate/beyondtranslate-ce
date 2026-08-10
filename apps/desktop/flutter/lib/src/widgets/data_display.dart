@@ -142,8 +142,9 @@ class DetailBlock extends StatelessWidget {
                           color: state.hovered ? colors.accentText : colors.fg,
                         )
                         .copyWith(
-                          decoration:
-                              state.hovered ? TextDecoration.underline : null,
+                          decoration: state.hovered
+                              ? TextDecoration.underline
+                              : null,
                           decorationColor: colors.accentText,
                         ),
                     child: title,
@@ -162,8 +163,10 @@ class DetailBlock extends StatelessWidget {
               if (subtitle != null) ...[
                 const SizedBox(width: 10),
                 DefaultTextStyle(
-                  style: tokens.typography
-                      .sansStyle(fontSize: 11, color: colors.fgSubtle),
+                  style: tokens.typography.sansStyle(
+                    fontSize: 11,
+                    color: colors.fgSubtle,
+                  ),
                   child: subtitle!,
                 ),
               ],
@@ -201,8 +204,10 @@ class SettingRow extends StatelessWidget {
       children: [
         Expanded(
           child: DefaultTextStyle(
-            style: tokens.typography
-                .sansStyle(fontSize: 12, color: tokens.colors.fgSecondary),
+            style: tokens.typography.sansStyle(
+              fontSize: 12,
+              color: tokens.colors.fgSecondary,
+            ),
             child: label,
           ),
         ),
@@ -242,10 +247,7 @@ class Stat extends StatelessWidget {
         if (label != null) ...[
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: Label(
-              tone: LabelTone.faint,
-              child: label!,
-            ),
+            child: Label(tone: LabelTone.faint, child: label!),
           ),
           const SizedBox(height: 7),
         ],
@@ -254,15 +256,20 @@ class Stat extends StatelessWidget {
           textBaseline: TextBaseline.alphabetic,
           children: [
             DefaultTextStyle(
-              style: tokens.typography
-                  .numericStyle(fontSize: 24, height: 1, color: colors.fg),
+              style: tokens.typography.numericStyle(
+                fontSize: 24,
+                height: 1,
+                color: colors.fg,
+              ),
               child: value,
             ),
             if (unit != null) ...[
               const SizedBox(width: 5),
               DefaultTextStyle(
-                style: tokens.typography
-                    .sansStyle(fontSize: 11, color: colors.fgSubtle),
+                style: tokens.typography.sansStyle(
+                  fontSize: 11,
+                  color: colors.fgSubtle,
+                ),
                 child: unit!,
               ),
             ],
@@ -308,8 +315,8 @@ class SegmentGauge extends StatelessWidget {
                   color: index < filled
                       ? colors.accent
                       : (partial && index == filled
-                          ? colors.accent.withValues(alpha: 0.45)
-                          : colors.track),
+                            ? colors.accent.withValues(alpha: 0.45)
+                            : colors.track),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

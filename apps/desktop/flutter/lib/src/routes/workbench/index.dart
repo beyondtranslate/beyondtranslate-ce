@@ -16,11 +16,12 @@ import '../../widgets/ui.dart'
         SidebarCard,
         SidebarGroup;
 import '../../widgets/workbench.dart';
+import '../settings/about.dart';
 import '../settings/advanced.dart';
-import '../settings/appearance.dart';
 import '../settings/general.dart';
 import '../settings/index.dart';
 import '../settings/providers.dart';
+import '../settings/services.dart';
 import '../settings/shortcuts.dart';
 import 'glossary.dart';
 import 'library.dart';
@@ -29,82 +30,66 @@ import 'translation.dart';
 final ValueNotifier<String?> workbenchTextHandoff = ValueNotifier(null);
 
 List<RouteBase> get $appRoutes => <RouteBase>[
+  ShellRoute(
+    builder: (context, state, child) =>
+        WorkbenchShell(location: state.uri.path, child: child),
+    routes: [
+      GoRoute(
+        path: '/translate',
+        pageBuilder: (_, state) =>
+            _noTransitionPage(state, const WorkbenchTranslationPage()),
+      ),
+      GoRoute(
+        path: '/history',
+        pageBuilder: (_, state) =>
+            _noTransitionPage(state, const WorkbenchLibraryPage()),
+      ),
+      GoRoute(
+        path: '/glossary',
+        pageBuilder: (_, state) =>
+            _noTransitionPage(state, const WorkbenchGlossaryPage()),
+      ),
       ShellRoute(
-        builder: (context, state, child) => WorkbenchShell(
-          location: state.uri.path,
-          child: child,
+        pageBuilder: (context, state, child) => _noTransitionPage(
+          state,
+          SettingsTabsShell(location: state.uri.path, child: child),
         ),
         routes: [
           GoRoute(
-            path: '/translate',
-            pageBuilder: (_, state) => _noTransitionPage(
-              state,
-              const WorkbenchTranslationPage(),
-            ),
+            path: '/settings/general',
+            pageBuilder: (_, state) =>
+                _noTransitionPage(state, const GeneralSettingsPage()),
           ),
           GoRoute(
-            path: '/history',
-            pageBuilder: (_, state) => _noTransitionPage(
-              state,
-              const WorkbenchLibraryPage(),
-            ),
+            path: '/settings/services',
+            pageBuilder: (_, state) =>
+                _noTransitionPage(state, const ServicesSettingsPage()),
           ),
           GoRoute(
-            path: '/glossary',
-            pageBuilder: (_, state) => _noTransitionPage(
-              state,
-              const WorkbenchGlossaryPage(),
-            ),
+            path: '/settings/shortcuts',
+            pageBuilder: (_, state) =>
+                _noTransitionPage(state, const ShortcutsSettingsPage()),
           ),
-          ShellRoute(
-            pageBuilder: (context, state, child) => _noTransitionPage(
-              state,
-              SettingsTabsShell(
-                location: state.uri.path,
-                child: child,
-              ),
-            ),
-            routes: [
-              GoRoute(
-                path: '/settings/general',
-                pageBuilder: (_, state) => _noTransitionPage(
-                  state,
-                  const GeneralSettingsPage(),
-                ),
-              ),
-              GoRoute(
-                path: '/settings/appearance',
-                pageBuilder: (_, state) => _noTransitionPage(
-                  state,
-                  const AppearanceSettingsPage(),
-                ),
-              ),
-              GoRoute(
-                path: '/settings/shortcuts',
-                pageBuilder: (_, state) => _noTransitionPage(
-                  state,
-                  const ShortcutsSettingsPage(),
-                ),
-              ),
-              GoRoute(
-                path: '/settings/providers',
-                pageBuilder: (_, state) => _noTransitionPage(
-                  state,
-                  const ProvidersSettingsPage(),
-                ),
-              ),
-              GoRoute(
-                path: '/settings/advanced',
-                pageBuilder: (_, state) => _noTransitionPage(
-                  state,
-                  const AdvancedSettingsPage(),
-                ),
-              ),
-            ],
+          GoRoute(
+            path: '/settings/providers',
+            pageBuilder: (_, state) =>
+                _noTransitionPage(state, const ProvidersSettingsPage()),
+          ),
+          GoRoute(
+            path: '/settings/advanced',
+            pageBuilder: (_, state) =>
+                _noTransitionPage(state, const AdvancedSettingsPage()),
+          ),
+          GoRoute(
+            path: '/settings/about',
+            pageBuilder: (_, state) =>
+                _noTransitionPage(state, const AboutSettingsPage()),
           ),
         ],
       ),
-    ];
+    ],
+  ),
+];
 
 Page<void> _noTransitionPage(GoRouterState state, Widget child) {
   return NoTransitionPage<void>(key: state.pageKey, child: child);

@@ -32,8 +32,9 @@ class Thumbnail extends StatelessWidget {
     // 74px tall — a miniature page, so it takes the content-surface corner
     // rather than the chip corner a pill theme would blow out.
     final radius = BorderRadius.circular(tokens.radii.card);
-    final label =
-        page is int ? page.toString().padLeft(2, '0') : page.toString();
+    final label = page is int
+        ? page.toString().padLeft(2, '0')
+        : page.toString();
 
     return Pressable(
       onPressed: onPressed,

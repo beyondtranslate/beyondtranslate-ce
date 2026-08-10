@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../services/runtime.dart';
 
 class WordTagView extends StatelessWidget {
-  const WordTagView(
-    this.wordTag, {
-    Key? key,
-  }) : super(key: key);
+  const WordTagView(this.wordTag, {Key? key}) : super(key: key);
 
   final WordTag wordTag;
 
@@ -24,9 +22,8 @@ class WordTagView extends StatelessWidget {
         children: [
           Text(
             wordTag.name,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 13,
-                ),
+            style: Theme.of(context).textTheme.bodySmall!
+                .copyWith(fontSize: 13),
           ),
         ],
       ),

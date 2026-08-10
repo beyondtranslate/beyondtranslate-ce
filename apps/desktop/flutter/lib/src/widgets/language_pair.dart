@@ -24,11 +24,7 @@ class LanguagePair extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Badge(
-          tone: BadgeTone.accent,
-          size: BadgeSize.xs,
-          child: Text(note),
-        ),
+        Badge(tone: BadgeTone.accent, size: BadgeSize.xs, child: Text(note)),
         const SizedBox(width: 12),
         SwapPair(start: source, end: target, onSwap: onSwap),
       ],

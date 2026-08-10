@@ -110,10 +110,12 @@ class _NativeTextFieldState extends State<NativeTextField> {
   void _updatePlaceholder() {
     if (_channel == null) return;
     final textStyle = widget.style ?? DefaultTextStyle.of(context).style;
-    final placeholderStyle = widget.placeholderStyle ??
+    final placeholderStyle =
+        widget.placeholderStyle ??
         textStyle.copyWith(
-          color: (textStyle.color ?? const Color(0xFF000000))
-              .withValues(alpha: 0.5),
+          color: (textStyle.color ?? const Color(0xFF000000)).withValues(
+            alpha: 0.5,
+          ),
         );
     _channel!.invokeMethod<void>('setPlaceholder', <String, Object?>{
       'placeholder': widget.placeholder ?? '',
@@ -215,10 +217,12 @@ class _NativeTextFieldState extends State<NativeTextField> {
   @override
   Widget build(BuildContext context) {
     final textStyle = widget.style ?? DefaultTextStyle.of(context).style;
-    final placeholderStyle = widget.placeholderStyle ??
+    final placeholderStyle =
+        widget.placeholderStyle ??
         textStyle.copyWith(
-          color: (textStyle.color ?? const Color(0xFF000000))
-              .withValues(alpha: 0.5),
+          color: (textStyle.color ?? const Color(0xFF000000)).withValues(
+            alpha: 0.5,
+          ),
         );
     final padding = widget.padding.resolve(Directionality.maybeOf(context));
     final height = _heightForNativeContent(
@@ -253,11 +257,7 @@ class _NativeTextFieldState extends State<NativeTextField> {
     if (widget.expands) {
       return SizedBox.expand(child: nativeView);
     }
-    return SizedBox(
-      height: height,
-      width: double.infinity,
-      child: nativeView,
-    );
+    return SizedBox(height: height, width: double.infinity, child: nativeView);
   }
 
   double _heightForNativeContent({
@@ -274,11 +274,7 @@ class _NativeTextFieldState extends State<NativeTextField> {
     final nativeHeight = _nativeContentHeight == null
         ? minHeight
         : padding.vertical + _nativeContentHeight!;
-    return _clampHeight(
-      nativeHeight,
-      minHeight,
-      maxHeight,
-    );
+    return _clampHeight(nativeHeight, minHeight, maxHeight);
   }
 
   double _clampHeight(double height, double minHeight, double maxHeight) {
