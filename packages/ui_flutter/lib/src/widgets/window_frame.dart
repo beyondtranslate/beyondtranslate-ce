@@ -32,10 +32,10 @@ class TrafficLights extends StatelessWidget {
     final gap = size == TrafficLightsSize.md ? 8.0 : 7.0;
 
     Color fill(TrafficLight button) => switch (button) {
-      TrafficLight.close => colors.trafficClose,
-      TrafficLight.minimize => colors.trafficMinimize,
-      TrafficLight.zoom => colors.trafficZoom,
-    };
+          TrafficLight.close => colors.trafficClose,
+          TrafficLight.minimize => colors.trafficMinimize,
+          TrafficLight.zoom => colors.trafficZoom,
+        };
 
     return ExcludeSemantics(
       child: Row(
@@ -252,13 +252,13 @@ class WindowMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-    child: ClipRect(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      ),
-    ),
-  );
+        child: ClipRect(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          ),
+        ),
+      );
 }
 
 /// The row band under a [WindowMain] toolbar. Views render a rail, a main
@@ -270,13 +270,13 @@ class WindowContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-    child: ClipRect(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      ),
-    ),
-  );
+        child: ClipRect(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          ),
+        ),
+      );
 }
 
 /// Footer strip inside a window or dialog.

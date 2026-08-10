@@ -1,6 +1,6 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart' hide Checkbox;
+import 'package:flutter/material.dart' hide Checkbox, Dialog;
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../i18n/i18n.dart';
@@ -11,7 +11,14 @@ import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/ui.dart'
     show
         Button,
+        ButtonSize,
         ButtonVariant,
+        Callout,
+        CalloutTone,
+        Dialog,
+        DialogBody,
+        DialogFooter,
+        DialogHeader,
         Checkbox,
         DesignThemeContext,
         DesignTypographyStyles,
@@ -26,151 +33,196 @@ import '../../widgets/ui.dart'
 /// These moved off 常规 with the rows that raise them: in the deck each
 /// capability owns its options end to end, on 服务.
 
-Future<void> showAddTargetDialog(BuildContext context) async {
-  String source = kAutoSource;
-  String target = defaultTargetLanguage;
+/// 翻译目标 — one source/target pair. The same sheet adds and edits: editing
+/// pre-fills the pair and gains 删除, which sits at the *left* of the footer
+/// because it acts on what is already there, not on what the sheet is about to
+/// produce. 取消 and 保存 stay together on the right.
+Future<void> _showTargetDialog(
+  BuildContext context, {
+  TranslationTarget? target,
+}) async {
+  final targets = settingsStore.general.translationTargets;
+  final index = target == null ? -1 : targets.indexOf(target);
+  if (target != null && index < 0) return;
 
-  final result = await showDialogInCurrentWindow<bool>(
+  var source = target?.source ?? kAutoSource;
+  var targetLang = target?.target ?? defaultTargetLanguage;
+  final editing = target != null;
+
+  final saved = await showDialogInCurrentWindow<bool>(
     context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AppDialog(
-            title: Text(t.settings.general.button.add_target),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LanguageField(
-                  value: source,
-                  label: t.settings.general.editor.row.source_language,
-                  commonLanguageCodes: settingsStore.general.commonLanguages,
-                  showAutoDetect: true,
-                  showNative: true,
-                  onChanged: (v) => setDialogState(() => source = v),
+    builder: (context) => StatefulBuilder(
+      builder: (context, setDialogState) {
+        final tokens = context.tokens;
+        final colors = tokens.colors;
+        final editor = t.settings.general.editor;
+
+        final sameLanguage = source == targetLang;
+        final duplicate = settingsStore.general.translationTargets.indexed.any(
+          (entry) =>
+              entry.$1 != index &&
+              entry.$2.source == source &&
+              entry.$2.target == targetLang,
+        );
+        final canSave = !sameLanguage && !duplicate;
+
+        return Center(
+          child: Dialog(
+            width: 400,
+            children: [
+              DialogHeader(
+                title: Text(
+                  editing
+                      ? editor.title_edit
+                      : t.settings.general.button.add_target,
                 ),
-                const SizedBox(height: 12),
-                _LanguageField(
-                  value: target,
-                  label: t.settings.general.editor.row.target_language,
-                  commonLanguageCodes: settingsStore.general.commonLanguages,
-                  showNative: true,
-                  onChanged: (v) => setDialogState(() => target = v),
-                ),
-              ],
-            ),
-            actions: [
-              Button(
-                variant: ButtonVariant.secondary,
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(t.common.ui.button.cancel),
+                subtitle: Text(editor.subtitle),
               ),
-              Button(
-                variant: ButtonVariant.primary,
-                onPressed: () => Navigator.pop(context, true),
-                child: Text(t.common.ui.button.ok),
+              DialogBody(
+                children: [
+                  // The pair reads left to right, with the arrow on the
+                  // controls' line rather than the labels'.
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: _LanguageField(
+                          value: source,
+                          label: editor.row.source_language,
+                          commonLanguageCodes:
+                              settingsStore.general.commonLanguages,
+                          showAutoDetect: true,
+                          showNative: true,
+                          onChanged: (v) => setDialogState(() => source = v),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 28,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Icon(
+                            FluentIcons.arrow_right_20_regular,
+                            size: 14,
+                            color: colors.fgFaint,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: _LanguageField(
+                          value: targetLang,
+                          label: editor.row.target_language,
+                          commonLanguageCodes:
+                              settingsStore.general.commonLanguages,
+                          showNative: true,
+                          onChanged: (v) =>
+                              setDialogState(() => targetLang = v),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (sameLanguage)
+                    Callout(
+                      tone: CalloutTone.warn,
+                      child: Text(editor.same_language),
+                    )
+                  else if (duplicate)
+                    Callout(
+                      tone: CalloutTone.warn,
+                      child: Text(editor.duplicate),
+                    )
+                  else
+                    // Not a warning — what the pair will actually do, said
+                    // plainly, so the sheet is readable before it is committed.
+                    Text(
+                      source == kAutoSource
+                          ? formatTranslation(
+                              editor.hint_auto,
+                              args: [getLanguageName(targetLang)],
+                            )
+                          : formatTranslation(
+                              editor.hint_source,
+                              args: [
+                                getSourceDisplayName(source),
+                                getLanguageName(targetLang),
+                              ],
+                            ),
+                      style: tokens.typography.sansStyle(
+                        fontSize: 11,
+                        height: 1.7,
+                        color: colors.fgSubtle,
+                      ),
+                    ),
+                ],
+              ),
+              DialogFooter(
+                children: [
+                  if (editing)
+                    Button(
+                      variant: ButtonVariant.warning,
+                      onPressed: () async {
+                        final next = [
+                          ...settingsStore.general.translationTargets
+                        ]..removeAt(index);
+                        await settingsStore.updateGeneral(
+                          GeneralSettingsPatch(translationTargets: next),
+                        );
+                        if (context.mounted) Navigator.pop(context, false);
+                      },
+                      child: Text(t.common.ui.button.delete),
+                    ),
+                  const Spacer(),
+                  Button(
+                    variant: ButtonVariant.ghost,
+                    size: ButtonSize.md,
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text(t.common.ui.button.cancel),
+                  ),
+                  Button(
+                    variant: ButtonVariant.primary,
+                    size: ButtonSize.md,
+                    enabled: canSave,
+                    onPressed: () => Navigator.pop(context, true),
+                    child: Text(
+                      editing
+                          ? t.common.ui.button.save
+                          : t.common.ui.button.add,
+                    ),
+                  ),
+                ],
               ),
             ],
-          );
-        },
-      );
-    },
+          ),
+        );
+      },
+    ),
   );
 
-  if (result == true) {
-    final newTargets = [
-      ...settingsStore.general.translationTargets,
-      TranslationTarget(source: source, target: target, enabled: true),
-    ];
-    await settingsStore.updateGeneral(
-      GeneralSettingsPatch(translationTargets: newTargets),
-    );
+  if (saved != true) return;
+
+  final next = [...settingsStore.general.translationTargets];
+  final entry = TranslationTarget(
+    source: source,
+    target: targetLang,
+    enabled: true,
+  );
+  if (editing) {
+    next[index] = entry;
+  } else {
+    next.add(entry);
   }
+  await settingsStore.updateGeneral(
+    GeneralSettingsPatch(translationTargets: next),
+  );
 }
+
+Future<void> showAddTargetDialog(BuildContext context) =>
+    _showTargetDialog(context);
 
 Future<void> showEditTargetDialog(
   BuildContext context,
   TranslationTarget target,
-) async {
-  final index = settingsStore.general.translationTargets.indexOf(target);
-  if (index < 0) return;
-
-  String source = target.source;
-  String targetLang = target.target;
-
-  final result = await showDialogInCurrentWindow<String>(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AppDialog(
-            title: Text(t.common.ui.button.edit),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LanguageField(
-                  value: source,
-                  label: t.settings.general.editor.row.source_language,
-                  commonLanguageCodes: settingsStore.general.commonLanguages,
-                  showAutoDetect: true,
-                  showNative: true,
-                  onChanged: (v) => setDialogState(() => source = v),
-                ),
-                const SizedBox(height: 12),
-                _LanguageField(
-                  value: targetLang,
-                  label: t.settings.general.editor.row.target_language,
-                  commonLanguageCodes: settingsStore.general.commonLanguages,
-                  showNative: true,
-                  onChanged: (v) => setDialogState(() => targetLang = v),
-                ),
-              ],
-            ),
-            actions: [
-              Button(
-                variant: ButtonVariant.warning,
-                onPressed: () async {
-                  final newTargets = [
-                    ...settingsStore.general.translationTargets,
-                  ];
-                  newTargets.removeAt(index);
-                  await settingsStore.updateGeneral(
-                    GeneralSettingsPatch(translationTargets: newTargets),
-                  );
-                  if (context.mounted) Navigator.pop(context);
-                },
-                child: Text(t.common.ui.button.delete),
-              ),
-              Button(
-                variant: ButtonVariant.secondary,
-                onPressed: () => Navigator.pop(context),
-                child: Text(t.common.ui.button.cancel),
-              ),
-              Button(
-                variant: ButtonVariant.primary,
-                onPressed: () => Navigator.pop(context, 'save'),
-                child: Text(t.common.ui.button.save),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-
-  if (result == 'save') {
-    final newTargets = [...settingsStore.general.translationTargets];
-    newTargets[index] = TranslationTarget(
-      source: source,
-      target: targetLang,
-      enabled: true,
-    );
-    await settingsStore.updateGeneral(
-      GeneralSettingsPatch(translationTargets: newTargets),
-    );
-  }
-}
+) =>
+    _showTargetDialog(context, target: target);
 
 Future<void> showCommonLanguagesDialog(BuildContext context) async {
   final selected = Set<String>.from(settingsStore.general.commonLanguages);
@@ -237,6 +289,20 @@ Future<void> showCommonLanguagesDialog(BuildContext context) async {
 // ──────────────────────────────────────────────────────────────────────────────
 // Native dropdown helpers
 // ──────────────────────────────────────────────────────────────────────────────
+
+/// The language menu that is up, or the last one that was — released on the
+/// next open rather than on close, for the reason [_openLanguageMenu] gives.
+nativeapi.Menu? _liveLanguageMenu;
+List<nativeapi.MenuItem> _liveLanguageItems = const [];
+
+void _releaseLanguageMenu() {
+  for (final item in _liveLanguageItems) {
+    item.dispose();
+  }
+  _liveLanguageItems = const [];
+  _liveLanguageMenu?.dispose();
+  _liveLanguageMenu = null;
+}
 
 /// A language picker field that opens a native menu with grouped languages.
 class _LanguageField extends StatelessWidget {
@@ -367,15 +433,14 @@ class _LanguageField extends StatelessWidget {
       menu.addItem(item);
     }
 
-    // Clean up after close
-    late int closeListenerId;
-    closeListenerId = menu.on<nativeapi.MenuClosedEvent>((_) {
-      menu.off(closeListenerId);
-      for (final mi in menuItems) {
-        mi.dispose();
-      }
-      menu.dispose();
-    });
+    // Deliberately *not* torn down on close: AppKit closes the menu before it
+    // fires the item's action, and disposing a MenuItem drops it from the
+    // table the click callback looks itself up in — so releasing here would
+    // swallow the very selection that closed the menu. The previous menu is
+    // released on the next open instead.
+    _releaseLanguageMenu();
+    _liveLanguageMenu = menu;
+    _liveLanguageItems = menuItems;
 
     menu.open(
       nativeapi.PositioningStrategy.relativeToWindow(window, offset),

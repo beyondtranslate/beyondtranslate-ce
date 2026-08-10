@@ -6,7 +6,7 @@ import '../ui.dart' show DesignThemeContext;
 
 class TranslationEngineName extends StatelessWidget {
   const TranslationEngineName(this.translationEngineConfig, {Key? key})
-    : super(key: key);
+      : super(key: key);
 
   final TranslationEngineConfig translationEngineConfig;
 

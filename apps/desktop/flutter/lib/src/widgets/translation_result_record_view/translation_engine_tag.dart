@@ -8,7 +8,7 @@ import '../ui.dart' show Button, ButtonVariant;
 
 class TranslationEngineTag extends StatefulWidget {
   const TranslationEngineTag({Key? key, required this.translationResultRecord})
-    : super(key: key);
+      : super(key: key);
 
   final TranslationResultRecord translationResultRecord;
 
@@ -113,15 +113,15 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
 
     try {
       final serviceConfigEntry = await runtime.settings().getService(
-        serviceId: translationServiceId,
-      );
+            serviceId: translationServiceId,
+          );
       final providerConfigEntry = serviceConfigEntry == null
           ? await runtime.settings().getProvider(
-              providerId: translationServiceId,
-            )
+                providerId: translationServiceId,
+              )
           : await runtime.settings().getProvider(
-              providerId: serviceConfigEntry.providerId,
-            );
+                providerId: serviceConfigEntry.providerId,
+              );
       if (!mounted || translationServiceId != _translationServiceId) {
         return;
       }
@@ -185,7 +185,9 @@ class _TranslationEngineTagState extends State<TranslationEngineTag> {
                     padding: const EdgeInsets.only(left: 4, right: 2),
                     child: Text(
                       translationEngineName,
-                      style: Theme.of(context).textTheme.bodySmall!
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall!
                           .copyWith(fontSize: 10),
                     ),
                   ),

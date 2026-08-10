@@ -155,7 +155,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         settingsStore.inputSubmitMode == InputSubmitMode.enter;
     final submitWithCommand =
         settingsStore.inputSubmitMode == InputSubmitMode.commandEnter &&
-        HardwareKeyboard.instance.isMetaPressed;
+            HardwareKeyboard.instance.isMetaPressed;
     if (!submitWithEnter && !submitWithCommand) {
       return KeyEventResult.ignored;
     }
@@ -235,8 +235,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                 detectedLanguage: detected,
                 commonLanguageCodes:
                     settingsStore.general.commonLanguages.isNotEmpty
-                    ? settingsStore.general.commonLanguages
-                    : defaultCommonLanguages(),
+                        ? settingsStore.general.commonLanguages
+                        : defaultCommonLanguages(),
                 onSourceChanged: _handleSourceChanged,
                 onTargetChanged: _handleTargetChanged,
                 onManageCommonLanguages: _handleManageCommonLanguages,
@@ -355,8 +355,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               maxLines: 8,
               textInputAction:
                   settingsStore.inputSubmitMode == InputSubmitMode.enter
-                  ? TextInputAction.done
-                  : TextInputAction.newline,
+                      ? TextInputAction.done
+                      : TextInputAction.newline,
               onChanged: _controller.setText,
               onSubmitted: (_) => _submit(),
             ),
@@ -379,8 +379,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               Button(
                 variant: ButtonVariant.primary,
                 shortcut: const Text('⏎'),
-                enabled:
-                    !_controller.submitting &&
+                enabled: !_controller.submitting &&
                     _controller.text.trim().isNotEmpty,
                 onPressed: _submit,
                 child: Text(t.workbench.translation.button),
@@ -439,8 +438,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     final serviceName = result == null
         ? translation.main_translation
         : (result.service.name.isEmpty
-              ? result.service.id
-              : result.service.name);
+            ? result.service.id
+            : result.service.name);
 
     if (_isFailed(result)) {
       return Container(
@@ -506,128 +505,133 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       meta: translating
           ? Text(translation.translating)
           : _override != null
-          ? const Text('已记为偏好')
-          : idle
-          ? const Text('⌥Space 唤起迷你翻译器')
-          : null,
+              ? const Text('已记为偏好')
+              : idle
+                  ? const Text('⌥Space 唤起迷你翻译器')
+                  : null,
       // 翻译中不给动作行 —— 复制/朗读和对比开关都等结果落地再出现.
       actions: idle || translating
           ? null
           : _editing
-          ? Row(
-              children: [
-                Button(
-                  variant: ButtonVariant.primary,
-                  onPressed: () => setState(() {
-                    final draft = _draftController.text.trim();
-                    _override = draft.isEmpty ? null : draft;
-                    _editing = false;
-                  }),
-                  child: const Text('保存并记为偏好'),
+              ? Row(
+                  children: [
+                    Button(
+                      variant: ButtonVariant.primary,
+                      onPressed: () => setState(() {
+                        final draft = _draftController.text.trim();
+                        _override = draft.isEmpty ? null : draft;
+                        _editing = false;
+                      }),
+                      child: const Text('保存并记为偏好'),
+                    ),
+                    const SizedBox(width: 7),
+                    Button(
+                      variant: ButtonVariant.secondary,
+                      onPressed: () => setState(() => _editing = false),
+                      child: const Text('取消'),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '保存后同一术语的后续段落沿用你的写法',
+                      style: tokens.typography.sansStyle(
+                        fontSize: 11,
+                        height: 1,
+                        color: colors.fgSubtle,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Button(
+                      variant: ButtonVariant.primary,
+                      enabled: shownText.isNotEmpty,
+                      onPressed: () => _copyResult(shownText),
+                      child: Text(
+                        _copied ? translation.copied : translation.copy_result,
+                      ),
+                    ),
+                    const SizedBox(width: 7),
+                    Button(
+                      variant: ButtonVariant.secondary,
+                      enabled: result?.audioUrl != null,
+                      onPressed: () {
+                        final url = result?.audioUrl;
+                        if (url != null) {
+                          globalAudioPlayer.play(UrlSource(url));
+                        }
+                      },
+                      child: Text(translation.read),
+                    ),
+                    const SizedBox(width: 7),
+                    Button(
+                      variant: ButtonVariant.secondary,
+                      onPressed: () => setState(() => _starred = !_starred),
+                      child: Text(_starred ? '已收藏' : translation.favorite),
+                    ),
+                    const Spacer(),
+                    Button(
+                      variant: ButtonVariant.plain,
+                      onPressed: () {
+                        _draftController.text = shownText;
+                        setState(() => _editing = true);
+                      },
+                      child: const Text('编辑并记为偏好'),
+                    ),
+                    const SizedBox(width: 7),
+                    compareToggle,
+                  ],
                 ),
-                const SizedBox(width: 7),
-                Button(
-                  variant: ButtonVariant.secondary,
-                  onPressed: () => setState(() => _editing = false),
-                  child: const Text('取消'),
-                ),
-                const Spacer(),
-                Text(
-                  '保存后同一术语的后续段落沿用你的写法',
-                  style: tokens.typography.sansStyle(
-                    fontSize: 11,
-                    height: 1,
-                    color: colors.fgSubtle,
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                Button(
-                  variant: ButtonVariant.primary,
-                  enabled: shownText.isNotEmpty,
-                  onPressed: () => _copyResult(shownText),
-                  child: Text(
-                    _copied ? translation.copied : translation.copy_result,
-                  ),
-                ),
-                const SizedBox(width: 7),
-                Button(
-                  variant: ButtonVariant.secondary,
-                  enabled: result?.audioUrl != null,
-                  onPressed: () {
-                    final url = result?.audioUrl;
-                    if (url != null) {
-                      globalAudioPlayer.play(UrlSource(url));
-                    }
-                  },
-                  child: Text(translation.read),
-                ),
-                const SizedBox(width: 7),
-                Button(
-                  variant: ButtonVariant.secondary,
-                  onPressed: () => setState(() => _starred = !_starred),
-                  child: Text(_starred ? '已收藏' : translation.favorite),
-                ),
-                const Spacer(),
-                Button(
-                  variant: ButtonVariant.plain,
-                  onPressed: () {
-                    _draftController.text = shownText;
-                    setState(() => _editing = true);
-                  },
-                  child: const Text('编辑并记为偏好'),
-                ),
-                const SizedBox(width: 7),
-                compareToggle,
-              ],
-            ),
       child: idle
           ? Text(
               translation.empty,
               style: tokens.typography.translationStyle(color: colors.fgFaint),
             )
           : translating
-          ? const _TranslationSkeleton()
-          : _editing
-          ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: colors.window,
-                border: Border.all(color: colors.accent),
-                borderRadius: BorderRadius.circular(tokens.radii.box),
-                boxShadow: [
-                  BoxShadow(color: colors.accentRing, spreadRadius: 3),
-                ],
-              ),
-              child: TextField(
-                controller: _draftController,
-                // The box around it already carries the inset.
-                padding: EdgeInsets.zero,
-                style: tokens.typography.translationStyle(color: colors.fg),
-                // `rows={3}` in the deck.
-                minLines: 3,
-                maxLines: 8,
-              ),
-            )
-          : _override != null
-          ? Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: '$_override '),
-                  const WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Badge(size: BadgeSize.xs, child: Text('我改过')),
-                  ),
-                ],
-              ),
-              style: tokens.typography.translationStyle(color: colors.fg),
-            )
-          : SelectableText(
-              text,
-              style: tokens.typography.translationStyle(color: colors.fg),
-            ),
+              ? const _TranslationSkeleton()
+              : _editing
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: colors.window,
+                        border: Border.all(color: colors.accent),
+                        borderRadius: BorderRadius.circular(tokens.radii.box),
+                        boxShadow: [
+                          BoxShadow(color: colors.accentRing, spreadRadius: 3),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _draftController,
+                        // The box around it already carries the inset.
+                        padding: EdgeInsets.zero,
+                        style: tokens.typography
+                            .translationStyle(color: colors.fg),
+                        // `rows={3}` in the deck.
+                        minLines: 3,
+                        maxLines: 8,
+                      ),
+                    )
+                  : _override != null
+                      ? Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(text: '$_override '),
+                              const WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Badge(
+                                    size: BadgeSize.xs, child: Text('我改过')),
+                              ),
+                            ],
+                          ),
+                          style: tokens.typography
+                              .translationStyle(color: colors.fg),
+                        )
+                      : SelectableText(
+                          text,
+                          style: tokens.typography
+                              .translationStyle(color: colors.fg),
+                        ),
     );
   }
 
@@ -661,9 +665,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final translation = t.workbench.translation;
-    final name = result.service.name.isEmpty
-        ? result.service.id
-        : result.service.name;
+    final name =
+        result.service.name.isEmpty ? result.service.id : result.service.name;
     // ⌥n hint and avatar colour follow the service's position in the full
     // list — the same order the deck numbers its cards.
     final index = _controller.results.indexWhere(
@@ -932,16 +935,16 @@ class _TranslationSkeletonState extends State<_TranslationSkeleton>
     final line = colors.accent.withValues(alpha: 0.2);
 
     Widget bar(double widthFactor) => FractionallySizedBox(
-      alignment: Alignment.centerLeft,
-      widthFactor: widthFactor,
-      child: Container(
-        height: 16,
-        decoration: BoxDecoration(
-          color: line,
-          borderRadius: BorderRadius.circular(4),
-        ),
-      ),
-    );
+          alignment: Alignment.centerLeft,
+          widthFactor: widthFactor,
+          child: Container(
+            height: 16,
+            decoration: BoxDecoration(
+              color: line,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        );
 
     return FadeTransition(
       opacity: _controller,

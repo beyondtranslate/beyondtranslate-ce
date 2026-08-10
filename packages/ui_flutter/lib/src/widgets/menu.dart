@@ -42,7 +42,7 @@ class Menu extends StatefulWidget {
 
   /// Renders the trigger; receives the open state and a toggle callback.
   final Widget Function(BuildContext context, bool open, VoidCallback toggle)
-  trigger;
+      trigger;
   final List<MenuItem> items;
   final MenuAlign align;
 

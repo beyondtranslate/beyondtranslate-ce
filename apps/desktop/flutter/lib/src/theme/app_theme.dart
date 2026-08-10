@@ -24,15 +24,13 @@ enum DesignThemeFamily {
       .firstWhere((family) => family.id == id, orElse: () => studio);
 
   DesignThemeName themeFor(Brightness brightness) => switch (this) {
-    DesignThemeFamily.studio =>
-      brightness == Brightness.dark
-          ? DesignThemeName.studioDark
-          : DesignThemeName.studioLight,
-    DesignThemeFamily.bright =>
-      brightness == Brightness.dark
-          ? DesignThemeName.brightDark
-          : DesignThemeName.brightLight,
-  };
+        DesignThemeFamily.studio => brightness == Brightness.dark
+            ? DesignThemeName.studioDark
+            : DesignThemeName.studioLight,
+        DesignThemeFamily.bright => brightness == Brightness.dark
+            ? DesignThemeName.brightDark
+            : DesignThemeName.brightLight,
+      };
 }
 
 /// The design tokens behind a family / brightness pair.
@@ -42,7 +40,8 @@ enum DesignThemeFamily {
 DesignTokens tokensFor(
   Brightness brightness, {
   DesignThemeFamily family = DesignThemeFamily.studio,
-}) => family.themeFor(brightness).tokens;
+}) =>
+    family.themeFor(brightness).tokens;
 
 /// Projects a design token set onto Material's [ThemeData].
 ///
@@ -112,9 +111,8 @@ ThemeData appThemeData(DesignTokens tokens) {
       labelSmall: text(10, null, colors.fgSubtle),
     ),
     appBarTheme: AppBarTheme(
-      systemOverlayStyle: isDark
-          ? SystemUiOverlayStyle.light
-          : SystemUiOverlayStyle.dark,
+      systemOverlayStyle:
+          isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       backgroundColor: colors.chrome,
       foregroundColor: colors.fg,
       elevation: 0,

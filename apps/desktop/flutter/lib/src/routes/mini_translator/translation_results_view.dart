@@ -38,9 +38,8 @@ typedef ServiceTranslation = ({
 List<ServiceTranslation> serviceTranslations(List<TranslationResult> results) {
   final translations = <ServiceTranslation>[];
   for (final result in results) {
-    for (final record
-        in result.translationResultRecordList ??
-            const <TranslationResultRecord>[]) {
+    for (final record in result.translationResultRecordList ??
+        const <TranslationResultRecord>[]) {
       final texts = record.translateResponse?.translations ?? [];
       if (texts.isEmpty || texts.first.text.isEmpty) continue;
       translations.add((
@@ -124,9 +123,8 @@ class MiniTranslatorTranslation extends StatelessWidget {
     var pendingCount = 0;
     var failedCount = 0;
     for (final result in results) {
-      for (final record
-          in result.translationResultRecordList ??
-              const <TranslationResultRecord>[]) {
+      for (final record in result.translationResultRecordList ??
+          const <TranslationResultRecord>[]) {
         if (!translationServiceIds.contains(record.translationServiceId)) {
           continue;
         }
@@ -300,8 +298,8 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     onPrefer: candidates[i].record.translationServiceId == null
                         ? null
                         : () => onPreferService(
-                            candidates[i].record.translationServiceId!,
-                          ),
+                              candidates[i].record.translationServiceId!,
+                            ),
                   ),
                 ],
               ],

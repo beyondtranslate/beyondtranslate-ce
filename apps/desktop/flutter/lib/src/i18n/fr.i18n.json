@@ -318,7 +318,13 @@
         "row": {
           "source_language": "Langue source",
           "target_language": "Langue cible"
-        }
+        },
+        "title_edit": "Modifier la cible de traduction",
+        "subtitle": "Définit vers quelle langue une langue source est traduite par défaut",
+        "same_language": "La langue source et la cible sont identiques — choisissez une autre cible.",
+        "duplicate": "Une cible avec cette paire existe déjà.",
+        "hint_auto": "Traduire vers {} lorsque aucune autre règle ne correspond.",
+        "hint_source": "Traduire vers {} lorsque {} est détecté."
       }
     },
     "appearance": {

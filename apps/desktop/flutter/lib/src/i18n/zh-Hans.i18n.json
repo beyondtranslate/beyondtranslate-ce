@@ -318,7 +318,13 @@
         "row": {
           "source_language": "源语言",
           "target_language": "目标语言"
-        }
+        },
+        "title_edit": "编辑翻译目标",
+        "subtitle": "决定某种源语言默认翻译成哪种语言",
+        "same_language": "源语言与目标语言相同，换一个目标语言。",
+        "duplicate": "已经有一条同样的翻译目标了。",
+        "hint_auto": "未匹配到其他规则时，一律译成{}。",
+        "hint_source": "检测到{}时，译成{}。"
       }
     },
     "appearance": {

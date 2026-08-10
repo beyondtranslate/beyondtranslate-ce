@@ -69,35 +69,34 @@ class _HideOnCloseDelegate extends RegularWindowControllerDelegate {
   }
 }
 
-final workbenchWindowController =
-    RegularWindowController(
-        size: _kWorkbenchWindowSize,
-        title: _kWorkbenchWindowTitle,
-        delegate: _HideOnCloseDelegate(),
-      )
-      ..setWillShowHook((window) {
-        // Driving the Dock icon from the window hooks rather than from the call
-        // sites keeps the two in sync no matter who shows or hides the workbench.
-        dockIconController.setWorkbenchWindowVisible(true);
-        if (window.isFirstShow) {
-          window.titleBarStyle = TitleBarStyle.hidden;
-          window.setMinimumSize(
-            _kWorkbenchWindowMinimumSize.width,
-            _kWorkbenchWindowMinimumSize.height,
-          );
-          window.setSize(
-            _kWorkbenchWindowSize.width,
-            _kWorkbenchWindowSize.height,
-          );
-          window.center();
-          return true;
-        }
-        return true;
-      })
-      ..setWillHideHook((window) {
-        dockIconController.setWorkbenchWindowVisible(false);
-        return true;
-      });
+final workbenchWindowController = RegularWindowController(
+  size: _kWorkbenchWindowSize,
+  title: _kWorkbenchWindowTitle,
+  delegate: _HideOnCloseDelegate(),
+)
+  ..setWillShowHook((window) {
+    // Driving the Dock icon from the window hooks rather than from the call
+    // sites keeps the two in sync no matter who shows or hides the workbench.
+    dockIconController.setWorkbenchWindowVisible(true);
+    if (window.isFirstShow) {
+      window.titleBarStyle = TitleBarStyle.hidden;
+      window.setMinimumSize(
+        _kWorkbenchWindowMinimumSize.width,
+        _kWorkbenchWindowMinimumSize.height,
+      );
+      window.setSize(
+        _kWorkbenchWindowSize.width,
+        _kWorkbenchWindowSize.height,
+      );
+      window.center();
+      return true;
+    }
+    return true;
+  })
+  ..setWillHideHook((window) {
+    dockIconController.setWorkbenchWindowVisible(false);
+    return true;
+  });
 
 void showWorkbenchWindow({
   WorkbenchDestination destination = WorkbenchDestination.translate,
@@ -117,22 +116,21 @@ void showSettingsWindow() {
   showWorkbenchWindow(destination: WorkbenchDestination.settingsGeneral);
 }
 
-final miniTranslatorWindowController =
-    RegularWindowController(
-      // The deck's mini popover width (`--bt-mini-width`).
-      size: const Size(396, 420),
-      title: _kMiniTranslatorAppTitle,
-    )..setWillShowHook((window) {
-      if (window.isFirstShow) {
-        window.titleBarStyle = TitleBarStyle.hidden;
-        window.windowControlButtonsVisible = false;
-        if (kIsMacOS) {
-          // Mini translator uses solid background, no transparency needed.
-        }
-        return false;
+final miniTranslatorWindowController = RegularWindowController(
+  // The deck's mini popover width (`--bt-mini-width`).
+  size: const Size(396, 420),
+  title: _kMiniTranslatorAppTitle,
+)..setWillShowHook((window) {
+    if (window.isFirstShow) {
+      window.titleBarStyle = TitleBarStyle.hidden;
+      window.windowControlButtonsVisible = false;
+      if (kIsMacOS) {
+        // Mini translator uses solid background, no transparency needed.
       }
-      return true;
-    });
+      return false;
+    }
+    return true;
+  });
 
 /// Shows the mini translator window.
 void showMiniTranslatorWindow({Offset? position, bool belowTray = false}) {
@@ -633,18 +631,20 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
     // ── 设置 ──
     menu.addItem(
-      MenuItem(t.app.tray.context_menu.settings)..on<MenuItemClickedEvent>((_) {
-        showSettingsWindow();
-      }),
+      MenuItem(t.app.tray.context_menu.settings)
+        ..on<MenuItemClickedEvent>((_) {
+          showSettingsWindow();
+        }),
     );
 
     menu.addSeparator();
 
     // ── 退出 ──
     menu.addItem(
-      MenuItem(t.app.tray.context_menu.quit)..on<MenuItemClickedEvent>((_) {
-        exit(0);
-      }),
+      MenuItem(t.app.tray.context_menu.quit)
+        ..on<MenuItemClickedEvent>((_) {
+          exit(0);
+        }),
     );
 
     return menu;

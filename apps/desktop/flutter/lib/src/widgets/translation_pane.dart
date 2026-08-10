@@ -123,9 +123,8 @@ class TranslationPane extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: highlighted
-                        ? colors.accentHairline
-                        : colors.hairline,
+                    color:
+                        highlighted ? colors.accentHairline : colors.hairline,
                     width: context.hairlineWidth,
                   ),
                 ),

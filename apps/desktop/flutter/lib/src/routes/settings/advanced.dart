@@ -81,8 +81,8 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
               title: Text(t.settings.advanced.api_server),
               subtitle: advanced.apiServerEnabled
                   ? apiInfo == null
-                        ? Text(t.settings.advanced.disabled)
-                        : _ApiServerLinkText(baseUrl: address)
+                      ? Text(t.settings.advanced.disabled)
+                      : _ApiServerLinkText(baseUrl: address)
                   : Text(t.settings.advanced.api_server_description),
               trailing: [
                 Switch(

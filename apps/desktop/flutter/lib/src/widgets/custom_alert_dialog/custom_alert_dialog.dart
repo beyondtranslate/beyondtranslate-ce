@@ -45,7 +45,7 @@ class CustomDialogAction extends StatelessWidget {
 
 class CustomAlertDialog extends StatelessWidget {
   const CustomAlertDialog({Key? key, this.title, this.content, this.actions})
-    : super(key: key);
+      : super(key: key);
   final Widget? title;
   final Widget? content;
   final List<Widget>? actions;

@@ -30,66 +30,66 @@ import 'translation.dart';
 final ValueNotifier<String?> workbenchTextHandoff = ValueNotifier(null);
 
 List<RouteBase> get $appRoutes => <RouteBase>[
-  ShellRoute(
-    builder: (context, state, child) =>
-        WorkbenchShell(location: state.uri.path, child: child),
-    routes: [
-      GoRoute(
-        path: '/translate',
-        pageBuilder: (_, state) =>
-            _noTransitionPage(state, const WorkbenchTranslationPage()),
-      ),
-      GoRoute(
-        path: '/history',
-        pageBuilder: (_, state) =>
-            _noTransitionPage(state, const WorkbenchLibraryPage()),
-      ),
-      GoRoute(
-        path: '/glossary',
-        pageBuilder: (_, state) =>
-            _noTransitionPage(state, const WorkbenchGlossaryPage()),
-      ),
       ShellRoute(
-        pageBuilder: (context, state, child) => _noTransitionPage(
-          state,
-          SettingsTabsShell(location: state.uri.path, child: child),
-        ),
+        builder: (context, state, child) =>
+            WorkbenchShell(location: state.uri.path, child: child),
         routes: [
           GoRoute(
-            path: '/settings/general',
+            path: '/translate',
             pageBuilder: (_, state) =>
-                _noTransitionPage(state, const GeneralSettingsPage()),
+                _noTransitionPage(state, const WorkbenchTranslationPage()),
           ),
           GoRoute(
-            path: '/settings/services',
+            path: '/history',
             pageBuilder: (_, state) =>
-                _noTransitionPage(state, const ServicesSettingsPage()),
+                _noTransitionPage(state, const WorkbenchLibraryPage()),
           ),
           GoRoute(
-            path: '/settings/shortcuts',
+            path: '/glossary',
             pageBuilder: (_, state) =>
-                _noTransitionPage(state, const ShortcutsSettingsPage()),
+                _noTransitionPage(state, const WorkbenchGlossaryPage()),
           ),
-          GoRoute(
-            path: '/settings/providers',
-            pageBuilder: (_, state) =>
-                _noTransitionPage(state, const ProvidersSettingsPage()),
-          ),
-          GoRoute(
-            path: '/settings/advanced',
-            pageBuilder: (_, state) =>
-                _noTransitionPage(state, const AdvancedSettingsPage()),
-          ),
-          GoRoute(
-            path: '/settings/about',
-            pageBuilder: (_, state) =>
-                _noTransitionPage(state, const AboutSettingsPage()),
+          ShellRoute(
+            pageBuilder: (context, state, child) => _noTransitionPage(
+              state,
+              SettingsTabsShell(location: state.uri.path, child: child),
+            ),
+            routes: [
+              GoRoute(
+                path: '/settings/general',
+                pageBuilder: (_, state) =>
+                    _noTransitionPage(state, const GeneralSettingsPage()),
+              ),
+              GoRoute(
+                path: '/settings/services',
+                pageBuilder: (_, state) =>
+                    _noTransitionPage(state, const ServicesSettingsPage()),
+              ),
+              GoRoute(
+                path: '/settings/shortcuts',
+                pageBuilder: (_, state) =>
+                    _noTransitionPage(state, const ShortcutsSettingsPage()),
+              ),
+              GoRoute(
+                path: '/settings/providers',
+                pageBuilder: (_, state) =>
+                    _noTransitionPage(state, const ProvidersSettingsPage()),
+              ),
+              GoRoute(
+                path: '/settings/advanced',
+                pageBuilder: (_, state) =>
+                    _noTransitionPage(state, const AdvancedSettingsPage()),
+              ),
+              GoRoute(
+                path: '/settings/about',
+                pageBuilder: (_, state) =>
+                    _noTransitionPage(state, const AboutSettingsPage()),
+              ),
+            ],
           ),
         ],
       ),
-    ],
-  ),
-];
+    ];
 
 Page<void> _noTransitionPage(GoRouterState state, Widget child) {
   return NoTransitionPage<void>(key: state.pageKey, child: child);
@@ -112,6 +112,10 @@ class WorkbenchShell extends StatefulWidget {
 class _WorkbenchShellState extends State<WorkbenchShell> {
   bool _collapsed = false;
 
+  /// Kept here rather than in the sidebar: collapsing unmounts that column, so
+  /// a width held inside it would go back to the token on every re-open.
+  double? _sidebarWidth;
+
   bool _selected(String path) =>
       widget.location == path || widget.location.startsWith('$path/');
 
@@ -121,6 +125,8 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
       body: Workbench(
         collapsed: _collapsed,
         onToggleCollapsed: () => setState(() => _collapsed = !_collapsed),
+        sidebarWidth: _sidebarWidth,
+        onSidebarWidthChange: (width) => setState(() => _sidebarWidth = width),
         sidebarFooter: const _SidebarVersion(),
         sidebar: [
           SidebarGroup(

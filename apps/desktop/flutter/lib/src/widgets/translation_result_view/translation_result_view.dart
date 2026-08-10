@@ -7,7 +7,7 @@ import '../ui.dart' show Surface, SurfacePadding;
 
 class TranslationResultView extends StatelessWidget {
   const TranslationResultView(this.translationResult, {Key? key})
-    : super(key: key);
+      : super(key: key);
 
   final TranslationResult translationResult;
 

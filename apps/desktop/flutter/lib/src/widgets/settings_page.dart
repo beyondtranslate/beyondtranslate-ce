@@ -39,8 +39,7 @@ class SettingsPage extends StatelessWidget {
       itemBuilder: (_, index) => blocks[index],
       // A rule brings its own air, so the page does not add the usual gap
       // around it as well.
-      separatorBuilder: (_, index) =>
-          blocks[index] is SettingsSectionDivider ||
+      separatorBuilder: (_, index) => blocks[index] is SettingsSectionDivider ||
               blocks[index + 1] is SettingsSectionDivider
           ? const SizedBox.shrink()
           : const SizedBox(height: 22),

@@ -51,8 +51,7 @@ class _TranslationChatDialogState extends State<TranslationChatDialog> {
   final _scrollController = ScrollController();
   bool _isLoading = false;
 
-  String get _systemPrompt =>
-      '''
+  String get _systemPrompt => '''
 You are a translation assistant discussing a translation.
 
 Source language: ${widget.sourceLang}
@@ -262,9 +261,8 @@ class _ChatBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: isUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Flexible(

@@ -142,9 +142,8 @@ class DetailBlock extends StatelessWidget {
                           color: state.hovered ? colors.accentText : colors.fg,
                         )
                         .copyWith(
-                          decoration: state.hovered
-                              ? TextDecoration.underline
-                              : null,
+                          decoration:
+                              state.hovered ? TextDecoration.underline : null,
                           decorationColor: colors.accentText,
                         ),
                     child: title,
@@ -315,8 +314,8 @@ class SegmentGauge extends StatelessWidget {
                   color: index < filled
                       ? colors.accent
                       : (partial && index == filled
-                            ? colors.accent.withValues(alpha: 0.45)
-                            : colors.track),
+                          ? colors.accent.withValues(alpha: 0.45)
+                          : colors.track),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

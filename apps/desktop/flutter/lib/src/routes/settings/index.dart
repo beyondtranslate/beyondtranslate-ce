@@ -203,8 +203,7 @@ class SettingsTabsShell extends StatelessWidget {
       ),
     ];
     final pages = [for (final run in runs) ...run.pages];
-    final active =
-        pages
+    final active = pages
             .firstWhereOrNull((page) => location.startsWith(page.location))
             ?.location ??
         pages.first.location;
@@ -227,9 +226,8 @@ class SettingsTabsShell extends StatelessWidget {
                     for (var i = 0; i < runs.length; i++)
                       RailGroup(
                         first: i == 0,
-                        label: runs[i].label == null
-                            ? null
-                            : Text(runs[i].label!),
+                        label:
+                            runs[i].label == null ? null : Text(runs[i].label!),
                         children: [
                           for (final page in runs[i].pages)
                             RailItem(

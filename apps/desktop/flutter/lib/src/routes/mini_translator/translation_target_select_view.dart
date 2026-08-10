@@ -118,8 +118,7 @@ class MiniTranslatorTopBar extends StatelessWidget {
       autoLabel,
       nativeapi.MenuItemType.checkbox,
     );
-    autoItem.state =
-        activeConfigIndex == -1 &&
+    autoItem.state = activeConfigIndex == -1 &&
             isAutoSource(sourceLanguage) &&
             selectedTargetLanguage == null
         ? nativeapi.MenuItemState.checked

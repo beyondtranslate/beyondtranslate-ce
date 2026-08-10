@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
+import '../../widgets/native_select.dart';
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/ui.dart'
     show
@@ -18,8 +19,6 @@ import '../../widgets/ui.dart'
         DialogHeader,
         Field,
         Input,
-        Select,
-        SelectItem,
         TextArea;
 import 'provider_meta.dart';
 
@@ -55,6 +54,7 @@ class AddServiceDialog extends StatefulWidget {
     this.service,
     this.defaultProviderId,
     this.defaultType,
+    this.onDelete,
   });
 
   final List<ProviderConfigEntry> providers;
@@ -72,6 +72,11 @@ class AddServiceDialog extends StatefulWidget {
   /// The capability the sheet was opened from. 服务 raises this dialog from
   /// inside a capability's own group, which already decides the kind.
   final ServiceType? defaultType;
+
+  /// Offered only while editing. Removing a service is destructive, so it sits
+  /// at the *left* of the footer, away from 保存 — it acts on what is already
+  /// there rather than on what the sheet is about to produce.
+  final VoidCallback? onDelete;
 
   @override
   State<AddServiceDialog> createState() => _AddServiceDialogState();
@@ -91,9 +96,9 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
   bool get _isEditing => widget.service != null;
 
   ProviderConfigEntry get _provider => widget.providers.firstWhere(
-    (entry) => entry.id == _providerId,
-    orElse: () => widget.providers.first,
-  );
+        (entry) => entry.id == _providerId,
+        orElse: () => widget.providers.first,
+      );
 
   bool get _isLlm => isLlmProviderType(_provider.type);
 
@@ -105,8 +110,7 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
     super.initState();
     final service = widget.service;
     final preferred = service?.providerId ?? widget.defaultProviderId;
-    _providerId =
-        preferred != null &&
+    _providerId = preferred != null &&
             widget.providers.any((entry) => entry.id == preferred)
         ? preferred
         : widget.providers.first.id;
@@ -166,8 +170,8 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
     });
     try {
       final models = await runtime.settings().listModels(
-        providerId: providerId,
-      );
+            providerId: providerId,
+          );
       if (!mounted || providerId != _providerId) return;
       setState(() {
         _models = models;
@@ -261,13 +265,13 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                   Expanded(
                     child: Field(
                       label: Text(rows.provider),
-                      child: Select<String>(
+                      child: NativeSelect<String>(
                         value: _providerId,
                         enabled: !_isEditing,
                         semanticsLabel: rows.provider,
                         items: [
                           for (final provider in widget.providers)
-                            SelectItem(
+                            NativeSelectItem(
                               value: provider.id,
                               label: providerTypeDisplayName(provider.type),
                             ),
@@ -280,7 +284,7 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                   Expanded(
                     child: Field(
                       label: Text(rows.type),
-                      child: Select<ServiceType>(
+                      child: NativeSelect<ServiceType>(
                         value: _type,
                         enabled: !_isEditing,
                         semanticsLabel: rows.type,
@@ -288,7 +292,7 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                         // on an LLM provider would fail at look-up time.
                         items: [
                           for (final kind in _kinds)
-                            SelectItem(
+                            NativeSelectItem(
                               value: kind,
                               label: serviceTypeLabel(kind),
                             ),
@@ -346,6 +350,17 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
           ),
           DialogFooter(
             children: [
+              if (_isEditing && widget.onDelete != null) ...[
+                Button(
+                  variant: ButtonVariant.warning,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    widget.onDelete!();
+                  },
+                  child: Text(t.common.ui.button.delete),
+                ),
+                const SizedBox(width: 10),
+              ],
               // The id the pair derives, so the choices above have a visible
               // consequence before the sheet is committed.
               Flexible(
@@ -387,11 +402,11 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
     final models = _models ?? const <String>[];
 
     if (_isLoadingModels) {
-      return Select<String>(
+      return NativeSelect<String>(
         value: '',
         enabled: false,
         items: [
-          SelectItem(
+          NativeSelectItem(
             value: '',
             label: t.settings.providers.detail.models.loading,
           ),
@@ -408,12 +423,13 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
       );
     }
 
-    return Select<String>(
+    return NativeSelect<String>(
       value: _modelController.text.trim(),
       mono: true,
       semanticsLabel: t.settings.services.editor.row.model,
       items: [
-        for (final model in models) SelectItem(value: model, label: model),
+        for (final model in models)
+          NativeSelectItem(value: model, label: model),
       ],
       onChanged: (value) => setState(() => _modelController.text = value),
     );

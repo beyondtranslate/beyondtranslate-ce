@@ -22,8 +22,8 @@ class WordTagView extends StatelessWidget {
         children: [
           Text(
             wordTag.name,
-            style: Theme.of(context).textTheme.bodySmall!
-                .copyWith(fontSize: 13),
+            style:
+                Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 13),
           ),
         ],
       ),

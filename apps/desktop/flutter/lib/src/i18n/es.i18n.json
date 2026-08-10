@@ -318,7 +318,13 @@
         "row": {
           "source_language": "Idioma de origen",
           "target_language": "Idioma de destino"
-        }
+        },
+        "title_edit": "Editar destino de traducción",
+        "subtitle": "Decide a qué idioma se traduce un idioma de origen de forma predeterminada",
+        "same_language": "El idioma de origen y el de destino son el mismo; elige otro destino.",
+        "duplicate": "Ya existe un destino con esta combinación.",
+        "hint_auto": "Traducir a {} cuando ninguna otra regla coincida.",
+        "hint_source": "Traducir a {} cuando se detecte {}."
       }
     },
     "appearance": {

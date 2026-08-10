@@ -2,11 +2,46 @@ import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
 import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:beyondtranslate_ui/src/widgets/label.dart';
 import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Left workspace column — fixed at the sidebar metric (172px by default).
-class Sidebar extends StatelessWidget {
-  const Sidebar({super.key, this.header, this.footer, required this.children});
+/// How far the divider may travel. Below the floor the labels stop fitting
+/// their rows; above the ceiling the sidebar starts competing with the pane it
+/// is meant to serve.
+const double kMinSidebarWidth = 150;
+const double kMaxSidebarWidth = 320;
+
+/// Drag this far past the floor and the sidebar collapses instead of shrinking
+/// — AppKit's own divider does this, and it is the only way to close a sidebar
+/// without going back to the toolbar button.
+const double _kCollapseSlop = 32;
+
+/// Arrow keys walk the divider; shift makes the step a coarse one.
+const double _kKeyStep = 8;
+const double _kCoarseKeyStep = 32;
+
+/// The grab area. A one-pixel separator is not a target, so the handle is
+/// widened to something a pointer can actually find.
+const double _kHandleWidth = 7;
+
+/// Left workspace column — the sidebar metric (172px) wide, or whatever the
+/// divider has been dragged to when [resizable] is set.
+class Sidebar extends StatefulWidget {
+  const Sidebar({
+    super.key,
+    this.header,
+    this.footer,
+    this.resizable = false,
+    this.width,
+    this.defaultWidth,
+    this.onWidthChange,
+    this.minWidth = kMinSidebarWidth,
+    this.maxWidth = kMaxSidebarWidth,
+    this.onCollapse,
+    this.resizeLabel = '调整侧边栏宽度',
+    required this.children,
+  });
 
   /// Content for the strip above the nav list, kept at exactly the titlebar
   /// height so it lines up with the toolbar in the pane beside it. Pass the
@@ -19,15 +54,109 @@ class Sidebar extends StatelessWidget {
   /// the version/updater card here.
   final Widget? footer;
 
+  /// Let the separator on the right edge be dragged. Off by default: a sidebar
+  /// standing on its own in a gallery or a dialog has no pane to trade width
+  /// with, and a handle that leads nowhere is worse than no handle.
+  final bool resizable;
+
+  /// Controlled width. Leave it out and the sidebar owns its own.
+  final double? width;
+
+  /// Starting width for the uncontrolled case; defaults to the sidebar metric.
+  final double? defaultWidth;
+
+  final ValueChanged<double>? onWidthChange;
+  final double minWidth;
+  final double maxWidth;
+
+  /// Called when the divider is dragged past the floor. Left out, the drag
+  /// simply stops at [minWidth] — pass it only where collapsing is a state the
+  /// window can actually be in.
+  final VoidCallback? onCollapse;
+
+  /// Accessible name for the divider.
+  final String resizeLabel;
+
   final List<Widget> children;
+
+  @override
+  State<Sidebar> createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  double? _ownWidth;
+
+  /// What the sidebar measured before anyone dragged it — double-click home.
+  double? _natural;
+
+  bool _dragging = false;
+  bool _hovered = false;
+  bool _focused = false;
+
+  /// The width the drag started from, plus everything the pointer has moved
+  /// since. Tracking the origin rather than the running width keeps a drag
+  /// that runs past the floor from losing where it began.
+  double _dragOrigin = 0;
+  double _dragDelta = 0;
+
+  double _resolved(BuildContext context) =>
+      widget.width ?? _ownWidth ?? _naturalOf(context);
+
+  double _naturalOf(BuildContext context) =>
+      widget.defaultWidth ?? context.metrics.sidebarWidth;
+
+  double _clamp(double value) =>
+      value.clamp(widget.minWidth, widget.maxWidth).roundToDouble();
+
+  void _commit(double next) {
+    if (widget.width == null) setState(() => _ownWidth = next);
+    widget.onWidthChange?.call(next);
+  }
+
+  void _handleDragStart(BuildContext context, DragStartDetails _) {
+    _dragOrigin = _resolved(context);
+    _dragDelta = 0;
+    setState(() => _dragging = true);
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    if (!_dragging) return;
+    _dragDelta += details.delta.dx;
+    final raw = _dragOrigin + _dragDelta;
+    if (widget.onCollapse != null && raw < widget.minWidth - _kCollapseSlop) {
+      // Collapsed is not a width. Hand back the one the drag started from, so
+      // re-opening the sidebar does not inherit some half-dragged number.
+      _commit(_clamp(_dragOrigin));
+      setState(() => _dragging = false);
+      widget.onCollapse!();
+      return;
+    }
+    _commit(_clamp(raw));
+  }
+
+  KeyEventResult _handleKey(BuildContext context, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final left = event.logicalKey == LogicalKeyboardKey.arrowLeft;
+    final right = event.logicalKey == LogicalKeyboardKey.arrowRight;
+    if (!left && !right) return KeyEventResult.ignored;
+    final pressed = HardwareKeyboard.instance.logicalKeysPressed;
+    final coarse = pressed.contains(LogicalKeyboardKey.shiftLeft) ||
+        pressed.contains(LogicalKeyboardKey.shiftRight);
+    final step = coarse ? _kCoarseKeyStep : _kKeyStep;
+    _commit(_clamp(_resolved(context) + (right ? step : -step)));
+    return KeyEventResult.handled;
+  }
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    _natural ??= _naturalOf(context);
 
-    return Container(
-      width: tokens.metrics.sidebarWidth,
+    final column = Container(
+      width: _resolved(context),
       decoration: BoxDecoration(
         color: colors.sidebar,
         border: Border(
@@ -40,12 +169,12 @@ class Sidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (header != null)
+          if (widget.header != null)
             Container(
               height: tokens.metrics.titlebarHeight,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: AlignmentDirectional.centerStart,
-              child: header,
+              child: widget.header,
             ),
           Expanded(
             child: SingleChildScrollView(
@@ -53,21 +182,85 @@ class Sidebar extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (var i = 0; i < children.length; i++) ...[
+                  for (var i = 0; i < widget.children.length; i++) ...[
                     if (i > 0) SizedBox(height: tokens.metrics.navGap),
-                    children[i],
+                    widget.children[i],
                   ],
                 ],
               ),
             ),
           ),
-          if (footer != null)
+          if (widget.footer != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 14),
-              child: footer,
+              child: widget.footer,
             ),
         ],
       ),
+    );
+
+    if (!widget.resizable) return column;
+
+    // Nothing is drawn in the grab area: the separator itself is what lights
+    // up. React lets the handle straddle the edge; here it sits just inside,
+    // because Flutter drops any pointer that falls outside a box — a handle
+    // hanging over the pane beside it would lose those pixels to that pane.
+    final indicatorOpacity =
+        _dragging || _focused ? 1.0 : (_hovered ? 0.6 : 0.0);
+
+    return Stack(
+      // The column keeps whatever constraints the Stack was handed, so a
+      // sidebar in a stretched Row lays out exactly as it did before the
+      // handle existed.
+      fit: StackFit.passthrough,
+      children: [
+        column,
+        Positioned(
+          top: 0,
+          bottom: 0,
+          right: 0,
+          width: _kHandleWidth,
+          child: Semantics(
+            label: widget.resizeLabel,
+            slider: true,
+            value: _resolved(context).round().toString(),
+            child: Focus(
+              onKeyEvent: (node, event) => _handleKey(context, event),
+              onFocusChange: (value) => setState(() => _focused = value),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.resizeColumn,
+                onEnter: (_) => setState(() => _hovered = true),
+                onExit: (_) => setState(() => _hovered = false),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  // Measure from where the pointer went down, not from where
+                  // the recogniser claimed the gesture: the default swallows
+                  // the touch slop, and the divider would lag the cursor by
+                  // that much on every drag.
+                  dragStartBehavior: DragStartBehavior.down,
+                  onHorizontalDragStart: (details) =>
+                      _handleDragStart(context, details),
+                  onHorizontalDragUpdate: _handleDragUpdate,
+                  onHorizontalDragEnd: (_) => setState(() => _dragging = false),
+                  onHorizontalDragCancel: () =>
+                      setState(() => _dragging = false),
+                  // Double-clicking a divider puts it back where it started —
+                  // the same thing AppKit and every split view does.
+                  onDoubleTap: () => _commit(_clamp(_natural!)),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: AnimatedOpacity(
+                      duration: kTransitionDuration,
+                      opacity: indicatorOpacity,
+                      child: Container(width: 1, color: colors.accent),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -163,8 +356,8 @@ class NavItem extends StatelessWidget {
             color: active
                 ? tokens.selection
                 : (state.hovered
-                      ? colors.accent.withValues(alpha: 0.08)
-                      : null),
+                    ? colors.accent.withValues(alpha: 0.08)
+                    : null),
             borderRadius: radius,
           ),
           child: DefaultTextStyle(
@@ -500,9 +693,8 @@ class Aside extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final minContentHeight = constraints.maxHeight > 36
-              ? constraints.maxHeight - 36
-              : 0.0;
+          final minContentHeight =
+              constraints.maxHeight > 36 ? constraints.maxHeight - 36 : 0.0;
           final pinsLastCard =
               children.length > 1 && children.last is SidebarCard;
 

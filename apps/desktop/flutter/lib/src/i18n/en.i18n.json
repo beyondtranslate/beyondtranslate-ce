@@ -318,7 +318,13 @@
         "row": {
           "source_language": "Source Language",
           "target_language": "Target Language"
-        }
+        },
+        "title_edit": "Edit Translation Target",
+        "subtitle": "Decide which language a source language translates into by default",
+        "same_language": "Source and target are the same language — pick another target.",
+        "duplicate": "There is already a target with this pair.",
+        "hint_auto": "Translate into {} when no other rule matches.",
+        "hint_source": "Translate into {} when {} is detected."
       }
     },
     "appearance": {
