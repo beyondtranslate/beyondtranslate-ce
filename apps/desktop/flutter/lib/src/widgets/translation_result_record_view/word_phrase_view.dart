@@ -5,7 +5,7 @@ import '../../services/runtime.dart';
 
 class WordPhraseView extends StatelessWidget {
   const WordPhraseView(this.wordPhrase, {Key? key, required this.onTextTapped})
-    : super(key: key);
+      : super(key: key);
 
   final WordPhrase wordPhrase;
   final ValueChanged<String> onTextTapped;
@@ -36,7 +36,9 @@ class WordPhraseView extends StatelessWidget {
                 const TextSpan(text: ' '),
                 TextSpan(
                   text: wordPhrase.translations.first,
-                  style: Theme.of(context).textTheme.bodySmall!
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall!
                       .copyWith(fontSize: 13),
                 ),
               ],

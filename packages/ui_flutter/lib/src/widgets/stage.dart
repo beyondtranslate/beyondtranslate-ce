@@ -33,9 +33,9 @@ class Stage extends StatelessWidget {
       StagePadding.sm => const EdgeInsets.all(30),
       StagePadding.md => const EdgeInsets.all(34),
       StagePadding.lg => const EdgeInsets.symmetric(
-        horizontal: 30,
-        vertical: 34,
-      ),
+          horizontal: 30,
+          vertical: 34,
+        ),
     };
 
     return Container(
@@ -59,12 +59,12 @@ class ActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (var i = 0; i < children.length; i++) ...[
-        if (i > 0) const SizedBox(width: 6),
-        children[i],
-      ],
-    ],
-  );
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(width: 6),
+            children[i],
+          ],
+        ],
+      );
 }

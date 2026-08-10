@@ -14,23 +14,23 @@ enum DesignThemeName {
   /// The `data-theme` value the React package uses, so both sides can share a
   /// theme name over the wire.
   String get id => switch (this) {
-    DesignThemeName.studioLight => 'studio-light',
-    DesignThemeName.studioDark => 'studio-dark',
-    DesignThemeName.brightLight => 'bright-light',
-    DesignThemeName.brightDark => 'bright-dark',
-  };
+        DesignThemeName.studioLight => 'studio-light',
+        DesignThemeName.studioDark => 'studio-dark',
+        DesignThemeName.brightLight => 'bright-light',
+        DesignThemeName.brightDark => 'bright-dark',
+      };
 
   static DesignThemeName fromId(String id) => DesignThemeName.values.firstWhere(
-    (theme) => theme.id == id,
-    orElse: () => DesignThemeName.studioLight,
-  );
+        (theme) => theme.id == id,
+        orElse: () => DesignThemeName.studioLight,
+      );
 
   DesignTokens get tokens => switch (this) {
-    DesignThemeName.studioLight => DesignThemes.studioLight,
-    DesignThemeName.studioDark => DesignThemes.studioDark,
-    DesignThemeName.brightLight => DesignThemes.brightLight,
-    DesignThemeName.brightDark => DesignThemes.brightDark,
-  };
+        DesignThemeName.studioLight => DesignThemes.studioLight,
+        DesignThemeName.studioDark => DesignThemes.studioDark,
+        DesignThemeName.brightLight => DesignThemes.brightLight,
+        DesignThemeName.brightDark => DesignThemes.brightDark,
+      };
 }
 
 @immutable

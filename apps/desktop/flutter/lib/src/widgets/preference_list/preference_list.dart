@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PreferenceList extends StatelessWidget {
   const PreferenceList({Key? key, this.padding, required this.children})
-    : super(key: key);
+      : super(key: key);
 
   final EdgeInsets? padding;
   final List<Widget> children;

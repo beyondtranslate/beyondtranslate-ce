@@ -9,34 +9,34 @@ part of 'index.dart';
 List<RouteBase> get $appRoutes => [$settingsShellRoute];
 
 RouteBase get $settingsShellRoute => ShellRouteData.$route(
-  factory: $SettingsShellRouteExtension._fromState,
-  routes: [
-    GoRouteData.$route(
-      path: '/settings/general',
-      factory: $GeneralSettingsRoute._fromState,
-    ),
-    GoRouteData.$route(
-      path: '/settings/services',
-      factory: $ServicesSettingsRoute._fromState,
-    ),
-    GoRouteData.$route(
-      path: '/settings/shortcuts',
-      factory: $ShortcutsSettingsRoute._fromState,
-    ),
-    GoRouteData.$route(
-      path: '/settings/providers',
-      factory: $ProvidersSettingsRoute._fromState,
-    ),
-    GoRouteData.$route(
-      path: '/settings/advanced',
-      factory: $AdvancedSettingsRoute._fromState,
-    ),
-    GoRouteData.$route(
-      path: '/settings/about',
-      factory: $AboutSettingsRoute._fromState,
-    ),
-  ],
-);
+      factory: $SettingsShellRouteExtension._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: '/settings/general',
+          factory: $GeneralSettingsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/settings/services',
+          factory: $ServicesSettingsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/settings/shortcuts',
+          factory: $ShortcutsSettingsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/settings/providers',
+          factory: $ProvidersSettingsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/settings/advanced',
+          factory: $AdvancedSettingsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/settings/about',
+          factory: $AboutSettingsRoute._fromState,
+        ),
+      ],
+    );
 
 extension $SettingsShellRouteExtension on SettingsShellRoute {
   static SettingsShellRoute _fromState(GoRouterState state) =>

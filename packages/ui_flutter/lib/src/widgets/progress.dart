@@ -83,9 +83,9 @@ class Meter extends StatelessWidget {
     this.display,
     this.tone = ProgressTone.success,
   }) : assert(
-         tone != ProgressTone.gradient,
-         'A meter reads a single value, so it takes a solid tone.',
-       );
+          tone != ProgressTone.gradient,
+          'A meter reads a single value, so it takes a solid tone.',
+        );
 
   final Widget label;
   final double value;

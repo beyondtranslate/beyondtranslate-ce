@@ -30,7 +30,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// asset bundle: the bundle's root depends on which directory `flutter test`
 /// was invoked from, and these goldens have to render the same either way.
 Directory _packageRoot(String package) {
-  for (var dir = Directory.current; ; dir = dir.parent) {
+  for (var dir = Directory.current;; dir = dir.parent) {
     final config = File('${dir.path}/.dart_tool/package_config.json');
     if (config.existsSync()) {
       final packages =
@@ -148,25 +148,25 @@ void main() {
     }
 
     Widget column(List<Widget> children, {double gap = 10}) => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) SizedBox(height: gap),
-          children[i],
-        ],
-      ],
-    );
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) SizedBox(height: gap),
+              children[i],
+            ],
+          ],
+        );
 
     Widget row(List<Widget> children, {double gap = 8}) => Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) SizedBox(width: gap),
-          children[i],
-        ],
-      ],
-    );
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) SizedBox(width: gap),
+              children[i],
+            ],
+          ],
+        );
 
     testWidgets('button variants', (tester) async {
       await expectGolden(

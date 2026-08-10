@@ -6,16 +6,10 @@ import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
+import '../../widgets/native_select.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
-    show
-        Button,
-        ButtonVariant,
-        PreferenceRow,
-        PreferenceSection,
-        Select,
-        SelectItem,
-        Switch;
+    show Button, ButtonVariant, PreferenceRow, PreferenceSection, Switch;
 
 /// Mirrors macOS `GeneralView.swift`.
 class GeneralSettingsPage extends StatefulWidget {
@@ -103,7 +97,8 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                   value: settingsStore.appearance.language,
                   items: [
                     for (final code in appLanguages)
-                      SelectItem(value: code, label: getLanguageName(code)),
+                      NativeSelectItem(
+                          value: code, label: getLanguageName(code)),
                   ],
                   onChanged: (v) => settingsStore.updateAppearance(
                     AppearanceSettingsPatch(language: v),
@@ -117,12 +112,13 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                 _AppearanceSelect(
                   value: settingsStore.appearance.themeMode,
                   items: [
-                    SelectItem(
+                    NativeSelectItem(
                       value: 'light',
                       label: t.common.theme_mode.light,
                     ),
-                    SelectItem(value: 'dark', label: t.common.theme_mode.dark),
-                    SelectItem(
+                    NativeSelectItem(
+                        value: 'dark', label: t.common.theme_mode.dark),
+                    NativeSelectItem(
                       value: 'system',
                       label: t.common.theme_mode.system,
                     ),
@@ -241,14 +237,18 @@ class _AppearanceSelect extends StatelessWidget {
   });
 
   final String value;
-  final List<SelectItem<String>> items;
+  final List<NativeSelectItem<String>> items;
   final ValueChanged<String> onChanged;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 160,
-      child: Select<String>(value: value, items: items, onChanged: onChanged),
+      child: NativeSelect<String>(
+        value: value,
+        items: items,
+        onChanged: onChanged,
+      ),
     );
   }
 }

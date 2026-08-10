@@ -157,20 +157,20 @@ class DialogBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Flexible(
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) const SizedBox(height: 16),
-            children[i],
-          ],
-        ],
-      ),
-    ),
-  );
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0) const SizedBox(height: 16),
+                children[i],
+              ],
+            ],
+          ),
+        ),
+      );
 }
 
 class DialogFooter extends StatelessWidget {

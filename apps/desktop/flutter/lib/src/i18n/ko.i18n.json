@@ -318,7 +318,13 @@
         "row": {
           "source_language": "소스 언어",
           "target_language": "대상 언어"
-        }
+        },
+        "title_edit": "번역 대상 편집",
+        "subtitle": "특정 원본 언어를 기본으로 어떤 언어로 번역할지 정합니다",
+        "same_language": "원본 언어와 대상 언어가 같습니다. 다른 대상을 선택하세요.",
+        "duplicate": "같은 조합의 대상이 이미 있습니다.",
+        "hint_auto": "다른 규칙과 일치하지 않으면 {}(으)로 번역합니다.",
+        "hint_source": "{}이(가) 감지되면 {}(으)로 번역합니다."
       }
     },
     "appearance": {

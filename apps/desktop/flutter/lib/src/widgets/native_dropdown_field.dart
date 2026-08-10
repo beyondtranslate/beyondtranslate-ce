@@ -8,6 +8,19 @@ import 'package:nativeapi/nativeapi.dart' as nativeapi;
 ///
 /// This provides a more native look and feel across platforms and avoids
 /// Flutter's multi-window dialog issues with dropdown overlays.
+/// The dropdown menu that is up, or the last one that was.
+nativeapi.Menu? _liveDropdownMenu;
+List<nativeapi.MenuItem> _liveDropdownItems = const [];
+
+void _releaseDropdownMenu() {
+  for (final item in _liveDropdownItems) {
+    item.dispose();
+  }
+  _liveDropdownItems = const [];
+  _liveDropdownMenu?.dispose();
+  _liveDropdownMenu = null;
+}
+
 class NativeDropdownField<T> extends StatelessWidget {
   const NativeDropdownField({
     super.key,
@@ -51,14 +64,14 @@ class NativeDropdownField<T> extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final effectiveDecoration = (decoration ?? const InputDecoration())
-        .copyWith(
-          suffixIcon: Icon(
-            Icons.arrow_drop_down_rounded,
-            color: colorScheme.onSurface.withValues(alpha: 0.6),
-            size: 20,
-          ),
-        );
+    final effectiveDecoration =
+        (decoration ?? const InputDecoration()).copyWith(
+      suffixIcon: Icon(
+        Icons.arrow_drop_down_rounded,
+        color: colorScheme.onSurface.withValues(alpha: 0.6),
+        size: 20,
+      ),
+    );
 
     return InputDecorator(
       decoration: effectiveDecoration,
@@ -111,28 +124,21 @@ class NativeDropdownField<T> extends StatelessWidget {
       menu.addItem(menuItem);
     }
 
-    // Listen for close event to clean up native resources
-    late int closeListenerId;
-    closeListenerId = menu.on<nativeapi.MenuClosedEvent>((_) {
-      menu.off(closeListenerId);
-      for (final mi in menuItems) {
-        mi.dispose();
-      }
-      menu.dispose();
-    });
+    // Deliberately *not* released on close: AppKit closes the menu before it
+    // fires the item's action, and disposing a MenuItem drops it from the
+    // table the click callback looks itself up in — releasing here swallows
+    // the selection that closed the menu. The previous menu goes on the next
+    // open instead.
+    _releaseDropdownMenu();
+    _liveDropdownMenu = menu;
+    _liveDropdownItems = menuItems;
 
     final opened = menu.open(
       nativeapi.PositioningStrategy.relativeToWindow(window, offset),
       nativeapi.Placement.bottomStart,
     );
 
-    if (!opened) {
-      // Menu failed to open, clean up immediately
-      menu.off(closeListenerId);
-      for (final mi in menuItems) {
-        mi.dispose();
-      }
-      menu.dispose();
-    }
+    // Nothing was shown, so nothing can be clicked — safe to release now.
+    if (!opened) _releaseDropdownMenu();
   }
 }

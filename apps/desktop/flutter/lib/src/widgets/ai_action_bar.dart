@@ -135,9 +135,7 @@ class AiActionBar extends StatelessWidget {
   Future<void> _handleAlternatives(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final result = await runtime
-          .llm(providerId: llmProviderId)
-          .alternatives(
+      final result = await runtime.llm(providerId: llmProviderId).alternatives(
             text: sourceText,
             sourceLang: 'auto',
             targetLang: 'en',

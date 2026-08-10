@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../routes/settings/provider_meta.dart' show isServiceEnabled;
 import '../utils/language_util.dart';
 import 'llm_stream.dart';
 import 'runtime.dart';
@@ -103,9 +104,9 @@ class WorkbenchTranslationController extends ChangeNotifier {
   WorkbenchTranslationController({
     WorkbenchTranslationGateway? gateway,
     String initialTargetLanguage = 'en',
-  }) : _gateway = gateway ?? RuntimeWorkbenchTranslationGateway(),
-       _usesRuntimeDefaults = gateway == null,
-       targetLanguage = initialTargetLanguage;
+  })  : _gateway = gateway ?? RuntimeWorkbenchTranslationGateway(),
+        _usesRuntimeDefaults = gateway == null,
+        targetLanguage = initialTargetLanguage;
 
   final WorkbenchTranslationGateway _gateway;
   final bool _usesRuntimeDefaults;
@@ -130,17 +131,25 @@ class WorkbenchTranslationController extends ChangeNotifier {
   WorkbenchServiceResult? get selectedResult {
     if (results.isEmpty) return null;
     return results.cast<WorkbenchServiceResult?>().firstWhere(
-      (result) => result?.service.id == selectedServiceId,
-      orElse: () => results.first,
-    );
+          (result) => result?.service.id == selectedServiceId,
+          orElse: () => results.first,
+        );
   }
 
+  // A service switched off on 服务 takes no part in a query.
   List<ServiceConfigEntry> get translationServices => services
-      .where((service) => service.type == ServiceType.translation)
+      .where(
+        (service) =>
+            service.type == ServiceType.translation &&
+            isServiceEnabled(service),
+      )
       .toList(growable: false);
 
   List<ServiceConfigEntry> get dictionaryServices => services
-      .where((service) => service.type == ServiceType.dictionary)
+      .where(
+        (service) =>
+            service.type == ServiceType.dictionary && isServiceEnabled(service),
+      )
       .toList(growable: false);
 
   Future<void> initialize() async {
@@ -266,9 +275,8 @@ class WorkbenchTranslationController extends ChangeNotifier {
         final response = await _gateway.translate(
           result.service.id,
           TranslateRequest(
-            sourceLanguage: isAutoSource(sourceLanguage)
-                ? null
-                : sourceLanguage,
+            sourceLanguage:
+                isAutoSource(sourceLanguage) ? null : sourceLanguage,
             targetLanguage: targetLanguage,
             text: query,
           ),

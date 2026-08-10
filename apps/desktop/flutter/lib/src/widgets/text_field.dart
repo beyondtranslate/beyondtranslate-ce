@@ -172,8 +172,7 @@ class _TextFieldState extends State<TextField> {
         widget.style ?? DefaultTextStyle.of(context).style;
     final Color textColor = textStyle.color ?? const Color(0xFF000000);
     final bool enabled = widget.enabled ?? true;
-    final bool showPlaceholder =
-        widget.placeholder != null &&
+    final bool showPlaceholder = widget.placeholder != null &&
         !widget.obscureText &&
         _effectiveController.text.isEmpty;
 
@@ -189,8 +188,7 @@ class _TextFieldState extends State<TextField> {
               IgnorePointer(
                 child: Text(
                   widget.placeholder!,
-                  style:
-                      widget.placeholderStyle ??
+                  style: widget.placeholderStyle ??
                       textStyle.copyWith(
                         color: textColor.withValues(alpha: 0.5),
                       ),

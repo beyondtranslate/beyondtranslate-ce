@@ -22,47 +22,47 @@ class Step extends StatelessWidget {
 
     final marker = switch (status) {
       StepStatus.done => Container(
-        width: 16,
-        height: 16,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: colors.successSurface,
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          '✓',
-          style: tokens.typography.sansStyle(
-            fontSize: 11,
-            height: 1,
-            color: colors.success,
+          width: 16,
+          height: 16,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: colors.successSurface,
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            '✓',
+            style: tokens.typography.sansStyle(
+              fontSize: 11,
+              height: 1,
+              color: colors.success,
+            ),
           ),
         ),
-      ),
       StepStatus.active => const Spinner(size: SpinnerSize.md),
       StepStatus.idle => Container(
-        width: 16,
-        height: 16,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: colors.controlOutline, width: 1.5),
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: colors.controlOutline, width: 1.5),
+          ),
         ),
-      ),
     };
 
     final labelStyle = switch (status) {
       StepStatus.active => tokens.typography.sansStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: colors.fg,
-      ),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: colors.fg,
+        ),
       StepStatus.done => tokens.typography.sansStyle(
-        fontSize: 12,
-        color: colors.fgTertiary,
-      ),
+          fontSize: 12,
+          color: colors.fgTertiary,
+        ),
       StepStatus.idle => tokens.typography.sansStyle(
-        fontSize: 12,
-        color: colors.fgSubtle,
-      ),
+          fontSize: 12,
+          color: colors.fgSubtle,
+        ),
     };
 
     return Opacity(
@@ -97,13 +97,13 @@ class StepList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (var i = 0; i < children.length; i++) ...[
-        if (i > 0) const SizedBox(height: 8),
-        children[i],
-      ],
-    ],
-  );
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(height: 8),
+            children[i],
+          ],
+        ],
+      );
 }

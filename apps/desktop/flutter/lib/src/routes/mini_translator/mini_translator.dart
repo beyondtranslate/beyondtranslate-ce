@@ -12,6 +12,7 @@ import '../../extensions/window_controller.dart';
 import '../../i18n/i18n.dart';
 import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
+import '../../routes/settings/provider_meta.dart' show isServiceEnabled;
 import '../../routes/settings/services.dart' show ServicesSettingsPage;
 import '../../services/llm_stream.dart';
 import '../../services/runtime.dart';
@@ -156,12 +157,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   void _init() async {
     if (kIsMacOS) {
-      _isAllowedScreenCaptureAccess = await runtime
-          .permission()
-          .isScreenRecordingPermissionGranted();
-      _isAllowedScreenSelectionAccess = await runtime
-          .permission()
-          .isAccessibilityPermissionGranted();
+      _isAllowedScreenCaptureAccess =
+          await runtime.permission().isScreenRecordingPermissionGranted();
+      _isAllowedScreenSelectionAccess =
+          await runtime.permission().isAccessibilityPermissionGranted();
     }
 
     ShortcutService.instance.start();
@@ -192,25 +191,25 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   void _registerWindowEvents() {
     _windowFocusedListenerId = nativeapi.WindowManager.instance
         .on<nativeapi.WindowFocusedEvent>((event) {
-          if (event.windowId == _window.id) {
-            _focusNode.requestFocus();
-          }
-        });
+      if (event.windowId == _window.id) {
+        _focusNode.requestFocus();
+      }
+    });
     _windowBlurredListenerId = nativeapi.WindowManager.instance
         .on<nativeapi.WindowBlurredEvent>((event) {
-          if (event.windowId == _window.id) {
-            _focusNode.unfocus();
-            if (!_window.isAlwaysOnTop) {
-              _window.hide();
-            }
-          }
-        });
+      if (event.windowId == _window.id) {
+        _focusNode.unfocus();
+        if (!_window.isAlwaysOnTop) {
+          _window.hide();
+        }
+      }
+    });
     _windowMovedListenerId = nativeapi.WindowManager.instance
         .on<nativeapi.WindowMovedEvent>((event) {
-          if (event.windowId == _window.id) {
-            _lastShownPosition = event.position;
-          }
-        });
+      if (event.windowId == _window.id) {
+        _lastShownPosition = event.position;
+      }
+    });
   }
 
   void _unregisterWindowEvents() {
@@ -370,8 +369,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     final queryServices = services
         .where(
           (service) =>
-              service.type == ServiceType.dictionary ||
-              service.type == ServiceType.translation,
+              (service.type == ServiceType.dictionary ||
+                  service.type == ServiceType.translation) &&
+              // A service switched off on 服务 takes no part in a query.
+              isServiceEnabled(service),
         )
         .toList();
     _serviceNameById = {
@@ -385,7 +386,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     // Detect source language for translation target matching.
     if (_text.isNotEmpty) {
       try {
-        final translationService = services.firstWhere(
+        final translationService = queryServices.firstWhere(
           (service) => service.type == ServiceType.translation,
         );
         final detectResponse = await runtime
@@ -493,8 +494,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
     if (service.type == ServiceType.translation) {
       final providerType = provider?.type;
-      final isLlmProvider =
-          providerType == ProviderType.openAi ||
+      final isLlmProvider = providerType == ProviderType.openAi ||
           providerType == ProviderType.anthropic ||
           providerType == ProviderType.ollama ||
           providerType == ProviderType.xAi;
@@ -828,12 +828,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         isAllowedScreenCaptureAccess: _isAllowedScreenCaptureAccess,
         isAllowedScreenSelectionAccess: _isAllowedScreenSelectionAccess,
         onTappedRecheckIsAllowedAllAccess: () async {
-          _isAllowedScreenCaptureAccess = await runtime
-              .permission()
-              .isScreenRecordingPermissionGranted();
-          _isAllowedScreenSelectionAccess = await runtime
-              .permission()
-              .isAccessibilityPermissionGranted();
+          _isAllowedScreenCaptureAccess =
+              await runtime.permission().isScreenRecordingPermissionGranted();
+          _isAllowedScreenSelectionAccess =
+              await runtime.permission().isAccessibilityPermissionGranted();
 
           _setStateAndScheduleWindowResize(() {});
 
@@ -857,7 +855,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   Widget _buildBody(BuildContext context) {
     final hasTranslation =
         preferredTranslation(_translationResultList, _preferredServiceId) !=
-        null;
+            null;
 
     return Column(
       key: _contentViewKey,
@@ -937,8 +935,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
             SingleActivator(
               LogicalKeyboardKey(LogicalKeyboardKey.digit1.keyId + digit - 1),
               alt: true,
-            ): () =>
-                _handlePreferServiceAt(digit - 1),
+            ): () => _handlePreferServiceAt(digit - 1),
         },
         child: SingleChildScrollView(
           controller: _scrollController,
@@ -955,8 +952,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 persistentTargets: settingsStore.general.translationTargets,
                 commonLanguageCodes:
                     settingsStore.general.commonLanguages.isNotEmpty
-                    ? settingsStore.general.commonLanguages
-                    : defaultCommonLanguages(),
+                        ? settingsStore.general.commonLanguages
+                        : defaultCommonLanguages(),
                 onSourceChanged: _handleSourceChanged,
                 onTargetLanguageChanged: _handleTargetLanguageChanged,
                 onConfigTargetSelected: _handleConfigTargetSelected,

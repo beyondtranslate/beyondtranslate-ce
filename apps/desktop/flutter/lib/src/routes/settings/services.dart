@@ -6,6 +6,7 @@ import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
 import '../../utils/language_util.dart';
+import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/settings_page.dart';
@@ -22,7 +23,10 @@ import '../../widgets/ui.dart'
         PreferenceGroup,
         PreferenceRow,
         PreferenceSection,
-        Switch;
+        DialogTone,
+        HoverRegion,
+        Switch,
+        kTransitionDuration;
 import 'add_service_dialog.dart';
 import 'index.dart';
 import 'provider_meta.dart';
@@ -92,7 +96,10 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
     if (mounted) setState(() {});
   }
 
-  Future<void> _openServiceEditor(ServiceType type) async {
+  Future<void> _openServiceEditor(
+    ServiceType type, {
+    ServiceConfigEntry? existing,
+  }) async {
     final draft = await showDialogInCurrentWindow<ServiceDraft>(
       context: context,
       builder: (_) => AddServiceDialog(
@@ -100,24 +107,85 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
         // The derived services count as taken ids, so a second service of the
         // same kind gets a suffix instead of shadowing the provider's own.
         existing: settingsStore.services,
+        service: existing,
         defaultType: type,
+        onDelete: existing == null ? null : () => _deleteService(existing),
       ),
     );
     if (draft == null) return;
 
     try {
       await runtime.settings().updateService(
-        serviceId: draft.id,
-        providerId: draft.providerId,
-        serviceType: draft.type,
-        name: draft.name,
-        fields: draft.fields,
-      );
+            serviceId: draft.id,
+            providerId: draft.providerId,
+            serviceType: draft.type,
+            name: draft.name,
+            fields: draft.fields,
+          );
       await settingsStore.reloadServices();
     } catch (error) {
       // The runtime refuses a service it cannot construct — a bad key, an
       // endpoint it cannot reach. Say so on the page rather than dropping the
       // failure on the floor.
+      if (mounted) setState(() => _errorMessage = error.toString());
+    }
+  }
+
+  Future<void> _deleteService(ServiceConfigEntry entry) async {
+    final confirmed = await showDialogInCurrentWindow<bool>(
+      context: context,
+      builder: (ctx) => AppDialog(
+        tone: DialogTone.danger,
+        title: Text(
+          formatTranslation(
+            t.settings.services.detail.delete_dialog.title,
+            args: [entry.name.isEmpty ? entry.id : entry.name],
+          ),
+        ),
+        content: Text(t.settings.services.detail.delete_dialog.message),
+        actions: [
+          Button(
+            variant: ButtonVariant.secondary,
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.common.ui.button.cancel),
+          ),
+          Button(
+            variant: ButtonVariant.warning,
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(t.common.ui.button.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await runtime.settings().deleteService(serviceId: entry.id);
+      await settingsStore.reloadServices();
+    } catch (error) {
+      if (mounted) setState(() => _errorMessage = error.toString());
+    }
+  }
+
+  /// Switching a service off stores the flag on the service itself, so it
+  /// survives a restart and the translation flows can skip it.
+  Future<void> _setEnabled(ServiceConfigEntry service, bool enabled) async {
+    final fields = Map<String, String>.from(service.fields);
+    if (enabled) {
+      fields.remove(kServiceEnabledField);
+    } else {
+      fields[kServiceEnabledField] = 'false';
+    }
+    try {
+      await runtime.settings().updateService(
+            serviceId: service.id,
+            providerId: service.providerId,
+            serviceType: service.type,
+            name: service.name,
+            fields: fields,
+          );
+      await settingsStore.reloadServices();
+    } catch (error) {
       if (mounted) setState(() => _errorMessage = error.toString());
     }
   }
@@ -140,11 +208,11 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
     final id = providerIdOfService(serviceId);
     final patch = switch (type) {
       ServiceType.translation => GeneralSettingsPatch(
-        defaultTranslationService: id,
-      ),
+          defaultTranslationService: id,
+        ),
       ServiceType.dictionary => GeneralSettingsPatch(
-        defaultDirectoryService: id,
-      ),
+          defaultDirectoryService: id,
+        ),
       ServiceType.ocr => GeneralSettingsPatch(defaultOcrService: id),
       ServiceType.llm => null,
     };
@@ -324,7 +392,10 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                           .where((entry) => entry.id == service.providerId)
                           .firstOrNull,
                       isDefault: service.id == _defaultOf(type),
+                      enabled: isServiceEnabled(service),
                       onMakeDefault: () => _setDefault(type, service.id),
+                      onEnabledChange: (value) => _setEnabled(service, value),
+                      onEdit: () => _openServiceEditor(type, existing: service),
                     ),
               ],
             ),
@@ -355,19 +426,31 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
 }
 
 /// One row of a capability's services — the thing that actually runs, so it
-/// carries the 默认 mark beside its name.
+/// owns the 默认 mark, the switch, and what you can do to it.
+///
+/// The badge sits with the name because it says what this service *is*; 设为默认
+/// and 编辑 are the doing, and they stay hidden until the pointer is on the row.
+/// A list of five services otherwise shows ten buttons at rest, and the eye has
+/// to sort the labels from the controls before it can read the list. They keep
+/// their space while hidden, so the row does not jump.
 class _ServiceRow extends StatelessWidget {
   const _ServiceRow({
     required this.service,
     required this.provider,
     required this.isDefault,
+    required this.enabled,
     required this.onMakeDefault,
+    required this.onEnabledChange,
+    required this.onEdit,
   });
 
   final ServiceConfigEntry service;
   final ProviderConfigEntry? provider;
   final bool isDefault;
+  final bool enabled;
   final VoidCallback onMakeDefault;
+  final ValueChanged<bool> onEnabledChange;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -375,45 +458,101 @@ class _ServiceRow extends StatelessWidget {
     final colors = tokens.colors;
     final name = service.name.isEmpty ? service.id : service.name;
 
-    return PreferenceRow(
-      icon: ProviderIcon(
-        providerTypeValue(provider?.type ?? ProviderType.system),
-        size: 16,
-      ),
-      // The badge sits with the name because it says what this service *is*,
-      // not what you can do to it.
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(child: Text(name, overflow: TextOverflow.ellipsis)),
-          const SizedBox(width: 8),
-          Text(
-            service.providerId,
-            style: tokens.typography.monoStyle(
-              fontSize: 11,
-              height: 1,
-              color: colors.fgSubtle,
+    return HoverRegion(
+      builder: (context, hovered) => ConstrainedBox(
+        // `min-h-7 gap-2.5` — the same floor a PreferenceRow keeps, so a
+        // roster and a settings row stack to one rhythm.
+        constraints: const BoxConstraints(minHeight: 28),
+        child: Row(
+          children: [
+            // The name block takes the slack and stays left; without wrapping
+            // it the row's `Flexible` children would each claim a share of the
+            // free space and the trailing controls would drift off the edge.
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ProviderIcon(
+                    providerTypeValue(provider?.type ?? ProviderType.system),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      style: tokens.typography.sansStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        height: 1,
+                        // A service that is switched off still reads, but it
+                        // stops competing with the ones that are running.
+                        color: enabled ? colors.fg : colors.fgFaint,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      service.providerId,
+                      overflow: TextOverflow.ellipsis,
+                      style: tokens.typography.monoStyle(
+                        fontSize: 11,
+                        height: 1,
+                        color: colors.fgSubtle,
+                      ),
+                    ),
+                  ),
+                  if (isDefault) ...[
+                    const SizedBox(width: 10),
+                    Badge(
+                      size: BadgeSize.xs,
+                      child: Text(
+                        t.settings.providers.detail.models.default_badge,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          if (isDefault) ...[
-            const SizedBox(width: 8),
-            Badge(
-              size: BadgeSize.xs,
-              child: Text(t.settings.providers.detail.models.default_badge),
+            const SizedBox(width: 10),
+            // Hidden rather than absent: the row keeps its geometry, so the
+            // list does not shuffle as the pointer runs down it.
+            AnimatedOpacity(
+              duration: kTransitionDuration,
+              opacity: hovered ? 1 : 0,
+              child: IgnorePointer(
+                ignoring: !hovered,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Only a service that is on can be the one that runs.
+                    if (!isDefault && enabled) ...[
+                      Button(
+                        variant: ButtonVariant.quiet,
+                        onPressed: onMakeDefault,
+                        child: Text(t.settings.services.make_default),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    Button(
+                      variant: ButtonVariant.quiet,
+                      onPressed: onEdit,
+                      child: Text(t.common.ui.button.edit),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Switch(
+              checked: enabled,
+              semanticsLabel: name,
+              onChanged: onEnabledChange,
             ),
           ],
-        ],
+        ),
       ),
-      // 设为默认 is the doing, so it stays off the name — and it is the only
-      // way to change which service runs now that the picker is gone.
-      trailing: [
-        if (!isDefault)
-          Button(
-            variant: ButtonVariant.quiet,
-            onPressed: onMakeDefault,
-            child: Text(t.settings.services.make_default),
-          ),
-      ],
     );
   }
 }

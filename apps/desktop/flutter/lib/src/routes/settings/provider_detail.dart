@@ -101,8 +101,8 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     });
     try {
       final models = await runtime.settings().listModels(
-        providerId: widget.provider.id,
-      );
+            providerId: widget.provider.id,
+          );
       if (!mounted) return;
       setState(() => _models = models);
     } catch (_) {

@@ -360,3 +360,15 @@ const List<ServiceType> kServiceTypeOrder = [
   ServiceType.ocr,
   ServiceType.llm,
 ];
+
+/// Whether a service takes part in the feature it belongs to.
+///
+/// The flag rides in the service's own `fields` map, which the runtime stores
+/// and returns untouched — the same slot `model` and `systemPrompt` use — so a
+/// switch needs no schema change. Absent means on, so every service configured
+/// before the switch existed keeps working.
+bool isServiceEnabled(ServiceConfigEntry service) =>
+    service.fields[kServiceEnabledField] != 'false';
+
+/// The key [isServiceEnabled] reads.
+const String kServiceEnabledField = 'enabled';

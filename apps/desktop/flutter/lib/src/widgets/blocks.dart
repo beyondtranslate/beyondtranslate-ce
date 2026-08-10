@@ -184,10 +184,10 @@ class _InteractiveMarkState extends State<_InteractiveMark> {
       Color accentColor,
     ) = switch (widget.tone) {
       MarkTone.accent => (
-        colors.accentMark,
-        colors.accentMarkFg,
-        colors.accent,
-      ),
+          colors.accentMark,
+          colors.accentMarkFg,
+          colors.accent,
+        ),
       MarkTone.warn => (colors.warnMark, colors.warnFg, colors.warn),
     };
     const radius = BorderRadius.all(Radius.circular(5));
@@ -268,7 +268,8 @@ class _InteractiveMarkState extends State<_InteractiveMark> {
                   ),
                   child: Text(
                     widget.text,
-                    style: DefaultTextStyle.of(context).style
+                    style: DefaultTextStyle.of(context)
+                        .style
                         .copyWith(color: foreground),
                   ),
                 ),
@@ -390,11 +391,13 @@ InlineSpan markSpan(
   MarkTone tone = MarkTone.accent,
   MarkDetail? detail,
   VoidCallback? onActivate,
-}) => WidgetSpan(
-  alignment: PlaceholderAlignment.baseline,
-  baseline: TextBaseline.alphabetic,
-  child: Mark(tone: tone, text: text, detail: detail, onActivate: onActivate),
-);
+}) =>
+    WidgetSpan(
+      alignment: PlaceholderAlignment.baseline,
+      baseline: TextBaseline.alphabetic,
+      child:
+          Mark(tone: tone, text: text, detail: detail, onActivate: onActivate),
+    );
 
 /// A paragraph with its column heading; receded relative to the block below.
 class TextBlock extends StatelessWidget {

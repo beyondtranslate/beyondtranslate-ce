@@ -29,12 +29,12 @@ import '../../widgets/ui.dart'
 import '../../widgets/workbench.dart';
 
 List<RouteBase> get $appRoutes => <RouteBase>[
-  GoRoute(
-    path: '/debug/widgets',
-    builder: (BuildContext context, GoRouterState state) =>
-        const WidgetShowcasePage(),
-  ),
-];
+      GoRoute(
+        path: '/debug/widgets',
+        builder: (BuildContext context, GoRouterState state) =>
+            const WidgetShowcasePage(),
+      ),
+    ];
 
 class WidgetShowcasePage extends StatefulWidget {
   const WidgetShowcasePage({super.key});
@@ -194,7 +194,8 @@ class _WidgetShowcasePageState extends State<WidgetShowcasePage> {
                           child: TranslationPane(
                             label: '原文',
                             language: '英语',
-                            text: 'The dominant sequence transduction models are based on complex recurrent or convolutional neural networks.',
+                            text:
+                                'The dominant sequence transduction models are based on complex recurrent or convolutional neural networks.',
                           ),
                         ),
                         VerticalDivider(width: 1),

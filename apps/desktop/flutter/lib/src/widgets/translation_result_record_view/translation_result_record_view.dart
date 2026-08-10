@@ -49,8 +49,7 @@ class TranslationResultRecordView extends StatelessWidget {
   }) : super(key: key);
 
   bool get _isErrorOccurred {
-    final hasResponse =
-        translationResultRecord.lookUpResponse != null ||
+    final hasResponse = translationResultRecord.lookUpResponse != null ||
         translationResultRecord.translateResponse != null;
     if (hasResponse) return false;
     return translationResultRecord.lookUpError != null ||
@@ -126,8 +125,7 @@ class TranslationResultRecordView extends StatelessWidget {
         translationResultRecord.translateResponse?.translations;
 
     // 是否显示为查词结果
-    bool isShowAsLookUpResult =
-        (definitions ?? []).isNotEmpty ||
+    bool isShowAsLookUpResult = (definitions ?? []).isNotEmpty ||
         (pronunciations ?? []).isNotEmpty ||
         (images ?? []).isNotEmpty ||
         (lookUpTranslations ?? []).isNotEmpty ||
@@ -222,7 +220,9 @@ class TranslationResultRecordView extends StatelessWidget {
                                 ..onTap = () => onTextTapped(tenseValue),
                             ),
                         ],
-                        style: Theme.of(context).textTheme.bodySmall!
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall!
                             .copyWith(fontSize: 13),
                       ),
                   ],
@@ -357,8 +357,7 @@ class TranslationResultRecordView extends StatelessWidget {
   }
 
   Widget _buildRequestError(BuildContext context) {
-    final error =
-        translationResultRecord.lookUpError ??
+    final error = translationResultRecord.lookUpError ??
         translationResultRecord.translateError ??
         const TranslationError(message: 'Unknown Error');
 
@@ -410,7 +409,10 @@ class TranslationResultRecordView extends StatelessWidget {
             SelectableText(
               originText,
               style: textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color
+                color: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.color
                     ?.withValues(alpha: 0.7),
                 fontStyle: FontStyle.italic,
               ),
@@ -421,7 +423,10 @@ class TranslationResultRecordView extends StatelessWidget {
               child: SelectableText(
                 rootTexts.join(' · '),
                 style: textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).textTheme.bodySmall?.color
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.color
                       ?.withValues(alpha: 0.7),
                 ),
               ),
@@ -436,9 +441,8 @@ class TranslationResultRecordView extends StatelessWidget {
     List<WordSynonym> synonyms,
   ) {
     // Group synonyms by type
-    final synonymList = synonyms
-        .where((s) => s.type == null || s.type == 'synonym')
-        .toList();
+    final synonymList =
+        synonyms.where((s) => s.type == null || s.type == 'synonym').toList();
     final antonymList = synonyms.where((s) => s.type == 'antonym').toList();
 
     return Column(
@@ -460,15 +464,13 @@ class TranslationResultRecordView extends StatelessWidget {
     List<WordSynonym> items,
     String label,
   ) {
-    final chips = items
-        .map((s) {
-          final text = s.word;
-          if (s.definitions != null && s.definitions!.isNotEmpty) {
-            return '$text (${s.definitions!.join("; ")})';
-          }
-          return text;
-        })
-        .join(' · ');
+    final chips = items.map((s) {
+      final text = s.word;
+      if (s.definitions != null && s.definitions!.isNotEmpty) {
+        return '$text (${s.definitions!.join("; ")})';
+      }
+      return text;
+    }).join(' · ');
 
     final theme = Theme.of(context);
     return GestureDetector(

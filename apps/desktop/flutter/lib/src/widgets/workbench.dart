@@ -26,6 +26,8 @@ class Workbench extends StatelessWidget {
     this.sidebarFooter,
     this.collapsed = false,
     this.onToggleCollapsed,
+    this.sidebarWidth,
+    this.onSidebarWidthChange,
   });
 
   final List<Widget> sidebar;
@@ -37,6 +39,12 @@ class Workbench extends StatelessWidget {
   /// Whether the sidebar is hidden.
   final bool collapsed;
   final VoidCallback? onToggleCollapsed;
+
+  /// The sidebar's width, held by the shell rather than the sidebar itself:
+  /// collapsing unmounts the column, and a width kept inside it would reset to
+  /// the token every time the sidebar came back.
+  final double? sidebarWidth;
+  final ValueChanged<double>? onSidebarWidthChange;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +74,12 @@ class Workbench extends StatelessWidget {
                           ],
                         ),
                   footer: sidebarFooter,
+                  // Dragging the divider past the floor collapses the column,
+                  // which is the same state the header's toggle puts it in.
+                  resizable: true,
+                  width: sidebarWidth,
+                  onWidthChange: onSidebarWidthChange,
+                  onCollapse: onToggleCollapsed,
                   children: sidebar,
                 ),
               WindowMain(children: [Expanded(child: child)]),

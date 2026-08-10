@@ -6,7 +6,7 @@ import '../sound_play_button/sound_play_button.dart';
 
 class WordPronunciationView extends StatelessWidget {
   const WordPronunciationView(this.wordPronunciation, {Key? key})
-    : super(key: key);
+      : super(key: key);
 
   final WordPronunciation wordPronunciation;
 

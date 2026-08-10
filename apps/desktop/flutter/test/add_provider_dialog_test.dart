@@ -1,8 +1,7 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/add_provider_dialog.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/provider_meta.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
-    as ui
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart' as ui
     show Dialog, DialogFooter, DialogHeader;
 import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
     show DesignThemeProvider;
@@ -24,9 +23,8 @@ void main() {
   }
 
   final llmTypes = kKnownProviderTypes.where(isLlmProviderType).toList();
-  final traditionalTypes = kKnownProviderTypes
-      .where((type) => !isLlmProviderType(type))
-      .toList();
+  final traditionalTypes =
+      kKnownProviderTypes.where((type) => !isLlmProviderType(type)).toList();
 
   testWidgets('opens on the type picker with the LLM types listed', (
     tester,
@@ -162,8 +160,7 @@ void main() {
           expect(
             offered,
             contains(key),
-            reason:
-                '${providerTypeValue(type)} requires "$key" but the form '
+            reason: '${providerTypeValue(type)} requires "$key" but the form '
                 'never renders a field for it',
           );
         }
