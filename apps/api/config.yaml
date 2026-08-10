@@ -1,6 +1,0 @@
-providers:
-  baidu:
-    type: baidu
-    appId: ${BAIDU_APP_ID}
-    appKey: ${BAIDU_API_KEY}
-
