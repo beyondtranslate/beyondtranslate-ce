@@ -53,7 +53,7 @@ class SettingsStore extends ChangeNotifier {
   AppearanceSettings _appearance = AppearanceSettings(
     language: 'zh-Hans',
     themeMode: 'system',
-    theme: 'studio',
+    theme: 'bright',
   );
   ShortcutSettings _shortcuts = ShortcutSettings(
     toggleMiniTranslator: '',
