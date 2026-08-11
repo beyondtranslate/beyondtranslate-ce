@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// Flutter multi-window dialog-window behavior.
 ///
 /// In Flutter 3.47+ (main channel), when the new multi-window API
-/// ([RegularWindow], [ViewCollection]) is used, the standard [showDialog]
+/// (Flutter's multi-window API and [ViewCollection]) is used, the standard [showDialog]
 /// function opens dialogs in a **separate native dialog window** instead of
 /// rendering them as overlays over the current window. This is because
 /// [showRawDialog] checks for a [WindowRegistry] in the context and, if found,

@@ -6,7 +6,13 @@ import 'dart:io';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart' hide Image;
-import 'package:flutter/src/widgets/_window.dart' hide WindowManager;
+import 'package:flutter/src/widgets/_window.dart' as flutter_window
+    show
+        WindowController,
+        WindowControllerDelegate,
+        WindowEntry,
+        WindowManager,
+        WindowRegistry;
 import 'package:go_router/go_router.dart';
 import 'package:nativeapi/nativeapi.dart';
 import 'package:path_provider/path_provider.dart';
@@ -37,6 +43,10 @@ const _kMiniTranslatorTrayGap = 10.0;
 TrayIcon? _mainTrayIcon;
 GoRouter? _workbenchRouter;
 String _pendingWorkbenchLocation = '/translate';
+flutter_window.WindowRegistry? _windowRegistry;
+bool _miniTranslatorWindowRegistered = false;
+bool _workbenchWindowConfigured = false;
+bool _miniTranslatorWindowConfigured = false;
 
 enum WorkbenchDestination {
   translate('/translate'),
@@ -60,16 +70,16 @@ enum WorkbenchDestination {
 
 /// Custom delegate that hides the window instead of destroying it when closed.
 /// The app continues running in the system tray.
-class _HideOnCloseDelegate extends RegularWindowControllerDelegate {
+class _HideOnCloseDelegate extends flutter_window.WindowControllerDelegate {
   @override
-  void onWindowCloseRequested(RegularWindowController controller) {
+  void onWindowCloseRequested(flutter_window.WindowController controller) {
     if (controller.window == workbenchWindowController.window) {
       controller.window.hide();
     }
   }
 }
 
-final workbenchWindowController = RegularWindowController(
+final workbenchWindowController = flutter_window.WindowController(
   size: _kWorkbenchWindowSize,
   title: _kWorkbenchWindowTitle,
   delegate: _HideOnCloseDelegate(),
@@ -108,6 +118,15 @@ void showWorkbenchWindow({
   }
   _workbenchRouter?.go(_pendingWorkbenchLocation);
   final window = workbenchWindowController.window;
+  if (Platform.isWindows && !_workbenchWindowConfigured) {
+    _workbenchWindowConfigured = true;
+    window.titleBarStyle = TitleBarStyle.hidden;
+    window.setMinimumSize(
+      _kWorkbenchWindowMinimumSize.width,
+      _kWorkbenchWindowMinimumSize.height,
+    );
+    window.center();
+  }
   window.show();
   window.focus();
 }
@@ -116,7 +135,7 @@ void showSettingsWindow() {
   showWorkbenchWindow(destination: WorkbenchDestination.settingsGeneral);
 }
 
-final miniTranslatorWindowController = RegularWindowController(
+final miniTranslatorWindowController = flutter_window.WindowController(
   // The deck's mini popover width (`--bt-mini-width`).
   size: const Size(396, 420),
   title: _kMiniTranslatorAppTitle,
@@ -133,16 +152,38 @@ final miniTranslatorWindowController = RegularWindowController(
   });
 
 /// Shows the mini translator window.
-void showMiniTranslatorWindow({Offset? position, bool belowTray = false}) {
+void showMiniTranslatorWindow(
+    {Offset? position, bool belowTray = false}) async {
+  if (!_miniTranslatorWindowRegistered) {
+    final registry = _windowRegistry;
+    if (registry == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showMiniTranslatorWindow(position: position, belowTray: belowTray);
+      });
+      return;
+    }
+    _miniTranslatorWindowRegistered = true;
+    registry.register(
+      flutter_window.WindowEntry(
+        controller: miniTranslatorWindowController,
+        builder: (_) => const MiniTranslatorApp(),
+      ),
+    );
+    await WidgetsBinding.instance.endOfFrame;
+  }
+
+  final window = miniTranslatorWindowController.window;
+  if (Platform.isWindows && !_miniTranslatorWindowConfigured) {
+    _miniTranslatorWindowConfigured = true;
+    window.titleBarStyle = TitleBarStyle.hidden;
+    window.windowControlButtonsVisible = false;
+  }
   final newPosition =
       position ?? (belowTray ? miniTranslatorPositionBelowTray() : null);
   if (newPosition != null) {
-    miniTranslatorWindowController.window.setPosition(
-      newPosition.dx,
-      newPosition.dy,
-    );
+    window.setPosition(newPosition.dx, newPosition.dy);
   }
-  miniTranslatorWindowController.window.show();
+  window.show();
 }
 
 Offset? miniTranslatorPositionBelowTray({Size? windowSize}) {
@@ -396,35 +437,32 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
 
   @override
   Widget build(BuildContext context) {
-    return RegularWindow(
-      controller: workbenchWindowController,
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: _kWorkbenchWindowTitle,
-        theme: appThemeData(
-          tokensFor(Brightness.light, family: settingsStore.themeFamily),
-        ),
-        darkTheme: appThemeData(
-          tokensFor(Brightness.dark, family: settingsStore.themeFamily),
-        ),
-        themeMode: settingsStore.themeMode,
-        builder: (context, child) {
-          if (kIsLinux || kIsWindows) {
-            child = ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(7),
-                topRight: Radius.circular(7),
-              ),
-              child: child,
-            );
-          }
-          return _withDesignTokens(context, child!);
-        },
-        routerConfig: _router,
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: _kWorkbenchWindowTitle,
+      theme: appThemeData(
+        tokensFor(Brightness.light, family: settingsStore.themeFamily),
       ),
+      darkTheme: appThemeData(
+        tokensFor(Brightness.dark, family: settingsStore.themeFamily),
+      ),
+      themeMode: settingsStore.themeMode,
+      builder: (context, child) {
+        if (kIsLinux || kIsWindows) {
+          child = ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(7),
+              topRight: Radius.circular(7),
+            ),
+            child: child,
+          );
+        }
+        return _withDesignTokens(context, child!);
+      },
+      routerConfig: _router,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
     );
   }
 }
@@ -471,36 +509,33 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
   Widget build(BuildContext context) {
     final botToastBuilder = BotToastInit();
 
-    return RegularWindow(
-      controller: miniTranslatorWindowController,
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: _kMiniTranslatorAppTitle,
-        theme: appThemeData(
-          tokensFor(Brightness.light, family: settingsStore.themeFamily),
-        ),
-        darkTheme: appThemeData(
-          tokensFor(Brightness.dark, family: settingsStore.themeFamily),
-        ),
-        themeMode: settingsStore.themeMode,
-        builder: (context, child) {
-          if (kIsLinux || kIsWindows) {
-            child = ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(7),
-                topRight: Radius.circular(7),
-              ),
-              child: child,
-            );
-          }
-          child = botToastBuilder(context, child);
-          return _withDesignTokens(context, child);
-        },
-        routerConfig: _router,
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: _kMiniTranslatorAppTitle,
+      theme: appThemeData(
+        tokensFor(Brightness.light, family: settingsStore.themeFamily),
       ),
+      darkTheme: appThemeData(
+        tokensFor(Brightness.dark, family: settingsStore.themeFamily),
+      ),
+      themeMode: settingsStore.themeMode,
+      builder: (context, child) {
+        if (kIsLinux || kIsWindows) {
+          child = ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(7),
+              topRight: Radius.circular(7),
+            ),
+            child: child,
+          );
+        }
+        child = botToastBuilder(context, child);
+        return _withDesignTokens(context, child);
+      },
+      routerConfig: _router,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
     );
   }
 }
@@ -522,6 +557,11 @@ class _RootBodyView extends StatefulWidget {
 }
 
 class _RootBodyViewState extends State<_RootBodyView> {
+  // Construct the initial controller before initState schedules callbacks.
+  // Creating a Win32 window can pump messages, so lazy initialization from
+  // build() would allow the callback to re-enter the top-level initializer.
+  final flutter_window.WindowController _workbenchController =
+      workbenchWindowController;
   late final TrayIcon _trayIcon;
   late bool _showInMenuBar;
 
@@ -652,6 +692,16 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
   @override
   Widget build(BuildContext context) {
-    return const ViewCollection(views: [WorkbenchApp(), MiniTranslatorApp()]);
+    return flutter_window.WindowManager(
+      initialWindows: [
+        flutter_window.WindowEntry(
+          controller: _workbenchController,
+          builder: (context) {
+            _windowRegistry = flutter_window.WindowRegistry.of(context);
+            return const WorkbenchApp();
+          },
+        ),
+      ],
+    );
   }
 }
