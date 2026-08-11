@@ -189,16 +189,24 @@ class MiniTranslatorTopBar extends StatelessWidget {
           const Spacer(),
           IconActionButton(
             key: _moreButtonKey,
-            icon: FluentIcons.more_horizontal_20_regular,
-            iconSize: 18,
+            // The 16-grid glyph at 16, not the 20-grid one at 18: a Fluent
+            // icon is drawn for one size, and rendering it at 0.9 puts each of
+            // the three dots on a different subpixel phase — they come out
+            // visibly unequal. Every other shape hides that; three circles
+            // cannot.
+            icon: FluentIcons.more_horizontal_16_regular,
+            iconSize: 16,
             tooltip: t.mini_translator.toolbar.tooltip.more_actions,
             onPressed: _showMoreMenu,
           ),
           IconActionButton(
+            // Sized to its own grid for the same reason, and to the same 16
+            // as the ⋯ beside it — two toolbar buttons at different glyph
+            // sizes read as a mistake.
             icon: isAlwaysOnTop
-                ? FluentIcons.pin_20_filled
-                : FluentIcons.pin_20_regular,
-            iconSize: 18,
+                ? FluentIcons.pin_16_filled
+                : FluentIcons.pin_16_regular,
+            iconSize: 16,
             tooltip: t.mini_translator.toolbar.tooltip.pin,
             selected: isAlwaysOnTop,
             // The pin lies at -45° until pinned, matching the deck.
