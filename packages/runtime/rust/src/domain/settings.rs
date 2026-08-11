@@ -93,7 +93,7 @@ impl Default for AppearanceSettings {
         Self {
             language: "zh-Hans".to_owned(),
             theme_mode: "light".to_owned(),
-            theme: "studio".to_owned(),
+            theme: "bright".to_owned(),
         }
     }
 }
@@ -581,7 +581,7 @@ mod tests {
         assert_eq!(settings.appearance.theme_mode, "dark");
         // The fixture predates `theme`, so loading it must fall back to the
         // default family rather than failing.
-        assert_eq!(settings.appearance.theme, "studio");
+        assert_eq!(settings.appearance.theme, "bright");
         assert!(settings.general.launch_at_login);
         assert!(!settings.general.show_in_menu_bar);
         assert_eq!(settings.providers.len(), 1);
