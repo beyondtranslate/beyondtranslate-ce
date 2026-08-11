@@ -1,8 +1,37 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../widgets/ui.dart'
-    show DesignThemeName, DesignTokens, DesignTypographyStyles;
+    show
+        DesignFont,
+        DesignThemeName,
+        DesignTokens,
+        DesignTypography,
+        DesignTypographyStyles;
+
+const _windowsTypography = DesignTypography(
+  display: DesignFont(
+    family: 'MiSans',
+    fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
+  ),
+  sans: DesignFont(
+    family: 'MiSans',
+    fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
+  ),
+  cjk: DesignFont(
+    family: 'MiSans',
+    fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
+  ),
+  label: DesignFont(
+    family: 'MiSans',
+    fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
+  ),
+  mono: DesignFont(
+    family: 'Roboto Mono',
+    fallback: ['Cascadia Mono', 'Consolas'],
+  ),
+);
 
 /// The palette family the design system paints with.
 ///
@@ -21,7 +50,7 @@ enum DesignThemeFamily {
   final String id;
 
   static DesignThemeFamily fromId(String id) => DesignThemeFamily.values
-      .firstWhere((family) => family.id == id, orElse: () => studio);
+      .firstWhere((family) => family.id == id, orElse: () => bright);
 
   DesignThemeName themeFor(Brightness brightness) => switch (this) {
         DesignThemeFamily.studio => brightness == Brightness.dark
@@ -39,9 +68,16 @@ enum DesignThemeFamily {
 /// picks which token set a Material [Brightness] maps to.
 DesignTokens tokensFor(
   Brightness brightness, {
-  DesignThemeFamily family = DesignThemeFamily.studio,
-}) =>
-    family.themeFor(brightness).tokens;
+  DesignThemeFamily family = DesignThemeFamily.bright,
+}) {
+  final tokens = family.themeFor(brightness).tokens;
+  if (defaultTargetPlatform != TargetPlatform.windows) return tokens;
+
+  // The shared design-system defaults intentionally mirror AppKit and name
+  // PingFang SC. On Windows that family is absent, which leaves CJK runs to an
+  // inconsistent system fallback even though the app bundles MiSans.
+  return tokens.copyWith(typography: _windowsTypography);
+}
 
 /// Projects a design token set onto Material's [ThemeData].
 ///

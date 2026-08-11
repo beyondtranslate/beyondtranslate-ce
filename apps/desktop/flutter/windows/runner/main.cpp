@@ -22,6 +22,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   flutter::DartProject project(L"data");
 
+  // Flutter's OpenGLES SDF Impeller backend currently produces noticeably
+  // softer CJK glyphs on Windows. Keep the Windows desktop app on Skia until
+  // the Impeller text renderer reaches comparable small-text quality.
+  project.set_impeller_switch(flutter::ImpellerSwitch::Disabled);
+
   auto command_line_arguments{GetCommandLineArguments()};
 
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
