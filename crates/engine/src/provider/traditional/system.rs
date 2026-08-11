@@ -1471,27 +1471,6 @@ mod platform {
     };
 
     pub fn recognize_text(base64_image: &str) -> Result<RecognizeTextResponse, OcrError> {
-        // Use a Tokio-current-thread runtime since the windows APIs are
-        // async under the hood but we need a synchronous call.
-        //
-        // We use `futures::executor::block_on` or simply spawn a local
-        // runtime here because the outer `recognize_text` on the impl is
-        // already async and `OcrService` is `?Send`.
-        //
-        // In practice, Windows.Media.Ocr async APIs complete quickly, so
-        // a simple `futures::executor::block_on` works fine.
-        //
-        // However, since we don't want to add a futures dependency, we use
-        // `tokio::runtime::Runtime::new()?.block_on(...)`.
-        let rt = tokio::runtime::Runtime::new()
-            .map_err(|e| OcrError::NetworkError(format!("failed to create tokio runtime: {e}")))?;
-
-        rt.block_on(async { recognize_text_async(base64_image).await })
-    }
-
-    async fn recognize_text_async(base64_image: &str) -> Result<RecognizeTextResponse, OcrError> {
-        use windows::core::HSTRING;
-
         let image_bytes = base64::engine::general_purpose::STANDARD
             .decode(base64_image)
             .map_err(|e| OcrError::InvalidRequest(format!("base64 decode failed: {e}")))?;
@@ -1510,8 +1489,8 @@ mod platform {
         writer
             .StoreAsync()
             .map_err(|e| OcrError::NetworkError(format!("store async failed: {e}")))?
-            .await
-            .map_err(|e| OcrError::NetworkError(format!("store async await failed: {e}")))?;
+            .get()
+            .map_err(|e| OcrError::NetworkError(format!("store async wait failed: {e}")))?;
 
         // Set stream position to beginning
         stream
@@ -1521,15 +1500,15 @@ mod platform {
         // Create a BitmapDecoder from the stream
         let decoder = BitmapDecoder::CreateAsync(&stream)
             .map_err(|e| OcrError::NetworkError(format!("create decoder failed: {e}")))?
-            .await
-            .map_err(|e| OcrError::NetworkError(format!("decoder await failed: {e}")))?;
+            .get()
+            .map_err(|e| OcrError::NetworkError(format!("decoder wait failed: {e}")))?;
 
         // Get the SoftwareBitmap
         let software_bitmap = decoder
             .GetSoftwareBitmapAsync()
             .map_err(|e| OcrError::NetworkError(format!("get software bitmap failed: {e}")))?
-            .await
-            .map_err(|e| OcrError::NetworkError(format!("software bitmap await failed: {e}")))?;
+            .get()
+            .map_err(|e| OcrError::NetworkError(format!("software bitmap wait failed: {e}")))?;
 
         // Create an OcrEngine from the user's preferred languages
         let ocr_engine = OcrEngine::TryCreateFromUserProfileLanguages()
@@ -1539,8 +1518,8 @@ mod platform {
         let ocr_result = ocr_engine
             .RecognizeAsync(&software_bitmap)
             .map_err(|e| OcrError::NetworkError(format!("recognize failed: {e}")))?
-            .await
-            .map_err(|e| OcrError::NetworkError(format!("recognize await failed: {e}")))?;
+            .get()
+            .map_err(|e| OcrError::NetworkError(format!("recognize wait failed: {e}")))?;
 
         let text = ocr_result.Text().map(|s| s.to_string()).unwrap_or_default();
 

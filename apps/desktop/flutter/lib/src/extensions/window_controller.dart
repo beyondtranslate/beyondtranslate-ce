@@ -3,7 +3,8 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/src/widgets/_window.dart' hide WindowManager;
+import 'package:flutter/src/widgets/_window.dart' as flutter_window
+    show WindowController;
 import 'package:nativeapi/nativeapi.dart';
 
 final Map<String, Window> _windows = {};
@@ -14,6 +15,10 @@ bool _globalWillShowHookInitialized = false;
 bool _globalWillHideHookInitialized = false;
 
 void setupGlobalWillShowHook() {
+  // Flutter's experimental Windows windowing backend owns ShowWindow calls.
+  // cnativeapi's hook cancels those calls before dispatching its Dart callback,
+  // leaving every Flutter-managed window hidden.
+  if (Platform.isWindows) return;
   if (_globalWillShowHookInitialized) return;
   _globalWillShowHookInitialized = true;
   WindowManager.instance.setWillShowHook((windowId) {
@@ -32,6 +37,7 @@ void setupGlobalWillShowHook() {
 }
 
 void setupGlobalWillHideHook() {
+  if (Platform.isWindows) return;
   if (_globalWillHideHookInitialized) return;
   _globalWillHideHookInitialized = true;
   WindowManager.instance.setWillHideHook((windowId) {
@@ -48,14 +54,16 @@ void setupGlobalWillHideHook() {
   });
 }
 
-/// Extension for the RegularWindowController to add hooks for the window.
-extension ExtendedRegularWindowController on RegularWindowController {
+/// Extension for Flutter's window controller to add native window hooks.
+extension ExtendedWindowController on flutter_window.WindowController {
   /// Get the window by the title.
   /// Returns the window if found, throws an exception otherwise.
   Window get window {
     if (_windows.containsKey(title)) return _windows[title]!;
     final windows = WindowManager.instance.getAll();
-    final window = windows.firstWhereOrNull((e) => e.title == title);
+    final boundIds = _windows.values.map((window) => window.id).toSet();
+    final window = windows.firstWhereOrNull((e) => e.title == title) ??
+        windows.firstWhereOrNull((e) => !boundIds.contains(e.id));
     if (window == null) {
       throw Exception('Can\'t find the window with title: $title');
     }

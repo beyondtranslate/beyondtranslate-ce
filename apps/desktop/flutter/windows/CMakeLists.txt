@@ -57,6 +57,13 @@ add_subdirectory("runner")
 # them to the application.
 include(flutter/generated_plugins.cmake)
 
+# cnativeapi 0.1.2 compiles the launch-at-login C API on Windows but its header
+# does not mark those functions for export. Export all public symbols so the
+# matching nativeapi Dart bindings can resolve them at runtime.
+if(TARGET cnativeapi)
+  set_target_properties(cnativeapi PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
 
 # === Installation ===
 # Support files are copied into place next to the executable, so that it can
@@ -86,6 +93,13 @@ if(PLUGIN_BUNDLED_LIBRARIES)
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+# Copy native assets produced by package build hooks (including the Rust
+# beyondtranslate_runtime DLL) next to the application executable.
+set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/windows/")
+install(DIRECTORY "${NATIVE_ASSETS_DIR}"
+  DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
 
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.
