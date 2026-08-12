@@ -447,18 +447,7 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
         tokensFor(Brightness.dark, family: settingsStore.themeFamily),
       ),
       themeMode: settingsStore.themeMode,
-      builder: (context, child) {
-        if (kIsLinux || kIsWindows) {
-          child = ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(7),
-              topRight: Radius.circular(7),
-            ),
-            child: child,
-          );
-        }
-        return _withDesignTokens(context, child!);
-      },
+      builder: (context, child) => _withDesignTokens(context, child!),
       routerConfig: _router,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
@@ -520,15 +509,6 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
       ),
       themeMode: settingsStore.themeMode,
       builder: (context, child) {
-        if (kIsLinux || kIsWindows) {
-          child = ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(7),
-              topRight: Radius.circular(7),
-            ),
-            child: child,
-          );
-        }
         child = botToastBuilder(context, child);
         return _withDesignTokens(context, child);
       },

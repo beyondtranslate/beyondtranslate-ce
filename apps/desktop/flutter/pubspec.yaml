@@ -56,13 +56,6 @@ flutter:
     - resources/images/provider_icons/traditional/
 
   fonts:
-    - family: MiSans
-      fonts:
-        - asset: resources/fonts/MiSans-Regular.ttf
-        - asset: resources/fonts/MiSans-Semibold.ttf
-          weight: 600
-        - asset: resources/fonts/MiSans-Bold.ttf
-          weight: 700
     - family: Roboto Mono
       fonts:
         - asset: resources/fonts/RobotoMono-Regular.ttf
