@@ -18,6 +18,9 @@ use crate::domain::glossary::{
     check_compliance, GlossaryBook, GlossaryBookInput, GlossaryComplianceIssue, GlossaryEntry,
     GlossaryEntryInput, GlossaryMatch, GlossaryStore,
 };
+use crate::domain::history::{
+    HistoryCounts, HistoryEntry, HistoryEntryInput, HistoryFilter, HistoryStore,
+};
 use crate::domain::permission;
 use crate::domain::settings::{
     provider_entry_from_config, AdvancedSettings, AdvancedSettingsPatch, AppearanceSettings,
@@ -60,6 +63,8 @@ pub enum SettingsChange {
     /// lives outside `settings.json` but rides the same event channel so
     /// consumers keep a single subscription loop.
     Glossary,
+    /// Translation history was created, edited, favorited or deleted.
+    History,
 }
 
 /// Callback invoked by the Rust runtime as LLM streaming chunks arrive.
@@ -120,6 +125,9 @@ struct RuntimeInner {
     /// own lock so editing a book never blocks a translation waiting on
     /// settings (or vice versa).
     glossary: RwLock<GlossaryStore>,
+    /// Translation history has its own file and lock, so listing it never
+    /// blocks settings or glossary operations.
+    history: RwLock<HistoryStore>,
     /// Broadcasts a [`SettingsChange`] event after every successful
     /// settings write. The sender is kept alive for the lifetime of
     /// `RuntimeInner`, so receivers obtained via `subscribe()` will only
@@ -189,6 +197,11 @@ pub struct RuntimeGlossary {
 }
 
 #[derive(uniffi::Object)]
+pub struct RuntimeHistory {
+    runtime: Runtime,
+}
+
+#[derive(uniffi::Object)]
 pub struct RuntimePermission;
 
 /// Rust-native screen text extractor.
@@ -234,11 +247,13 @@ impl Runtime {
         let settings = Settings::load(&settings_file_path)?;
         let state = RuntimeState::new(settings)?;
         let glossary = GlossaryStore::load(&key)?;
+        let history = HistoryStore::load(&key);
         let (events, _) = broadcast::channel(EVENT_CHANNEL_CAPACITY);
         let inner = Arc::new(RuntimeInner {
             settings_file_path: Arc::from(settings_file_path.to_string_lossy().into_owned()),
             state: RwLock::new(state),
             glossary: RwLock::new(glossary),
+            history: RwLock::new(history),
             events,
         });
         registry.insert(key, inner.clone());
@@ -309,6 +324,12 @@ impl Runtime {
 
     pub fn glossary(self: Arc<Self>) -> Arc<RuntimeGlossary> {
         Arc::new(RuntimeGlossary {
+            runtime: (*self).clone(),
+        })
+    }
+
+    pub fn history(self: Arc<Self>) -> Arc<RuntimeHistory> {
+        Arc::new(RuntimeHistory {
             runtime: (*self).clone(),
         })
     }
@@ -1081,6 +1102,72 @@ impl RuntimeGlossary {
         // `send` only fails when nobody is subscribed yet, which is benign.
         let _ = self.runtime.inner.events.send(SettingsChange::Glossary);
         Ok(result)
+    }
+}
+
+impl RuntimeHistory {
+    async fn commit<T>(
+        &self,
+        update: impl FnOnce(&mut HistoryStore) -> Result<T, String>,
+    ) -> Result<T, String> {
+        let result = {
+            let mut store = self.runtime.inner.history.write().await;
+            update(&mut store)?
+        };
+        let _ = self.runtime.inner.events.send(SettingsChange::History);
+        Ok(result)
+    }
+}
+
+#[uniffi::export(async_runtime = "tokio")]
+impl RuntimeHistory {
+    pub async fn list_entries(
+        &self,
+        filter: HistoryFilter,
+        query: Option<String>,
+    ) -> Result<Vec<HistoryEntry>, RuntimeError> {
+        self.runtime
+            .inner
+            .history
+            .write()
+            .await
+            .list_entries(filter, query.as_deref())
+            .map_err(Into::into)
+    }
+
+    pub async fn counts(&self) -> Result<HistoryCounts, RuntimeError> {
+        self.runtime
+            .inner
+            .history
+            .write()
+            .await
+            .counts()
+            .map_err(Into::into)
+    }
+
+    pub async fn upsert_entry(
+        &self,
+        input: HistoryEntryInput,
+    ) -> Result<HistoryEntry, RuntimeError> {
+        self.commit(|store| store.upsert_entry(input))
+            .await
+            .map_err(Into::into)
+    }
+
+    pub async fn set_favorite(
+        &self,
+        entry_id: String,
+        favorite: bool,
+    ) -> Result<Option<HistoryEntry>, RuntimeError> {
+        self.commit(|store| store.set_favorite(&entry_id, favorite))
+            .await
+            .map_err(Into::into)
+    }
+
+    pub async fn delete_entries(&self, entry_ids: Vec<String>) -> Result<u32, RuntimeError> {
+        self.commit(|store| store.delete_entries(&entry_ids))
+            .await
+            .map_err(Into::into)
     }
 }
 
@@ -2788,6 +2875,41 @@ mod tests {
         assert!(rendered.contains("Translate to zh."));
         assert!(rendered.contains("\"token\" MUST be translated as \"词元\""));
         assert!(rendered.trim_end().ends_with("End."));
+    }
+
+    #[test]
+    fn history_writes_notify_subscribers_and_round_trip() {
+        let runtime = create_runtime();
+        block_on(async {
+            let subscription = runtime.clone().settings().subscribe();
+            let entry = runtime
+                .clone()
+                .history()
+                .upsert_entry(crate::domain::history::HistoryEntryInput {
+                    id: None,
+                    source: "hello".to_owned(),
+                    translation: "你好".to_owned(),
+                    source_language: "en".to_owned(),
+                    target_language: "zh-Hans".to_owned(),
+                    service_id: "system+translation".to_owned(),
+                    service_name: "System".to_owned(),
+                    origin: crate::domain::history::HistoryOrigin::Workbench,
+                    edited: false,
+                })
+                .await
+                .expect("failed to save history");
+            assert_eq!(
+                subscription.next().await.expect("history event"),
+                Some(SettingsChange::History)
+            );
+            let entries = runtime
+                .clone()
+                .history()
+                .list_entries(crate::domain::history::HistoryFilter::All, None)
+                .await
+                .expect("failed to list history");
+            assert_eq!(entries, vec![entry]);
+        });
     }
 
     #[test]

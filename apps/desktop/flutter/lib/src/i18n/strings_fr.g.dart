@@ -158,6 +158,9 @@ class _TranslationsWorkbenchFr extends TranslationsWorkbenchEn {
   @override
   String get history => 'Historique';
   @override
+  late final _TranslationsWorkbenchHistoryPageFr history_page =
+      _TranslationsWorkbenchHistoryPageFr._(_root);
+  @override
   String get glossary => 'Glossaire';
   @override
   String get recent_languages => 'Langues récentes';
@@ -586,6 +589,92 @@ class _TranslationsMiniTranslatorResultFr
   @override
   String get no_result_note =>
       'Le texte est conservé ; réessayer ne dupliquera pas l’historique.';
+}
+
+// Path: workbench.history_page
+class _TranslationsWorkbenchHistoryPageFr
+    extends TranslationsWorkbenchHistoryPageEn {
+  _TranslationsWorkbenchHistoryPageFr._(TranslationsFr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsFr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => 'Tout';
+  @override
+  String get favorites => 'Favoris';
+  @override
+  String get edited => 'Modifiés par moi';
+  @override
+  String get search => 'Rechercher';
+  @override
+  String get search_placeholder =>
+      'Rechercher le texte, la traduction ou le service';
+  @override
+  String get search_label => 'Rechercher dans l’historique';
+  @override
+  String entry_count({required Object label, required Object count}) =>
+      '${label} · ${count} entrées';
+  @override
+  String get by_time => 'Par date';
+  @override
+  String get loading => 'Chargement de l’historique…';
+  @override
+  String get load_failed => 'Échec du chargement de l’historique';
+  @override
+  String get retry => 'Réessayer';
+  @override
+  String get empty_title => 'Aucun historique de traduction';
+  @override
+  String get empty_description =>
+      'La traduction préférée est enregistrée ici après chaque réussite.';
+  @override
+  String no_results({required Object query}) =>
+      'Aucun résultat pour « ${query} »';
+  @override
+  String get clear_search => 'Effacer la recherche';
+  @override
+  String get select => 'Sélection multiple';
+  @override
+  String selected_count({required Object count}) => '${count} sélectionnées';
+  @override
+  String get exit_select => 'Quitter la sélection';
+  @override
+  String get export => 'Exporter en CSV';
+  @override
+  String get add_to_glossary => 'Ajouter au glossaire';
+  @override
+  String get favorite => 'Ajouter aux favoris';
+  @override
+  String get unfavorite => 'Retirer des favoris';
+  @override
+  String get retention => 'Historique conservé 90 jours, favoris sans limite';
+  @override
+  String delete_confirm({required Object count}) =>
+      'Supprimer les ${count} entrées sélectionnées ? Cette action est irréversible.';
+  @override
+  String get no_glossary => 'Créez d’abord un glossaire';
+  @override
+  String added_to_glossary({required Object count}) =>
+      '${count} entrées ajoutées au glossaire';
+  @override
+  String get exported => 'Historique exporté';
+  @override
+  String export_failed({required Object error}) =>
+      'Échec de l’exportation : ${error}';
+  @override
+  String get origin_workbench => 'Fenêtre principale';
+  @override
+  String get origin_mini => 'Mini-traducteur';
+  @override
+  String get favorite_flag => 'Favori';
+  @override
+  String get edited_flag => 'Modifié';
+  @override
+  String get edit_history_hint =>
+      'La traduction modifiée sera enregistrée dans l’historique';
 }
 
 // Path: workbench.subtitle
@@ -2270,6 +2359,51 @@ extension on TranslationsFr {
       'workbench.workspace' => 'Espace de travail',
       'workbench.translate' => 'Traduire',
       'workbench.history' => 'Historique',
+      'workbench.history_page.all' => 'Tout',
+      'workbench.history_page.favorites' => 'Favoris',
+      'workbench.history_page.edited' => 'Modifiés par moi',
+      'workbench.history_page.search' => 'Rechercher',
+      'workbench.history_page.search_placeholder' =>
+        'Rechercher le texte, la traduction ou le service',
+      'workbench.history_page.search_label' => 'Rechercher dans l’historique',
+      'workbench.history_page.entry_count' => (
+              {required Object label, required Object count}) =>
+          '${label} · ${count} entrées',
+      'workbench.history_page.by_time' => 'Par date',
+      'workbench.history_page.loading' => 'Chargement de l’historique…',
+      'workbench.history_page.load_failed' =>
+        'Échec du chargement de l’historique',
+      'workbench.history_page.retry' => 'Réessayer',
+      'workbench.history_page.empty_title' => 'Aucun historique de traduction',
+      'workbench.history_page.empty_description' =>
+        'La traduction préférée est enregistrée ici après chaque réussite.',
+      'workbench.history_page.no_results' => ({required Object query}) =>
+          'Aucun résultat pour « ${query} »',
+      'workbench.history_page.clear_search' => 'Effacer la recherche',
+      'workbench.history_page.select' => 'Sélection multiple',
+      'workbench.history_page.selected_count' => ({required Object count}) =>
+          '${count} sélectionnées',
+      'workbench.history_page.exit_select' => 'Quitter la sélection',
+      'workbench.history_page.export' => 'Exporter en CSV',
+      'workbench.history_page.add_to_glossary' => 'Ajouter au glossaire',
+      'workbench.history_page.favorite' => 'Ajouter aux favoris',
+      'workbench.history_page.unfavorite' => 'Retirer des favoris',
+      'workbench.history_page.retention' =>
+        'Historique conservé 90 jours, favoris sans limite',
+      'workbench.history_page.delete_confirm' => ({required Object count}) =>
+          'Supprimer les ${count} entrées sélectionnées ? Cette action est irréversible.',
+      'workbench.history_page.no_glossary' => 'Créez d’abord un glossaire',
+      'workbench.history_page.added_to_glossary' => ({required Object count}) =>
+          '${count} entrées ajoutées au glossaire',
+      'workbench.history_page.exported' => 'Historique exporté',
+      'workbench.history_page.export_failed' => ({required Object error}) =>
+          'Échec de l’exportation : ${error}',
+      'workbench.history_page.origin_workbench' => 'Fenêtre principale',
+      'workbench.history_page.origin_mini' => 'Mini-traducteur',
+      'workbench.history_page.favorite_flag' => 'Favori',
+      'workbench.history_page.edited_flag' => 'Modifié',
+      'workbench.history_page.edit_history_hint' =>
+        'La traduction modifiée sera enregistrée dans l’historique',
       'workbench.glossary' => 'Glossaire',
       'workbench.recent_languages' => 'Langues récentes',
       'workbench.not_configured' => 'Non configuré',

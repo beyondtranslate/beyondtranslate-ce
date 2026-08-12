@@ -161,6 +161,9 @@ class _TranslationsWorkbenchZhHant extends TranslationsWorkbenchEn {
   @override
   String get history => '歷史';
   @override
+  late final _TranslationsWorkbenchHistoryPageZhHant history_page =
+      _TranslationsWorkbenchHistoryPageZhHant._(_root);
+  @override
   String get glossary => '術語庫';
   @override
   String get recent_languages => '最近語言';
@@ -586,6 +589,86 @@ class _TranslationsMiniTranslatorResultZhHant
   String get no_result => '所有服務都沒有回傳結果 —— 檢查網路，或換一個服務再試。';
   @override
   String get no_result_note => '原文已保留，重試不會重複計入歷史。';
+}
+
+// Path: workbench.history_page
+class _TranslationsWorkbenchHistoryPageZhHant
+    extends TranslationsWorkbenchHistoryPageEn {
+  _TranslationsWorkbenchHistoryPageZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => '全部';
+  @override
+  String get favorites => '收藏';
+  @override
+  String get edited => '我改過的';
+  @override
+  String get search => '搜尋';
+  @override
+  String get search_placeholder => '搜尋原文、譯文或服務';
+  @override
+  String get search_label => '搜尋歷史';
+  @override
+  String entry_count({required Object label, required Object count}) =>
+      '${label} · ${count} 筆';
+  @override
+  String get by_time => '按時間';
+  @override
+  String get loading => '正在載入歷史…';
+  @override
+  String get load_failed => '歷史載入失敗';
+  @override
+  String get retry => '重試';
+  @override
+  String get empty_title => '尚無翻譯歷史';
+  @override
+  String get empty_description => '完成翻譯後，首選譯文會自動儲存在這裡。';
+  @override
+  String no_results({required Object query}) => '找不到符合「${query}」的記錄';
+  @override
+  String get clear_search => '清除搜尋';
+  @override
+  String get select => '多選';
+  @override
+  String selected_count({required Object count}) => '已選 ${count} 筆';
+  @override
+  String get exit_select => '退出多選';
+  @override
+  String get export => '匯出 CSV';
+  @override
+  String get add_to_glossary => '加入術語庫';
+  @override
+  String get favorite => '收藏';
+  @override
+  String get unfavorite => '取消收藏';
+  @override
+  String get retention => '一般歷史保留 90 天，收藏永久';
+  @override
+  String delete_confirm({required Object count}) =>
+      '確定刪除選取的 ${count} 筆歷史？此操作無法復原。';
+  @override
+  String get no_glossary => '請先建立一個術語庫';
+  @override
+  String added_to_glossary({required Object count}) => '已將 ${count} 筆記錄加入術語庫';
+  @override
+  String get exported => '歷史已匯出';
+  @override
+  String export_failed({required Object error}) => '匯出失敗：${error}';
+  @override
+  String get origin_workbench => '主視窗';
+  @override
+  String get origin_mini => '迷你翻譯器';
+  @override
+  String get favorite_flag => '已收藏';
+  @override
+  String get edited_flag => '我改過';
+  @override
+  String get edit_history_hint => '修改後的譯文會儲存到歷史';
 }
 
 // Path: workbench.subtitle
@@ -2223,6 +2306,46 @@ extension on TranslationsZhHant {
       'workbench.workspace' => '工作區',
       'workbench.translate' => '翻譯',
       'workbench.history' => '歷史',
+      'workbench.history_page.all' => '全部',
+      'workbench.history_page.favorites' => '收藏',
+      'workbench.history_page.edited' => '我改過的',
+      'workbench.history_page.search' => '搜尋',
+      'workbench.history_page.search_placeholder' => '搜尋原文、譯文或服務',
+      'workbench.history_page.search_label' => '搜尋歷史',
+      'workbench.history_page.entry_count' => (
+              {required Object label, required Object count}) =>
+          '${label} · ${count} 筆',
+      'workbench.history_page.by_time' => '按時間',
+      'workbench.history_page.loading' => '正在載入歷史…',
+      'workbench.history_page.load_failed' => '歷史載入失敗',
+      'workbench.history_page.retry' => '重試',
+      'workbench.history_page.empty_title' => '尚無翻譯歷史',
+      'workbench.history_page.empty_description' => '完成翻譯後，首選譯文會自動儲存在這裡。',
+      'workbench.history_page.no_results' => ({required Object query}) =>
+          '找不到符合「${query}」的記錄',
+      'workbench.history_page.clear_search' => '清除搜尋',
+      'workbench.history_page.select' => '多選',
+      'workbench.history_page.selected_count' => ({required Object count}) =>
+          '已選 ${count} 筆',
+      'workbench.history_page.exit_select' => '退出多選',
+      'workbench.history_page.export' => '匯出 CSV',
+      'workbench.history_page.add_to_glossary' => '加入術語庫',
+      'workbench.history_page.favorite' => '收藏',
+      'workbench.history_page.unfavorite' => '取消收藏',
+      'workbench.history_page.retention' => '一般歷史保留 90 天，收藏永久',
+      'workbench.history_page.delete_confirm' => ({required Object count}) =>
+          '確定刪除選取的 ${count} 筆歷史？此操作無法復原。',
+      'workbench.history_page.no_glossary' => '請先建立一個術語庫',
+      'workbench.history_page.added_to_glossary' => ({required Object count}) =>
+          '已將 ${count} 筆記錄加入術語庫',
+      'workbench.history_page.exported' => '歷史已匯出',
+      'workbench.history_page.export_failed' => ({required Object error}) =>
+          '匯出失敗：${error}',
+      'workbench.history_page.origin_workbench' => '主視窗',
+      'workbench.history_page.origin_mini' => '迷你翻譯器',
+      'workbench.history_page.favorite_flag' => '已收藏',
+      'workbench.history_page.edited_flag' => '我改過',
+      'workbench.history_page.edit_history_hint' => '修改後的譯文會儲存到歷史',
       'workbench.glossary' => '術語庫',
       'workbench.recent_languages' => '最近語言',
       'workbench.not_configured' => '尚未設定',

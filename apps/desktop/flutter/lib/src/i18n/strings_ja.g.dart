@@ -158,6 +158,9 @@ class _TranslationsWorkbenchJa extends TranslationsWorkbenchEn {
   @override
   String get history => '履歴';
   @override
+  late final _TranslationsWorkbenchHistoryPageJa history_page =
+      _TranslationsWorkbenchHistoryPageJa._(_root);
+  @override
   String get glossary => '用語集';
   @override
   String get recent_languages => '最近の言語';
@@ -581,6 +584,86 @@ class _TranslationsMiniTranslatorResultJa
   String get no_result => 'どのサービスも結果を返しませんでした。ネットワークを確認するか、別のサービスをお試しください。';
   @override
   String get no_result_note => '原文は保持され、再試行しても履歴は重複しません。';
+}
+
+// Path: workbench.history_page
+class _TranslationsWorkbenchHistoryPageJa
+    extends TranslationsWorkbenchHistoryPageEn {
+  _TranslationsWorkbenchHistoryPageJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => 'すべて';
+  @override
+  String get favorites => 'お気に入り';
+  @override
+  String get edited => '編集済み';
+  @override
+  String get search => '検索';
+  @override
+  String get search_placeholder => '原文、訳文、サービスを検索';
+  @override
+  String get search_label => '履歴を検索';
+  @override
+  String entry_count({required Object label, required Object count}) =>
+      '${label} · ${count} 件';
+  @override
+  String get by_time => '時間順';
+  @override
+  String get loading => '履歴を読み込み中…';
+  @override
+  String get load_failed => '履歴を読み込めませんでした';
+  @override
+  String get retry => '再試行';
+  @override
+  String get empty_title => '翻訳履歴はまだありません';
+  @override
+  String get empty_description => '翻訳が完了すると、優先訳がここに保存されます。';
+  @override
+  String no_results({required Object query}) => '「${query}」に一致する履歴はありません';
+  @override
+  String get clear_search => '検索をクリア';
+  @override
+  String get select => '複数選択';
+  @override
+  String selected_count({required Object count}) => '${count} 件選択中';
+  @override
+  String get exit_select => '選択を終了';
+  @override
+  String get export => 'CSV を書き出す';
+  @override
+  String get add_to_glossary => '用語集に追加';
+  @override
+  String get favorite => 'お気に入り';
+  @override
+  String get unfavorite => 'お気に入り解除';
+  @override
+  String get retention => '通常履歴は90日、お気に入りは無期限';
+  @override
+  String delete_confirm({required Object count}) =>
+      '選択した ${count} 件の履歴を削除しますか？元に戻せません。';
+  @override
+  String get no_glossary => '先に用語集を作成してください';
+  @override
+  String added_to_glossary({required Object count}) => '${count} 件を用語集に追加しました';
+  @override
+  String get exported => '履歴を書き出しました';
+  @override
+  String export_failed({required Object error}) => '書き出しに失敗しました：${error}';
+  @override
+  String get origin_workbench => 'メインウィンドウ';
+  @override
+  String get origin_mini => 'ミニ翻訳';
+  @override
+  String get favorite_flag => 'お気に入り';
+  @override
+  String get edited_flag => '編集済み';
+  @override
+  String get edit_history_hint => '編集した訳文は履歴に保存されます';
 }
 
 // Path: workbench.subtitle
@@ -2212,6 +2295,46 @@ extension on TranslationsJa {
       'workbench.workspace' => 'ワークスペース',
       'workbench.translate' => '翻訳',
       'workbench.history' => '履歴',
+      'workbench.history_page.all' => 'すべて',
+      'workbench.history_page.favorites' => 'お気に入り',
+      'workbench.history_page.edited' => '編集済み',
+      'workbench.history_page.search' => '検索',
+      'workbench.history_page.search_placeholder' => '原文、訳文、サービスを検索',
+      'workbench.history_page.search_label' => '履歴を検索',
+      'workbench.history_page.entry_count' => (
+              {required Object label, required Object count}) =>
+          '${label} · ${count} 件',
+      'workbench.history_page.by_time' => '時間順',
+      'workbench.history_page.loading' => '履歴を読み込み中…',
+      'workbench.history_page.load_failed' => '履歴を読み込めませんでした',
+      'workbench.history_page.retry' => '再試行',
+      'workbench.history_page.empty_title' => '翻訳履歴はまだありません',
+      'workbench.history_page.empty_description' => '翻訳が完了すると、優先訳がここに保存されます。',
+      'workbench.history_page.no_results' => ({required Object query}) =>
+          '「${query}」に一致する履歴はありません',
+      'workbench.history_page.clear_search' => '検索をクリア',
+      'workbench.history_page.select' => '複数選択',
+      'workbench.history_page.selected_count' => ({required Object count}) =>
+          '${count} 件選択中',
+      'workbench.history_page.exit_select' => '選択を終了',
+      'workbench.history_page.export' => 'CSV を書き出す',
+      'workbench.history_page.add_to_glossary' => '用語集に追加',
+      'workbench.history_page.favorite' => 'お気に入り',
+      'workbench.history_page.unfavorite' => 'お気に入り解除',
+      'workbench.history_page.retention' => '通常履歴は90日、お気に入りは無期限',
+      'workbench.history_page.delete_confirm' => ({required Object count}) =>
+          '選択した ${count} 件の履歴を削除しますか？元に戻せません。',
+      'workbench.history_page.no_glossary' => '先に用語集を作成してください',
+      'workbench.history_page.added_to_glossary' => ({required Object count}) =>
+          '${count} 件を用語集に追加しました',
+      'workbench.history_page.exported' => '履歴を書き出しました',
+      'workbench.history_page.export_failed' => ({required Object error}) =>
+          '書き出しに失敗しました：${error}',
+      'workbench.history_page.origin_workbench' => 'メインウィンドウ',
+      'workbench.history_page.origin_mini' => 'ミニ翻訳',
+      'workbench.history_page.favorite_flag' => 'お気に入り',
+      'workbench.history_page.edited_flag' => '編集済み',
+      'workbench.history_page.edit_history_hint' => '編集した訳文は履歴に保存されます',
       'workbench.glossary' => '用語集',
       'workbench.recent_languages' => '最近の言語',
       'workbench.not_configured' => '未設定',

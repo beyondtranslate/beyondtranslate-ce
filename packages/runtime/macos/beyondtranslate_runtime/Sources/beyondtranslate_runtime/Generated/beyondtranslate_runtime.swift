@@ -582,6 +582,8 @@ public protocol RuntimeProtocol: AnyObject, Sendable {
 
   func glossary() -> RuntimeGlossary
 
+  func history() -> RuntimeHistory
+
   /**
    * Returns languages supported by the app UI.
    */
@@ -679,6 +681,15 @@ open class Runtime: RuntimeProtocol, @unchecked Sendable {
     return try! FfiConverterTypeRuntimeGlossary_lift(
       try! rustCall {
         uniffi_beyondtranslate_runtime_fn_method_runtime_glossary(
+          self.uniffiCloneHandle(), $0
+        )
+      })
+  }
+
+  open func history() -> RuntimeHistory {
+    return try! FfiConverterTypeRuntimeHistory_lift(
+      try! rustCall {
+        uniffi_beyondtranslate_runtime_fn_method_runtime_history(
           self.uniffiCloneHandle(), $0
         )
       })
@@ -1439,6 +1450,196 @@ public func FfiConverterTypeRuntimeGlossary_lift(_ handle: UInt64) throws -> Run
 #endif
 public func FfiConverterTypeRuntimeGlossary_lower(_ value: RuntimeGlossary) -> UInt64 {
   return FfiConverterTypeRuntimeGlossary.lower(value)
+}
+
+public protocol RuntimeHistoryProtocol: AnyObject, Sendable {
+
+  func counts() async throws -> HistoryCounts
+
+  func deleteEntries(entryIds: [String]) async throws -> UInt32
+
+  func listEntries(filter: HistoryFilter, query: String?) async throws -> [HistoryEntry]
+
+  func setFavorite(entryId: String, favorite: Bool) async throws -> HistoryEntry?
+
+  func upsertEntry(input: HistoryEntryInput) async throws -> HistoryEntry
+
+}
+open class RuntimeHistory: RuntimeHistoryProtocol, @unchecked Sendable {
+  fileprivate let handle: UInt64
+
+  /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+  #if swift(>=5.8)
+    @_documentation(visibility: private)
+  #endif
+  public struct NoHandle {
+    public init() {}
+  }
+
+  // TODO: We'd like this to be `private` but for Swifty reasons,
+  // we can't implement `FfiConverter` without making this `required` and we can't
+  // make it `required` without making it `public`.
+  #if swift(>=5.8)
+    @_documentation(visibility: private)
+  #endif
+  required public init(unsafeFromHandle handle: UInt64) {
+    self.handle = handle
+  }
+
+  // This constructor can be used to instantiate a fake object.
+  // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+  //
+  // - Warning:
+  //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+  #if swift(>=5.8)
+    @_documentation(visibility: private)
+  #endif
+  public init(noHandle: NoHandle) {
+    self.handle = 0
+  }
+
+  #if swift(>=5.8)
+    @_documentation(visibility: private)
+  #endif
+  public func uniffiCloneHandle() -> UInt64 {
+    return try! rustCall { uniffi_beyondtranslate_runtime_fn_clone_runtimehistory(self.handle, $0) }
+  }
+  // No primary constructor declared for this class.
+
+  deinit {
+    if handle == 0 {
+      // Mock objects have handle=0 don't try to free them
+      return
+    }
+
+    try! rustCall { uniffi_beyondtranslate_runtime_fn_free_runtimehistory(handle, $0) }
+  }
+
+  open func counts() async throws -> HistoryCounts {
+    return
+      try await uniffiRustCallAsync(
+        rustFutureFunc: {
+          uniffi_beyondtranslate_runtime_fn_method_runtimehistory_counts(
+            self.uniffiCloneHandle()
+
+          )
+        },
+        pollFunc: ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
+        completeFunc: ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
+        freeFunc: ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
+        liftFunc: FfiConverterTypeHistoryCounts_lift,
+        errorHandler: FfiConverterTypeRuntimeError_lift
+      )
+  }
+
+  open func deleteEntries(entryIds: [String]) async throws -> UInt32 {
+    return
+      try await uniffiRustCallAsync(
+        rustFutureFunc: {
+          uniffi_beyondtranslate_runtime_fn_method_runtimehistory_delete_entries(
+            self.uniffiCloneHandle(),
+            FfiConverterSequenceString.lower(entryIds)
+          )
+        },
+        pollFunc: ffi_beyondtranslate_runtime_rust_future_poll_u32,
+        completeFunc: ffi_beyondtranslate_runtime_rust_future_complete_u32,
+        freeFunc: ffi_beyondtranslate_runtime_rust_future_free_u32,
+        liftFunc: FfiConverterUInt32.lift,
+        errorHandler: FfiConverterTypeRuntimeError_lift
+      )
+  }
+
+  open func listEntries(filter: HistoryFilter, query: String?) async throws -> [HistoryEntry] {
+    return
+      try await uniffiRustCallAsync(
+        rustFutureFunc: {
+          uniffi_beyondtranslate_runtime_fn_method_runtimehistory_list_entries(
+            self.uniffiCloneHandle(),
+            FfiConverterTypeHistoryFilter_lower(filter), FfiConverterOptionString.lower(query)
+          )
+        },
+        pollFunc: ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
+        completeFunc: ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
+        freeFunc: ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
+        liftFunc: FfiConverterSequenceTypeHistoryEntry.lift,
+        errorHandler: FfiConverterTypeRuntimeError_lift
+      )
+  }
+
+  open func setFavorite(entryId: String, favorite: Bool) async throws -> HistoryEntry? {
+    return
+      try await uniffiRustCallAsync(
+        rustFutureFunc: {
+          uniffi_beyondtranslate_runtime_fn_method_runtimehistory_set_favorite(
+            self.uniffiCloneHandle(),
+            FfiConverterString.lower(entryId), FfiConverterBool.lower(favorite)
+          )
+        },
+        pollFunc: ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
+        completeFunc: ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
+        freeFunc: ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
+        liftFunc: FfiConverterOptionTypeHistoryEntry.lift,
+        errorHandler: FfiConverterTypeRuntimeError_lift
+      )
+  }
+
+  open func upsertEntry(input: HistoryEntryInput) async throws -> HistoryEntry {
+    return
+      try await uniffiRustCallAsync(
+        rustFutureFunc: {
+          uniffi_beyondtranslate_runtime_fn_method_runtimehistory_upsert_entry(
+            self.uniffiCloneHandle(),
+            FfiConverterTypeHistoryEntryInput_lower(input)
+          )
+        },
+        pollFunc: ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
+        completeFunc: ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
+        freeFunc: ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
+        liftFunc: FfiConverterTypeHistoryEntry_lift,
+        errorHandler: FfiConverterTypeRuntimeError_lift
+      )
+  }
+
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeRuntimeHistory: FfiConverter {
+  typealias FfiType = UInt64
+  typealias SwiftType = RuntimeHistory
+
+  public static func lift(_ handle: UInt64) throws -> RuntimeHistory {
+    return RuntimeHistory(unsafeFromHandle: handle)
+  }
+
+  public static func lower(_ value: RuntimeHistory) -> UInt64 {
+    return value.uniffiCloneHandle()
+  }
+
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> RuntimeHistory
+  {
+    let handle: UInt64 = try readInt(&buf)
+    return try lift(handle)
+  }
+
+  public static func write(_ value: RuntimeHistory, into buf: inout [UInt8]) {
+    writeInt(&buf, lower(value))
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeRuntimeHistory_lift(_ handle: UInt64) throws -> RuntimeHistory {
+  return try FfiConverterTypeRuntimeHistory.lift(handle)
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeRuntimeHistory_lower(_ value: RuntimeHistory) -> UInt64 {
+  return FfiConverterTypeRuntimeHistory.lower(value)
 }
 
 public protocol RuntimeLlmProtocol: AnyObject, Sendable {
@@ -4340,6 +4541,236 @@ public func FfiConverterTypeGlossaryMatch_lower(_ value: GlossaryMatch) -> RustB
   return FfiConverterTypeGlossaryMatch.lower(value)
 }
 
+public struct HistoryCounts: Equatable, Hashable {
+  public var all: UInt32
+  public var favorites: UInt32
+  public var edited: UInt32
+
+  // Default memberwise initializers are never public by default, so we
+  // declare one manually.
+  public init(all: UInt32, favorites: UInt32, edited: UInt32) {
+    self.all = all
+    self.favorites = favorites
+    self.edited = edited
+  }
+
+}
+
+#if compiler(>=6)
+  extension HistoryCounts: Sendable {}
+#endif
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeHistoryCounts: FfiConverterRustBuffer {
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> HistoryCounts
+  {
+    return
+      try HistoryCounts(
+        all: FfiConverterUInt32.read(from: &buf),
+        favorites: FfiConverterUInt32.read(from: &buf),
+        edited: FfiConverterUInt32.read(from: &buf)
+      )
+  }
+
+  public static func write(_ value: HistoryCounts, into buf: inout [UInt8]) {
+    FfiConverterUInt32.write(value.all, into: &buf)
+    FfiConverterUInt32.write(value.favorites, into: &buf)
+    FfiConverterUInt32.write(value.edited, into: &buf)
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryCounts_lift(_ buf: RustBuffer) throws -> HistoryCounts {
+  return try FfiConverterTypeHistoryCounts.lift(buf)
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryCounts_lower(_ value: HistoryCounts) -> RustBuffer {
+  return FfiConverterTypeHistoryCounts.lower(value)
+}
+
+public struct HistoryEntry: Equatable, Hashable {
+  public var id: String
+  public var source: String
+  public var translation: String
+  public var sourceLanguage: String
+  public var targetLanguage: String
+  public var serviceId: String
+  public var serviceName: String
+  public var origin: HistoryOrigin
+  public var favorite: Bool
+  public var edited: Bool
+  public var createdAt: UInt64
+  public var updatedAt: UInt64
+
+  // Default memberwise initializers are never public by default, so we
+  // declare one manually.
+  public init(
+    id: String, source: String, translation: String, sourceLanguage: String, targetLanguage: String,
+    serviceId: String, serviceName: String, origin: HistoryOrigin, favorite: Bool, edited: Bool,
+    createdAt: UInt64, updatedAt: UInt64
+  ) {
+    self.id = id
+    self.source = source
+    self.translation = translation
+    self.sourceLanguage = sourceLanguage
+    self.targetLanguage = targetLanguage
+    self.serviceId = serviceId
+    self.serviceName = serviceName
+    self.origin = origin
+    self.favorite = favorite
+    self.edited = edited
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
+  }
+
+}
+
+#if compiler(>=6)
+  extension HistoryEntry: Sendable {}
+#endif
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeHistoryEntry: FfiConverterRustBuffer {
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> HistoryEntry {
+    return
+      try HistoryEntry(
+        id: FfiConverterString.read(from: &buf),
+        source: FfiConverterString.read(from: &buf),
+        translation: FfiConverterString.read(from: &buf),
+        sourceLanguage: FfiConverterString.read(from: &buf),
+        targetLanguage: FfiConverterString.read(from: &buf),
+        serviceId: FfiConverterString.read(from: &buf),
+        serviceName: FfiConverterString.read(from: &buf),
+        origin: FfiConverterTypeHistoryOrigin.read(from: &buf),
+        favorite: FfiConverterBool.read(from: &buf),
+        edited: FfiConverterBool.read(from: &buf),
+        createdAt: FfiConverterUInt64.read(from: &buf),
+        updatedAt: FfiConverterUInt64.read(from: &buf)
+      )
+  }
+
+  public static func write(_ value: HistoryEntry, into buf: inout [UInt8]) {
+    FfiConverterString.write(value.id, into: &buf)
+    FfiConverterString.write(value.source, into: &buf)
+    FfiConverterString.write(value.translation, into: &buf)
+    FfiConverterString.write(value.sourceLanguage, into: &buf)
+    FfiConverterString.write(value.targetLanguage, into: &buf)
+    FfiConverterString.write(value.serviceId, into: &buf)
+    FfiConverterString.write(value.serviceName, into: &buf)
+    FfiConverterTypeHistoryOrigin.write(value.origin, into: &buf)
+    FfiConverterBool.write(value.favorite, into: &buf)
+    FfiConverterBool.write(value.edited, into: &buf)
+    FfiConverterUInt64.write(value.createdAt, into: &buf)
+    FfiConverterUInt64.write(value.updatedAt, into: &buf)
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryEntry_lift(_ buf: RustBuffer) throws -> HistoryEntry {
+  return try FfiConverterTypeHistoryEntry.lift(buf)
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryEntry_lower(_ value: HistoryEntry) -> RustBuffer {
+  return FfiConverterTypeHistoryEntry.lower(value)
+}
+
+public struct HistoryEntryInput: Equatable, Hashable {
+  public var id: String?
+  public var source: String
+  public var translation: String
+  public var sourceLanguage: String
+  public var targetLanguage: String
+  public var serviceId: String
+  public var serviceName: String
+  public var origin: HistoryOrigin
+  public var edited: Bool
+
+  // Default memberwise initializers are never public by default, so we
+  // declare one manually.
+  public init(
+    id: String?, source: String, translation: String, sourceLanguage: String,
+    targetLanguage: String, serviceId: String, serviceName: String, origin: HistoryOrigin,
+    edited: Bool
+  ) {
+    self.id = id
+    self.source = source
+    self.translation = translation
+    self.sourceLanguage = sourceLanguage
+    self.targetLanguage = targetLanguage
+    self.serviceId = serviceId
+    self.serviceName = serviceName
+    self.origin = origin
+    self.edited = edited
+  }
+
+}
+
+#if compiler(>=6)
+  extension HistoryEntryInput: Sendable {}
+#endif
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeHistoryEntryInput: FfiConverterRustBuffer {
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
+    -> HistoryEntryInput
+  {
+    return
+      try HistoryEntryInput(
+        id: FfiConverterOptionString.read(from: &buf),
+        source: FfiConverterString.read(from: &buf),
+        translation: FfiConverterString.read(from: &buf),
+        sourceLanguage: FfiConverterString.read(from: &buf),
+        targetLanguage: FfiConverterString.read(from: &buf),
+        serviceId: FfiConverterString.read(from: &buf),
+        serviceName: FfiConverterString.read(from: &buf),
+        origin: FfiConverterTypeHistoryOrigin.read(from: &buf),
+        edited: FfiConverterBool.read(from: &buf)
+      )
+  }
+
+  public static func write(_ value: HistoryEntryInput, into buf: inout [UInt8]) {
+    FfiConverterOptionString.write(value.id, into: &buf)
+    FfiConverterString.write(value.source, into: &buf)
+    FfiConverterString.write(value.translation, into: &buf)
+    FfiConverterString.write(value.sourceLanguage, into: &buf)
+    FfiConverterString.write(value.targetLanguage, into: &buf)
+    FfiConverterString.write(value.serviceId, into: &buf)
+    FfiConverterString.write(value.serviceName, into: &buf)
+    FfiConverterTypeHistoryOrigin.write(value.origin, into: &buf)
+    FfiConverterBool.write(value.edited, into: &buf)
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryEntryInput_lift(_ buf: RustBuffer) throws -> HistoryEntryInput {
+  return try FfiConverterTypeHistoryEntryInput.lift(buf)
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryEntryInput_lower(_ value: HistoryEntryInput) -> RustBuffer {
+  return FfiConverterTypeHistoryEntryInput.lower(value)
+}
+
 public struct LanguageInfo: Equatable, Hashable {
   public var code: String
   public var localName: String
@@ -5979,6 +6410,132 @@ public func FfiConverterTypeGlossaryIssueKind_lower(_ value: GlossaryIssueKind) 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
+public enum HistoryFilter: Equatable, Hashable {
+
+  case all
+  case favorites
+  case edited
+
+}
+
+#if compiler(>=6)
+  extension HistoryFilter: Sendable {}
+#endif
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeHistoryFilter: FfiConverterRustBuffer {
+  typealias SwiftType = HistoryFilter
+
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> HistoryFilter
+  {
+    let variant: Int32 = try readInt(&buf)
+    switch variant {
+
+    case 1: return .all
+
+    case 2: return .favorites
+
+    case 3: return .edited
+
+    default: throw UniffiInternalError.unexpectedEnumCase
+    }
+  }
+
+  public static func write(_ value: HistoryFilter, into buf: inout [UInt8]) {
+    switch value {
+
+    case .all:
+      writeInt(&buf, Int32(1))
+
+    case .favorites:
+      writeInt(&buf, Int32(2))
+
+    case .edited:
+      writeInt(&buf, Int32(3))
+
+    }
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryFilter_lift(_ buf: RustBuffer) throws -> HistoryFilter {
+  return try FfiConverterTypeHistoryFilter.lift(buf)
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryFilter_lower(_ value: HistoryFilter) -> RustBuffer {
+  return FfiConverterTypeHistoryFilter.lower(value)
+}
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum HistoryOrigin: Equatable, Hashable {
+
+  case workbench
+  case miniTranslator
+
+}
+
+#if compiler(>=6)
+  extension HistoryOrigin: Sendable {}
+#endif
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeHistoryOrigin: FfiConverterRustBuffer {
+  typealias SwiftType = HistoryOrigin
+
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> HistoryOrigin
+  {
+    let variant: Int32 = try readInt(&buf)
+    switch variant {
+
+    case 1: return .workbench
+
+    case 2: return .miniTranslator
+
+    default: throw UniffiInternalError.unexpectedEnumCase
+    }
+  }
+
+  public static func write(_ value: HistoryOrigin, into buf: inout [UInt8]) {
+    switch value {
+
+    case .workbench:
+      writeInt(&buf, Int32(1))
+
+    case .miniTranslator:
+      writeInt(&buf, Int32(2))
+
+    }
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryOrigin_lift(_ buf: RustBuffer) throws -> HistoryOrigin {
+  return try FfiConverterTypeHistoryOrigin.lift(buf)
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHistoryOrigin_lower(_ value: HistoryOrigin) -> RustBuffer {
+  return FfiConverterTypeHistoryOrigin.lower(value)
+}
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
 public enum InputSubmitMode: Equatable, Hashable {
 
   case enter
@@ -6355,6 +6912,10 @@ public enum SettingsChange: Equatable, Hashable {
    * consumers keep a single subscription loop.
    */
   case glossary
+  /**
+   * Translation history was created, edited, favorited or deleted.
+   */
+  case history
 
 }
 
@@ -6385,6 +6946,8 @@ public struct FfiConverterTypeSettingsChange: FfiConverterRustBuffer {
 
     case 6: return .glossary
 
+    case 7: return .history
+
     default: throw UniffiInternalError.unexpectedEnumCase
     }
   }
@@ -6409,6 +6972,9 @@ public struct FfiConverterTypeSettingsChange: FfiConverterRustBuffer {
 
     case .glossary:
       writeInt(&buf, Int32(6))
+
+    case .history:
+      writeInt(&buf, Int32(7))
 
     }
   }
@@ -6797,6 +7363,30 @@ private struct FfiConverterOptionTypeGlossaryBook: FfiConverterRustBuffer {
     switch try readInt(&buf) as Int8 {
     case 0: return nil
     case 1: return try FfiConverterTypeGlossaryBook.read(from: &buf)
+    default: throw UniffiInternalError.unexpectedOptionalTag
+    }
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+private struct FfiConverterOptionTypeHistoryEntry: FfiConverterRustBuffer {
+  typealias SwiftType = HistoryEntry?
+
+  public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+    guard let value = value else {
+      writeInt(&buf, Int8(0))
+      return
+    }
+    writeInt(&buf, Int8(1))
+    FfiConverterTypeHistoryEntry.write(value, into: &buf)
+  }
+
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+    switch try readInt(&buf) as Int8 {
+    case 0: return nil
+    case 1: return try FfiConverterTypeHistoryEntry.read(from: &buf)
     default: throw UniffiInternalError.unexpectedOptionalTag
     }
   }
@@ -7412,6 +8002,32 @@ private struct FfiConverterSequenceTypeGlossaryMatch: FfiConverterRustBuffer {
     seq.reserveCapacity(Int(len))
     for _ in 0..<len {
       seq.append(try FfiConverterTypeGlossaryMatch.read(from: &buf))
+    }
+    return seq
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+private struct FfiConverterSequenceTypeHistoryEntry: FfiConverterRustBuffer {
+  typealias SwiftType = [HistoryEntry]
+
+  public static func write(_ value: [HistoryEntry], into buf: inout [UInt8]) {
+    let len = Int32(value.count)
+    writeInt(&buf, len)
+    for item in value {
+      FfiConverterTypeHistoryEntry.write(item, into: &buf)
+    }
+  }
+
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [HistoryEntry]
+  {
+    let len: Int32 = try readInt(&buf)
+    var seq = [HistoryEntry]()
+    seq.reserveCapacity(Int(len))
+    for _ in 0..<len {
+      seq.append(try FfiConverterTypeHistoryEntry.read(from: &buf))
     }
     return seq
   }
@@ -8218,6 +8834,9 @@ private let initializationResult: InitializationResult = {
   if uniffi_beyondtranslate_runtime_checksum_method_runtime_glossary() != 33226 {
     return InitializationResult.apiChecksumMismatch
   }
+  if uniffi_beyondtranslate_runtime_checksum_method_runtime_history() != 28095 {
+    return InitializationResult.apiChecksumMismatch
+  }
   if uniffi_beyondtranslate_runtime_checksum_method_runtime_list_app_languages() != 62628 {
     return InitializationResult.apiChecksumMismatch
   }
@@ -8279,6 +8898,21 @@ private let initializationResult: InitializationResult = {
     return InitializationResult.apiChecksumMismatch
   }
   if uniffi_beyondtranslate_runtime_checksum_method_runtimeglossary_upsert_entry() != 60568 {
+    return InitializationResult.apiChecksumMismatch
+  }
+  if uniffi_beyondtranslate_runtime_checksum_method_runtimehistory_counts() != 11944 {
+    return InitializationResult.apiChecksumMismatch
+  }
+  if uniffi_beyondtranslate_runtime_checksum_method_runtimehistory_delete_entries() != 28792 {
+    return InitializationResult.apiChecksumMismatch
+  }
+  if uniffi_beyondtranslate_runtime_checksum_method_runtimehistory_list_entries() != 19749 {
+    return InitializationResult.apiChecksumMismatch
+  }
+  if uniffi_beyondtranslate_runtime_checksum_method_runtimehistory_set_favorite() != 31633 {
+    return InitializationResult.apiChecksumMismatch
+  }
+  if uniffi_beyondtranslate_runtime_checksum_method_runtimehistory_upsert_entry() != 15258 {
     return InitializationResult.apiChecksumMismatch
   }
   if uniffi_beyondtranslate_runtime_checksum_method_runtimellm_alternatives() != 63979 {

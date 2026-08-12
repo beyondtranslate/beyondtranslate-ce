@@ -158,6 +158,9 @@ class _TranslationsWorkbenchKo extends TranslationsWorkbenchEn {
   @override
   String get history => '기록';
   @override
+  late final _TranslationsWorkbenchHistoryPageKo history_page =
+      _TranslationsWorkbenchHistoryPageKo._(_root);
+  @override
   String get glossary => '용어집';
   @override
   String get recent_languages => '최근 언어';
@@ -582,6 +585,87 @@ class _TranslationsMiniTranslatorResultKo
       '어떤 서비스도 결과를 반환하지 않았습니다. 네트워크를 확인하거나 다른 서비스을 사용해 보세요.';
   @override
   String get no_result_note => '원문은 유지되며, 다시 시도해도 기록이 중복되지 않습니다.';
+}
+
+// Path: workbench.history_page
+class _TranslationsWorkbenchHistoryPageKo
+    extends TranslationsWorkbenchHistoryPageEn {
+  _TranslationsWorkbenchHistoryPageKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => '전체';
+  @override
+  String get favorites => '즐겨찾기';
+  @override
+  String get edited => '내가 수정함';
+  @override
+  String get search => '검색';
+  @override
+  String get search_placeholder => '원문, 번역문 또는 서비스 검색';
+  @override
+  String get search_label => '기록 검색';
+  @override
+  String entry_count({required Object label, required Object count}) =>
+      '${label} · ${count}개';
+  @override
+  String get by_time => '시간순';
+  @override
+  String get loading => '기록 불러오는 중…';
+  @override
+  String get load_failed => '기록을 불러오지 못했습니다';
+  @override
+  String get retry => '다시 시도';
+  @override
+  String get empty_title => '번역 기록이 없습니다';
+  @override
+  String get empty_description => '번역이 완료되면 선호 번역이 여기에 저장됩니다.';
+  @override
+  String no_results({required Object query}) => '“${query}”와 일치하는 기록이 없습니다';
+  @override
+  String get clear_search => '검색 지우기';
+  @override
+  String get select => '다중 선택';
+  @override
+  String selected_count({required Object count}) => '${count}개 선택됨';
+  @override
+  String get exit_select => '선택 종료';
+  @override
+  String get export => 'CSV 내보내기';
+  @override
+  String get add_to_glossary => '용어집에 추가';
+  @override
+  String get favorite => '즐겨찾기';
+  @override
+  String get unfavorite => '즐겨찾기 해제';
+  @override
+  String get retention => '일반 기록은 90일, 즐겨찾기는 영구 보관';
+  @override
+  String delete_confirm({required Object count}) =>
+      '선택한 기록 ${count}개를 삭제할까요? 되돌릴 수 없습니다.';
+  @override
+  String get no_glossary => '먼저 용어집을 만드세요';
+  @override
+  String added_to_glossary({required Object count}) =>
+      '기록 ${count}개를 용어집에 추가했습니다';
+  @override
+  String get exported => '기록을 내보냈습니다';
+  @override
+  String export_failed({required Object error}) => '내보내기 실패: ${error}';
+  @override
+  String get origin_workbench => '메인 창';
+  @override
+  String get origin_mini => '미니 번역기';
+  @override
+  String get favorite_flag => '즐겨찾기';
+  @override
+  String get edited_flag => '수정됨';
+  @override
+  String get edit_history_hint => '수정한 번역은 기록에 저장됩니다';
 }
 
 // Path: workbench.subtitle
@@ -2216,6 +2300,47 @@ extension on TranslationsKo {
       'workbench.workspace' => '작업 공간',
       'workbench.translate' => '번역',
       'workbench.history' => '기록',
+      'workbench.history_page.all' => '전체',
+      'workbench.history_page.favorites' => '즐겨찾기',
+      'workbench.history_page.edited' => '내가 수정함',
+      'workbench.history_page.search' => '검색',
+      'workbench.history_page.search_placeholder' => '원문, 번역문 또는 서비스 검색',
+      'workbench.history_page.search_label' => '기록 검색',
+      'workbench.history_page.entry_count' => (
+              {required Object label, required Object count}) =>
+          '${label} · ${count}개',
+      'workbench.history_page.by_time' => '시간순',
+      'workbench.history_page.loading' => '기록 불러오는 중…',
+      'workbench.history_page.load_failed' => '기록을 불러오지 못했습니다',
+      'workbench.history_page.retry' => '다시 시도',
+      'workbench.history_page.empty_title' => '번역 기록이 없습니다',
+      'workbench.history_page.empty_description' =>
+        '번역이 완료되면 선호 번역이 여기에 저장됩니다.',
+      'workbench.history_page.no_results' => ({required Object query}) =>
+          '“${query}”와 일치하는 기록이 없습니다',
+      'workbench.history_page.clear_search' => '검색 지우기',
+      'workbench.history_page.select' => '다중 선택',
+      'workbench.history_page.selected_count' => ({required Object count}) =>
+          '${count}개 선택됨',
+      'workbench.history_page.exit_select' => '선택 종료',
+      'workbench.history_page.export' => 'CSV 내보내기',
+      'workbench.history_page.add_to_glossary' => '용어집에 추가',
+      'workbench.history_page.favorite' => '즐겨찾기',
+      'workbench.history_page.unfavorite' => '즐겨찾기 해제',
+      'workbench.history_page.retention' => '일반 기록은 90일, 즐겨찾기는 영구 보관',
+      'workbench.history_page.delete_confirm' => ({required Object count}) =>
+          '선택한 기록 ${count}개를 삭제할까요? 되돌릴 수 없습니다.',
+      'workbench.history_page.no_glossary' => '먼저 용어집을 만드세요',
+      'workbench.history_page.added_to_glossary' => ({required Object count}) =>
+          '기록 ${count}개를 용어집에 추가했습니다',
+      'workbench.history_page.exported' => '기록을 내보냈습니다',
+      'workbench.history_page.export_failed' => ({required Object error}) =>
+          '내보내기 실패: ${error}',
+      'workbench.history_page.origin_workbench' => '메인 창',
+      'workbench.history_page.origin_mini' => '미니 번역기',
+      'workbench.history_page.favorite_flag' => '즐겨찾기',
+      'workbench.history_page.edited_flag' => '수정됨',
+      'workbench.history_page.edit_history_hint' => '수정한 번역은 기록에 저장됩니다',
       'workbench.glossary' => '용어집',
       'workbench.recent_languages' => '최근 언어',
       'workbench.not_configured' => '설정되지 않음',

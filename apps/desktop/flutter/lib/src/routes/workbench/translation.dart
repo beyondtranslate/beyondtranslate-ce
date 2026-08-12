@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../i18n/i18n.dart';
-import '../../services/runtime.dart' show InputSubmitMode;
+import '../../services/history_store.dart';
+import '../../services/runtime.dart'
+    show HistoryEntryInput, HistoryOrigin, InputSubmitMode;
 import '../../services/settings_store.dart';
 import '../../services/workbench_translation_controller.dart';
 import '../../theme/product_tokens.dart'
@@ -63,9 +65,12 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   bool _expanded = false;
   bool _copied = false;
   bool _starred = false;
+  final TranslationHistorySession _historySession = TranslationHistorySession(
+    origin: HistoryOrigin.workbench,
+  );
   Timer? _copiedTimer;
 
-  /// 编辑并记为偏好 — the in-place edit of the preferred translation.
+  /// In-place editing of the preferred translation.
   bool _editing = false;
   final TextEditingController _draftController = TextEditingController();
 
@@ -104,13 +109,68 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   }
 
   /// A manual edit belongs to one query; requerying drops it.
-  void _submit() {
+  Future<void> _submit() async {
+    final source = _controller.text.trim();
+    if (_historySession.beginSource(source)) _starred = false;
     setState(() {
       _editing = false;
       _override = null;
-      _starred = false;
     });
-    _controller.submit();
+    await _controller.submit();
+    await _saveHistory(edited: false);
+  }
+
+  Future<void> _saveHistory({required bool edited}) async {
+    final result = _controller.selectedResult;
+    final translation = _override ?? result?.text ?? '';
+    final source = _controller.text.trim();
+    if (source.isEmpty || translation.trim().isEmpty || result == null) return;
+    final serviceName = result.service.name.trim().isEmpty
+        ? result.service.id
+        : result.service.name.trim();
+    final entry = await _historySession.save(
+      HistoryEntryInput(
+        source: source,
+        translation: translation,
+        sourceLanguage:
+            _controller.detectedLanguage ?? _controller.sourceLanguage,
+        targetLanguage: _controller.targetLanguage,
+        serviceId: result.service.id,
+        serviceName: serviceName,
+        origin: HistoryOrigin.workbench,
+        edited: edited,
+      ),
+    );
+    if (!mounted || entry == null) return;
+    setState(() {
+      _starred = entry.favorite;
+    });
+  }
+
+  Future<void> _selectService(String serviceId) async {
+    setState(() {
+      _editing = false;
+      _override = null;
+    });
+    _controller.selectService(serviceId);
+    await _saveHistory(edited: false);
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_historySession.entryId == null) {
+      await _saveHistory(edited: _override != null);
+    }
+    final entry = await _historySession.toggleFavorite();
+    if (mounted && entry != null) setState(() => _starred = entry.favorite);
+  }
+
+  Future<void> _saveManualEdit() async {
+    final draft = _draftController.text.trim();
+    setState(() {
+      _override = draft.isEmpty ? null : draft;
+      _editing = false;
+    });
+    await _saveHistory(edited: _override != null);
   }
 
   void _refresh() {
@@ -215,7 +275,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           ): () {
             final results = _controller.results;
             if (digit <= results.length) {
-              _controller.selectService(results[digit - 1].service.id);
+              _selectService(results[digit - 1].service.id);
             }
           },
       },
@@ -505,7 +565,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       meta: translating
           ? Text(translation.translating)
           : _override != null
-              ? const Text('已记为偏好')
+              ? Text(t.workbench.history_page.edited_flag)
               : idle
                   ? const Text('⌥Space 唤起迷你翻译器')
                   : null,
@@ -517,12 +577,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                   children: [
                     Button(
                       variant: ButtonVariant.primary,
-                      onPressed: () => setState(() {
-                        final draft = _draftController.text.trim();
-                        _override = draft.isEmpty ? null : draft;
-                        _editing = false;
-                      }),
-                      child: const Text('保存并记为偏好'),
+                      onPressed: _saveManualEdit,
+                      child: Text(t.common.ui.button.save),
                     ),
                     const SizedBox(width: 7),
                     Button(
@@ -532,7 +588,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                     ),
                     const Spacer(),
                     Text(
-                      '保存后同一术语的后续段落沿用你的写法',
+                      t.workbench.history_page.edit_history_hint,
                       style: tokens.typography.sansStyle(
                         fontSize: 11,
                         height: 1,
@@ -566,8 +622,12 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                     const SizedBox(width: 7),
                     Button(
                       variant: ButtonVariant.secondary,
-                      onPressed: () => setState(() => _starred = !_starred),
-                      child: Text(_starred ? '已收藏' : translation.favorite),
+                      onPressed: _toggleFavorite,
+                      child: Text(
+                        _starred
+                            ? t.workbench.history_page.favorite_flag
+                            : translation.favorite,
+                      ),
                     ),
                     const Spacer(),
                     Button(
@@ -576,7 +636,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                         _draftController.text = shownText;
                         setState(() => _editing = true);
                       },
-                      child: const Text('编辑并记为偏好'),
+                      child: Text(t.common.ui.button.edit),
                     ),
                     const SizedBox(width: 7),
                     compareToggle,
@@ -617,10 +677,14 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                           TextSpan(
                             children: [
                               TextSpan(text: '$_override '),
-                              const WidgetSpan(
+                              WidgetSpan(
                                 alignment: PlaceholderAlignment.middle,
                                 child: Badge(
-                                    size: BadgeSize.xs, child: Text('我改过')),
+                                  size: BadgeSize.xs,
+                                  child: Text(
+                                    t.workbench.history_page.edited_flag,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -737,7 +801,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             const SizedBox(height: 7),
             Button(
               variant: ButtonVariant.quiet,
-              onPressed: () => _controller.selectService(result.service.id),
+              onPressed: () => _selectService(result.service.id),
               child: Text(t.mini_translator.result.set_preferred),
             ),
           ],
