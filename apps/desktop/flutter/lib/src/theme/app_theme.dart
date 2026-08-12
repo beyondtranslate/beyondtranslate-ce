@@ -12,19 +12,19 @@ import '../widgets/ui.dart'
 
 const _windowsTypography = DesignTypography(
   display: DesignFont(
-    family: 'MiSans',
+    family: 'Segoe UI',
     fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
   ),
   sans: DesignFont(
-    family: 'MiSans',
+    family: 'Segoe UI',
     fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
   ),
   cjk: DesignFont(
-    family: 'MiSans',
-    fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
+    family: 'Microsoft YaHei UI',
+    fallback: ['Microsoft YaHei', 'Segoe UI'],
   ),
   label: DesignFont(
-    family: 'MiSans',
+    family: 'Segoe UI',
     fallback: ['Microsoft YaHei UI', 'Microsoft YaHei'],
   ),
   mono: DesignFont(
@@ -73,9 +73,8 @@ DesignTokens tokensFor(
   final tokens = family.themeFor(brightness).tokens;
   if (defaultTargetPlatform != TargetPlatform.windows) return tokens;
 
-  // The shared design-system defaults intentionally mirror AppKit and name
-  // PingFang SC. On Windows that family is absent, which leaves CJK runs to an
-  // inconsistent system fallback even though the app bundles MiSans.
+  // The shared design-system defaults intentionally mirror AppKit. Use the
+  // native Windows UI faces here so Latin and CJK text follow system metrics.
   return tokens.copyWith(typography: _windowsTypography);
 }
 
