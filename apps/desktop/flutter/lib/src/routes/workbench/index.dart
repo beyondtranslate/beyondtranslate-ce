@@ -4,7 +4,9 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../extensions/window_controller.dart';
 import '../../i18n/i18n.dart';
+import '../../utils/platform_util.dart';
 import '../../utils/utils.dart';
 import '../../widgets/navigation_item.dart';
 import '../../widgets/ui.dart'
@@ -16,6 +18,7 @@ import '../../widgets/ui.dart'
         SidebarCard,
         SidebarGroup;
 import '../../widgets/workbench.dart';
+import '../app_router.dart' show workbenchWindowController;
 import '../settings/about.dart';
 import '../settings/advanced.dart';
 import '../settings/general.dart';
@@ -119,6 +122,26 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
   bool _selected(String path) =>
       widget.location == path || widget.location.startsWith('$path/');
 
+  /// The shell draws its own window buttons on Windows and Linux, so they get
+  /// the real verbs. Close hides rather than destroys — the app lives on in
+  /// the tray, the same answer the window delegate gives the native close.
+  WorkbenchWindowActions? get _windowActions {
+    if (!kIsWindows && !kIsLinux) return null;
+    return WorkbenchWindowActions(
+      onMinimize: () => workbenchWindowController.window.minimize(),
+      onToggleMaximize: () {
+        final window = workbenchWindowController.window;
+        if (window.isMaximized) {
+          window.unmaximize();
+        } else {
+          window.maximize();
+        }
+      },
+      onClose: () => workbenchWindowController.window.hide(),
+      onDragStart: () => workbenchWindowController.window.startDragging(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,6 +150,7 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
         onToggleCollapsed: () => setState(() => _collapsed = !_collapsed),
         sidebarWidth: _sidebarWidth,
         onSidebarWidthChange: (width) => setState(() => _sidebarWidth = width),
+        windowActions: _windowActions,
         sidebarFooter: const _SidebarVersion(),
         sidebar: [
           SidebarGroup(

@@ -16,6 +16,7 @@ dependencies:
   bot_toast: ^4.1.3
   collection: ^1.18.0
   dio: ^5.9.2
+  file_selector: ^1.1.0
   fluentui_system_icons: ^1.1.255
   flutter:
     sdk: flutter

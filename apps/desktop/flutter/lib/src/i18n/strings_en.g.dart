@@ -131,6 +131,9 @@ class TranslationsWorkbenchEn {
   /// en: 'History'
   String get history => 'History';
 
+  late final TranslationsWorkbenchHistoryPageEn history_page =
+      TranslationsWorkbenchHistoryPageEn.internal(_root);
+
   /// en: 'Glossary'
   String get glossary => 'Glossary';
 
@@ -590,6 +593,119 @@ class TranslationsMiniTranslatorResultEn {
   /// en: 'Your text is kept; retrying will not duplicate history.'
   String get no_result_note =>
       'Your text is kept; retrying will not duplicate history.';
+}
+
+// Path: workbench.history_page
+class TranslationsWorkbenchHistoryPageEn {
+  TranslationsWorkbenchHistoryPageEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'All'
+  String get all => 'All';
+
+  /// en: 'Favorites'
+  String get favorites => 'Favorites';
+
+  /// en: 'Edited by me'
+  String get edited => 'Edited by me';
+
+  /// en: 'Search'
+  String get search => 'Search';
+
+  /// en: 'Search source, translation, or service'
+  String get search_placeholder => 'Search source, translation, or service';
+
+  /// en: 'Search history'
+  String get search_label => 'Search history';
+
+  /// en: '$label · $count entries'
+  String entry_count({required Object label, required Object count}) =>
+      '${label} · ${count} entries';
+
+  /// en: 'By time'
+  String get by_time => 'By time';
+
+  /// en: 'Loading history…'
+  String get loading => 'Loading history…';
+
+  /// en: 'Failed to load history'
+  String get load_failed => 'Failed to load history';
+
+  /// en: 'Retry'
+  String get retry => 'Retry';
+
+  /// en: 'No translation history yet'
+  String get empty_title => 'No translation history yet';
+
+  /// en: 'Your preferred result is saved here after a successful translation.'
+  String get empty_description =>
+      'Your preferred result is saved here after a successful translation.';
+
+  /// en: 'No history matches “$query”'
+  String no_results({required Object query}) => 'No history matches “${query}”';
+
+  /// en: 'Clear search'
+  String get clear_search => 'Clear search';
+
+  /// en: 'Select'
+  String get select => 'Select';
+
+  /// en: '$count selected'
+  String selected_count({required Object count}) => '${count} selected';
+
+  /// en: 'Exit selection'
+  String get exit_select => 'Exit selection';
+
+  /// en: 'Export CSV'
+  String get export => 'Export CSV';
+
+  /// en: 'Add to glossary'
+  String get add_to_glossary => 'Add to glossary';
+
+  /// en: 'Favorite'
+  String get favorite => 'Favorite';
+
+  /// en: 'Unfavorite'
+  String get unfavorite => 'Unfavorite';
+
+  /// en: 'History is kept for 90 days; favorites forever'
+  String get retention => 'History is kept for 90 days; favorites forever';
+
+  /// en: 'Delete the selected $count history entries? This cannot be undone.'
+  String delete_confirm({required Object count}) =>
+      'Delete the selected ${count} history entries? This cannot be undone.';
+
+  /// en: 'Create a glossary first'
+  String get no_glossary => 'Create a glossary first';
+
+  /// en: 'Added $count entries to the glossary'
+  String added_to_glossary({required Object count}) =>
+      'Added ${count} entries to the glossary';
+
+  /// en: 'History exported'
+  String get exported => 'History exported';
+
+  /// en: 'Export failed: $error'
+  String export_failed({required Object error}) => 'Export failed: ${error}';
+
+  /// en: 'Main window'
+  String get origin_workbench => 'Main window';
+
+  /// en: 'Mini translator'
+  String get origin_mini => 'Mini translator';
+
+  /// en: 'Favorite'
+  String get favorite_flag => 'Favorite';
+
+  /// en: 'Edited'
+  String get edited_flag => 'Edited';
+
+  /// en: 'The edited translation will be saved to history'
+  String get edit_history_hint =>
+      'The edited translation will be saved to history';
 }
 
 // Path: workbench.subtitle
@@ -2307,6 +2423,50 @@ extension on Translations {
       'workbench.workspace' => 'Workspace',
       'workbench.translate' => 'Translate',
       'workbench.history' => 'History',
+      'workbench.history_page.all' => 'All',
+      'workbench.history_page.favorites' => 'Favorites',
+      'workbench.history_page.edited' => 'Edited by me',
+      'workbench.history_page.search' => 'Search',
+      'workbench.history_page.search_placeholder' =>
+        'Search source, translation, or service',
+      'workbench.history_page.search_label' => 'Search history',
+      'workbench.history_page.entry_count' => (
+              {required Object label, required Object count}) =>
+          '${label} · ${count} entries',
+      'workbench.history_page.by_time' => 'By time',
+      'workbench.history_page.loading' => 'Loading history…',
+      'workbench.history_page.load_failed' => 'Failed to load history',
+      'workbench.history_page.retry' => 'Retry',
+      'workbench.history_page.empty_title' => 'No translation history yet',
+      'workbench.history_page.empty_description' =>
+        'Your preferred result is saved here after a successful translation.',
+      'workbench.history_page.no_results' => ({required Object query}) =>
+          'No history matches “${query}”',
+      'workbench.history_page.clear_search' => 'Clear search',
+      'workbench.history_page.select' => 'Select',
+      'workbench.history_page.selected_count' => ({required Object count}) =>
+          '${count} selected',
+      'workbench.history_page.exit_select' => 'Exit selection',
+      'workbench.history_page.export' => 'Export CSV',
+      'workbench.history_page.add_to_glossary' => 'Add to glossary',
+      'workbench.history_page.favorite' => 'Favorite',
+      'workbench.history_page.unfavorite' => 'Unfavorite',
+      'workbench.history_page.retention' =>
+        'History is kept for 90 days; favorites forever',
+      'workbench.history_page.delete_confirm' => ({required Object count}) =>
+          'Delete the selected ${count} history entries? This cannot be undone.',
+      'workbench.history_page.no_glossary' => 'Create a glossary first',
+      'workbench.history_page.added_to_glossary' => ({required Object count}) =>
+          'Added ${count} entries to the glossary',
+      'workbench.history_page.exported' => 'History exported',
+      'workbench.history_page.export_failed' => ({required Object error}) =>
+          'Export failed: ${error}',
+      'workbench.history_page.origin_workbench' => 'Main window',
+      'workbench.history_page.origin_mini' => 'Mini translator',
+      'workbench.history_page.favorite_flag' => 'Favorite',
+      'workbench.history_page.edited_flag' => 'Edited',
+      'workbench.history_page.edit_history_hint' =>
+        'The edited translation will be saved to history',
       'workbench.glossary' => 'Glossary',
       'workbench.recent_languages' => 'Recent Languages',
       'workbench.not_configured' => 'Not configured',

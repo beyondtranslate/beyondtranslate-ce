@@ -29,6 +29,13 @@ export 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart'
         GlossaryIssueKind,
         GlossaryMatch,
         RuntimeGlossary,
+        // History types
+        HistoryCounts,
+        HistoryEntry,
+        HistoryEntryInput,
+        HistoryFilter,
+        HistoryOrigin,
+        RuntimeHistory,
         // Translation / look-up types
         DetectLanguageRequest,
         DetectLanguageResponse,

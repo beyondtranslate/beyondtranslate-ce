@@ -153,6 +153,9 @@ class SettingsStore extends ChangeNotifier {
           // Glossary data lives outside settings; GlossaryStore keeps its
           // own subscription and reloads itself.
           break;
+        case SettingsChange.history:
+          // HistoryStore owns history reloads through its own subscription.
+          break;
       }
     }
   }

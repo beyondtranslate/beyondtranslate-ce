@@ -181,8 +181,8 @@ String _rustTriple(CodeConfig code, OS os, Architecture arch) {
       'x86_64' => 'x86_64-unknown-linux-gnu',
       'aarch64' => 'aarch64-unknown-linux-gnu',
       _ => throw Exception(
-        '[beyondtranslate_runtime] unsupported Linux host architecture: $hostArch',
-      ),
+          '[beyondtranslate_runtime] unsupported Linux host architecture: $hostArch',
+        ),
     };
   }
   if (os == OS.windows) {

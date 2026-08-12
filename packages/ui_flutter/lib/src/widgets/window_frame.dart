@@ -1,5 +1,6 @@
 import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
 import 'package:beyondtranslate_ui/src/theme/theme.dart';
+import 'package:beyondtranslate_ui/src/widgets/window_controls.dart';
 import 'package:flutter/widgets.dart';
 
 enum TrafficLightsSize { sm, md }
@@ -65,6 +66,8 @@ class WindowFrame extends StatelessWidget {
     this.width,
     this.height,
     this.unfocused = false,
+    this.platform,
+    this.degraded = false,
     required this.children,
   });
 
@@ -81,6 +84,16 @@ class WindowFrame extends StatelessWidget {
   /// tokens every row inside picks the change up on its own.
   final bool unfocused;
 
+  /// Which OS draws the window. Shape belongs to the platform, colour to the
+  /// theme: Windows clips at DWM's 8px, Linux CSD draws its own 12px, and both
+  /// override the theme's window radius. macOS keeps the theme radius.
+  final WindowPlatform? platform;
+
+  /// The platform's degraded chrome: square corners on Windows 10 (DWM still
+  /// shadows); square, shadowless and hard-edged on Linux without a
+  /// compositor. No effect on macOS.
+  final bool degraded;
+
   final List<Widget> children;
 
   @override
@@ -95,6 +108,14 @@ class WindowFrame extends StatelessWidget {
           )
         : tokens;
 
+    // Platform shape constants; the themable radius only survives on macOS.
+    final radius = switch (platform) {
+      WindowPlatform.windows => degraded ? 0.0 : 8.0,
+      WindowPlatform.linux => degraded ? 0.0 : 12.0,
+      _ => tokens.radii.window,
+    };
+    final hardEdged = platform == WindowPlatform.linux && degraded;
+
     return DesignTheme(
       tokens: scoped,
       child: _WindowBodyFloor(
@@ -108,11 +129,11 @@ class WindowFrame extends StatelessWidget {
           decoration: BoxDecoration(
             color: colors.window,
             border: Border.all(
-              color: colors.hairline,
+              color: hardEdged ? colors.hairlineStrong : colors.hairline,
               width: context.hairlineWidth,
             ),
-            borderRadius: BorderRadius.circular(tokens.radii.window),
-            boxShadow: tokens.shadows.window,
+            borderRadius: BorderRadius.circular(radius),
+            boxShadow: hardEdged ? null : tokens.shadows.window,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -151,6 +172,9 @@ class WindowTitlebar extends StatelessWidget {
     this.subtitle,
     this.leading,
     this.lights = true,
+    this.platform,
+    this.buttons = kDefaultCaptionButtons,
+    this.onCaptionPressed,
     this.children = const [],
   });
 
@@ -163,16 +187,36 @@ class WindowTitlebar extends StatelessWidget {
   /// where AppKit puts the sidebar toggle once the sidebar is collapsed.
   final Widget? leading;
   final bool lights;
+
+  /// Swaps the window-control cluster: macOS keeps the traffic lights on the
+  /// left, Windows parks caption strips flush with the top-right corner, Linux
+  /// insets Adwaita pads on the right. The band itself — height, title on the
+  /// left, toolbar content — stays identical across platforms.
+  final WindowPlatform? platform;
+
+  /// Which buttons the Windows/Linux cluster carries.
+  final List<CaptionButton> buttons;
+
+  /// Real-window wiring for the Windows/Linux cluster; left null the cluster
+  /// stays decorative, like the deck's.
+  final ValueChanged<CaptionButton>? onCaptionPressed;
+
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    final isMac = platform == null || platform == WindowPlatform.macos;
 
     return Container(
       height: tokens.metrics.titlebarHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      // Windows caption strips run to the window's edge and the band's full
+      // height, so the padding is cancelled on that side.
+      padding: EdgeInsetsDirectional.only(
+        start: 16,
+        end: platform == WindowPlatform.windows ? 0 : 16,
+      ),
       decoration: BoxDecoration(
         color: colors.chrome,
         border: Border(
@@ -184,7 +228,10 @@ class WindowTitlebar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          if (lights) ...[const TrafficLights(), const SizedBox(width: 14)],
+          if (isMac && lights) ...[
+            const TrafficLights(),
+            const SizedBox(width: 14),
+          ],
           if (leading != null) ...[leading!, const SizedBox(width: 14)],
           if (title != null) ...[
             DefaultTextStyle(
@@ -209,7 +256,25 @@ class WindowTitlebar extends StatelessWidget {
             ),
             const SizedBox(width: 14),
           ],
-          ...children,
+          if (isMac)
+            ...children
+          else ...[
+            // Toolbar content resolves its own trailing Spacer inside this
+            // group, so right-aligned controls stop at the caption cluster
+            // instead of splitting the free space with it.
+            Expanded(child: Row(children: children)),
+            const SizedBox(width: 14),
+            if (platform == WindowPlatform.windows)
+              WindowsCaptionControls(
+                buttons: buttons,
+                onPressed: onCaptionPressed,
+              )
+            else
+              LinuxWindowControls(
+                buttons: buttons,
+                onPressed: onCaptionPressed,
+              ),
+          ],
         ],
       ),
     );

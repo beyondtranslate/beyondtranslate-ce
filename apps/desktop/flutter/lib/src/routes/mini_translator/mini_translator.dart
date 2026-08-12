@@ -14,6 +14,7 @@ import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
 import '../../routes/settings/provider_meta.dart' show isServiceEnabled;
 import '../../routes/settings/services.dart' show ServicesSettingsPage;
+import '../../services/history_store.dart';
 import '../../services/llm_stream.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
@@ -85,6 +86,9 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   String? _preferredServiceId;
   bool _copied = false;
   bool _starred = false;
+  final TranslationHistorySession _historySession = TranslationHistorySession(
+    origin: HistoryOrigin.miniTranslator,
+  );
   Timer? _copiedTimer;
 
   /// Service display names and the translation-service ids, captured per query
@@ -351,6 +355,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   }
 
   Future<void> _queryData() async {
+    if (_historySession.beginSource(_text)) _starred = false;
     setState(() {
       _querySubmitted = true;
       _detectedLanguage = null;
@@ -437,6 +442,48 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     }
 
     await Future.wait(futures);
+    await _saveMiniHistory();
+  }
+
+  Future<void> _saveMiniHistory() async {
+    final preferred = preferredTranslation(
+      _translationResultList,
+      _preferredServiceId,
+    );
+    if (preferred == null || _text.trim().isEmpty) return;
+    final serviceId = preferred.record.translationServiceId ?? '';
+    final target = preferred.result.translationTarget;
+    final entry = await _historySession.save(
+      HistoryEntryInput(
+        source: _text,
+        translation: preferred.text,
+        sourceLanguage: _detectedLanguage ?? target?.source ?? kAutoSource,
+        targetLanguage: target?.target ?? defaultTargetLanguage,
+        serviceId: serviceId,
+        serviceName: (_serviceNameById[serviceId] ?? serviceId).trim(),
+        origin: HistoryOrigin.miniTranslator,
+        edited: false,
+      ),
+    );
+    if (!mounted || entry == null) return;
+    _setStateAndScheduleWindowResize(() {
+      _starred = entry.favorite;
+    });
+  }
+
+  Future<void> _preferService(String serviceId) async {
+    _setStateAndScheduleWindowResize(() {
+      _preferredServiceId = serviceId;
+    });
+    await _saveMiniHistory();
+  }
+
+  Future<void> _toggleHistoryFavorite() async {
+    if (_historySession.entryId == null) await _saveMiniHistory();
+    final entry = await _historySession.toggleFavorite();
+    if (mounted && entry != null) {
+      _setStateAndScheduleWindowResize(() => _starred = entry.favorite);
+    }
   }
 
   List<TranslationResult> _createPendingTranslationResults(
@@ -773,6 +820,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _resultStale = false;
       _copied = false;
       _starred = false;
+      _historySession.reset();
     });
     _textEditingController.clear();
     _focusNode.requestFocus();
@@ -798,9 +846,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     if (index < 0 || index >= translations.length) return;
     final serviceId = translations[index].record.translationServiceId;
     if (serviceId == null) return;
-    _setStateAndScheduleWindowResize(() {
-      _preferredServiceId = serviceId;
-    });
+    _preferService(serviceId);
   }
 
   void _handleButtonTappedTrans() async {
@@ -895,11 +941,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                     _showCompare = !_showCompare;
                   });
                 },
-                onPreferService: (serviceId) {
-                  _setStateAndScheduleWindowResize(() {
-                    _preferredServiceId = serviceId;
-                  });
-                },
+                onPreferService: _preferService,
                 onRequery: _handleButtonTappedTrans,
               ),
               MiniTranslatorWordDefinition(
@@ -915,7 +957,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           translateEnabled: _text.isNotEmpty,
           onRead: () {},
           onCopy: _handleButtonTappedCopy,
-          onBookmark: () => setState(() => _starred = !_starred),
+          onBookmark: _toggleHistoryFavorite,
           onTranslate: _handleButtonTappedTrans,
         ),
       ],
