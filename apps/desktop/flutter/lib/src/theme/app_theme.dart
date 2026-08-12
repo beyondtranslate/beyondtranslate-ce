@@ -33,6 +33,33 @@ const _windowsTypography = DesignTypography(
   ),
 );
 
+const _linuxTypography = DesignTypography(
+  display: DesignFont(
+    family: 'Noto Sans',
+    fallback: ['Noto Sans CJK SC', 'Noto Sans CJK TC'],
+  ),
+  sans: DesignFont(
+    family: 'Noto Sans',
+    fallback: ['Noto Sans CJK SC', 'Noto Sans CJK TC'],
+  ),
+  cjk: DesignFont(
+    family: 'Noto Sans CJK SC',
+    fallback: ['Noto Sans CJK TC', 'Noto Sans', 'Droid Sans Fallback'],
+  ),
+  label: DesignFont(
+    family: 'Noto Sans',
+    fallback: ['Noto Sans CJK SC', 'Noto Sans CJK TC'],
+  ),
+  mono: DesignFont(
+    family: 'Noto Sans Mono',
+    fallback: [
+      'Noto Sans Mono CJK SC',
+      'DejaVu Sans Mono',
+      'monospace',
+    ],
+  ),
+);
+
 /// The palette family the design system paints with.
 ///
 /// Each family carries its own light and dark pair, so this is orthogonal to
@@ -71,11 +98,17 @@ DesignTokens tokensFor(
   DesignThemeFamily family = DesignThemeFamily.bright,
 }) {
   final tokens = family.themeFor(brightness).tokens;
-  if (defaultTargetPlatform != TargetPlatform.windows) return tokens;
 
-  // The shared design-system defaults intentionally mirror AppKit. Use the
-  // native Windows UI faces here so Latin and CJK text follow system metrics.
-  return tokens.copyWith(typography: _windowsTypography);
+  // Apply platform-native font stacks for the best rendering on each OS.
+  if (defaultTargetPlatform == TargetPlatform.windows) {
+    return tokens.copyWith(typography: _windowsTypography);
+  }
+  if (defaultTargetPlatform == TargetPlatform.linux) {
+    return tokens.copyWith(typography: _linuxTypography);
+  }
+
+  // macOS and other platforms use the design-system default (AppKit faces).
+  return tokens;
 }
 
 /// Projects a design token set onto Material's [ThemeData].

@@ -169,10 +169,20 @@ String _rustTriple(CodeConfig code, OS os, Architecture arch) {
     };
   }
   if (os == OS.linux) {
-    return switch (arch) {
-      Architecture.x64 => 'x86_64-unknown-linux-gnu',
-      Architecture.arm64 => 'aarch64-unknown-linux-gnu',
-      _ => _unsupported(os, arch),
+    // On Linux, the built binary must match the host architecture.
+    // Use `uname -m` to detect the actual host instead of relying on
+    // Flutter's reported target architecture, which may differ.
+    final hostArch = _hostArchitecture();
+    stdout.writeln(
+      '[beyondtranslate_runtime] Linux host architecture: $hostArch '
+      '(Flutter target: $arch)',
+    );
+    return switch (hostArch) {
+      'x86_64' => 'x86_64-unknown-linux-gnu',
+      'aarch64' => 'aarch64-unknown-linux-gnu',
+      _ => throw Exception(
+        '[beyondtranslate_runtime] unsupported Linux host architecture: $hostArch',
+      ),
     };
   }
   if (os == OS.windows) {
@@ -183,6 +193,17 @@ String _rustTriple(CodeConfig code, OS os, Architecture arch) {
     };
   }
   return _unsupported(os, arch);
+}
+
+String _hostArchitecture() {
+  final result = Process.runSync('uname', ['-m']);
+  if (result.exitCode != 0) {
+    throw Exception(
+      '[beyondtranslate_runtime] failed to detect host architecture: '
+      'uname -m exited with ${result.exitCode}',
+    );
+  }
+  return (result.stdout as String).trim();
 }
 
 Never _unsupported(OS os, Architecture arch) {
@@ -199,5 +220,13 @@ Uri _resolveCdylib(Uri rustDir, String triple, OS os) {
   };
   // The Rust workspace lives at the repo root (../../../target relative to
   // packages/runtime/rust/Cargo.toml), so build artifacts land there.
-  return rustDir.resolve('../../../target/$triple/release/$fileName');
+  final relativeUri =
+      rustDir.resolve('../../../target/$triple/release/$fileName');
+  // Ensure the URI is absolute, as CodeAsset requires an absolute file path.
+  // If the resolved URI is already absolute (has a scheme), use it as-is.
+  // Otherwise, resolve it against the current directory.
+  if (relativeUri.hasScheme) {
+    return relativeUri;
+  }
+  return Uri.directory(Directory.current.path).resolveUri(relativeUri);
 }
