@@ -576,7 +576,7 @@ class _TranslationsMiniTranslatorResultZhHans
   @override
   String get translating => '正在翻译…';
   @override
-  String get stale_requery => '原文已修改 · ⏎ 重新翻译';
+  String stale_requery({required Object key}) => '原文已修改 · ${key} 重新翻译';
   @override
   String compare_services({required Object count}) => '对比 ${count} 个服务';
   @override
@@ -589,6 +589,20 @@ class _TranslationsMiniTranslatorResultZhHans
   String get no_result => '所有服务都没有返回结果 —— 检查网络，或换一个服务再试。';
   @override
   String get no_result_note => '原文已保留，重试不会重复计入历史。';
+  @override
+  String no_result_meta({required Object count}) => '${count} 个服务都没有返回结果';
+  @override
+  String get no_result_body => '没有拿到译文。检查网络后按 ⏎ 重试，或展开看每个服务的原因。';
+  @override
+  String get check_services => '检查服务';
+  @override
+  String show_reasons({required Object count}) => '查看 ${count} 个服务的原因';
+  @override
+  String get collapse_reasons => '收起原因';
+  @override
+  String get unknown_error => '服务没有说明原因。';
+  @override
+  String get no_result_tag => '未返回结果';
 }
 
 // Path: workbench.history_page
@@ -669,6 +683,59 @@ class _TranslationsWorkbenchHistoryPageZhHans
   String get edited_flag => '我改过';
   @override
   String get edit_history_hint => '修改后的译文会保存到历史';
+  @override
+  String get copy_translation => '复制译文';
+  @override
+  String get more_actions => '更多';
+  @override
+  String get export_all => '导出全部';
+  @override
+  String get retention_short => '历史保留 90 天';
+  @override
+  String get manage => '管理...';
+  @override
+  String get export_title => '导出记录';
+  @override
+  String export_scope_selected({required Object count}) => '已选 ${count} 条';
+  @override
+  String export_scope_all({required Object count}) => '全部 ${count} 条';
+  @override
+  String get export_format => '格式';
+  @override
+  String get format_csv_hint => '表格与脚本';
+  @override
+  String get format_md_hint => '可读的对照';
+  @override
+  String get format_tmx_hint => '翻译记忆库';
+  @override
+  String get export_content => '内容';
+  @override
+  String get export_with_meta => '附服务、时间与来源';
+  @override
+  String get export_only_edited => '只导出我改过的译文';
+  @override
+  String get manage_title => '管理历史';
+  @override
+  String manage_subtitle({required Object count}) => '共 ${count} 条记录';
+  @override
+  String get retention_section => '保留时长';
+  @override
+  String get clear_section => '清空';
+  @override
+  String get clear_description => '删除全部记录，包括收藏和你改过的译文。术语库不受影响。';
+  @override
+  String get clear_button => '清空全部历史...';
+  @override
+  String get clear_confirm_title => '清空全部历史';
+  @override
+  String clear_confirm_message({required Object count}) =>
+      '删除全部 ${count} 条记录，包括收藏和你改过的译文。此操作无法撤销，术语库不受影响。';
+  @override
+  String get delete_title_one => '删除这条记录';
+  @override
+  String delete_title_many({required Object count}) => '删除 ${count} 条记录';
+  @override
+  String get delete_message => '删除后无法恢复。收藏和你改过的译文也会一起删除，术语库不受影响。';
 }
 
 // Path: workbench.subtitle
@@ -769,6 +836,64 @@ class _TranslationsWorkbenchGlossaryPageZhHans
   String get no_books_description => '术语库让指定译法在所有服务里保持一致。先建一个，再往里加词。';
   @override
   String get loading => '正在载入…';
+  @override
+  String get new_book_subtitle => '按领域分库，翻译时全部生效';
+  @override
+  String get name => '名称';
+  @override
+  String get name_taken => '名称 · 已存在';
+  @override
+  String name_taken_hint({required Object name}) => '已经有一个叫「${name}」的术语库了。';
+  @override
+  String get name_placeholder => '机器学习';
+  @override
+  String get source_language => '源语言';
+  @override
+  String get target_language => '目标语言';
+  @override
+  String get same_language => '源语言和目标语言得是两种语言。';
+  @override
+  String get seed => '初始内容';
+  @override
+  String get seed_blank => '空白';
+  @override
+  String get seed_blank_hint => '之后逐条新增';
+  @override
+  String get seed_csv_hint => '两列：原文 / 译法';
+  @override
+  String get seed_tbx_hint => '行业术语交换格式';
+  @override
+  String get seed_blank_note => '建好后可以逐条新增，也可以把 CSV / TBX 拖进列表里合并。';
+  @override
+  String seed_file_note({required Object format}) =>
+      '创建后立即导入 ${format} 文件 · 重复的原文按文件里的译法为准';
+  @override
+  String get choose_file => '选择文件…';
+  @override
+  String get create => '创建';
+  @override
+  String get add_entry_subtitle => '术语优先级高于任何服务输出';
+  @override
+  String get book => '术语库';
+  @override
+  String get forbidden_label => '禁用译法';
+  @override
+  String get forbidden_hint => '服务给出这些说法时会被标为冲突；多个用 / 分隔，留空表示不禁用。';
+  @override
+  String get forbidden_placeholder_full => '强制教学 / 强制教师';
+  @override
+  String duplicate({required Object term, required Object book}) =>
+      '「${term}」已在${book}中，保存会覆盖原有译法。';
+  @override
+  String get duplicate_book_fallback => '该术语库';
+  @override
+  String get keep_adding => '保存后继续添加下一条';
+  @override
+  String added_count({required Object count}) => '本次已添加 ${count} 条';
+  @override
+  String get overwrite => '覆盖';
+  @override
+  String get done => '完成';
 }
 
 // Path: workbench.translation
@@ -840,6 +965,10 @@ class _TranslationsWorkbenchTranslationZhHans
   @override
   String input_hint_translate_to({required Object language}) =>
       '输入或粘贴要翻译的文本，翻译为${language}';
+  @override
+  String newline_hint({required Object key}) => '${key} 换行';
+  @override
+  String get failed_body => '这一段没有拿到译文。检查网络连接后重试，或展开看每个服务的原因逐个处理。';
 }
 
 // Path: workbench.status
@@ -932,6 +1061,14 @@ class _TranslationsSettingsShortcutsZhHans
       _TranslationsSettingsShortcutsGroupZhHans._(_root);
   @override
   String get reset => '恢复默认...';
+  @override
+  String get record_placeholder => '录制快捷键';
+  @override
+  String get recording => '按下快捷键…';
+  @override
+  String get clear => '清除';
+  @override
+  String conflict({required Object label}) => '与「${label}」冲突';
 }
 
 // Path: settings.advanced
@@ -2295,7 +2432,8 @@ extension on TranslationsZhHans {
         '未配置默认文字识别服务，请在设置中配置。',
       'mini_translator.message.ocr_recognition_failed' => '文字识别失败',
       'mini_translator.result.translating' => '正在翻译…',
-      'mini_translator.result.stale_requery' => '原文已修改 · ⏎ 重新翻译',
+      'mini_translator.result.stale_requery' => ({required Object key}) =>
+          '原文已修改 · ${key} 重新翻译',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           '对比 ${count} 个服务',
       'mini_translator.result.collapse_compare' => '收起对比',
@@ -2303,6 +2441,16 @@ extension on TranslationsZhHans {
       'mini_translator.result.retry' => '重试',
       'mini_translator.result.no_result' => '所有服务都没有返回结果 —— 检查网络，或换一个服务再试。',
       'mini_translator.result.no_result_note' => '原文已保留，重试不会重复计入历史。',
+      'mini_translator.result.no_result_meta' => ({required Object count}) =>
+          '${count} 个服务都没有返回结果',
+      'mini_translator.result.no_result_body' =>
+        '没有拿到译文。检查网络后按 ⏎ 重试，或展开看每个服务的原因。',
+      'mini_translator.result.check_services' => '检查服务',
+      'mini_translator.result.show_reasons' => ({required Object count}) =>
+          '查看 ${count} 个服务的原因',
+      'mini_translator.result.collapse_reasons' => '收起原因',
+      'mini_translator.result.unknown_error' => '服务没有说明原因。',
+      'mini_translator.result.no_result_tag' => '未返回结果',
       'workbench.workspace' => '工作区',
       'workbench.translate' => '翻译',
       'workbench.history' => '历史',
@@ -2346,6 +2494,40 @@ extension on TranslationsZhHans {
       'workbench.history_page.favorite_flag' => '已收藏',
       'workbench.history_page.edited_flag' => '我改过',
       'workbench.history_page.edit_history_hint' => '修改后的译文会保存到历史',
+      'workbench.history_page.copy_translation' => '复制译文',
+      'workbench.history_page.more_actions' => '更多',
+      'workbench.history_page.export_all' => '导出全部',
+      'workbench.history_page.retention_short' => '历史保留 90 天',
+      'workbench.history_page.manage' => '管理...',
+      'workbench.history_page.export_title' => '导出记录',
+      'workbench.history_page.export_scope_selected' =>
+        ({required Object count}) => '已选 ${count} 条',
+      'workbench.history_page.export_scope_all' => ({required Object count}) =>
+          '全部 ${count} 条',
+      'workbench.history_page.export_format' => '格式',
+      'workbench.history_page.format_csv_hint' => '表格与脚本',
+      'workbench.history_page.format_md_hint' => '可读的对照',
+      'workbench.history_page.format_tmx_hint' => '翻译记忆库',
+      'workbench.history_page.export_content' => '内容',
+      'workbench.history_page.export_with_meta' => '附服务、时间与来源',
+      'workbench.history_page.export_only_edited' => '只导出我改过的译文',
+      'workbench.history_page.manage_title' => '管理历史',
+      'workbench.history_page.manage_subtitle' => ({required Object count}) =>
+          '共 ${count} 条记录',
+      'workbench.history_page.retention_section' => '保留时长',
+      'workbench.history_page.clear_section' => '清空',
+      'workbench.history_page.clear_description' =>
+        '删除全部记录，包括收藏和你改过的译文。术语库不受影响。',
+      'workbench.history_page.clear_button' => '清空全部历史...',
+      'workbench.history_page.clear_confirm_title' => '清空全部历史',
+      'workbench.history_page.clear_confirm_message' => (
+              {required Object count}) =>
+          '删除全部 ${count} 条记录，包括收藏和你改过的译文。此操作无法撤销，术语库不受影响。',
+      'workbench.history_page.delete_title_one' => '删除这条记录',
+      'workbench.history_page.delete_title_many' => ({required Object count}) =>
+          '删除 ${count} 条记录',
+      'workbench.history_page.delete_message' =>
+        '删除后无法恢复。收藏和你改过的译文也会一起删除，术语库不受影响。',
       'workbench.glossary' => '术语库',
       'workbench.recent_languages' => '最近语言',
       'workbench.not_configured' => '尚未配置',
@@ -2387,6 +2569,41 @@ extension on TranslationsZhHans {
       'workbench.glossary_page.no_books_description' =>
         '术语库让指定译法在所有服务里保持一致。先建一个，再往里加词。',
       'workbench.glossary_page.loading' => '正在载入…',
+      'workbench.glossary_page.new_book_subtitle' => '按领域分库，翻译时全部生效',
+      'workbench.glossary_page.name' => '名称',
+      'workbench.glossary_page.name_taken' => '名称 · 已存在',
+      'workbench.glossary_page.name_taken_hint' => ({required Object name}) =>
+          '已经有一个叫「${name}」的术语库了。',
+      'workbench.glossary_page.name_placeholder' => '机器学习',
+      'workbench.glossary_page.source_language' => '源语言',
+      'workbench.glossary_page.target_language' => '目标语言',
+      'workbench.glossary_page.same_language' => '源语言和目标语言得是两种语言。',
+      'workbench.glossary_page.seed' => '初始内容',
+      'workbench.glossary_page.seed_blank' => '空白',
+      'workbench.glossary_page.seed_blank_hint' => '之后逐条新增',
+      'workbench.glossary_page.seed_csv_hint' => '两列：原文 / 译法',
+      'workbench.glossary_page.seed_tbx_hint' => '行业术语交换格式',
+      'workbench.glossary_page.seed_blank_note' =>
+        '建好后可以逐条新增，也可以把 CSV / TBX 拖进列表里合并。',
+      'workbench.glossary_page.seed_file_note' => ({required Object format}) =>
+          '创建后立即导入 ${format} 文件 · 重复的原文按文件里的译法为准',
+      'workbench.glossary_page.choose_file' => '选择文件…',
+      'workbench.glossary_page.create' => '创建',
+      'workbench.glossary_page.add_entry_subtitle' => '术语优先级高于任何服务输出',
+      'workbench.glossary_page.book' => '术语库',
+      'workbench.glossary_page.forbidden_label' => '禁用译法',
+      'workbench.glossary_page.forbidden_hint' =>
+        '服务给出这些说法时会被标为冲突；多个用 / 分隔，留空表示不禁用。',
+      'workbench.glossary_page.forbidden_placeholder_full' => '强制教学 / 强制教师',
+      'workbench.glossary_page.duplicate' => (
+              {required Object term, required Object book}) =>
+          '「${term}」已在${book}中，保存会覆盖原有译法。',
+      'workbench.glossary_page.duplicate_book_fallback' => '该术语库',
+      'workbench.glossary_page.keep_adding' => '保存后继续添加下一条',
+      'workbench.glossary_page.added_count' => ({required Object count}) =>
+          '本次已添加 ${count} 条',
+      'workbench.glossary_page.overwrite' => '覆盖',
+      'workbench.glossary_page.done' => '完成',
       'workbench.translation.source' => '原文',
       'workbench.translation.target' => '译文',
       'workbench.translation.input_hint' => '输入或粘贴需要翻译的文本',
@@ -2417,6 +2634,10 @@ extension on TranslationsZhHans {
       'workbench.translation.other_services_disabled' => '其他服务已停用',
       'workbench.translation.input_hint_translate_to' =>
         ({required Object language}) => '输入或粘贴要翻译的文本，翻译为${language}',
+      'workbench.translation.newline_hint' => ({required Object key}) =>
+          '${key} 换行',
+      'workbench.translation.failed_body' =>
+        '这一段没有拿到译文。检查网络连接后重试，或展开看每个服务的原因逐个处理。',
       'workbench.status.runtime_ready' => '翻译运行时已就绪',
       'workbench.status.settings_synced' => '设置已同步',
       'workbench.status.shortcuts' => '⌥Space 小窗 · ⌥⇧2 截图',
@@ -2505,6 +2726,11 @@ extension on TranslationsZhHans {
       'settings.shortcuts.group.in_app.title' => '应用内按键',
       'settings.shortcuts.group.in_app.description' => '仅在应用自己的输入框内生效。',
       'settings.shortcuts.reset' => '恢复默认...',
+      'settings.shortcuts.record_placeholder' => '录制快捷键',
+      'settings.shortcuts.recording' => '按下快捷键…',
+      'settings.shortcuts.clear' => '清除',
+      'settings.shortcuts.conflict' => ({required Object label}) =>
+          '与「${label}」冲突',
       'settings.advanced.title' => '高级',
       'settings.advanced.api_server' => '本地 API 服务',
       'settings.advanced.api_server_description' =>

@@ -573,7 +573,8 @@ class _TranslationsMiniTranslatorResultEs
   @override
   String get translating => 'Traduciendo…';
   @override
-  String get stale_requery => 'Texto modificado · ⏎ retraducir';
+  String stale_requery({required Object key}) =>
+      'Texto modificado · ${key} retraducir';
   @override
   String compare_services({required Object count}) =>
       'Comparar ${count} servicios';
@@ -2342,8 +2343,8 @@ extension on TranslationsEs {
       'mini_translator.message.ocr_recognition_failed' =>
         'El reconocimiento de texto falló',
       'mini_translator.result.translating' => 'Traduciendo…',
-      'mini_translator.result.stale_requery' =>
-        'Texto modificado · ⏎ retraducir',
+      'mini_translator.result.stale_requery' => ({required Object key}) =>
+          'Texto modificado · ${key} retraducir',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           'Comparar ${count} servicios',
       'mini_translator.result.collapse_compare' => 'Contraer',

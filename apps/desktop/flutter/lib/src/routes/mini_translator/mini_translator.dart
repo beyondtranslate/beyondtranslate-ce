@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../extensions/window_controller.dart';
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
@@ -376,6 +377,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           (service) =>
               (service.type == ServiceType.dictionary ||
                   service.type == ServiceType.translation) &&
+              isServiceTypeVisible(service.type) &&
               // A service switched off on 服务 takes no part in a query.
               isServiceEnabled(service),
         )
@@ -902,6 +904,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     final hasTranslation =
         preferredTranslation(_translationResultList, _preferredServiceId) !=
             null;
+    final noResult = _querySubmitted &&
+        allServicesFailed(_translationResultList, _translationServiceIds);
 
     return Column(
       key: _contentViewKey,
@@ -924,6 +928,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 targetLanguageName: _selectedTargetLanguage == null
                     ? null
                     : getLanguageName(_selectedTargetLanguage!),
+                sourceLabel: '${t.workbench.translation.source} · '
+                    '${getSourceDisplayName(_detectedLanguage ?? _sourceLanguage)}',
                 onChanged: (v) => _handleTextChanged(v),
                 onSubmitted: _handleButtonTappedTrans,
                 onClear: _handleButtonTappedClear,
@@ -934,6 +940,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 translationServiceIds: _translationServiceIds,
                 serviceNameById: _serviceNameById,
                 preferredServiceId: _preferredServiceId,
+                inputSubmitMode: settingsStore.inputSubmitMode,
                 stale: _resultStale,
                 showCompare: _showCompare,
                 onToggleCompare: () {
@@ -951,10 +958,12 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           ),
         ),
         MiniTranslatorActionButtons(
+          inputSubmitMode: settingsStore.inputSubmitMode,
           hasContent: hasTranslation,
           copied: _copied,
           starred: _starred,
           translateEnabled: _text.isNotEmpty,
+          retry: noResult,
           onRead: () {},
           onCopy: _handleButtonTappedCopy,
           onBookmark: _toggleHistoryFavorite,
@@ -1061,14 +1070,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   @override
   void onShortcutKeyDownExtractFromClipboard() {
     _handleExtractTextFromClipboard();
-  }
-
-  @override
-  void onShortcutKeyDownSubmitWithMateEnter() {
-    if (settingsStore.inputSubmitMode != InputSubmitMode.commandEnter) {
-      return;
-    }
-    _handleButtonTappedTrans();
   }
 
   @override

@@ -525,7 +525,11 @@ class RootView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TranslationProvider(child: const _RootBodyView());
+    // The scope sits above the window manager so one language switch reaches
+    // every window — both the workbench and the mini translator hang off it.
+    return TranslationProvider(
+      child: const LocaleRebuildScope(child: _RootBodyView()),
+    );
   }
 }
 

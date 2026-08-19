@@ -1,9 +1,10 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../utils/platform_util.dart';
 import 'native_text_field.dart';
 
 const EdgeInsets _kDefaultPadding = EdgeInsets.symmetric(
@@ -139,9 +140,39 @@ class _TextFieldState extends State<TextField> {
     widget.onTap?.call();
   }
 
+  /// Whether the caller has named the key that submits — 提交方式 in settings.
+  /// Only then does the field take Enter into its own hands; every other field
+  /// keeps whatever [TextField.textInputAction] already gave it.
+  bool get _hasSubmitMode => widget.submitOnEnter || widget.submitOnMetaEnter;
+
+  /// ⇧⏎ always writes a newline, the chosen key submits, and anything else
+  /// falls through to the editor. Mirrors `doCommandBy` in
+  /// `NativeTextFieldPlugin`, which does this same job on macOS — there the
+  /// field is an AppKit view and these events never reach Flutter.
+  KeyEventResult _handleSubmitKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
+    if (event.logicalKey != LogicalKeyboardKey.enter &&
+        event.logicalKey != LogicalKeyboardKey.numpadEnter) {
+      return KeyEventResult.ignored;
+    }
+    final keyboard = HardwareKeyboard.instance;
+    if (keyboard.isShiftPressed) return KeyEventResult.ignored;
+    // ⌘ names the key on a Mac keyboard; on the platforms this branch actually
+    // runs on it is Ctrl that sits there.
+    final commandHeld = keyboard.isMetaPressed || keyboard.isControlPressed;
+    final submits =
+        widget.submitOnEnter || (widget.submitOnMetaEnter && commandHeld);
+    if (!submits) return KeyEventResult.ignored;
+    widget.onSubmitted?.call(_effectiveController.text);
+    return KeyEventResult.handled;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (kIsMacOS) {
+    // The same predicate [NativeTextField] guards its own `AppKitView` with —
+    // asking the host OS instead would hand the field to a platform view that
+    // then refuses to draw.
+    if (defaultTargetPlatform == TargetPlatform.macOS) {
       return NativeTextField(
         controller: _effectiveController,
         focusNode: _effectiveFocusNode,
@@ -194,13 +225,15 @@ class _TextFieldState extends State<TextField> {
                       ),
                 ),
               ),
-            EditableText(
+            _TrimmingEditableText(
               controller: _effectiveController,
               focusNode: _effectiveFocusNode,
               readOnly: widget.readOnly || !enabled,
               obscureText: widget.obscureText,
               keyboardType: widget.keyboardType,
-              textInputAction: widget.textInputAction,
+              textInputAction: _hasSubmitMode && widget.maxLines != 1
+                  ? TextInputAction.newline
+                  : widget.textInputAction,
               textCapitalization: widget.textCapitalization,
               selectionHeightStyle: widget.selectionHeightStyle,
               style: textStyle,
@@ -218,9 +251,72 @@ class _TextFieldState extends State<TextField> {
         ),
       ),
     );
-    if (widget.expands) {
-      return SizedBox.expand(child: editableText);
-    }
-    return editableText;
+    final Widget field =
+        widget.expands ? SizedBox.expand(child: editableText) : editableText;
+    if (!_hasSubmitMode) return field;
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: _handleSubmitKey,
+      child: field,
+    );
+  }
+}
+
+/// [EditableText] with one behaviour changed: paste trims what it inserts.
+///
+/// Text copied out of a web page or a PDF arrives with the edges of the
+/// selection attached — a trailing newline, an indent off the left margin —
+/// and in a translation input those edges are never wanted. Trimming here
+/// rather than at submit keeps what the field shows and what gets translated
+/// the same thing.
+///
+/// The macOS field is an AppKit view that never reaches this code;
+/// `NativeTextFieldPlugin.swift` does the same job there.
+class _TrimmingEditableText extends EditableText {
+  _TrimmingEditableText({
+    required super.controller,
+    required super.focusNode,
+    required super.style,
+    required super.cursorColor,
+    required super.backgroundCursorColor,
+    super.readOnly,
+    super.obscureText,
+    super.keyboardType,
+    super.textInputAction,
+    super.textCapitalization,
+    super.selectionHeightStyle,
+    super.selectionColor,
+    super.maxLines,
+    super.minLines,
+    super.autofocus,
+    super.enableInteractiveSelection,
+    super.onChanged,
+    super.onSubmitted,
+  });
+
+  @override
+  EditableTextState createState() => _TrimmingEditableTextState();
+}
+
+class _TrimmingEditableTextState extends EditableTextState {
+  /// Every route into a paste lands here — the shortcut, and a selection
+  /// toolbar if one is ever given to this field.
+  @override
+  Future<void> pasteText(SelectionChangedCause cause) async {
+    if (widget.readOnly) return;
+    final selection = textEditingValue.selection;
+    if (!selection.isValid) return;
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text;
+    if (text == null) return;
+    // Trimmed to nothing still counts as a paste: it replaces the selection,
+    // the same as pasting an empty clipboard would.
+    userUpdateTextEditingValue(
+      textEditingValue.replaced(selection, text.trim()),
+      cause,
+    );
+    bringIntoView(textEditingValue.selection.extent);
+    if (cause == SelectionChangedCause.toolbar) hideToolbar();
   }
 }

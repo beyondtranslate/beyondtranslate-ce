@@ -74,6 +74,7 @@ class Input extends StatefulWidget {
     this.mono = false,
     this.obscureText = false,
     this.enabled = true,
+    this.autofocus = false,
     this.onChanged,
     this.onSubmitted,
     this.semanticsLabel,
@@ -88,6 +89,10 @@ class Input extends StatefulWidget {
   final bool mono;
   final bool obscureText;
   final bool enabled;
+
+  /// Takes the caret on mount — React's `autoFocus`, which the sheets use on
+  /// their first field so a dialog can be typed into as soon as it opens.
+  final bool autofocus;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final String? semanticsLabel;
@@ -162,6 +167,7 @@ class _InputState extends State<Input> {
           controller: widget.controller,
           focusNode: _node,
           enabled: widget.enabled,
+          autofocus: widget.autofocus,
           obscureText: widget.obscureText,
           textAlignVertical: TextAlignVertical.center,
           padding: _kControlPadding,

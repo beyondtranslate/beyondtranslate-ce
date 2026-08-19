@@ -3,30 +3,41 @@ import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:flutter/material.dart' hide Checkbox;
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart' hide Checkbox, IconButton;
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/glossary_store.dart';
 import '../../services/history_store.dart';
 import '../../services/runtime.dart';
+import '../../widgets/confirm_dialog.dart';
+import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/list_card.dart' show ListCard;
 import '../../widgets/ui.dart'
     show
         Button,
+        ButtonSize,
         ButtonVariant,
         Checkbox,
         DesignThemeContext,
         DesignTypographyStyles,
         EmptyState,
+        IconButton,
         Kbd,
         Label,
+        Menu,
+        MenuAlign,
+        MenuItem,
         Rail,
         RailItem,
         SearchField,
         WindowFooter;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
+import 'history_dialogs.dart';
 
 class WorkbenchLibraryPage extends StatefulWidget {
   const WorkbenchLibraryPage({super.key, this.store});
@@ -41,31 +52,17 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   String? _activeId;
   bool _searching = false;
   bool _selecting = false;
-  bool _confirmingDelete = false;
   final Set<String> _selected = {};
 
   HistoryStore get _store => widget.store ?? historyStore;
   List<HistoryEntry> get _rows => _store.entries;
 
-  HistoryEntry? get _active {
-    final id = _activeId;
-    if (id == null) return null;
-    for (final entry in _rows) {
-      if (entry.id == id) return entry;
-    }
-    return null;
-  }
-
-  List<HistoryEntry> get _actionEntries {
-    if (_selecting) {
-      return [
+  /// The rows a footer action applies to. Only a selection has them now: a
+  /// single record is acted on from the row itself.
+  List<HistoryEntry> get _selectedEntries => [
         for (final entry in _rows)
           if (_selected.contains(entry.id)) entry,
       ];
-    }
-    final active = _active;
-    return active == null ? const [] : [active];
-  }
 
   @override
   void initState() {
@@ -84,44 +81,81 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     if (!mounted) return;
     final ids = _rows.map((entry) => entry.id).toSet();
     _selected.removeWhere((id) => !ids.contains(id));
-    if (_activeId == null || !ids.contains(_activeId)) {
-      _activeId = _rows.firstOrNull?.id;
-    }
+    // The list opens with nothing picked: 收藏 and the ⋯ menu ride on the row
+    // under the pointer, so there is no longer an action waiting on a
+    // pre-selected one, and a highlight nobody asked for only misleads.
+    if (_activeId != null && !ids.contains(_activeId)) _activeId = null;
     setState(() {});
   }
 
   void _toggle(String id) {
     setState(() {
       _selected.contains(id) ? _selected.remove(id) : _selected.add(id);
-      _confirmingDelete = false;
     });
   }
 
-  Future<void> _setFilter(HistoryFilter filter) async {
-    _confirmingDelete = false;
-    await _store.setFilter(filter);
+  Future<void> _setFilter(HistoryFilter filter) => _store.setFilter(filter);
+
+  Future<void> _toggleFavorite(HistoryEntry entry) =>
+      _store.favorite(entry.id, !entry.favorite);
+
+  void _leaveSelection() {
+    setState(() {
+      _selecting = false;
+      _selected.clear();
+    });
   }
 
-  Future<void> _toggleFavorite() async {
-    final active = _active;
-    if (active == null) return;
-    await _store.favorite(active.id, !active.favorite);
-  }
-
-  Future<void> _deleteEntries() async {
-    final entries = _actionEntries;
+  /// Deleting asks in the shared confirm sheet — 收藏 acts on the row itself,
+  /// but anything that throws data away goes through a sheet.
+  Future<void> _deleteEntries(List<HistoryEntry> entries) async {
     if (entries.isEmpty) return;
+    final strings = t.workbench.history_page;
+    final confirmed = await showConfirmDialog(
+      context,
+      danger: true,
+      title: entries.length == 1
+          ? strings.delete_title_one
+          : strings.delete_title_many(count: entries.length),
+      message: strings.delete_message,
+      confirmLabel: t.common.ui.button.delete,
+    );
+    if (!confirmed) return;
     await _store.delete(entries.map((entry) => entry.id).toList());
     if (!mounted) return;
-    setState(() {
-      _confirmingDelete = false;
-      _selected.clear();
-      if (_selecting) _selecting = false;
-    });
+    if (_selecting) _leaveSelection();
   }
 
-  Future<void> _addToGlossary() async {
-    final entries = _actionEntries;
+  /// 管理历史 — the retention note in the footer is the door to it, since the
+  /// fact and the place to change it are one thing. 清空 replaces the sheet
+  /// rather than stacking on it.
+  Future<void> _openManageDialog() async {
+    final strings = t.workbench.history_page;
+    final count = _rows.length;
+    final clear = await showDialogInCurrentWindow<bool>(
+      context: context,
+      builder: (_) => ManageHistoryDialog(count: count),
+    );
+    if (clear != true || !mounted) return;
+    final confirmed = await showConfirmDialog(
+      context,
+      danger: true,
+      title: strings.clear_confirm_title,
+      message: strings.clear_confirm_message(count: count),
+      confirmLabel: t.common.ui.button.delete,
+    );
+    if (!confirmed) return;
+    await _store.delete(_rows.map((entry) => entry.id).toList());
+    if (!mounted) return;
+    if (_selecting) _leaveSelection();
+  }
+
+  Future<void> _copyTranslation(HistoryEntry entry) async {
+    await Clipboard.setData(ClipboardData(text: entry.translation));
+    BotToast.showText(text: t.workbench.translation.copied);
+  }
+
+  Future<void> _addToGlossary(List<HistoryEntry> entries) async {
     if (entries.isEmpty) return;
     if (glossaryStore.selectedBook == null) {
       BotToast.showText(text: t.workbench.history_page.no_glossary);
@@ -143,50 +177,55 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     }
   }
 
-  Future<void> _exportCsv() async {
-    final entries = _actionEntries;
+  /// 导出记录 — the sheet picks the shape, the platform's save panel picks the
+  /// place, then the file is written.
+  Future<void> _export(
+      List<HistoryEntry> entries, HistoryExportScope scope) async {
     if (entries.isEmpty) return;
+    final draft = await showDialogInCurrentWindow<HistoryExportDraft>(
+      context: context,
+      builder: (_) => ExportHistoryDialog(
+        count: entries.length,
+        scope: scope,
+      ),
+    );
+    if (draft == null || !mounted) return;
+    final rows = draft.onlyEdited
+        ? [
+            for (final entry in entries)
+              if (entry.edited) entry,
+          ]
+        : entries;
+    if (rows.isEmpty) return;
+
+    final stamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
     final location = await getSaveLocation(
-      suggestedName:
-          'BeyondTranslate-${DateFormat('yyyyMMdd-HHmmss').format(DateTime.now())}.csv',
-      acceptedTypeGroups: const [
-        XTypeGroup(label: 'CSV', extensions: ['csv']),
+      suggestedName: 'BeyondTranslate-$stamp.${draft.format.extension}',
+      acceptedTypeGroups: [
+        XTypeGroup(
+          label: draft.format.label,
+          extensions: [draft.format.extension],
+        ),
       ],
     );
     if (location == null) return;
     try {
-      final rows = <List<String>>[
-        const [
-          'created_at',
-          'source_language',
-          'target_language',
-          'service',
-          'origin',
-          'source',
-          'translation',
-          'favorite',
-          'edited',
-        ],
-        for (final entry in entries)
-          [
-            DateTime.fromMillisecondsSinceEpoch(entry.createdAt * 1000)
-                .toIso8601String(),
-            entry.sourceLanguage,
-            entry.targetLanguage,
-            entry.serviceName,
-            entry.origin.name,
-            entry.source,
-            entry.translation,
-            entry.favorite.toString(),
-            entry.edited.toString(),
-          ],
-      ];
-      final csv = rows.map((row) => row.map(_escapeCsv).join(',')).join('\r\n');
+      final body = switch (draft.format) {
+        HistoryExportFormat.csv => _csvOf(rows, withMeta: draft.withMeta),
+        HistoryExportFormat.markdown =>
+          _markdownOf(rows, withMeta: draft.withMeta),
+        HistoryExportFormat.tmx => _tmxOf(rows),
+      };
       await File(location.path).writeAsBytes(
-        utf8.encode('\ufeff$csv\r\n'),
+        // The BOM is what makes Excel read the CJK as UTF-8; the other two
+        // formats declare their encoding themselves.
+        utf8.encode(
+          draft.format == HistoryExportFormat.csv ? '\ufeff$body' : body,
+        ),
         flush: true,
       );
       BotToast.showText(text: t.workbench.history_page.exported);
+      if (mounted && _selecting) _leaveSelection();
     } catch (error) {
       BotToast.showText(
         text: t.workbench.history_page.export_failed(error: '$error'),
@@ -194,7 +233,100 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     }
   }
 
+  static String _timeOf(HistoryEntry entry) =>
+      DateTime.fromMillisecondsSinceEpoch(entry.createdAt * 1000)
+          .toIso8601String();
+
+  static String _csvOf(List<HistoryEntry> entries, {required bool withMeta}) {
+    final rows = <List<String>>[
+      [
+        if (withMeta) ...['created_at', 'service', 'origin'],
+        'source_language',
+        'target_language',
+        'source',
+        'translation',
+        'favorite',
+        'edited',
+      ],
+      for (final entry in entries)
+        [
+          if (withMeta) ...[
+            _timeOf(entry),
+            entry.serviceName,
+            entry.origin.name,
+          ],
+          entry.sourceLanguage,
+          entry.targetLanguage,
+          entry.source,
+          entry.translation,
+          entry.favorite.toString(),
+          entry.edited.toString(),
+        ],
+    ];
+    return '${rows.map((row) => row.map(_escapeCsv).join(',')).join('\r\n')}\r\n';
+  }
+
+  /// One block per record: the source quoted, the translation under it, and a
+  /// rule between — the readable 对照 a CSV is not.
+  static String _markdownOf(
+    List<HistoryEntry> entries, {
+    required bool withMeta,
+  }) {
+    final buffer = StringBuffer();
+    for (final entry in entries) {
+      buffer.writeln('> ${entry.source.replaceAll('\n', '\n> ')}');
+      buffer.writeln();
+      buffer.writeln(entry.translation);
+      if (withMeta) {
+        buffer.writeln();
+        buffer.writeln(
+          '*${entry.serviceName} · ${_timeOf(entry)} · '
+          '${entry.sourceLanguage} → ${entry.targetLanguage}*',
+        );
+      }
+      buffer.writeln();
+      buffer.writeln('---');
+      buffer.writeln();
+    }
+    return buffer.toString();
+  }
+
+  /// TMX 1.4 — one `<tu>` per record, the pair as its two `<tuv>`s. `*all*` as
+  /// the header's source language because a history is not one direction.
+  static String _tmxOf(List<HistoryEntry> entries) {
+    final buffer = StringBuffer()
+      ..writeln('<?xml version="1.0" encoding="UTF-8"?>')
+      ..writeln('<tmx version="1.4">')
+      ..writeln(
+        '  <header creationtool="BeyondTranslate" creationtoolversion="1.0" '
+        'segtype="sentence" o-tmf="BeyondTranslate" adminlang="en" '
+        'srclang="*all*" datatype="plaintext"/>',
+      )
+      ..writeln('  <body>');
+    for (final entry in entries) {
+      buffer
+        ..writeln('    <tu>')
+        ..writeln('      <tuv xml:lang="${_escapeXml(entry.sourceLanguage)}">')
+        ..writeln('        <seg>${_escapeXml(entry.source)}</seg>')
+        ..writeln('      </tuv>')
+        ..writeln('      <tuv xml:lang="${_escapeXml(entry.targetLanguage)}">')
+        ..writeln('        <seg>${_escapeXml(entry.translation)}</seg>')
+        ..writeln('      </tuv>')
+        ..writeln('    </tu>');
+    }
+    buffer
+      ..writeln('  </body>')
+      ..writeln('</tmx>');
+    return buffer.toString();
+  }
+
   static String _escapeCsv(String value) => '"${value.replaceAll('"', '""')}"';
+
+  static String _escapeXml(String value) => value
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;');
 
   @override
   Widget build(BuildContext context) {
@@ -219,6 +351,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Rail(
+                resizable: true,
                 children: [
                   RailItem(
                     active: _store.filter == HistoryFilter.all,
@@ -305,16 +438,11 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   Widget _buildFeed(BuildContext context) {
     final strings = t.workbench.history_page;
     if (_store.isLoading && _rows.isEmpty) {
-      return EmptyState(
-        label: Text(t.workbench.history),
-        title: Text(strings.loading),
-      );
+      return EmptyState(title: Text(strings.loading));
     }
     if (_store.error != null && _rows.isEmpty) {
       return EmptyState(
-        label: Text(t.workbench.history),
         title: Text(strings.load_failed),
-        description: Text(_store.error!),
         action: Button(
           onPressed: _store.reload,
           child: Text(strings.retry),
@@ -324,13 +452,11 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     if (_rows.isEmpty) {
       final hasQuery = _store.query.trim().isNotEmpty;
       return EmptyState(
-        label: Text(t.workbench.history),
         title: Text(
           hasQuery
               ? strings.no_results(query: _store.query.trim())
               : strings.empty_title,
         ),
-        description: Text(strings.empty_description),
         action: hasQuery
             ? Button(
                 onPressed: () => _store.setQuery(''),
@@ -376,33 +502,15 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     );
   }
 
+  /// The footer carries what acts on the *list*; what acts on one record now
+  /// rides on the row itself. 多选 turns the list into a selection and the
+  /// footer with it.
   Widget _buildFooter(BuildContext context) {
     final strings = t.workbench.history_page;
     final tokens = context.tokens;
-    final entries = _actionEntries;
-    if (_confirmingDelete) {
-      return WindowFooter(
-        children: [
-          Expanded(
-            child: Text(
-              strings.delete_confirm(count: entries.length),
-              style: tokens.typography.sansStyle(fontSize: 11, height: 1.2),
-            ),
-          ),
-          Button(
-            variant: ButtonVariant.warning,
-            onPressed: _deleteEntries,
-            child: Text(t.common.ui.button.delete),
-          ),
-          Button(
-            variant: ButtonVariant.plain,
-            onPressed: () => setState(() => _confirmingDelete = false),
-            child: Text(t.common.ui.button.cancel),
-          ),
-        ],
-      );
-    }
+
     if (_selecting) {
+      final entries = _selectedEntries;
       return WindowFooter(
         children: [
           Text(
@@ -416,79 +524,53 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
           Button(
             variant: ButtonVariant.quiet,
             enabled: entries.isNotEmpty,
-            onPressed: _exportCsv,
+            onPressed: () => _export(entries, HistoryExportScope.selected),
             child: Text(strings.export),
           ),
+          if (kGlossaryFeatureEnabled)
+            Button(
+              variant: ButtonVariant.quiet,
+              enabled: entries.isNotEmpty,
+              onPressed: () => _addToGlossary(entries),
+              child: Text(strings.add_to_glossary),
+            ),
           Button(
             variant: ButtonVariant.quiet,
             enabled: entries.isNotEmpty,
-            onPressed: _addToGlossary,
-            child: Text(strings.add_to_glossary),
-          ),
-          Button(
-            variant: ButtonVariant.quiet,
-            enabled: entries.isNotEmpty,
-            onPressed: () => setState(() => _confirmingDelete = true),
+            onPressed: () => _deleteEntries(entries),
             child: Text(t.common.ui.button.delete),
           ),
           const Spacer(),
           Button(
             variant: ButtonVariant.plain,
-            onPressed: () => setState(() {
-              _selecting = false;
-              _selected.clear();
-            }),
+            onPressed: _leaveSelection,
             child: Text(strings.exit_select),
           ),
         ],
       );
     }
-    final active = _active;
+
     return WindowFooter(
       children: [
         Button(
           variant: ButtonVariant.plain,
-          enabled: active != null,
-          onPressed: _toggleFavorite,
-          child: Text(
-            active?.favorite == true ? strings.unfavorite : strings.favorite,
-          ),
-        ),
-        Button(
-          variant: ButtonVariant.plain,
-          enabled: active != null,
-          onPressed: _exportCsv,
-          child: Text(strings.export),
-        ),
-        Button(
-          variant: ButtonVariant.plain,
-          enabled: active != null,
-          onPressed: _addToGlossary,
-          child: Text(strings.add_to_glossary),
-        ),
-        Button(
-          variant: ButtonVariant.plain,
-          enabled: active != null,
-          onPressed: () => setState(() => _confirmingDelete = true),
-          child: Text(t.common.ui.button.delete),
-        ),
-        Button(
-          variant: ButtonVariant.plain,
+          enabled: _rows.isNotEmpty,
           onPressed: () => setState(() => _selecting = true),
           child: Text(strings.select),
         ),
+        Button(
+          variant: ButtonVariant.plain,
+          enabled: _rows.isNotEmpty,
+          onPressed: () => _export(_rows, HistoryExportScope.all),
+          child: Text(strings.export_all),
+        ),
         const Spacer(),
-        Flexible(
-          child: Text(
-            strings.retention,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: tokens.typography.sansStyle(
-              fontSize: 11,
-              height: 1,
-              color: tokens.colors.fgFaint,
-            ),
-          ),
+        // The retention note is the door to 管理历史: the fact and the place to
+        // change it are one thing.
+        Button(
+          variant: ButtonVariant.plain,
+          onPressed: _openManageDialog,
+          child: Text('${strings.retention_short} · ${strings.manage}'),
         ),
       ],
     );
@@ -517,12 +599,50 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       primary: Text(entry.source),
       secondary: Text(entry.translation),
       active: active,
-      onPressed: () => _selecting
-          ? _toggle(entry.id)
-          : setState(() {
-              _activeId = entry.id;
-              _confirmingDelete = false;
-            }),
+      onPressed: () =>
+          _selecting ? _toggle(entry.id) : setState(() => _activeId = entry.id),
+      // 收藏 as a word, because it is the one verb used often enough to deserve
+      // a direct hit, and a ⋯ menu for the rest. In a selection the row's own
+      // actions step aside for the checkbox.
+      actions: _selecting
+          ? const []
+          : [
+              Button(
+                variant: ButtonVariant.quiet,
+                size: ButtonSize.xs,
+                onPressed: () => _toggleFavorite(entry),
+                child: Text(
+                  entry.favorite ? strings.unfavorite : strings.favorite,
+                ),
+              ),
+              const SizedBox(width: 2),
+              Menu(
+                align: MenuAlign.end,
+                items: [
+                  MenuItem(
+                    label: strings.copy_translation,
+                    shortcut: '⌘C',
+                    onSelect: () => _copyTranslation(entry),
+                  ),
+                  if (kGlossaryFeatureEnabled)
+                    MenuItem(
+                      label: strings.add_to_glossary,
+                      onSelect: () => _addToGlossary([entry]),
+                    ),
+                  MenuItem(
+                    label: t.common.ui.button.delete,
+                    onSelect: () => _deleteEntries([entry]),
+                  ),
+                ],
+                trigger: (context, open, toggle) => IconButton(
+                  label: strings.more_actions,
+                  active: open,
+                  icon: const Icon(FluentIcons.more_horizontal_20_regular),
+                  iconSize: 16,
+                  onPressed: toggle,
+                ),
+              ),
+            ],
     );
   }
 }

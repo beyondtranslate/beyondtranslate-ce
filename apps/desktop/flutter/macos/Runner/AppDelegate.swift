@@ -24,6 +24,9 @@ class AppDelegate: FlutterAppDelegate {
     NativeTextFieldPlugin.register(
       with: engine.registrar(forPlugin: "NativeTextFieldPlugin")
     )
+    NativeTextPlugin.register(
+      with: engine.registrar(forPlugin: "NativeTextPlugin")
+    )
     MacAppPresentationPlugin.register(
       with: engine.registrar(forPlugin: "MacAppPresentationPlugin")
     )

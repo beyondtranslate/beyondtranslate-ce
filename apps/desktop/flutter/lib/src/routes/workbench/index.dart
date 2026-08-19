@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../extensions/window_controller.dart';
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../utils/platform_util.dart';
 import '../../utils/utils.dart';
@@ -47,11 +48,12 @@ List<RouteBase> get $appRoutes => <RouteBase>[
             pageBuilder: (_, state) =>
                 _noTransitionPage(state, const WorkbenchLibraryPage()),
           ),
-          GoRoute(
-            path: '/glossary',
-            pageBuilder: (_, state) =>
-                _noTransitionPage(state, const WorkbenchGlossaryPage()),
-          ),
+          if (kGlossaryFeatureEnabled)
+            GoRoute(
+              path: '/glossary',
+              pageBuilder: (_, state) =>
+                  _noTransitionPage(state, const WorkbenchGlossaryPage()),
+            ),
           ShellRoute(
             pageBuilder: (context, state, child) => _noTransitionPage(
               state,
@@ -163,12 +165,13 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
                 selected: _selected('/translate'),
                 onTap: () => context.go('/translate'),
               ),
-              NavigationItem(
-                label: t.workbench.glossary,
-                icon: FluentIcons.book_20_regular,
-                selected: _selected('/glossary'),
-                onTap: () => context.go('/glossary'),
-              ),
+              if (kGlossaryFeatureEnabled)
+                NavigationItem(
+                  label: t.workbench.glossary,
+                  icon: FluentIcons.book_20_regular,
+                  selected: _selected('/glossary'),
+                  onTap: () => context.go('/glossary'),
+                ),
               NavigationItem(
                 label: t.workbench.history,
                 icon: FluentIcons.history_20_regular,
@@ -244,6 +247,14 @@ class _SidebarVersionState extends State<_SidebarVersion> {
             fontSize: 11,
             height: 1,
             color: colors.fgSubtle,
+          ),
+          // The ellipsis in 正在检查… comes from a fallback face whose metrics
+          // differ from the sans; the strut keeps the line the same height in
+          // both states so the card never jumps.
+          strutStyle: const StrutStyle(
+            fontSize: 11,
+            height: 1,
+            forceStrutHeight: true,
           ),
         ),
         // The updater sits a hair lower than the two lines above it, the

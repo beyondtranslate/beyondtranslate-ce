@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../i18n/i18n.dart';
 import '../../services/glossary_store.dart';
 import '../../services/runtime.dart' show GlossaryBook, GlossaryEntry;
+import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/ui.dart'
     show
         Button,
@@ -25,6 +26,7 @@ import '../../widgets/ui.dart'
         SearchField,
         WindowFooter;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
+import 'glossary_dialogs.dart';
 
 /// Separator between several forbidden translations, in both the input and
 /// the table cell.
@@ -152,6 +154,53 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
     setState(() => _header = _HeaderMode.idle);
   }
 
+  /// 新建术语库 — the sheet the deck draws, replacing the inline name strip.
+  /// A book is a name plus a direction, and neither fits in a header row.
+  Future<void> _openNewBookDialog() async {
+    final draft = await showDialogInCurrentWindow<GlossaryBookDraft>(
+      context: context,
+      builder: (_) => NewGlossaryDialog(
+        takenNames: [for (final book in glossaryStore.books) book.name],
+      ),
+    );
+    if (draft == null) return;
+    _closeDraft();
+    await glossaryStore.createBook(
+      draft.name,
+      sourceLanguage: draft.sourceLanguage,
+      targetLanguage: draft.targetLanguage,
+    );
+  }
+
+  /// 新增条目 — the sheet stays up while 保存后继续添加 is on, so it saves each
+  /// entry as it is made rather than handing one back on close.
+  Future<void> _openAddTermDialog() async {
+    final book = glossaryStore.selectedBook;
+    if (book == null) return;
+    await showDialogInCurrentWindow<void>(
+      context: context,
+      builder: (_) => AddTermDialog(
+        books: glossaryStore.books,
+        defaultBookId: book.id,
+        existingTerms: {
+          book.id: [for (final entry in glossaryStore.entries) entry.term],
+        },
+        onSubmit: (draft) async {
+          if (draft.bookId != glossaryStore.selectedBook?.id) {
+            await glossaryStore.selectBook(draft.bookId);
+          }
+          await glossaryStore.saveEntry(
+            term: draft.term,
+            translation: draft.translation,
+            forbidden: draft.forbidden,
+            caseSensitive: false,
+            wholeWord: true,
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _submitBookName() async {
     final name = _bookNameController.text.trim();
     if (name.isEmpty) return;
@@ -204,14 +253,14 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
             // Both ways into a new book, as the deck draws them: the quiet one
             // here beside 新增条目, and the accent one at the rail's foot.
             Button(
-              onPressed: () => _openHeader(_HeaderMode.creating),
+              onPressed: _openNewBookDialog,
               child: Text(t.workbench.glossary_page.new_book),
             ),
             const SizedBox(width: 14),
             Button(
               variant: ButtonVariant.primary,
-              enabled: book != null && !_drafting,
-              onPressed: () => _openDraft(),
+              enabled: book != null,
+              onPressed: _openAddTermDialog,
               child: Text(t.workbench.glossary_page.add_entry),
             ),
           ],
@@ -221,6 +270,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Rail(
+                resizable: true,
                 children: [
                   for (final entry in books)
                     RailItem(
@@ -234,7 +284,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                       ),
                     ),
                   RailAction(
-                    onPressed: () => _openHeader(_HeaderMode.creating),
+                    onPressed: _openNewBookDialog,
                     child: Text('＋ ${t.workbench.glossary_page.new_book}'),
                   ),
                 ],
@@ -242,7 +292,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
               Expanded(
                 child: book == null && _header != _HeaderMode.creating
                     ? _NoBooks(
-                        onCreate: () => _openHeader(_HeaderMode.creating),
+                        onCreate: _openNewBookDialog,
                       )
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -472,23 +522,17 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
         return _CenteredNote(text: strings.loading);
       }
       return EmptyState(
-        label: Text(t.workbench.glossary),
         title: Text(
           query.isNotEmpty
               ? strings.no_results_title(query: query)
               : strings.empty_title,
-        ),
-        description: Text(
-          query.isNotEmpty
-              ? strings.no_results_description
-              : strings.empty_description,
         ),
         // The titlebar already carries the filled 新增条目; one accent action
         // per view, so this one is the quieter twin.
         action: Button(
           variant: ButtonVariant.secondary,
           size: ButtonSize.md,
-          onPressed: () => _openDraft(),
+          onPressed: _openAddTermDialog,
           child: Text(strings.add_entry),
         ),
       );
@@ -677,9 +721,7 @@ class _NoBooks extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = t.workbench.glossary_page;
     return EmptyState(
-      label: Text(t.workbench.glossary),
       title: Text(strings.no_books_title),
-      description: Text(strings.no_books_description),
       action: Button(
         variant: ButtonVariant.secondary,
         onPressed: onCreate,

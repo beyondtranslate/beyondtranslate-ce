@@ -576,7 +576,7 @@ class _TranslationsMiniTranslatorResultZhHant
   @override
   String get translating => '正在翻譯…';
   @override
-  String get stale_requery => '原文已修改 · ⏎ 重新翻譯';
+  String stale_requery({required Object key}) => '原文已修改 · ${key} 重新翻譯';
   @override
   String compare_services({required Object count}) => '對比 ${count} 個服務';
   @override
@@ -2295,7 +2295,8 @@ extension on TranslationsZhHant {
         '未配置預設文字辨識服務，請在設定中配置。',
       'mini_translator.message.ocr_recognition_failed' => '文字辨識失敗',
       'mini_translator.result.translating' => '正在翻譯…',
-      'mini_translator.result.stale_requery' => '原文已修改 · ⏎ 重新翻譯',
+      'mini_translator.result.stale_requery' => ({required Object key}) =>
+          '原文已修改 · ${key} 重新翻譯',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           '對比 ${count} 個服務',
       'mini_translator.result.collapse_compare' => '收起對比',

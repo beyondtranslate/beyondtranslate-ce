@@ -55,6 +55,7 @@ export 'src/widgets/progress.dart';
 export 'src/widgets/radio.dart';
 export 'src/widgets/search_field.dart';
 export 'src/widgets/segmented_control.dart';
+export 'src/widgets/shortcut_recorder.dart';
 export 'src/widgets/sidebar.dart';
 export 'src/widgets/stage.dart';
 export 'src/widgets/step_list.dart';

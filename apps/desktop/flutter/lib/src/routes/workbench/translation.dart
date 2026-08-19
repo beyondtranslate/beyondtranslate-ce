@@ -6,6 +6,7 @@ import 'package:flutter/material.dart' hide Badge, TextField;
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/history_store.dart';
 import '../../services/runtime.dart'
@@ -16,12 +17,16 @@ import '../../theme/product_tokens.dart'
     show ProductTokens, ProductTypographyStyles;
 import '../../utils/global_audio_player.dart';
 import '../../utils/language_util.dart';
+import '../../utils/shortcut_util.dart';
 import '../../widgets/avatar.dart' show Avatar, AvatarSize;
-import '../../widgets/blocks.dart' show HighlightBlock, HighlightRule;
+import '../../widgets/blocks.dart'
+    show HighlightBlock, HighlightRule, HighlightTone;
 import '../../widgets/data_display.dart' show DetailBlock;
 import '../../widgets/language_selector.dart' show LanguageSelector;
-import '../../widgets/swap_pair.dart' show SwapPairSize;
+import '../../widgets/negative_vertical_margin.dart'
+    show NegativeVerticalMargin;
 import '../../widgets/text_field.dart' show TextField;
+import '../../widgets/translation_text.dart';
 import '../../widgets/ui.dart'
     show
         Aside,
@@ -29,8 +34,6 @@ import '../../widgets/ui.dart'
         BadgeSize,
         Button,
         ButtonVariant,
-        Callout,
-        CalloutTone,
         DesignThemeContext,
         DesignTypographyStyles,
         Kbd,
@@ -85,6 +88,10 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     super.initState();
     _controller.addListener(_refresh);
     workbenchTextHandoff.addListener(_handleHandoff);
+    // 提交方式 is edited in the settings window; the runtime broadcasts the
+    // change to every handle, so the box picks up its new key without a
+    // reopen.
+    settingsStore.addListener(_refresh);
     _initialize();
   }
 
@@ -98,6 +105,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   @override
   void dispose() {
     workbenchTextHandoff.removeListener(_handleHandoff);
+    settingsStore.removeListener(_refresh);
     _controller
       ..removeListener(_refresh)
       ..dispose();
@@ -134,7 +142,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         translation: translation,
         sourceLanguage:
             _controller.detectedLanguage ?? _controller.sourceLanguage,
-        targetLanguage: _controller.targetLanguage,
+        targetLanguage: _controller.effectiveTargetLanguage,
         serviceId: result.service.id,
         serviceName: serviceName,
         origin: HistoryOrigin.workbench,
@@ -185,7 +193,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   }
 
   void _handleTargetChanged(String? value) {
-    if (value == null) return;
     _controller.setTargetLanguage(value);
     if (_controller.text.trim().isNotEmpty) _submit();
   }
@@ -206,23 +213,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     _submit();
   }
 
-  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event is! KeyDownEvent ||
-        event.logicalKey != LogicalKeyboardKey.enter) {
-      return KeyEventResult.ignored;
-    }
-    final submitWithEnter =
-        settingsStore.inputSubmitMode == InputSubmitMode.enter;
-    final submitWithCommand =
-        settingsStore.inputSubmitMode == InputSubmitMode.commandEnter &&
-            HardwareKeyboard.instance.isMetaPressed;
-    if (!submitWithEnter && !submitWithCommand) {
-      return KeyEventResult.ignored;
-    }
-    _submit();
-    return KeyEventResult.handled;
-  }
-
   void _copyResult(String text) {
     if (text.isEmpty) return;
     Clipboard.setData(ClipboardData(text: text));
@@ -231,6 +221,19 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     _copiedTimer = Timer(const Duration(milliseconds: 1400), () {
       if (mounted) setState(() => _copied = false);
     });
+  }
+
+  /// What the detector says the source is in — the capsule's own 自动检测
+  /// until a translation comes back and names it.
+  String get _detectedLanguage =>
+      _controller.detectedLanguage ?? _controller.sourceLanguage;
+
+  /// Why a service came back empty, as it put it — a blanket "failed" gives
+  /// the user nothing to act on, and the pane's job in this state is to point
+  /// at the fix.
+  static String _reasonOf(WorkbenchServiceResult result) {
+    final reason = result.error?.toString().trim() ?? '';
+    return reason.isEmpty ? t.mini_translator.result.unknown_error : reason;
   }
 
   /// Whether the selected service came back with nothing but an error.
@@ -242,22 +245,16 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final detected = _controller.detectedLanguage;
     final result = _controller.selectedResult;
     final others = [
       for (final entry in _controller.results)
         if (entry.service.id != result?.service.id) entry,
     ];
 
-    // 三个服务都失败 — the deck's error state, which replaces the preferred
-    // block (and with it the accent rule that normally divides the pane).
-    final failed = _isFailed(result);
-
     // Collapsed, the preferred block runs to the pane's foot like an output
     // area; expanded (or with a dictionary card below), it takes its natural
     // height and hands the space over.
-    final stretchPreferred =
-        !_expanded && _definitionText == null && result?.error == null;
+    final stretchPreferred = !_expanded && _definitionText == null;
 
     return CallbackShortcuts(
       bindings: {
@@ -285,14 +282,13 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           WorkbenchToolbar(
             title: t.workbench.translate,
             children: [
-              // The mini translator's capsule: both ends open the same native
-              // language menus, so the two windows pick languages alike. The
-              // main window draws it a step smaller than the popover's.
+              // The mini translator's capsule, drawn at the same size: both
+              // ends open the same native language menus, so the two windows
+              // pick languages alike and look alike doing it.
               LanguageSelector(
-                size: SwapPairSize.sm,
                 sourceLanguage: _controller.sourceLanguage,
                 targetLanguage: _controller.targetLanguage,
-                detectedLanguage: detected,
+                allowAutoTarget: true,
                 commonLanguageCodes:
                     settingsStore.general.commonLanguages.isNotEmpty
                         ? settingsStore.general.commonLanguages
@@ -318,7 +314,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _buildSourceBlock(context, failed: failed),
+                              _buildSourceBlock(context),
                               if (stretchPreferred)
                                 Expanded(
                                   child: _buildPreferredBlock(
@@ -348,7 +344,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                     ),
                   ),
                 ),
-                _buildAside(context),
+                if (kTranslationAsideEnabled) _buildAside(context),
               ],
             ),
           ),
@@ -360,32 +356,29 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   /// 原文 — the editable source block at the top of the pane: the label row
   /// with the ⌥⏎ 重译 hint, the input, and the deck's idle footer (⇧⏎ 换行
   /// beside the 翻译 button).
-  Widget _buildSourceBlock(BuildContext context, {required bool failed}) {
+  Widget _buildSourceBlock(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final hasResult = (_controller.selectedResult?.text ?? '').isNotEmpty;
+    // Read once: the field, the hint under it and the button's key chip all
+    // have to name the same key.
+    final submitMode = settingsStore.inputSubmitMode;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 16, 22, 16),
-      decoration: BoxDecoration(
-        // The accent rule on the preferred block below is the divider, so 原文
-        // drops its own hairline rather than stacking a second line. The failed
-        // state has no such block, and keeps it.
-        border: failed
-            ? Border(
-                bottom: BorderSide(
-                  color: colors.hairline,
-                  width: context.hairlineWidth,
-                ),
-              )
-            : null,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Label(child: Text(t.workbench.translation.source)),
+              // The detected language rides on the heading, the target on the
+              // translation's — the pair reads off the two blocks themselves,
+              // and the capsule can stay on 自动检测 ⇄ 自动匹配.
+              Label(
+                child: Text(
+                  '${t.workbench.translation.source} · ${getSourceDisplayName(_detectedLanguage)}',
+                ),
+              ),
               const Spacer(),
               // The deck draws this as a static hint; here it is a real
               // control, so it gets a padded hit target. `-my-1.5` keeps that
@@ -395,50 +388,48 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             ],
           ),
           const SizedBox(height: 10),
-          Focus(
-            onKeyEvent: _handleKeyEvent,
-            child: TextField(
-              focusNode: _focusNode,
-              controller: _textController,
-              // The block's own 22px inset is the text column; the field adds
-              // none of its own, so what you type starts under 原文 and lines
-              // up with the translation below.
-              padding: EdgeInsets.zero,
-              placeholder: t.workbench.translation.input_hint_translate_to(
-                language: getLanguageName(_controller.targetLanguage),
-              ),
-              placeholderStyle: tokens.typography.sourceStyle(
-                color: colors.fgFaint,
-              ),
-              style: tokens.typography.sourceStyle(color: colors.fgMuted),
-              minLines: 3,
-              maxLines: 8,
-              textInputAction:
-                  settingsStore.inputSubmitMode == InputSubmitMode.enter
-                      ? TextInputAction.done
-                      : TextInputAction.newline,
-              onChanged: _controller.setText,
-              onSubmitted: (_) => _submit(),
+          TextField(
+            focusNode: _focusNode,
+            controller: _textController,
+            // The block's own 22px inset is the text column; the field adds
+            // none of its own, so what you type starts under 原文 and lines
+            // up with the translation below.
+            padding: EdgeInsets.zero,
+            placeholder: t.workbench.translation.input_hint_translate_to(
+              language: getLanguageName(_controller.effectiveTargetLanguage),
             ),
+            placeholderStyle: tokens.typography.sourceStyle(
+              color: colors.fgFaint,
+            ),
+            style: tokens.typography.sourceStyle(color: colors.fgMuted),
+            minLines: 3,
+            maxLines: 8,
+            // 提交方式 decides which key sends the box; the field takes Enter
+            // into its own hands only because it was told which one.
+            submitOnEnter: submitMode == InputSubmitMode.enter,
+            submitOnMetaEnter: submitMode == InputSubmitMode.commandEnter,
+            onChanged: _controller.setText,
+            onSubmitted: (_) => _submit(),
           ),
           const SizedBox(height: 10),
           // 翻译 belongs to the box you type in, not to the empty result
           // block below it.
           Row(
             children: [
-              if (settingsStore.inputSubmitMode == InputSubmitMode.enter)
-                Text(
-                  '⇧⏎ 换行',
-                  style: tokens.typography.sansStyle(
-                    fontSize: 11,
-                    height: 1,
-                    color: colors.fgFaint,
-                  ),
+              Text(
+                t.workbench.translation.newline_hint(
+                  key: inputNewlineShortcutGlyphs(submitMode),
                 ),
+                style: tokens.typography.sansStyle(
+                  fontSize: 11,
+                  height: 1,
+                  color: colors.fgFaint,
+                ),
+              ),
               const Spacer(),
               Button(
                 variant: ButtonVariant.primary,
-                shortcut: const Text('⏎'),
+                shortcut: Text(inputSubmitShortcutGlyphs(submitMode)),
                 enabled: !_controller.submitting &&
                     _controller.text.trim().isNotEmpty,
                 onPressed: _submit,
@@ -456,28 +447,27 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final radius = BorderRadius.circular(tokens.radii.chip);
+    const padding = EdgeInsets.symmetric(horizontal: 8, vertical: 6);
 
-    return SizedBox(
-      height: 11,
-      child: OverflowBox(
-        maxHeight: double.infinity,
-        child: Pressable(
-          onPressed: _controller.submitting ? null : _submit,
-          borderRadius: radius,
-          builder: (context, state) => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              color: state.hovered ? colors.inset : null,
-              borderRadius: radius,
-            ),
-            child: Text(
-              '⌥⏎ ${t.mini_translator.result.retry}',
-              style: tokens.typography.displayStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                height: 1,
-                color: state.hovered ? colors.fgSubtle : colors.fgFaint,
-              ),
+    return NegativeVerticalMargin(
+      // Exactly the padding the hit target added, taken back out of the row.
+      shrink: padding.vertical / 2,
+      child: Pressable(
+        onPressed: _controller.submitting ? null : _submit,
+        borderRadius: radius,
+        builder: (context, state) => Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: state.hovered ? colors.inset : null,
+            borderRadius: radius,
+          ),
+          child: Text(
+            '⌥⏎ ${t.mini_translator.result.retry}',
+            style: tokens.typography.displayStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              height: 1,
+              color: state.hovered ? colors.fgSubtle : colors.fgFaint,
             ),
           ),
         ),
@@ -501,31 +491,60 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             ? result.service.id
             : result.service.name);
 
+    final targetName = getLanguageName(_controller.effectiveTargetLanguage);
+
+    // 服务全部失效 keeps the result view's geometry: the preferred slot stays
+    // where it is with its label, body and action row, and only its colour key
+    // flips to danger. The compare toggle stays too, reworded: what it opens is
+    // one card per service with its reason and the one thing that would fix it.
     if (_isFailed(result)) {
-      return Container(
-        padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      final count = _controller.results.length;
+      return HighlightBlock(
+        rule: HighlightRule.top,
+        tone: HighlightTone.danger,
+        stretch: stretch,
+        label: Text('$serviceName · ${translation.preferred} · $targetName'),
+        meta: Text(t.mini_translator.result.no_result_meta(count: count)),
+        actions: Row(
           children: [
-            Callout(
-              tone: CalloutTone.danger,
-              action: Button(
-                variant: ButtonVariant.primary,
-                onPressed: _submit,
-                child: Text(t.mini_translator.result.retry),
-              ),
-              child: Text(translation.failed),
+            Button(
+              variant: ButtonVariant.primary,
+              onPressed: _submit,
+              shortcut: const Text('⌥⏎'),
+              child: Text(t.mini_translator.result.retry),
             ),
-            const SizedBox(height: 12),
-            Text(
-              t.mini_translator.result.no_result_note,
-              style: tokens.typography.sansStyle(
-                fontSize: 12,
-                height: 1.7,
-                color: colors.fgSubtle,
+            const SizedBox(width: 7),
+            Button(
+              variant: ButtonVariant.secondary,
+              onPressed: () => context.go('/settings/services'),
+              child: Text(t.mini_translator.result.check_services),
+            ),
+            const Spacer(),
+            Flexible(
+              child: Text(
+                t.mini_translator.result.no_result_note,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: tokens.typography.sansStyle(
+                  fontSize: 11,
+                  height: 1,
+                  color: colors.fgSubtle,
+                ),
               ),
+            ),
+            const SizedBox(width: 10),
+            _CompareToggle(
+              label: _expanded
+                  ? t.mini_translator.result.collapse_reasons
+                  : t.mini_translator.result.show_reasons(count: count),
+              expanded: _expanded,
+              onPressed: () => setState(() => _expanded = !_expanded),
             ),
           ],
+        ),
+        child: Text(
+          translation.failed_body,
+          style: tokens.typography.translationStyle(color: colors.fgSubtle),
         ),
       );
     }
@@ -542,7 +561,11 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     final compareToggle = others.isNotEmpty
         ? _CompareToggle(
             expanded: _expanded,
-            serviceCount: others.length + 1,
+            label: _expanded
+                ? t.mini_translator.result.collapse_compare
+                : t.mini_translator.result.compare_services(
+                    count: others.length + 1,
+                  ),
             onPressed: () => setState(() => _expanded = !_expanded),
           )
         : Text(
@@ -561,7 +584,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       // pane's divider, which is why 原文 draws no hairline of its own.
       rule: HighlightRule.top,
       stretch: stretch,
-      label: Text('$serviceName · ${translation.preferred}'),
+      label: Text('$serviceName · ${translation.preferred} · $targetName'),
       meta: translating
           ? Text(translation.translating)
           : _override != null
@@ -691,7 +714,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                           style: tokens.typography
                               .translationStyle(color: colors.fg),
                         )
-                      : SelectableText(
+                      : TranslationText(
                           text,
                           style: tokens.typography
                               .translationStyle(color: colors.fg),
@@ -701,21 +724,29 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 
   /// 展开对比 — candidate service cards stacked under the preferred block,
   /// the mini translator's compare list.
+  ///
+  /// 服务全部失效 folds its 失效清单 away behind the same toggle, so a service
+  /// looks the same whether it answered or not: avatar and name where they
+  /// always are, the ⌥n hint still live, and the body a reason instead of a
+  /// translation.
   Widget _buildOthersSection(
     BuildContext context,
     WorkbenchServiceResult? preferred,
     List<WorkbenchServiceResult> others,
   ) {
-    if (!_expanded || others.isEmpty) return const SizedBox.shrink();
+    if (!_expanded) return const SizedBox.shrink();
+    final failed = _isFailed(preferred);
+    final entries = failed ? _controller.results : others;
+    if (entries.isEmpty) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 14, 22, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (var i = 0; i < others.length; i++) ...[
+          for (var i = 0; i < entries.length; i++) ...[
             if (i > 0) const SizedBox(height: 14),
-            _buildServiceCard(context, others[i]),
+            _buildServiceCard(context, entries[i], failed: failed),
           ],
         ],
       ),
@@ -724,8 +755,9 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 
   Widget _buildServiceCard(
     BuildContext context,
-    WorkbenchServiceResult result,
-  ) {
+    WorkbenchServiceResult result, {
+    bool failed = false,
+  }) {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final translation = t.workbench.translation;
@@ -770,7 +802,16 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             ],
           ),
           const SizedBox(height: 5),
-          if (result.loading)
+          if (failed)
+            Text(
+              _reasonOf(result),
+              style: tokens.typography.sansStyle(
+                fontSize: 12,
+                height: 1.7,
+                color: colors.fgSecondary,
+              ),
+            )
+          else if (result.loading)
             Text(
               translation.translating,
               style: tokens.typography.cjkStyle(
@@ -789,7 +830,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               ),
             )
           else
-            SelectableText(
+            TranslationText(
               result.text.isEmpty ? translation.waiting : result.text,
               style: tokens.typography.cjkStyle(
                 fontSize: 13,
@@ -797,7 +838,17 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                 color: colors.fgSecondary,
               ),
             ),
-          if (result.text.isNotEmpty) ...[
+          if (failed) ...[
+            const SizedBox(height: 7),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Button(
+                variant: ButtonVariant.quiet,
+                onPressed: () => context.go('/settings/services'),
+                child: Text(t.mini_translator.result.check_services),
+              ),
+            ),
+          ] else if (result.text.isNotEmpty) ...[
             const SizedBox(height: 7),
             Button(
               variant: ButtonVariant.quiet,
@@ -912,12 +963,14 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 class _CompareToggle extends StatelessWidget {
   const _CompareToggle({
     required this.expanded,
-    required this.serviceCount,
+    required this.label,
     required this.onPressed,
   });
 
   final bool expanded;
-  final int serviceCount;
+
+  /// 对比 N 个服务 when the services answered, 查看 N 个服务的原因 when none did.
+  final String label;
   final VoidCallback onPressed;
 
   @override
@@ -925,9 +978,6 @@ class _CompareToggle extends StatelessWidget {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final radius = BorderRadius.circular(tokens.radii.pill);
-    final label = expanded
-        ? t.mini_translator.result.collapse_compare
-        : t.mini_translator.result.compare_services(count: serviceCount);
 
     return Pressable(
       onPressed: onPressed,

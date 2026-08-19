@@ -102,8 +102,10 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
 
   bool get _isLlm => isLlmProviderType(_provider.type);
 
-  List<ServiceType> get _kinds =>
-      kProviderCapabilities[_provider.type] ?? const [ServiceType.translation];
+  List<ServiceType> get _kinds {
+    final kinds = visibleProviderCapabilities(_provider.type);
+    return kinds.isEmpty ? const [ServiceType.translation] : kinds;
+  }
 
   @override
   void initState() {

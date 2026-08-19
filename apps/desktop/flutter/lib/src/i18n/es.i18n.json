@@ -163,7 +163,7 @@
     },
     "result": {
       "translating": "Traduciendo…",
-      "stale_requery": "Texto modificado · ⏎ retraducir",
+      "stale_requery": "Texto modificado · $key retraducir",
       "compare_services": "Comparar $count servicios",
       "collapse_compare": "Contraer",
       "set_preferred": "Establecer como preferido",

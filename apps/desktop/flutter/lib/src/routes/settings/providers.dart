@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart' show SelectableText;
 import 'package:flutter/widgets.dart';
 
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
@@ -121,7 +122,11 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
       return ProviderDetailPage(
         provider: detail,
         services: services
-            .where((service) => service.providerId == detail.id)
+            .where(
+              (service) =>
+                  service.providerId == detail.id &&
+                  isServiceTypeVisible(service.type),
+            )
             .toList(growable: false),
         onBack: () => setState(() => _detailProviderId = null),
         onDeleted: () => setState(() => _detailProviderId = null),
@@ -175,7 +180,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
         .toSet();
     return [
       for (final type in kServiceTypeOrder)
-        if (kinds.contains(type)) type,
+        if (kinds.contains(type) && isServiceTypeVisible(type)) type,
     ];
   }
 

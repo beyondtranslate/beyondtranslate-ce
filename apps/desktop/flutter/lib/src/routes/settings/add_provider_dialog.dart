@@ -91,8 +91,7 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
 
   List<String> get _fieldKeys => kProviderFields[_type] ?? const <String>[];
 
-  List<ServiceType> get _capabilities =>
-      kProviderCapabilities[_type] ?? const <ServiceType>[];
+  List<ServiceType> get _capabilities => visibleProviderCapabilities(_type);
 
   @override
   void dispose() {
@@ -621,7 +620,7 @@ class _ProviderTypeRow extends StatelessWidget {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final radius = BorderRadius.circular(tokens.radii.control);
-    final capabilities = kProviderCapabilities[type] ?? const <ServiceType>[];
+    final capabilities = visibleProviderCapabilities(type);
 
     return Pressable(
       onPressed: onSelect,

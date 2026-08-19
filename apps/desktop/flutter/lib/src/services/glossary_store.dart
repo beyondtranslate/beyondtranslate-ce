@@ -152,10 +152,19 @@ class GlossaryStore extends ChangeNotifier {
   }
 
   /// Creates a book and selects it.
-  Future<GlossaryBook?> createBook(String name) async {
+  Future<GlossaryBook?> createBook(
+    String name, {
+    String? sourceLanguage,
+    String? targetLanguage,
+  }) async {
     return _run(() async {
       final book = await _glossary.upsertBook(
-        input: GlossaryBookInput(name: name, enabled: true),
+        input: GlossaryBookInput(
+          name: name,
+          enabled: true,
+          sourceLanguage: sourceLanguage,
+          targetLanguage: targetLanguage,
+        ),
       );
       _selectedBookId = book.id;
       _query = '';

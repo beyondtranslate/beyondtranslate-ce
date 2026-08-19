@@ -1,20 +1,22 @@
+import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart'
+    show InputSubmitMode;
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
 import '../../theme/product_tokens.dart'
     show ProductTokens, ProductTokensContext;
 import '../../utils/language_util.dart';
+import '../../utils/shortcut_util.dart';
 import '../../widgets/data_display.dart' show DetailBlock;
+import '../../widgets/translation_text.dart';
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
         ButtonVariant,
-        Callout,
-        CalloutTone,
         DesignThemeContext,
         DesignTypographyStyles,
         Kbd,
@@ -68,6 +70,32 @@ ServiceTranslation? preferredTranslation(
   return translations.first;
 }
 
+/// True when every configured service came back with an error and none is
+/// still in flight — the 服务全部失效 state. The window shell asks so its ⏎
+/// button can read 重试.
+bool allServicesFailed(
+  List<TranslationResult> results,
+  Set<String> translationServiceIds,
+) {
+  var pending = 0;
+  var failed = 0;
+  for (final result in results) {
+    for (final record in result.translationResultRecordList ??
+        const <TranslationResultRecord>[]) {
+      if (!translationServiceIds.contains(record.translationServiceId)) {
+        continue;
+      }
+      if (record.translateError != null) {
+        failed++;
+      } else {
+        final texts = record.translateResponse?.translations ?? [];
+        if (texts.isEmpty || texts.first.text.isEmpty) pending++;
+      }
+    }
+  }
+  return failed > 0 && pending == 0 && serviceTranslations(results).isEmpty;
+}
+
 /// The preferred block plus the on-demand service comparison, mirroring the
 /// deck's MiniTranslator: one preferred translation as the visual protagonist,
 /// its service attribution below, candidates behind a 对比 N 个服务 toggle.
@@ -79,6 +107,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
     required this.translationServiceIds,
     required this.serviceNameById,
     required this.preferredServiceId,
+    required this.inputSubmitMode,
     required this.stale,
     required this.showCompare,
     required this.onToggleCompare,
@@ -95,7 +124,11 @@ class MiniTranslatorTranslation extends StatelessWidget {
   final Map<String, String> serviceNameById;
   final String? preferredServiceId;
 
-  /// The source was edited after this result came back — offer ⏎ 重新翻译.
+  /// Only so 原文已修改 names the key that actually re-runs the query —
+  /// 提交方式 decides which one that is.
+  final InputSubmitMode inputSubmitMode;
+
+  /// The source was edited after this result came back — offer 重新翻译.
   final bool stale;
   final bool showCompare;
   final VoidCallback onToggleCompare;
@@ -104,6 +137,15 @@ class MiniTranslatorTranslation extends StatelessWidget {
 
   String _serviceName(String? serviceId) =>
       serviceNameById[serviceId] ?? serviceId ?? '';
+
+  /// ⌥n hint by the service's position in the configured list — the same index
+  /// the page's ⌥1/2/3 shortcuts promote, and the one hint that stays live when
+  /// no service answered.
+  String? _shortcutForService(String? serviceId) {
+    final index = translationServiceIds.toList().indexOf(serviceId ?? '');
+    if (index < 0 || index > 8) return null;
+    return '⌥${index + 1}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +159,17 @@ class MiniTranslatorTranslation extends StatelessWidget {
 
     final translations = serviceTranslations(results);
     final preferred = preferredTranslation(results, preferredServiceId);
+    // The resolved target rides on the attribution label, as in the main
+    // window's 首选译文 block; the capsule stays on 自动检测 ⇄ 自动匹配.
+    final targetName = getLanguageName(
+      results.first.translationTarget?.target ?? '',
+    );
 
     // Translation records that errored / are still in flight, ignoring
-    // dictionary lookups.
+    // dictionary lookups. The failures are kept, not just counted: 服务全部失效
+    // prints one card per service with the reason it gave.
     var pendingCount = 0;
-    var failedCount = 0;
+    final failures = <_ServiceFailure>[];
     for (final result in results) {
       for (final record in result.translationResultRecordList ??
           const <TranslationResultRecord>[]) {
@@ -129,7 +177,15 @@ class MiniTranslatorTranslation extends StatelessWidget {
           continue;
         }
         if (record.translateError != null) {
-          failedCount++;
+          failures.add(
+            _ServiceFailure(
+              name: _serviceName(record.translationServiceId),
+              reason: record.translateError!.message.trim().isEmpty
+                  ? t.mini_translator.result.unknown_error
+                  : record.translateError!.message.trim(),
+              shortcut: _shortcutForService(record.translationServiceId),
+            ),
+          );
         } else {
           final texts = record.translateResponse?.translations ?? [];
           if (texts.isEmpty || texts.first.text.isEmpty) {
@@ -140,7 +196,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
     }
 
     final noResult =
-        translations.isEmpty && pendingCount == 0 && failedCount > 0;
+        translations.isEmpty && pendingCount == 0 && failures.isNotEmpty;
     final translating = translations.isEmpty && !noResult;
 
     final candidates = [
@@ -157,10 +213,13 @@ class MiniTranslatorTranslation extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(15, 14, 15, 15),
           decoration: BoxDecoration(
-            color: colors.accentSurface,
+            // 服务全部失效 keeps the result block's shape — body, then the
+            // attribution row with the compare toggle — in the danger key,
+            // the way the main window's 翻译 pane does.
+            color: noResult ? colors.dangerSurface : colors.accentSurface,
             border: Border(
               top: BorderSide(
-                color: colors.accentHairline,
+                color: noResult ? colors.dangerHairline : colors.accentHairline,
                 width: ProductTokens.highlightRule,
               ),
             ),
@@ -170,22 +229,11 @@ class MiniTranslatorTranslation extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (noResult) ...[
-                Callout(
-                  tone: CalloutTone.danger,
-                  action: Button(
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.sm,
-                    onPressed: onRequery,
-                    child: Text(t.mini_translator.result.retry),
-                  ),
-                  child: Text(t.mini_translator.result.no_result),
-                ),
-                const SizedBox(height: 10),
                 Text(
-                  t.mini_translator.result.no_result_note,
-                  style: tokens.typography.sansStyle(
-                    fontSize: 11,
-                    height: 1.5,
+                  t.mini_translator.result.no_result_body,
+                  style: tokens.typography.cjkStyle(
+                    fontSize: 15,
+                    height: 1.9,
                     color: colors.fgSubtle,
                   ),
                 ),
@@ -209,7 +257,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
                   ),
                 ),
               ] else ...[
-                SelectableText(
+                TranslationText(
                   preferred!.text,
                   style: tokens.typography.cjkStyle(
                     fontSize: 15,
@@ -224,54 +272,99 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     child: Button(
                       variant: ButtonVariant.quiet,
                       onPressed: onRequery,
-                      child: Text(t.mini_translator.result.stale_requery),
+                      child: Text(
+                        t.mini_translator.result.stale_requery(
+                          key: inputSubmitShortcutGlyphs(inputSubmitMode),
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ],
-              if (!noResult) ...[
-                const SizedBox(height: 12),
-                // 服务署名与对比开关 — under the translation, so the text
-                // stays the visual protagonist of the block.
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: colors.accentText,
-                        shape: BoxShape.circle,
-                        boxShadow: context.product.highlightGlow,
+              const SizedBox(height: 12),
+              // 服务署名与对比开关 — under the translation, so the text stays
+              // the visual protagonist of the block.
+              Row(
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: noResult ? colors.danger : colors.accentText,
+                      shape: BoxShape.circle,
+                      // No glow: the glow marks the one that answered.
+                      boxShadow:
+                          noResult ? null : context.product.highlightGlow,
+                    ),
+                  ),
+                  const SizedBox(width: 7),
+                  Flexible(
+                    child: Label(
+                      tone: noResult ? LabelTone.danger : LabelTone.accent,
+                      child: Text(
+                        noResult
+                            ? '${_serviceName(preferredServiceId)} · $targetName'
+                                ' · ${t.mini_translator.result.no_result_tag}'
+                            : translating
+                                ? targetName
+                                : '${_serviceName(preferred!.record.translationServiceId)}'
+                                    ' · $targetName',
                       ),
                     ),
-                    const SizedBox(width: 7),
-                    Flexible(
-                      child: Label(
-                        tone: LabelTone.accent,
-                        child: Text(
-                          translating
-                              ? getLanguageName(
-                                  results.first.translationTarget?.target ?? '',
-                                )
-                              : _serviceName(
-                                  preferred!.record.translationServiceId,
-                                ),
-                        ),
-                      ),
+                  ),
+                  const Spacer(),
+                  if (noResult)
+                    _CompareToggle(
+                      expanded: showCompare,
+                      label: showCompare
+                          ? t.mini_translator.result.collapse_reasons
+                          : t.mini_translator.result.show_reasons(
+                              count: failures.length,
+                            ),
+                      onPressed: onToggleCompare,
+                    )
+                  else if (translations.length > 1)
+                    _CompareToggle(
+                      expanded: showCompare,
+                      label: showCompare
+                          ? t.mini_translator.result.collapse_compare
+                          : t.mini_translator.result.compare_services(
+                              count: translations.length,
+                            ),
+                      onPressed: onToggleCompare,
                     ),
-                    const Spacer(),
-                    if (translations.length > 1)
-                      _CompareToggle(
-                        expanded: showCompare,
-                        serviceCount: translations.length,
-                        onPressed: onToggleCompare,
-                      ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ],
           ),
         ),
+        // 失效清单 — the same cards as the compare list, folded away by the
+        // same toggle, so a service looks the same whether it answered or not:
+        // name where it always is, the ⌥n hint still live, the body a reason
+        // instead of a translation, and the foot the fix instead of 设为首选.
+        if (showCompare && noResult)
+          Container(
+            padding: const EdgeInsets.all(11),
+            decoration: BoxDecoration(
+              color: colors.panel,
+              border: Border(
+                top: BorderSide(
+                  color: colors.hairlineSoft,
+                  width: context.hairlineWidth,
+                ),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < failures.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 8),
+                  _FailureCard(failure: failures[i], onRetry: onRequery),
+                ],
+              ],
+            ),
+          ),
         // 展开对比 — candidate services as promotable cards.
         if (showCompare && candidates.isNotEmpty && !translating && !noResult)
           Container(
@@ -338,12 +431,14 @@ class MiniTranslatorTranslation extends StatelessWidget {
 class _CompareToggle extends StatelessWidget {
   const _CompareToggle({
     required this.expanded,
-    required this.serviceCount,
+    required this.label,
     required this.onPressed,
   });
 
   final bool expanded;
-  final int serviceCount;
+
+  /// 对比 N 个服务 when the services answered, 查看 N 个服务的原因 when none did.
+  final String label;
   final VoidCallback onPressed;
 
   @override
@@ -355,9 +450,7 @@ class _CompareToggle extends StatelessWidget {
     return Pressable(
       onPressed: onPressed,
       borderRadius: radius,
-      semanticsLabel: expanded
-          ? t.mini_translator.result.collapse_compare
-          : t.mini_translator.result.compare_services(count: serviceCount),
+      semanticsLabel: label,
       builder: (context, state) => AnimatedContainer(
         duration: kTransitionDuration,
         padding: const EdgeInsets.fromLTRB(9, 4, 7, 4),
@@ -369,11 +462,7 @@ class _CompareToggle extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              expanded
-                  ? t.mini_translator.result.collapse_compare
-                  : t.mini_translator.result.compare_services(
-                      count: serviceCount,
-                    ),
+              label,
               style: tokens.typography.sansStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -393,6 +482,76 @@ class _CompareToggle extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Why one service came back empty — a blanket "failed" gives the user nothing
+/// to act on, and the block's job in this state is to point at the fix.
+class _ServiceFailure {
+  const _ServiceFailure({
+    required this.name,
+    required this.reason,
+    required this.shortcut,
+  });
+
+  final String name;
+  final String reason;
+  final String? shortcut;
+}
+
+/// One failed service: the same card the compare list draws, with the reason
+/// where the translation would be and 重试 where 设为首选 would.
+class _FailureCard extends StatelessWidget {
+  const _FailureCard({required this.failure, required this.onRetry});
+
+  final _ServiceFailure failure;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      decoration: BoxDecoration(
+        color: colors.subtle,
+        borderRadius: BorderRadius.circular(tokens.radii.card),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Label(
+                  tone: LabelTone.subtle,
+                  child: Text(failure.name),
+                ),
+              ),
+              if (failure.shortcut != null)
+                Kbd(failure.shortcut!, size: KbdSize.sm),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text(
+            failure.reason,
+            style: tokens.typography.sansStyle(
+              fontSize: 12,
+              height: 1.7,
+              color: colors.fgSecondary,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Button(
+            variant: ButtonVariant.quiet,
+            onPressed: onRetry,
+            child: Text(t.mini_translator.result.retry),
+          ),
+        ],
       ),
     );
   }
@@ -436,7 +595,7 @@ class _CandidateCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 5),
-          SelectableText(
+          TranslationText(
             text,
             style: tokens.typography.cjkStyle(
               fontSize: 13,
@@ -470,7 +629,9 @@ class MiniTranslatorWordDefinition extends StatelessWidget {
   Widget build(BuildContext context) {
     final results = translationResultList;
 
-    if (results.isEmpty) return const SizedBox.shrink();
+    if (results.isEmpty || !kDictionaryFeatureEnabled) {
+      return const SizedBox.shrink();
+    }
 
     // Look for a lookup result with definitions
     String? word;
