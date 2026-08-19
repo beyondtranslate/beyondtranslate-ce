@@ -624,17 +624,12 @@ class _AtomsState extends State<_Atoms> {
                     tone: SurfaceTone.raised,
                     padding: SurfacePadding.none,
                     child: EmptyState(
-                      label: const Text('收藏与历史'),
                       title: const Text('还没有收藏'),
-                      description: const Text(
-                        '翻译结果满意时按 ⌘D 收藏，之后可以在这里检索与整理。',
-                      ),
                       action: Button(
                         variant: ButtonVariant.primary,
                         onPressed: () {},
                         child: const Text('去翻译'),
                       ),
-                      hint: const Text('⌘D 收藏当前译文'),
                     ),
                   ),
                 ),

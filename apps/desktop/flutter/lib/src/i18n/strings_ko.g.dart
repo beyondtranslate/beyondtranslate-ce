@@ -571,7 +571,7 @@ class _TranslationsMiniTranslatorResultKo
   @override
   String get translating => '번역 중…';
   @override
-  String get stale_requery => '원문이 수정됨 · ⏎ 다시 번역';
+  String stale_requery({required Object key}) => '원문이 수정됨 · ${key} 다시 번역';
   @override
   String compare_services({required Object count}) => '서비스 ${count}개 비교';
   @override
@@ -2287,7 +2287,8 @@ extension on TranslationsKo {
         '기본 텍스트 인식 서비스가 설정되지 않았습니다. 설정에서 설정해주세요.',
       'mini_translator.message.ocr_recognition_failed' => '텍스트 인식 실패',
       'mini_translator.result.translating' => '번역 중…',
-      'mini_translator.result.stale_requery' => '원문이 수정됨 · ⏎ 다시 번역',
+      'mini_translator.result.stale_requery' => ({required Object key}) =>
+          '원문이 수정됨 · ${key} 다시 번역',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           '서비스 ${count}개 비교',
       'mini_translator.result.collapse_compare' => '비교 접기',

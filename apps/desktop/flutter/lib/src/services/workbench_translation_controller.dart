@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../features.dart';
 import '../routes/settings/provider_meta.dart' show isServiceEnabled;
 import '../utils/language_util.dart';
 import 'llm_stream.dart';
@@ -28,6 +29,16 @@ abstract interface class WorkbenchTranslationGateway {
   );
 
   Future<LookUpResponse> lookUp(String serviceId, LookUpRequest request);
+
+  /// The translation targets configured on 服务.
+  List<TranslationTarget> configuredTranslationTargets();
+
+  /// The subset of [targets] that applies to what detection found — the rule
+  /// behind 自动匹配, which the runtime owns so both windows resolve it alike.
+  Future<List<TranslationTarget>> activeTranslationTargets(
+    List<TranslationTarget> targets,
+    String? detectedLanguage,
+  );
 }
 
 class RuntimeWorkbenchTranslationGateway
@@ -84,6 +95,22 @@ class RuntimeWorkbenchTranslationGateway
   Future<LookUpResponse> lookUp(String serviceId, LookUpRequest request) {
     return runtime.dictionary(providerId: serviceId).lookup(request: request);
   }
+
+  @override
+  List<TranslationTarget> configuredTranslationTargets() {
+    return settingsStore.general.translationTargets;
+  }
+
+  @override
+  Future<List<TranslationTarget>> activeTranslationTargets(
+    List<TranslationTarget> targets,
+    String? detectedLanguage,
+  ) {
+    return runtime.settings().getActiveTranslationTargets(
+          targets: targets,
+          detectedLanguage: detectedLanguage,
+        );
+  }
 }
 
 class WorkbenchServiceResult {
@@ -106,14 +133,28 @@ class WorkbenchTranslationController extends ChangeNotifier {
     String initialTargetLanguage = 'en',
   })  : _gateway = gateway ?? RuntimeWorkbenchTranslationGateway(),
         _usesRuntimeDefaults = gateway == null,
-        targetLanguage = initialTargetLanguage;
+        targetLanguage = initialTargetLanguage,
+        _resolvedTarget = initialTargetLanguage;
 
   final WorkbenchTranslationGateway _gateway;
   final bool _usesRuntimeDefaults;
   bool _disposed = false;
 
   String sourceLanguage = kAutoSource;
-  String targetLanguage;
+
+  /// The target the user picked, or null for 自动匹配 — the target menu's
+  /// first item, which hands the choice to the configured translation targets.
+  String? targetLanguage;
+
+  /// What 自动匹配 last landed on. A concrete language is needed before the
+  /// query is sent — for the input placeholder and for what history records —
+  /// and re-resolving it on every rebuild would mean a runtime call per frame.
+  String _resolvedTarget;
+
+  /// The language a submit actually translates into: the pick when there is
+  /// one, otherwise whatever 自动匹配 resolved to last.
+  String get effectiveTargetLanguage => targetLanguage ?? _resolvedTarget;
+
   String? detectedLanguage;
   String? selectedServiceId;
   String text = '';
@@ -148,7 +189,9 @@ class WorkbenchTranslationController extends ChangeNotifier {
   List<ServiceConfigEntry> get dictionaryServices => services
       .where(
         (service) =>
-            service.type == ServiceType.dictionary && isServiceEnabled(service),
+            service.type == ServiceType.dictionary &&
+            isServiceTypeVisible(service.type) &&
+            isServiceEnabled(service),
       )
       .toList(growable: false);
 
@@ -159,14 +202,17 @@ class WorkbenchTranslationController extends ChangeNotifier {
     try {
       providers = await _gateway.listProviders();
       services = await _gateway.listServices();
-      final enabledTargets = settingsStore.general.translationTargets
+      final enabledTargets = _gateway
+          .configuredTranslationTargets()
           .where((target) => target.enabled)
           .toList(growable: false);
       if (enabledTargets.isNotEmpty) {
         sourceLanguage = enabledTargets.first.source;
         targetLanguage = enabledTargets.first.target;
+        _resolvedTarget = enabledTargets.first.target;
       } else if (_usesRuntimeDefaults) {
         targetLanguage = defaultTargetLanguage;
+        _resolvedTarget = defaultTargetLanguage;
       }
     } catch (error) {
       setupError = error;
@@ -186,7 +232,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
     _notify();
   }
 
-  void setTargetLanguage(String value) {
+  void setTargetLanguage(String? value) {
     targetLanguage = value;
     _notify();
   }
@@ -218,11 +264,18 @@ class WorkbenchTranslationController extends ChangeNotifier {
     _notify();
 
     await _detectLanguage(query, requestId);
+    if (requestId != _requestId) return;
+
+    // 自动匹配 can only be settled once detection has spoken, so the target is
+    // resolved here rather than when it was picked.
+    final target = await _resolveTarget(requestId);
+    if (requestId != _requestId) return;
 
     final futures = <Future<void>>[
-      for (final result in results) _translate(result, query, requestId),
+      for (final result in results)
+        _translate(result, query, requestId, target),
       if (dictionaryServices.isNotEmpty)
-        _lookUp(dictionaryServices.first, query, requestId),
+        _lookUp(dictionaryServices.first, query, requestId, target),
     ];
     await Future.wait(futures);
 
@@ -233,6 +286,36 @@ class WorkbenchTranslationController extends ChangeNotifier {
       selectedServiceId = firstSuccess.service.id;
     }
     _notify();
+  }
+
+  /// The language this submit translates into. A concrete pick is its own
+  /// answer; 自动匹配 defers to the configured translation targets, filtered
+  /// by what detection found — the same rule the mini translator follows.
+  /// With nothing configured, nothing matching, or a runtime that would not
+  /// answer, the last concrete target stands: a target we cannot resolve is
+  /// no reason to fail the whole query.
+  Future<String> _resolveTarget(int requestId) async {
+    final picked = targetLanguage;
+    if (picked != null) return picked;
+
+    final configured = _gateway.configuredTranslationTargets();
+    if (configured.isEmpty) return _resolvedTarget;
+
+    try {
+      final active = await _gateway.activeTranslationTargets(
+        configured,
+        detectedLanguage,
+      );
+      if (requestId != _requestId) return _resolvedTarget;
+      final match = active.firstOrNull;
+      if (match != null && match.target != _resolvedTarget) {
+        _resolvedTarget = match.target;
+        _notify();
+      }
+    } catch (_) {
+      // Keep the standing target rather than failing the submit.
+    }
+    return _resolvedTarget;
   }
 
   Future<void> _detectLanguage(String query, int requestId) async {
@@ -254,6 +337,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
     WorkbenchServiceResult result,
     String query,
     int requestId,
+    String target,
   ) async {
     try {
       if (_isLlm(result.provider?.type)) {
@@ -261,7 +345,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
         await for (final content in _gateway.translateStream(
           result.service.id,
           sourceLanguage,
-          targetLanguage,
+          target,
           query,
         )) {
           if (requestId != _requestId) return;
@@ -277,7 +361,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
           TranslateRequest(
             sourceLanguage:
                 isAutoSource(sourceLanguage) ? null : sourceLanguage,
-            targetLanguage: targetLanguage,
+            targetLanguage: target,
             text: query,
           ),
         );
@@ -303,13 +387,14 @@ class WorkbenchTranslationController extends ChangeNotifier {
     ServiceConfigEntry service,
     String query,
     int requestId,
+    String target,
   ) async {
     try {
       final response = await _gateway.lookUp(
         service.id,
         LookUpRequest(
           sourceLanguage: sourceLanguage,
-          targetLanguage: targetLanguage,
+          targetLanguage: target,
           word: query,
         ),
       );

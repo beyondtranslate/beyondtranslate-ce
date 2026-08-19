@@ -154,13 +154,35 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   /// the responder chain ourselves so the field behaves the same either way.
   override func performKeyEquivalent(with event: NSEvent) -> Bool {
     let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+
+    // 提交方式 = ⌘+Enter lives or dies here: AppKit settles a Return that
+    // carries a modifier as a key equivalent and never offers it to the
+    // editor's own key bindings, so `doCommandBy` below would never see it.
+    if submitOnMetaEnter, modifiers == .command, Self.isReturn(event), isEditing {
+      submit()
+      return true
+    }
+
+    // The multiline editor trims paste in its own subclass, so every route
+    // into it — the Edit menu, the context menu, ⌘V — comes out trimmed. The
+    // single-line field borrows the window's shared field editor, a stock
+    // NSTextView there is no subclass to reach; ⌘V is the route that matters,
+    // and it is this one.
+    if modifiers.subtracting(.shift) == .command,
+      event.charactersIgnoringModifiers?.lowercased() == "v",
+      isEditing,
+      let editor = textField?.currentEditor() as? NSTextView,
+      editor.insertTrimmedPasteboardString()
+    {
+      return true
+    }
+
     guard modifiers.subtracting(.shift) == .command,
       let action = Self.editingAction(
         for: event.charactersIgnoringModifiers?.lowercased(),
         shift: modifiers.contains(.shift)
       ),
-      let responder = window?.firstResponder,
-      responder === textField?.currentEditor() || responder === textView
+      isEditing
     else {
       return super.performKeyEquivalent(with: event)
     }
@@ -169,6 +191,19 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     // menu would. Sending straight to the editor would break undo/redo, which
     // are served by a supplemental target rather than the editor itself.
     return NSApp.sendAction(action, to: nil, from: self)
+  }
+
+  /// Whether this field's own editor holds the keyboard. The key equivalents
+  /// above belong to it, not to whatever else the window happens to be showing.
+  private var isEditing: Bool {
+    guard let responder = window?.firstResponder else { return false }
+    return responder === textField?.currentEditor() || responder === textView
+  }
+
+  /// Return, or the keypad's Enter — by position, because
+  /// `charactersIgnoringModifiers` spells the keypad key as an unprintable.
+  private static func isReturn(_ event: NSEvent) -> Bool {
+    event.keyCode == 36 || event.keyCode == 76
   }
 
   /// The same actions the Edit menu would send. `undo:` / `redo:` are spelled
@@ -224,11 +259,18 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     }
     let modifiers =
       NSApp.currentEvent?.modifierFlags.intersection(.deviceIndependentFlagsMask) ?? []
+    // ⇧⏎ is the way out of whichever key submits — it always writes a newline,
+    // which is what the field's own hint promises.
+    guard !modifiers.contains(.shift) else { return false }
     let shouldSubmit =
       submitOnEnter || (submitOnMetaEnter && modifiers.contains(.command))
     guard shouldSubmit else { return false }
-    channel.invokeMethod("submitted", arguments: currentText())
+    submit()
     return true
+  }
+
+  private func submit() {
+    channel.invokeMethod("submitted", arguments: currentText())
   }
 
   private func setupInput(initialText: String) {
@@ -271,7 +313,7 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     scroll.hasHorizontalScroller = false
     scroll.autohidesScrollers = true
 
-    let view = NSTextView()
+    let view = TrimmingTextView()
     view.string = initialText
     view.delegate = self
     view.drawsBackground = false
@@ -439,7 +481,7 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   }
 
   @objc private func submitTextField() {
-    channel.invokeMethod("submitted", arguments: currentText())
+    submit()
   }
 
   private static func decodePadding(_ value: Any?) -> NSEdgeInsets {
@@ -506,5 +548,44 @@ private struct NativeTextStyle {
   private static func decodeDouble(_ value: Any?) -> Double? {
     if let double = value as? Double { return double }
     return (value as? NSNumber)?.doubleValue
+  }
+}
+
+/// The multiline editor, with paste trimmed.
+///
+/// Text copied out of a web page or a PDF arrives with the edges of the
+/// selection attached — a trailing newline, an indent off the left margin —
+/// and in a translation input those edges are never wanted.
+private final class TrimmingTextView: NSTextView {
+  override func paste(_ sender: Any?) {
+    if !insertTrimmedPasteboardString() {
+      super.paste(sender)
+    }
+  }
+
+  override func pasteAsPlainText(_ sender: Any?) {
+    if !insertTrimmedPasteboardString() {
+      super.pasteAsPlainText(sender)
+    }
+  }
+}
+
+extension NSTextView {
+  /// Replaces the selection with the pasteboard's text, edges trimmed.
+  ///
+  /// Returns `false` when the pasteboard holds nothing that reads as a string,
+  /// leaving the caller to fall back to AppKit's own paste.
+  fileprivate func insertTrimmedPasteboardString() -> Bool {
+    guard let raw = NSPasteboard.general.string(forType: .string) else {
+      return false
+    }
+    // `insertText` is the same door typing comes through, so undo, the change
+    // notifications Flutter listens on, and the typing attributes all keep
+    // working — none of which a direct `textStorage` edit would.
+    insertText(
+      raw.trimmingCharacters(in: .whitespacesAndNewlines),
+      replacementRange: selectedRange()
+    )
+    return true
   }
 }

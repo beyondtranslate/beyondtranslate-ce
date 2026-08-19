@@ -163,13 +163,20 @@
     },
     "result": {
       "translating": "正在翻译…",
-      "stale_requery": "原文已修改 · ⏎ 重新翻译",
+      "stale_requery": "原文已修改 · $key 重新翻译",
       "compare_services": "对比 $count 个服务",
       "collapse_compare": "收起对比",
       "set_preferred": "设为首选",
       "retry": "重试",
       "no_result": "所有服务都没有返回结果 —— 检查网络，或换一个服务再试。",
-      "no_result_note": "原文已保留，重试不会重复计入历史。"
+      "no_result_note": "原文已保留，重试不会重复计入历史。",
+      "no_result_meta": "$count 个服务都没有返回结果",
+      "no_result_body": "没有拿到译文。检查网络后按 ⏎ 重试，或展开看每个服务的原因。",
+      "check_services": "检查服务",
+      "show_reasons": "查看 $count 个服务的原因",
+      "collapse_reasons": "收起原因",
+      "unknown_error": "服务没有说明原因。",
+      "no_result_tag": "未返回结果"
     }
   },
   "workbench": {
@@ -209,7 +216,33 @@
       "origin_mini": "迷你翻译器",
       "favorite_flag": "已收藏",
       "edited_flag": "我改过",
-      "edit_history_hint": "修改后的译文会保存到历史"
+      "edit_history_hint": "修改后的译文会保存到历史",
+      "copy_translation": "复制译文",
+      "more_actions": "更多",
+      "export_all": "导出全部",
+      "retention_short": "历史保留 90 天",
+      "manage": "管理...",
+      "export_title": "导出记录",
+      "export_scope_selected": "已选 $count 条",
+      "export_scope_all": "全部 $count 条",
+      "export_format": "格式",
+      "format_csv_hint": "表格与脚本",
+      "format_md_hint": "可读的对照",
+      "format_tmx_hint": "翻译记忆库",
+      "export_content": "内容",
+      "export_with_meta": "附服务、时间与来源",
+      "export_only_edited": "只导出我改过的译文",
+      "manage_title": "管理历史",
+      "manage_subtitle": "共 $count 条记录",
+      "retention_section": "保留时长",
+      "clear_section": "清空",
+      "clear_description": "删除全部记录，包括收藏和你改过的译文。术语库不受影响。",
+      "clear_button": "清空全部历史...",
+      "clear_confirm_title": "清空全部历史",
+      "clear_confirm_message": "删除全部 $count 条记录，包括收藏和你改过的译文。此操作无法撤销，术语库不受影响。",
+      "delete_title_one": "删除这条记录",
+      "delete_title_many": "删除 $count 条记录",
+      "delete_message": "删除后无法恢复。收藏和你改过的译文也会一起删除，术语库不受影响。"
     },
     "glossary": "术语库",
     "recent_languages": "最近语言",
@@ -249,7 +282,35 @@
       "no_results_description": "换个关键词，或直接新增一条。",
       "no_books_title": "还没有术语库",
       "no_books_description": "术语库让指定译法在所有服务里保持一致。先建一个，再往里加词。",
-      "loading": "正在载入…"
+      "loading": "正在载入…",
+      "new_book_subtitle": "按领域分库，翻译时全部生效",
+      "name": "名称",
+      "name_taken": "名称 · 已存在",
+      "name_taken_hint": "已经有一个叫「$name」的术语库了。",
+      "name_placeholder": "机器学习",
+      "source_language": "源语言",
+      "target_language": "目标语言",
+      "same_language": "源语言和目标语言得是两种语言。",
+      "seed": "初始内容",
+      "seed_blank": "空白",
+      "seed_blank_hint": "之后逐条新增",
+      "seed_csv_hint": "两列：原文 / 译法",
+      "seed_tbx_hint": "行业术语交换格式",
+      "seed_blank_note": "建好后可以逐条新增，也可以把 CSV / TBX 拖进列表里合并。",
+      "seed_file_note": "创建后立即导入 $format 文件 · 重复的原文按文件里的译法为准",
+      "choose_file": "选择文件…",
+      "create": "创建",
+      "add_entry_subtitle": "术语优先级高于任何服务输出",
+      "book": "术语库",
+      "forbidden_label": "禁用译法",
+      "forbidden_hint": "服务给出这些说法时会被标为冲突；多个用 / 分隔，留空表示不禁用。",
+      "forbidden_placeholder_full": "强制教学 / 强制教师",
+      "duplicate": "「$term」已在$book中，保存会覆盖原有译法。",
+      "duplicate_book_fallback": "该术语库",
+      "keep_adding": "保存后继续添加下一条",
+      "added_count": "本次已添加 $count 条",
+      "overwrite": "覆盖",
+      "done": "完成"
     },
     "translation": {
       "source": "原文",
@@ -280,7 +341,9 @@
       "quality_hint": "译文生成后计算。",
       "shortcuts": "快捷键",
       "other_services_disabled": "其他服务已停用",
-      "input_hint_translate_to": "输入或粘贴要翻译的文本，翻译为$language"
+      "input_hint_translate_to": "输入或粘贴要翻译的文本，翻译为$language",
+      "newline_hint": "$key 换行",
+      "failed_body": "这一段没有拿到译文。检查网络连接后重试，或展开看每个服务的原因逐个处理。"
     },
     "status": {
       "runtime_ready": "翻译运行时已就绪",
@@ -401,7 +464,11 @@
           "description": "仅在应用自己的输入框内生效。"
         }
       },
-      "reset": "恢复默认..."
+      "reset": "恢复默认...",
+      "record_placeholder": "录制快捷键",
+      "recording": "按下快捷键…",
+      "clear": "清除",
+      "conflict": "与「$label」冲突"
     },
     "advanced": {
       "title": "高级",

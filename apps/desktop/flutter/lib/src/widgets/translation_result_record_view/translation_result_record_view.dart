@@ -11,6 +11,7 @@ import '../../services/settings_store.dart';
 import '../ai_action_bar.dart';
 import '../app_dialog.dart';
 import '../custom_alert_dialog/show_dialog.dart';
+import '../translation_text.dart';
 import '../ui.dart'
     show
         Button,
@@ -333,25 +334,25 @@ class TranslationResultRecordView extends StatelessWidget {
       bottom: 7,
     ),
   }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onDoubleTap: () {
-        if (settingsStore.doubleClickCopyResult) {
-          Clipboard.setData(ClipboardData(text: textTranslation.text));
-          BotToast.showText(
-            text: t.common.ui.feedback.copied,
-            align: Alignment.center,
-          );
-        }
-      },
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 40),
+    return Container(
+      constraints: const BoxConstraints(minHeight: 40),
+      alignment: Alignment.centerLeft,
+      // 双击复制 rides on the widget rather than a wrapping GestureDetector:
+      // on macOS this is an AppKit view, and the clicks never reach Flutter.
+      // The inset goes with it, so double-clicking the margin still copies.
+      child: TranslationText(
+        textTranslation.text,
         padding: padding,
-        alignment: Alignment.centerLeft,
-        child: SelectableText.rich(
-          TextSpan(children: [TextSpan(text: textTranslation.text)]),
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
-        ),
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+        onDoubleTap: () {
+          if (settingsStore.doubleClickCopyResult) {
+            Clipboard.setData(ClipboardData(text: textTranslation.text));
+            BotToast.showText(
+              text: t.common.ui.feedback.copied,
+              align: Alignment.center,
+            );
+          }
+        },
       ),
     );
   }

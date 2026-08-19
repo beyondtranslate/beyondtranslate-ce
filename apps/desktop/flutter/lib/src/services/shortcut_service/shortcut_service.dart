@@ -4,7 +4,6 @@ abstract mixin class ShortcutListener {
   void onShortcutKeyDownExtractFromScreenCapture();
   void onShortcutKeyDownExtractFromClipboard();
   void onShortcutKeyDownTranslateInputContent();
-  void onShortcutKeyDownSubmitWithMateEnter();
 }
 
 /// Manages global hotkeys for the mini translator.
@@ -48,6 +47,4 @@ class ShortcutService {
       _listener?.onShortcutKeyDownExtractFromClipboard();
   void notifyTranslateInputContent() =>
       _listener?.onShortcutKeyDownTranslateInputContent();
-  void notifySubmitWithMetaEnter() =>
-      _listener?.onShortcutKeyDownSubmitWithMateEnter();
 }

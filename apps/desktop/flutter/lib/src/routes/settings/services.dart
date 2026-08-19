@@ -2,6 +2,7 @@ import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
@@ -15,6 +16,7 @@ import '../../widgets/ui.dart'
         Badge,
         BadgeSize,
         Button,
+        ButtonSize,
         ButtonVariant,
         Callout,
         CalloutTone,
@@ -335,7 +337,7 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
     };
     final types = [
       for (final type in kServiceTypeOrder)
-        if (servable.contains(type)) type,
+        if (servable.contains(type) && isServiceTypeVisible(type)) type,
     ];
 
     final blocks = <Widget>[];
@@ -356,7 +358,8 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
               // 添加服务 is raised from inside the capability's own group, so
               // the sheet opens with the kind already decided.
               action: Button(
-                variant: ButtonVariant.quiet,
+                variant: ButtonVariant.primary,
+                size: ButtonSize.xs,
                 enabled: providers.isNotEmpty,
                 onPressed: () => _openServiceEditor(type),
                 child: Text(t.settings.services.button.add_service),
@@ -428,8 +431,8 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
 /// One row of a capability's services — the thing that actually runs, so it
 /// owns the 默认 mark, the switch, and what you can do to it.
 ///
-/// The badge sits with the name because it says what this service *is*; 设为默认
-/// and 编辑 are the doing, and they stay hidden until the pointer is on the row.
+/// 设为默认 and 编辑 are the doing, and they stay hidden until the pointer is on
+/// the row.
 /// A list of five services otherwise shows ten buttons at rest, and the eye has
 /// to sort the labels from the controls before it can read the list. They keep
 /// their space while hidden, so the row does not jump.
@@ -503,15 +506,6 @@ class _ServiceRow extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (isDefault) ...[
-                    const SizedBox(width: 10),
-                    Badge(
-                      size: BadgeSize.xs,
-                      child: Text(
-                        t.settings.providers.detail.models.default_badge,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -545,11 +539,24 @@ class _ServiceRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Switch(
-              checked: enabled,
-              semanticsLabel: name,
-              onChanged: onEnabledChange,
-            ),
+            // The slot at the row's end says what state the service is in. The
+            // default one cannot be switched off — you would first hand 默认 to
+            // another — so a switch there would be a control with one position;
+            // the badge takes its place. That also keeps the column from
+            // becoming a stack of identical filled pills: one row per
+            // capability reads as the anchor, the rest as things you can turn
+            // on or off.
+            if (isDefault)
+              Badge(
+                size: BadgeSize.xs,
+                child: Text(t.settings.providers.detail.models.default_badge),
+              )
+            else
+              Switch(
+                checked: enabled,
+                semanticsLabel: name,
+                onChanged: onEnabledChange,
+              ),
           ],
         ),
       ),

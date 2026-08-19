@@ -3,6 +3,7 @@ import 'package:beyondtranslate_desktop/src/routes/workbench/library.dart';
 import 'package:beyondtranslate_desktop/src/services/history_store.dart';
 import 'package:beyondtranslate_desktop/src/widgets/ui.dart';
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart' hide Checkbox;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -54,22 +55,67 @@ void main() {
     expect(find.text('已选 1 条'), findsOneWidget);
   });
 
-  testWidgets('delete requires confirmation and removes the active row', (
-    tester,
-  ) async {
-    final gateway = _PageHistoryGateway([_entry('h1', 'Disposable', '删除')]);
+  testWidgets('the row menu deletes, and asks first', (tester) async {
+    final gateway = _PageHistoryGateway([_entry('h1', 'Disposable', '待删除')]);
     final store = HistoryStore(gateway: gateway);
     addTearDown(store.dispose);
     await store.init();
     await tester.pumpWidget(_specimen(WorkbenchLibraryPage(store: store)));
     await tester.pumpAndSettle();
 
+    // The row's actions only surface under the pointer.
+    final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await pointer.addPointer(location: Offset.zero);
+    addTearDown(pointer.removePointer);
+    await pointer.moveTo(tester.getCenter(find.text('Disposable')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.bySemanticsLabel('更多'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('删除'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // The sheet asks; nothing has gone yet.
+    expect(find.text('删除这条记录'), findsOneWidget);
+    expect(find.textContaining('无法恢复'), findsOneWidget);
+    expect(find.text('Disposable'), findsOneWidget);
+
     await tester.tap(find.text('删除').last);
     await tester.pump();
-    expect(find.textContaining('无法撤销'), findsOneWidget);
-    await tester.tap(find.text('删除').last);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Disposable'), findsNothing);
+  });
+
+  testWidgets('收藏 rides on the row; the footer only acts on the list', (
+    tester,
+  ) async {
+    final gateway = _PageHistoryGateway([_entry('h1', 'Keeper', '留下')]);
+    final store = HistoryStore(gateway: gateway);
+    addTearDown(store.dispose);
+    await store.init();
+    await tester.pumpWidget(_specimen(WorkbenchLibraryPage(store: store)));
+    await tester.pumpAndSettle();
+
+    // The footer carries what acts on the list, and the retention note that
+    // opens 管理历史 — nothing that acts on one record.
+    expect(find.text('多选'), findsOneWidget);
+    expect(find.text('导出全部'), findsOneWidget);
+    expect(find.textContaining('管理...'), findsOneWidget);
+    expect(find.text('删除'), findsNothing);
+
+    final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await pointer.addPointer(location: Offset.zero);
+    addTearDown(pointer.removePointer);
+    await pointer.moveTo(tester.getCenter(find.text('Keeper')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.tap(find.text('收藏'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(gateway.favorited, ['h1']);
   });
 }
 
@@ -135,9 +181,14 @@ class _PageHistoryGateway implements HistoryGateway {
             entry,
       ];
 
+  /// Ids the page asked to favourite, in order.
+  final List<String> favorited = [];
+
   @override
-  Future<HistoryEntry?> setFavorite(String entryId, bool favorite) async =>
-      entries.where((entry) => entry.id == entryId).firstOrNull;
+  Future<HistoryEntry?> setFavorite(String entryId, bool favorite) async {
+    if (favorite) favorited.add(entryId);
+    return entries.where((entry) => entry.id == entryId).firstOrNull;
+  }
 
   @override
   SettingsSubscription? subscribe() => null;

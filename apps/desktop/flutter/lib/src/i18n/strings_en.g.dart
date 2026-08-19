@@ -570,8 +570,9 @@ class TranslationsMiniTranslatorResultEn {
   /// en: 'Translating…'
   String get translating => 'Translating…';
 
-  /// en: 'Source changed · ⏎ retranslate'
-  String get stale_requery => 'Source changed · ⏎ retranslate';
+  /// en: 'Source changed · $key retranslate'
+  String stale_requery({required Object key}) =>
+      'Source changed · ${key} retranslate';
 
   /// en: 'Compare $count services'
   String compare_services({required Object count}) =>
@@ -593,6 +594,30 @@ class TranslationsMiniTranslatorResultEn {
   /// en: 'Your text is kept; retrying will not duplicate history.'
   String get no_result_note =>
       'Your text is kept; retrying will not duplicate history.';
+
+  /// en: '$count services returned nothing'
+  String no_result_meta({required Object count}) =>
+      '${count} services returned nothing';
+
+  /// en: 'No translation came back. Check your network and press ⏎ to retry, or expand to see each service's reason.'
+  String get no_result_body =>
+      'No translation came back. Check your network and press ⏎ to retry, or expand to see each service\'s reason.';
+
+  /// en: 'Check services'
+  String get check_services => 'Check services';
+
+  /// en: 'Why $count services failed'
+  String show_reasons({required Object count}) =>
+      'Why ${count} services failed';
+
+  /// en: 'Hide reasons'
+  String get collapse_reasons => 'Hide reasons';
+
+  /// en: 'The service gave no reason.'
+  String get unknown_error => 'The service gave no reason.';
+
+  /// en: 'no result'
+  String get no_result_tag => 'no result';
 }
 
 // Path: workbench.history_page
@@ -706,6 +731,88 @@ class TranslationsWorkbenchHistoryPageEn {
   /// en: 'The edited translation will be saved to history'
   String get edit_history_hint =>
       'The edited translation will be saved to history';
+
+  /// en: 'Copy translation'
+  String get copy_translation => 'Copy translation';
+
+  /// en: 'More'
+  String get more_actions => 'More';
+
+  /// en: 'Export all'
+  String get export_all => 'Export all';
+
+  /// en: 'History kept 90 days'
+  String get retention_short => 'History kept 90 days';
+
+  /// en: 'Manage…'
+  String get manage => 'Manage…';
+
+  /// en: 'Export records'
+  String get export_title => 'Export records';
+
+  /// en: '$count selected'
+  String export_scope_selected({required Object count}) => '${count} selected';
+
+  /// en: 'All $count'
+  String export_scope_all({required Object count}) => 'All ${count}';
+
+  /// en: 'Format'
+  String get export_format => 'Format';
+
+  /// en: 'Spreadsheets and scripts'
+  String get format_csv_hint => 'Spreadsheets and scripts';
+
+  /// en: 'A readable side-by-side'
+  String get format_md_hint => 'A readable side-by-side';
+
+  /// en: 'Translation memory'
+  String get format_tmx_hint => 'Translation memory';
+
+  /// en: 'Contents'
+  String get export_content => 'Contents';
+
+  /// en: 'Include service, time and origin'
+  String get export_with_meta => 'Include service, time and origin';
+
+  /// en: 'Only translations I edited'
+  String get export_only_edited => 'Only translations I edited';
+
+  /// en: 'Manage history'
+  String get manage_title => 'Manage history';
+
+  /// en: '$count records'
+  String manage_subtitle({required Object count}) => '${count} records';
+
+  /// en: 'Retention'
+  String get retention_section => 'Retention';
+
+  /// en: 'Clear'
+  String get clear_section => 'Clear';
+
+  /// en: 'Deletes every record, favourites and your own wording included. The glossary is untouched.'
+  String get clear_description =>
+      'Deletes every record, favourites and your own wording included. The glossary is untouched.';
+
+  /// en: 'Clear all history…'
+  String get clear_button => 'Clear all history…';
+
+  /// en: 'Clear all history'
+  String get clear_confirm_title => 'Clear all history';
+
+  /// en: 'Deletes all $count records, favourites and your own wording included. This cannot be undone; the glossary is untouched.'
+  String clear_confirm_message({required Object count}) =>
+      'Deletes all ${count} records, favourites and your own wording included. This cannot be undone; the glossary is untouched.';
+
+  /// en: 'Delete this record'
+  String get delete_title_one => 'Delete this record';
+
+  /// en: 'Delete $count records'
+  String delete_title_many({required Object count}) =>
+      'Delete ${count} records';
+
+  /// en: 'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.'
+  String get delete_message =>
+      'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.';
 }
 
 // Path: workbench.subtitle
@@ -832,6 +939,97 @@ class TranslationsWorkbenchGlossaryPageEn {
 
   /// en: 'Loading…'
   String get loading => 'Loading…';
+
+  /// en: 'One book per domain; all of them apply while translating'
+  String get new_book_subtitle =>
+      'One book per domain; all of them apply while translating';
+
+  /// en: 'Name'
+  String get name => 'Name';
+
+  /// en: 'Name · already exists'
+  String get name_taken => 'Name · already exists';
+
+  /// en: 'There is already a glossary called “$name”.'
+  String name_taken_hint({required Object name}) =>
+      'There is already a glossary called “${name}”.';
+
+  /// en: 'Machine learning'
+  String get name_placeholder => 'Machine learning';
+
+  /// en: 'Source language'
+  String get source_language => 'Source language';
+
+  /// en: 'Target language'
+  String get target_language => 'Target language';
+
+  /// en: 'The source and target have to be two different languages.'
+  String get same_language =>
+      'The source and target have to be two different languages.';
+
+  /// en: 'Initial content'
+  String get seed => 'Initial content';
+
+  /// en: 'Blank'
+  String get seed_blank => 'Blank';
+
+  /// en: 'Add entries one at a time later'
+  String get seed_blank_hint => 'Add entries one at a time later';
+
+  /// en: 'Two columns: term / translation'
+  String get seed_csv_hint => 'Two columns: term / translation';
+
+  /// en: 'Industry term exchange format'
+  String get seed_tbx_hint => 'Industry term exchange format';
+
+  /// en: 'Once it exists you can add entries one by one, or drop a CSV / TBX onto the list to merge.'
+  String get seed_blank_note =>
+      'Once it exists you can add entries one by one, or drop a CSV / TBX onto the list to merge.';
+
+  /// en: 'Imports the $format file right after creating · duplicates take the file’s translation'
+  String seed_file_note({required Object format}) =>
+      'Imports the ${format} file right after creating · duplicates take the file’s translation';
+
+  /// en: 'Choose file…'
+  String get choose_file => 'Choose file…';
+
+  /// en: 'Create'
+  String get create => 'Create';
+
+  /// en: 'A term outranks anything a service returns'
+  String get add_entry_subtitle => 'A term outranks anything a service returns';
+
+  /// en: 'Glossary'
+  String get book => 'Glossary';
+
+  /// en: 'Forbidden translations'
+  String get forbidden_label => 'Forbidden translations';
+
+  /// en: 'A service offering these is flagged as a conflict; separate several with /, leave empty to forbid none.'
+  String get forbidden_hint =>
+      'A service offering these is flagged as a conflict; separate several with /, leave empty to forbid none.';
+
+  /// en: 'forced teaching / forcing teacher'
+  String get forbidden_placeholder_full => 'forced teaching / forcing teacher';
+
+  /// en: '“$term” is already in $book; saving overwrites the existing translation.'
+  String duplicate({required Object term, required Object book}) =>
+      '“${term}” is already in ${book}; saving overwrites the existing translation.';
+
+  /// en: 'this glossary'
+  String get duplicate_book_fallback => 'this glossary';
+
+  /// en: 'Keep adding after saving'
+  String get keep_adding => 'Keep adding after saving';
+
+  /// en: 'Added $count so far'
+  String added_count({required Object count}) => 'Added ${count} so far';
+
+  /// en: 'Overwrite'
+  String get overwrite => 'Overwrite';
+
+  /// en: 'Done'
+  String get done => 'Done';
 }
 
 // Path: workbench.translation
@@ -931,6 +1129,13 @@ class TranslationsWorkbenchTranslationEn {
   /// en: 'Type or paste text to translate into $language'
   String input_hint_translate_to({required Object language}) =>
       'Type or paste text to translate into ${language}';
+
+  /// en: '$key for a new line'
+  String newline_hint({required Object key}) => '${key} for a new line';
+
+  /// en: 'This passage did not get a translation. Check your connection and retry, or expand to work through each service's reason.'
+  String get failed_body =>
+      'This passage did not get a translation. Check your connection and retry, or expand to work through each service\'s reason.';
 }
 
 // Path: workbench.status
@@ -1014,6 +1219,18 @@ class TranslationsSettingsShortcutsEn {
 
   /// en: 'Restore Defaults...'
   String get reset => 'Restore Defaults...';
+
+  /// en: 'Record shortcut'
+  String get record_placeholder => 'Record shortcut';
+
+  /// en: 'Press keys…'
+  String get recording => 'Press keys…';
+
+  /// en: 'Clear'
+  String get clear => 'Clear';
+
+  /// en: 'Conflicts with “$label”'
+  String conflict({required Object label}) => 'Conflicts with “${label}”';
 }
 
 // Path: settings.advanced
@@ -2409,8 +2626,8 @@ extension on Translations {
       'mini_translator.message.ocr_recognition_failed' =>
         'Text recognition failed',
       'mini_translator.result.translating' => 'Translating…',
-      'mini_translator.result.stale_requery' =>
-        'Source changed · ⏎ retranslate',
+      'mini_translator.result.stale_requery' => ({required Object key}) =>
+          'Source changed · ${key} retranslate',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           'Compare ${count} services',
       'mini_translator.result.collapse_compare' => 'Collapse',
@@ -2420,6 +2637,16 @@ extension on Translations {
         'No service returned a result — check your network or try another service.',
       'mini_translator.result.no_result_note' =>
         'Your text is kept; retrying will not duplicate history.',
+      'mini_translator.result.no_result_meta' => ({required Object count}) =>
+          '${count} services returned nothing',
+      'mini_translator.result.no_result_body' =>
+        'No translation came back. Check your network and press ⏎ to retry, or expand to see each service\'s reason.',
+      'mini_translator.result.check_services' => 'Check services',
+      'mini_translator.result.show_reasons' => ({required Object count}) =>
+          'Why ${count} services failed',
+      'mini_translator.result.collapse_reasons' => 'Hide reasons',
+      'mini_translator.result.unknown_error' => 'The service gave no reason.',
+      'mini_translator.result.no_result_tag' => 'no result',
       'workbench.workspace' => 'Workspace',
       'workbench.translate' => 'Translate',
       'workbench.history' => 'History',
@@ -2467,6 +2694,42 @@ extension on Translations {
       'workbench.history_page.edited_flag' => 'Edited',
       'workbench.history_page.edit_history_hint' =>
         'The edited translation will be saved to history',
+      'workbench.history_page.copy_translation' => 'Copy translation',
+      'workbench.history_page.more_actions' => 'More',
+      'workbench.history_page.export_all' => 'Export all',
+      'workbench.history_page.retention_short' => 'History kept 90 days',
+      'workbench.history_page.manage' => 'Manage…',
+      'workbench.history_page.export_title' => 'Export records',
+      'workbench.history_page.export_scope_selected' =>
+        ({required Object count}) => '${count} selected',
+      'workbench.history_page.export_scope_all' => ({required Object count}) =>
+          'All ${count}',
+      'workbench.history_page.export_format' => 'Format',
+      'workbench.history_page.format_csv_hint' => 'Spreadsheets and scripts',
+      'workbench.history_page.format_md_hint' => 'A readable side-by-side',
+      'workbench.history_page.format_tmx_hint' => 'Translation memory',
+      'workbench.history_page.export_content' => 'Contents',
+      'workbench.history_page.export_with_meta' =>
+        'Include service, time and origin',
+      'workbench.history_page.export_only_edited' =>
+        'Only translations I edited',
+      'workbench.history_page.manage_title' => 'Manage history',
+      'workbench.history_page.manage_subtitle' => ({required Object count}) =>
+          '${count} records',
+      'workbench.history_page.retention_section' => 'Retention',
+      'workbench.history_page.clear_section' => 'Clear',
+      'workbench.history_page.clear_description' =>
+        'Deletes every record, favourites and your own wording included. The glossary is untouched.',
+      'workbench.history_page.clear_button' => 'Clear all history…',
+      'workbench.history_page.clear_confirm_title' => 'Clear all history',
+      'workbench.history_page.clear_confirm_message' => (
+              {required Object count}) =>
+          'Deletes all ${count} records, favourites and your own wording included. This cannot be undone; the glossary is untouched.',
+      'workbench.history_page.delete_title_one' => 'Delete this record',
+      'workbench.history_page.delete_title_many' => ({required Object count}) =>
+          'Delete ${count} records',
+      'workbench.history_page.delete_message' =>
+        'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.',
       'workbench.glossary' => 'Glossary',
       'workbench.recent_languages' => 'Recent Languages',
       'workbench.not_configured' => 'Not configured',
@@ -2512,6 +2775,48 @@ extension on Translations {
       'workbench.glossary_page.no_books_description' =>
         'A glossary keeps your chosen wording consistent across every service. Create one, then start adding terms.',
       'workbench.glossary_page.loading' => 'Loading…',
+      'workbench.glossary_page.new_book_subtitle' =>
+        'One book per domain; all of them apply while translating',
+      'workbench.glossary_page.name' => 'Name',
+      'workbench.glossary_page.name_taken' => 'Name · already exists',
+      'workbench.glossary_page.name_taken_hint' => ({required Object name}) =>
+          'There is already a glossary called “${name}”.',
+      'workbench.glossary_page.name_placeholder' => 'Machine learning',
+      'workbench.glossary_page.source_language' => 'Source language',
+      'workbench.glossary_page.target_language' => 'Target language',
+      'workbench.glossary_page.same_language' =>
+        'The source and target have to be two different languages.',
+      'workbench.glossary_page.seed' => 'Initial content',
+      'workbench.glossary_page.seed_blank' => 'Blank',
+      'workbench.glossary_page.seed_blank_hint' =>
+        'Add entries one at a time later',
+      'workbench.glossary_page.seed_csv_hint' =>
+        'Two columns: term / translation',
+      'workbench.glossary_page.seed_tbx_hint' =>
+        'Industry term exchange format',
+      'workbench.glossary_page.seed_blank_note' =>
+        'Once it exists you can add entries one by one, or drop a CSV / TBX onto the list to merge.',
+      'workbench.glossary_page.seed_file_note' => ({required Object format}) =>
+          'Imports the ${format} file right after creating · duplicates take the file’s translation',
+      'workbench.glossary_page.choose_file' => 'Choose file…',
+      'workbench.glossary_page.create' => 'Create',
+      'workbench.glossary_page.add_entry_subtitle' =>
+        'A term outranks anything a service returns',
+      'workbench.glossary_page.book' => 'Glossary',
+      'workbench.glossary_page.forbidden_label' => 'Forbidden translations',
+      'workbench.glossary_page.forbidden_hint' =>
+        'A service offering these is flagged as a conflict; separate several with /, leave empty to forbid none.',
+      'workbench.glossary_page.forbidden_placeholder_full' =>
+        'forced teaching / forcing teacher',
+      'workbench.glossary_page.duplicate' => (
+              {required Object term, required Object book}) =>
+          '“${term}” is already in ${book}; saving overwrites the existing translation.',
+      'workbench.glossary_page.duplicate_book_fallback' => 'this glossary',
+      'workbench.glossary_page.keep_adding' => 'Keep adding after saving',
+      'workbench.glossary_page.added_count' => ({required Object count}) =>
+          'Added ${count} so far',
+      'workbench.glossary_page.overwrite' => 'Overwrite',
+      'workbench.glossary_page.done' => 'Done',
       'workbench.translation.source' => 'Source',
       'workbench.translation.target' => 'Translation',
       'workbench.translation.input_hint' => 'Enter or paste text to translate',
@@ -2549,6 +2854,10 @@ extension on Translations {
       'workbench.translation.input_hint_translate_to' => (
               {required Object language}) =>
           'Type or paste text to translate into ${language}',
+      'workbench.translation.newline_hint' => ({required Object key}) =>
+          '${key} for a new line',
+      'workbench.translation.failed_body' =>
+        'This passage did not get a translation. Check your connection and retry, or expand to work through each service\'s reason.',
       'workbench.status.runtime_ready' => 'Translation runtime ready',
       'workbench.status.settings_synced' => 'Settings synced',
       'workbench.status.shortcuts' => '⌥Space Quick window · ⌥⇧2 Capture',
@@ -2664,6 +2973,11 @@ extension on Translations {
       'settings.shortcuts.group.in_app.description' =>
         'Only apply inside this app’s own text fields.',
       'settings.shortcuts.reset' => 'Restore Defaults...',
+      'settings.shortcuts.record_placeholder' => 'Record shortcut',
+      'settings.shortcuts.recording' => 'Press keys…',
+      'settings.shortcuts.clear' => 'Clear',
+      'settings.shortcuts.conflict' => ({required Object label}) =>
+          'Conflicts with “${label}”',
       'settings.advanced.title' => 'Advanced',
       'settings.advanced.api_server' => 'Local API server',
       'settings.advanced.api_server_description' =>

@@ -12,6 +12,11 @@ import 'package:flutter/widgets.dart';
 const double kMinSidebarWidth = 150;
 const double kMaxSidebarWidth = 320;
 
+/// The rail's travel. It is a narrower column than the sidebar to begin with,
+/// so both ends sit lower.
+const double kMinRailWidth = 120;
+const double kMaxRailWidth = 280;
+
 /// Drag this far past the floor and the sidebar collapses instead of shrinking
 /// — AppKit's own divider does this, and it is the only way to close a sidebar
 /// without going back to the toolbar button.
@@ -89,64 +94,15 @@ class _SidebarState extends State<Sidebar> {
   /// What the sidebar measured before anyone dragged it — double-click home.
   double? _natural;
 
-  bool _dragging = false;
-  bool _hovered = false;
-  bool _focused = false;
-
-  /// The width the drag started from, plus everything the pointer has moved
-  /// since. Tracking the origin rather than the running width keeps a drag
-  /// that runs past the floor from losing where it began.
-  double _dragOrigin = 0;
-  double _dragDelta = 0;
-
   double _resolved(BuildContext context) =>
       widget.width ?? _ownWidth ?? _naturalOf(context);
 
   double _naturalOf(BuildContext context) =>
       widget.defaultWidth ?? context.metrics.sidebarWidth;
 
-  double _clamp(double value) =>
-      value.clamp(widget.minWidth, widget.maxWidth).roundToDouble();
-
   void _commit(double next) {
     if (widget.width == null) setState(() => _ownWidth = next);
     widget.onWidthChange?.call(next);
-  }
-
-  void _handleDragStart(BuildContext context, DragStartDetails _) {
-    _dragOrigin = _resolved(context);
-    _dragDelta = 0;
-    setState(() => _dragging = true);
-  }
-
-  void _handleDragUpdate(DragUpdateDetails details) {
-    if (!_dragging) return;
-    _dragDelta += details.delta.dx;
-    final raw = _dragOrigin + _dragDelta;
-    if (widget.onCollapse != null && raw < widget.minWidth - _kCollapseSlop) {
-      // Collapsed is not a width. Hand back the one the drag started from, so
-      // re-opening the sidebar does not inherit some half-dragged number.
-      _commit(_clamp(_dragOrigin));
-      setState(() => _dragging = false);
-      widget.onCollapse!();
-      return;
-    }
-    _commit(_clamp(raw));
-  }
-
-  KeyEventResult _handleKey(BuildContext context, KeyEvent event) {
-    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
-      return KeyEventResult.ignored;
-    }
-    final left = event.logicalKey == LogicalKeyboardKey.arrowLeft;
-    final right = event.logicalKey == LogicalKeyboardKey.arrowRight;
-    if (!left && !right) return KeyEventResult.ignored;
-    final pressed = HardwareKeyboard.instance.logicalKeysPressed;
-    final coarse = pressed.contains(LogicalKeyboardKey.shiftLeft) ||
-        pressed.contains(LogicalKeyboardKey.shiftRight);
-    final step = coarse ? _kCoarseKeyStep : _kKeyStep;
-    _commit(_clamp(_resolved(context) + (right ? step : -step)));
-    return KeyEventResult.handled;
   }
 
   @override
@@ -201,6 +157,111 @@ class _SidebarState extends State<Sidebar> {
 
     if (!widget.resizable) return column;
 
+    return _ResizableColumn(
+      width: _resolved(context),
+      natural: _natural!,
+      minWidth: widget.minWidth,
+      maxWidth: widget.maxWidth,
+      onWidthChange: _commit,
+      onCollapse: widget.onCollapse,
+      label: widget.resizeLabel,
+      child: column,
+    );
+  }
+}
+
+/// The draggable separator on a column's right edge, shared by [Sidebar] and
+/// [Rail]. It owns nothing but the gesture: the column it wraps decides the
+/// width it is at, and hears about the next one through [onWidthChange].
+class _ResizableColumn extends StatefulWidget {
+  const _ResizableColumn({
+    required this.width,
+    required this.natural,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.onWidthChange,
+    this.onCollapse,
+    required this.label,
+    required this.child,
+  });
+
+  /// The width the column is currently laid out at.
+  final double width;
+
+  /// Where a double-click sends the divider.
+  final double natural;
+
+  final double minWidth;
+  final double maxWidth;
+  final ValueChanged<double> onWidthChange;
+
+  /// Called when the divider is dragged well past the floor. Left out, the
+  /// drag simply stops at [minWidth].
+  final VoidCallback? onCollapse;
+
+  /// Accessible name for the divider.
+  final String label;
+
+  final Widget child;
+
+  @override
+  State<_ResizableColumn> createState() => _ResizableColumnState();
+}
+
+class _ResizableColumnState extends State<_ResizableColumn> {
+  bool _dragging = false;
+  bool _hovered = false;
+  bool _focused = false;
+
+  /// The width the drag started from, plus everything the pointer has moved
+  /// since. Tracking the origin rather than the running width keeps a drag
+  /// that runs past the floor from losing where it began.
+  double _dragOrigin = 0;
+  double _dragDelta = 0;
+
+  double _clamp(double value) =>
+      value.clamp(widget.minWidth, widget.maxWidth).roundToDouble();
+
+  void _handleDragStart(DragStartDetails _) {
+    _dragOrigin = widget.width;
+    _dragDelta = 0;
+    setState(() => _dragging = true);
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    if (!_dragging) return;
+    _dragDelta += details.delta.dx;
+    final raw = _dragOrigin + _dragDelta;
+    if (widget.onCollapse != null && raw < widget.minWidth - _kCollapseSlop) {
+      // Collapsed is not a width. Hand back the one the drag started from, so
+      // re-opening the column does not inherit some half-dragged number.
+      widget.onWidthChange(_clamp(_dragOrigin));
+      setState(() => _dragging = false);
+      widget.onCollapse!();
+      return;
+    }
+    widget.onWidthChange(_clamp(raw));
+  }
+
+  KeyEventResult _handleKey(KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final left = event.logicalKey == LogicalKeyboardKey.arrowLeft;
+    final right = event.logicalKey == LogicalKeyboardKey.arrowRight;
+    if (!left && !right) return KeyEventResult.ignored;
+    final pressed = HardwareKeyboard.instance.logicalKeysPressed;
+    final coarse = pressed.contains(LogicalKeyboardKey.shiftLeft) ||
+        pressed.contains(LogicalKeyboardKey.shiftRight);
+    final step = coarse ? _kCoarseKeyStep : _kKeyStep;
+    widget.onWidthChange(_clamp(widget.width + (right ? step : -step)));
+    return KeyEventResult.handled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.tokens.colors;
+
     // Nothing is drawn in the grab area: the separator itself is what lights
     // up. React lets the handle straddle the edge; here it sits just inside,
     // because Flutter drops any pointer that falls outside a box — a handle
@@ -210,22 +271,22 @@ class _SidebarState extends State<Sidebar> {
 
     return Stack(
       // The column keeps whatever constraints the Stack was handed, so a
-      // sidebar in a stretched Row lays out exactly as it did before the
+      // column in a stretched Row lays out exactly as it did before the
       // handle existed.
       fit: StackFit.passthrough,
       children: [
-        column,
+        widget.child,
         Positioned(
           top: 0,
           bottom: 0,
           right: 0,
           width: _kHandleWidth,
           child: Semantics(
-            label: widget.resizeLabel,
+            label: widget.label,
             slider: true,
-            value: _resolved(context).round().toString(),
+            value: widget.width.round().toString(),
             child: Focus(
-              onKeyEvent: (node, event) => _handleKey(context, event),
+              onKeyEvent: (node, event) => _handleKey(event),
               onFocusChange: (value) => setState(() => _focused = value),
               child: MouseRegion(
                 cursor: SystemMouseCursors.resizeColumn,
@@ -238,15 +299,15 @@ class _SidebarState extends State<Sidebar> {
                   // the touch slop, and the divider would lag the cursor by
                   // that much on every drag.
                   dragStartBehavior: DragStartBehavior.down,
-                  onHorizontalDragStart: (details) =>
-                      _handleDragStart(context, details),
+                  onHorizontalDragStart: _handleDragStart,
                   onHorizontalDragUpdate: _handleDragUpdate,
                   onHorizontalDragEnd: (_) => setState(() => _dragging = false),
                   onHorizontalDragCancel: () =>
                       setState(() => _dragging = false),
                   // Double-clicking a divider puts it back where it started —
                   // the same thing AppKit and every split view does.
-                  onDoubleTap: () => _commit(_clamp(_natural!)),
+                  onDoubleTap: () =>
+                      widget.onWidthChange(_clamp(widget.natural)),
                   child: Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: AnimatedOpacity(
@@ -450,23 +511,74 @@ class SidebarCard extends StatelessWidget {
   }
 }
 
-/// Second column: settings groups, glossary books, document pages.
-class Rail extends StatelessWidget {
-  const Rail({super.key, this.footer, required this.children});
+/// Second column: settings groups, glossary books, document pages — the rail
+/// metric (150px) wide, or whatever the divider has been dragged to when
+/// [resizable] is set.
+class Rail extends StatefulWidget {
+  const Rail({
+    super.key,
+    this.footer,
+    this.resizable = false,
+    this.width,
+    this.defaultWidth,
+    this.onWidthChange,
+    this.minWidth = kMinRailWidth,
+    this.maxWidth = kMaxRailWidth,
+    this.resizeLabel = '调整栏宽度',
+    required this.children,
+  });
 
   /// Pinned to the column's foot, below the scrolling list — the deck parks
   /// the document's 已完成 counter here (`mt-auto`).
   final Widget? footer;
 
+  /// Let the separator on the right edge be dragged. Off by default, for the
+  /// same reason as [Sidebar.resizable].
+  final bool resizable;
+
+  /// Controlled width. Leave it out and the rail owns its own.
+  final double? width;
+
+  /// Starting width for the uncontrolled case; defaults to the rail metric.
+  final double? defaultWidth;
+
+  final ValueChanged<double>? onWidthChange;
+  final double minWidth;
+  final double maxWidth;
+
+  /// Accessible name for the divider.
+  final String resizeLabel;
+
   final List<Widget> children;
+
+  @override
+  State<Rail> createState() => _RailState();
+}
+
+class _RailState extends State<Rail> {
+  double? _ownWidth;
+  double? _natural;
+
+  double _resolved(BuildContext context) =>
+      widget.width ?? _ownWidth ?? _naturalOf(context);
+
+  double _naturalOf(BuildContext context) =>
+      widget.defaultWidth ?? context.metrics.railWidth;
+
+  void _commit(double next) {
+    if (widget.width == null) setState(() => _ownWidth = next);
+    widget.onWidthChange?.call(next);
+  }
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    final children = widget.children;
+    _natural ??= _naturalOf(context);
 
-    return Container(
-      width: tokens.metrics.railWidth,
+    final column = Container(
+      width: _resolved(context),
       decoration: BoxDecoration(
         color: colors.rail,
         border: Border(
@@ -518,13 +630,25 @@ class Rail extends StatelessWidget {
               },
             ),
           ),
-          if (footer != null)
+          if (widget.footer != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 14),
-              child: footer,
+              child: widget.footer,
             ),
         ],
       ),
+    );
+
+    if (!widget.resizable) return column;
+
+    return _ResizableColumn(
+      width: _resolved(context),
+      natural: _natural!,
+      minWidth: widget.minWidth,
+      maxWidth: widget.maxWidth,
+      onWidthChange: _commit,
+      label: widget.resizeLabel,
+      child: column,
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide TextField;
 import '../theme/product_tokens.dart'
     show ProductTokensContext, ProductTypographyStyles;
 import 'text_field.dart' show TextField;
+import 'translation_text.dart';
 import 'ui.dart' show DesignThemeContext, Label, LabelTone;
 
 class TranslationPane extends StatelessWidget {
@@ -105,7 +106,7 @@ class TranslationPane extends StatelessWidget {
                       padding: EdgeInsets.zero,
                     )
                   : SingleChildScrollView(
-                      child: SelectableText(
+                      child: TranslationText(
                         text,
                         style: highlighted
                             ? tokens.typography.translationStyle(

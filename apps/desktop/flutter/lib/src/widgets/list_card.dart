@@ -4,6 +4,7 @@ import 'ui.dart'
     show
         DesignThemeContext,
         DesignTypographyStyles,
+        HoverRegion,
         Pressable,
         kTransitionDuration;
 
@@ -19,6 +20,7 @@ class ListCard extends StatelessWidget {
     required this.secondary,
     this.active = false,
     this.onPressed,
+    this.actions = const [],
   });
 
   /// The micro-label above the row — 内置模型 / Claude / DeepL.
@@ -38,8 +40,41 @@ class ListCard extends StatelessWidget {
   final bool active;
   final VoidCallback? onPressed;
 
+  /// Row actions — 收藏 as a word and a ⋯ menu for the rest. They surface on
+  /// hover, in the flag's corner: the flag says what the row is, the actions
+  /// are what you can do to it, and only one is needed at a time. They sit over
+  /// the row rather than inside it, because the row is itself a button.
+  final List<Widget> actions;
+
   @override
   Widget build(BuildContext context) {
+    if (actions.isEmpty) return _buildRow(context, showActions: false);
+    return HoverRegion(
+      builder: (context, hovered) => Stack(
+        children: [
+          _buildRow(context, showActions: hovered),
+          // Pinned to the header line, 24px controls centred on the 11px label.
+          PositionedDirectional(
+            top: 9,
+            end: 16,
+            child: AnimatedOpacity(
+              duration: kTransitionDuration,
+              opacity: hovered ? 1 : 0,
+              child: IgnorePointer(
+                ignoring: !hovered,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: actions,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRow(BuildContext context, {required bool showActions}) {
     final tokens = context.tokens;
     final colors = tokens.colors;
 
@@ -87,14 +122,20 @@ class ListCard extends StatelessWidget {
                 ] else
                   const Spacer(),
                 if (flag != null)
-                  DefaultTextStyle(
-                    style: tokens.typography.sansStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      height: 1,
-                      color: colors.accentText,
+                  // The actions land where the flag sits; the flag steps aside
+                  // rather than sharing the corner with two buttons.
+                  AnimatedOpacity(
+                    duration: kTransitionDuration,
+                    opacity: showActions ? 0 : 1,
+                    child: DefaultTextStyle(
+                      style: tokens.typography.sansStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        height: 1,
+                        color: colors.accentText,
+                      ),
+                      child: flag!,
                     ),
-                    child: flag!,
                   ),
               ],
             ),

@@ -1,3 +1,4 @@
+import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 
@@ -119,6 +120,13 @@ const Map<ProviderType, List<ServiceType>> kProviderCapabilities = {
   ProviderType.zhipu: [ServiceType.translation],
 };
 
+/// `kProviderCapabilities` with the kinds the UI hides removed — what the
+/// pickers, tags and descriptions actually show for a provider type.
+List<ServiceType> visibleProviderCapabilities(ProviderType type) {
+  final capabilities = kProviderCapabilities[type] ?? const <ServiceType>[];
+  return capabilities.where(isServiceTypeVisible).toList(growable: false);
+}
+
 /// The endpoint the engine falls back to when `baseUrl` is left blank. Shown
 /// as the field's placeholder rather than filled in, so a provider added today
 /// still follows the spec if the endpoint moves.
@@ -163,7 +171,7 @@ String defaultBaseUrl(ProviderType type) {
 /// The one-line description under a provider type's name, chosen by what it
 /// can do — the deck writes a bespoke line per type; we only know capabilities.
 String providerTypeDescription(ProviderType type) {
-  final capabilities = kProviderCapabilities[type] ?? const <ServiceType>[];
+  final capabilities = visibleProviderCapabilities(type);
   final translates = capabilities.contains(ServiceType.translation);
   final defines = capabilities.contains(ServiceType.dictionary);
   final description = t.settings.providers.description;

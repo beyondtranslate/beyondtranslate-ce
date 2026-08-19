@@ -151,15 +151,23 @@ class Button extends StatelessWidget {
               );
               foreground = colors.accentText;
             }
+          // Text-only variants have no fill to grey out, so disabled they fade
+          // to the faint ink — and stay there under the pointer.
           case ButtonVariant.quiet:
             weight = FontWeight.w600;
-            foreground = hovered ? colors.accentTextStrong : colors.accentText;
+            foreground = disabled
+                ? colors.fgFaint
+                : (hovered ? colors.accentTextStrong : colors.accentText);
           case ButtonVariant.plain:
             weight = FontWeight.w600;
-            foreground = hovered ? colors.fg : colors.fgTertiary;
+            foreground = disabled
+                ? colors.fgFaint
+                : (hovered ? colors.fg : colors.fgTertiary);
           case ButtonVariant.warning:
             weight = FontWeight.w600;
-            foreground = hovered ? colors.warnFg : colors.warnStrong;
+            foreground = disabled
+                ? colors.fgFaint
+                : (hovered ? colors.warnFg : colors.warnStrong);
         }
 
         final style = tokens.typography.sansStyle(
@@ -169,53 +177,50 @@ class Button extends StatelessWidget {
           color: foreground,
         );
 
-        return Opacity(
-          opacity: disabled && _textOnly ? 0.6 : 1,
-          child: AnimatedContainer(
+        return AnimatedContainer(
+          duration: kTransitionDuration,
+          width: fullWidth ? double.infinity : null,
+          height: height,
+          padding: padding,
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: radius,
+            boxShadow: shadow,
+          ),
+          // The hairline rides in the *foreground* decoration rather than the
+          // background one: a `BoxDecoration.border` insets the content box by
+          // its own width, which would make `secondary` a hairline wider than
+          // the `ghost` next to it. React makes the same point by drawing the
+          // ring as an inset box-shadow instead of a real border.
+          foregroundDecoration: border == null
+              ? null
+              : BoxDecoration(border: border, borderRadius: radius),
+          child: AnimatedDefaultTextStyle(
             duration: kTransitionDuration,
-            width: fullWidth ? double.infinity : null,
-            height: height,
-            padding: padding,
-            decoration: BoxDecoration(
-              color: background,
-              borderRadius: radius,
-              boxShadow: shadow,
-            ),
-            // The hairline rides in the *foreground* decoration rather than the
-            // background one: a `BoxDecoration.border` insets the content box by
-            // its own width, which would make `secondary` a hairline wider than
-            // the `ghost` next to it. React makes the same point by drawing the
-            // ring as an inset box-shadow instead of a real border.
-            foregroundDecoration: border == null
-                ? null
-                : BoxDecoration(border: border, borderRadius: radius),
-            child: AnimatedDefaultTextStyle(
-              duration: kTransitionDuration,
-              style: style,
-              softWrap: false,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (child != null) child!,
-                  if (shortcut != null) ...[
-                    const SizedBox(width: 8),
-                    Opacity(
-                      opacity: 0.7,
-                      child: AnimatedDefaultTextStyle(
-                        duration: kTransitionDuration,
-                        style: tokens.typography.displayStyle(
-                          fontSize: fontSize,
-                          fontWeight: weight,
-                          height: 1,
-                          color: foreground,
-                        ),
-                        child: shortcut!,
+            style: style,
+            softWrap: false,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (child != null) child!,
+                if (shortcut != null) ...[
+                  const SizedBox(width: 8),
+                  Opacity(
+                    opacity: 0.7,
+                    child: AnimatedDefaultTextStyle(
+                      duration: kTransitionDuration,
+                      style: tokens.typography.displayStyle(
+                        fontSize: fontSize,
+                        fontWeight: weight,
+                        height: 1,
+                        color: foreground,
                       ),
+                      child: shortcut!,
                     ),
-                  ],
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         );

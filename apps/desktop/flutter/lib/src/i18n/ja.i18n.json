@@ -163,7 +163,7 @@
     },
     "result": {
       "translating": "翻訳中…",
-      "stale_requery": "原文が変更されました · ⏎ 再翻訳",
+      "stale_requery": "原文が変更されました · $key 再翻訳",
       "compare_services": "$count 個のサービスを比較",
       "collapse_compare": "比較を閉じる",
       "set_preferred": "優先に設定",

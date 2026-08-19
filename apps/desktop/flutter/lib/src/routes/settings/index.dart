@@ -222,6 +222,7 @@ class SettingsTabsShell extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Rail(
+                  resizable: true,
                   children: [
                     for (var i = 0; i < runs.length; i++)
                       RailGroup(

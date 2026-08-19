@@ -112,6 +112,46 @@ void main() {
     expect(width, 172);
   });
 
+  testWidgets('the rail walks between its own floor and ceiling', (
+    tester,
+  ) async {
+    double? width;
+    await tester.pumpWidget(
+      specimen(
+        Rail(
+          resizable: true,
+          onWidthChange: (value) => width = value,
+          children: const [RailItem(child: Text('常规'))],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Starts on the rail metric.
+    expect(tester.getSize(find.byType(Rail)).width, 150);
+
+    await dragBy(tester, 50);
+    expect(width, 200);
+    expect(tester.getSize(find.byType(Rail)).width, 200);
+
+    await dragBy(tester, 400);
+    expect(width, kMaxRailWidth);
+
+    // No collapse on offer: the floor is where the drag stops.
+    await dragBy(tester, -400);
+    expect(width, kMinRailWidth);
+    expect(tester.getSize(find.byType(Rail)).width, kMinRailWidth);
+  });
+
+  testWidgets('a rail that is not resizable draws no handle', (tester) async {
+    await tester.pumpWidget(
+      specimen(const Rail(children: [RailItem(child: Text('常规'))])),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(Rail)).width, 150);
+    expect(find.bySemanticsLabel('调整栏宽度'), findsNothing);
+  });
+
   testWidgets('a sidebar that is not resizable draws no handle', (
     tester,
   ) async {

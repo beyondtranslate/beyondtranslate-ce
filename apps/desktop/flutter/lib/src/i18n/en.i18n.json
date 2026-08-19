@@ -163,13 +163,20 @@
     },
     "result": {
       "translating": "Translating…",
-      "stale_requery": "Source changed · ⏎ retranslate",
+      "stale_requery": "Source changed · $key retranslate",
       "compare_services": "Compare $count services",
       "collapse_compare": "Collapse",
       "set_preferred": "Set as preferred",
       "retry": "Retry",
       "no_result": "No service returned a result — check your network or try another service.",
-      "no_result_note": "Your text is kept; retrying will not duplicate history."
+      "no_result_note": "Your text is kept; retrying will not duplicate history.",
+      "no_result_meta": "$count services returned nothing",
+      "no_result_body": "No translation came back. Check your network and press ⏎ to retry, or expand to see each service's reason.",
+      "check_services": "Check services",
+      "show_reasons": "Why $count services failed",
+      "collapse_reasons": "Hide reasons",
+      "unknown_error": "The service gave no reason.",
+      "no_result_tag": "no result"
     }
   },
   "workbench": {
@@ -209,7 +216,33 @@
       "origin_mini": "Mini translator",
       "favorite_flag": "Favorite",
       "edited_flag": "Edited",
-      "edit_history_hint": "The edited translation will be saved to history"
+      "edit_history_hint": "The edited translation will be saved to history",
+      "copy_translation": "Copy translation",
+      "more_actions": "More",
+      "export_all": "Export all",
+      "retention_short": "History kept 90 days",
+      "manage": "Manage…",
+      "export_title": "Export records",
+      "export_scope_selected": "$count selected",
+      "export_scope_all": "All $count",
+      "export_format": "Format",
+      "format_csv_hint": "Spreadsheets and scripts",
+      "format_md_hint": "A readable side-by-side",
+      "format_tmx_hint": "Translation memory",
+      "export_content": "Contents",
+      "export_with_meta": "Include service, time and origin",
+      "export_only_edited": "Only translations I edited",
+      "manage_title": "Manage history",
+      "manage_subtitle": "$count records",
+      "retention_section": "Retention",
+      "clear_section": "Clear",
+      "clear_description": "Deletes every record, favourites and your own wording included. The glossary is untouched.",
+      "clear_button": "Clear all history…",
+      "clear_confirm_title": "Clear all history",
+      "clear_confirm_message": "Deletes all $count records, favourites and your own wording included. This cannot be undone; the glossary is untouched.",
+      "delete_title_one": "Delete this record",
+      "delete_title_many": "Delete $count records",
+      "delete_message": "This cannot be undone. Favourites and your own wording go with it; the glossary is untouched."
     },
     "glossary": "Glossary",
     "recent_languages": "Recent Languages",
@@ -249,7 +282,35 @@
       "no_results_description": "Try another keyword, or add the term.",
       "no_books_title": "No glossaries yet",
       "no_books_description": "A glossary keeps your chosen wording consistent across every service. Create one, then start adding terms.",
-      "loading": "Loading…"
+      "loading": "Loading…",
+      "new_book_subtitle": "One book per domain; all of them apply while translating",
+      "name": "Name",
+      "name_taken": "Name · already exists",
+      "name_taken_hint": "There is already a glossary called “$name”.",
+      "name_placeholder": "Machine learning",
+      "source_language": "Source language",
+      "target_language": "Target language",
+      "same_language": "The source and target have to be two different languages.",
+      "seed": "Initial content",
+      "seed_blank": "Blank",
+      "seed_blank_hint": "Add entries one at a time later",
+      "seed_csv_hint": "Two columns: term / translation",
+      "seed_tbx_hint": "Industry term exchange format",
+      "seed_blank_note": "Once it exists you can add entries one by one, or drop a CSV / TBX onto the list to merge.",
+      "seed_file_note": "Imports the $format file right after creating · duplicates take the file’s translation",
+      "choose_file": "Choose file…",
+      "create": "Create",
+      "add_entry_subtitle": "A term outranks anything a service returns",
+      "book": "Glossary",
+      "forbidden_label": "Forbidden translations",
+      "forbidden_hint": "A service offering these is flagged as a conflict; separate several with /, leave empty to forbid none.",
+      "forbidden_placeholder_full": "forced teaching / forcing teacher",
+      "duplicate": "“$term” is already in $book; saving overwrites the existing translation.",
+      "duplicate_book_fallback": "this glossary",
+      "keep_adding": "Keep adding after saving",
+      "added_count": "Added $count so far",
+      "overwrite": "Overwrite",
+      "done": "Done"
     },
     "translation": {
       "source": "Source",
@@ -280,7 +341,9 @@
       "quality_hint": "Computed once a translation lands.",
       "shortcuts": "Shortcuts",
       "other_services_disabled": "Other services are disabled",
-      "input_hint_translate_to": "Type or paste text to translate into $language"
+      "input_hint_translate_to": "Type or paste text to translate into $language",
+      "newline_hint": "$key for a new line",
+      "failed_body": "This passage did not get a translation. Check your connection and retry, or expand to work through each service's reason."
     },
     "status": {
       "runtime_ready": "Translation runtime ready",
@@ -401,7 +464,11 @@
           "description": "Only apply inside this app’s own text fields."
         }
       },
-      "reset": "Restore Defaults..."
+      "reset": "Restore Defaults...",
+      "record_placeholder": "Record shortcut",
+      "recording": "Press keys…",
+      "clear": "Clear",
+      "conflict": "Conflicts with “$label”"
     },
     "advanced": {
       "title": "Advanced",

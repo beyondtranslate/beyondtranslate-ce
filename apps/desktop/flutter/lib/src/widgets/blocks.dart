@@ -465,6 +465,15 @@ class TextBlock extends StatelessWidget {
 
 enum HighlightRule { top, bottom, none }
 
+/// Which colour key a [HighlightBlock] is drawn in.
+enum HighlightTone {
+  /// The answer the view is pointing at.
+  accent,
+
+  /// The slot the answer never arrived in — 服务全部失效.
+  danger,
+}
+
 /// The one block on screen that carries the accent surface, a marker dot
 /// and the largest, airiest type — the answer the view is pointing at.
 class HighlightBlock extends StatelessWidget {
@@ -474,6 +483,7 @@ class HighlightBlock extends StatelessWidget {
     this.meta,
     this.actions,
     this.rule = HighlightRule.bottom,
+    this.tone = HighlightTone.accent,
     this.stretch = false,
     required this.child,
   });
@@ -492,6 +502,13 @@ class HighlightBlock extends StatelessWidget {
   /// hairline.
   final HighlightRule rule;
 
+  /// [HighlightTone.danger] when the slot has nothing to show because every
+  /// service failed: the block keeps its place, size and rhythm — marker,
+  /// label, body, action row — and only the colour key changes, so the failure
+  /// reads as "the translation did not arrive" rather than as a different
+  /// screen.
+  final HighlightTone tone;
+
   /// Fill the height the parent grants and pin [actions] to the block's foot —
   /// the deck's `mt-auto` when the 翻译 pane runs the block to its bottom edge.
   final bool stretch;
@@ -501,15 +518,16 @@ class HighlightBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    final danger = tone == HighlightTone.danger;
     final side = BorderSide(
-      color: colors.accentHairline,
+      color: danger ? colors.dangerHairline : colors.accentHairline,
       width: ProductTokens.highlightRule,
     );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
-        color: colors.accentSurface,
+        color: danger ? colors.dangerSurface : colors.accentSurface,
         border: Border(
           top: rule == HighlightRule.top ? side : BorderSide.none,
           bottom: rule == HighlightRule.bottom ? side : BorderSide.none,
@@ -525,16 +543,21 @@ class HighlightBlock extends StatelessWidget {
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: colors.accentText,
+                  color: danger ? colors.danger : colors.accentText,
                   shape: BoxShape.circle,
-                  boxShadow: context.product.highlightGlow,
+                  // No glow: the glow is the "this is the one" signal, and a
+                  // failed slot is not the one.
+                  boxShadow: danger ? null : context.product.highlightGlow,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Label(tone: LabelTone.accent, child: label),
+                  child: Label(
+                    tone: danger ? LabelTone.danger : LabelTone.accent,
+                    child: label,
+                  ),
                 ),
               ),
               if (meta != null)
