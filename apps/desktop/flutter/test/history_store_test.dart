@@ -52,16 +52,12 @@ void main() {
   test('translation session deduplicates retries and resets for new source',
       () async {
     final store = HistoryStore(gateway: _FakeHistoryGateway());
-    final session = TranslationHistorySession(
-      origin: HistoryOrigin.miniTranslator,
-      store: store,
-    );
+    final session = TranslationHistorySession(store: store);
     addTearDown(store.dispose);
     await store.init();
 
     expect(session.beginSource('hello'), isFalse);
-    final first = await session.save(_input(source: 'hello'));
-    expect(first!.origin, HistoryOrigin.miniTranslator);
+    final first = (await session.save(_input(source: 'hello')))!;
     expect(store.counts.all, 1);
 
     expect(session.beginSource('hello'), isFalse);
@@ -95,7 +91,6 @@ HistoryEntryInput _input({
       targetLanguage: 'zh-Hans',
       serviceId: 'system+translation',
       serviceName: 'System',
-      origin: HistoryOrigin.workbench,
       edited: false,
     );
 
@@ -163,7 +158,6 @@ class _FakeHistoryGateway implements HistoryGateway {
       targetLanguage: input.targetLanguage,
       serviceId: input.serviceId,
       serviceName: input.serviceName,
-      origin: input.origin,
       favorite: previous?.favorite ?? false,
       edited: input.edited,
       createdAt: previous?.createdAt ?? now,
@@ -186,7 +180,6 @@ class _FakeHistoryGateway implements HistoryGateway {
         targetLanguage: entry.targetLanguage,
         serviceId: entry.serviceId,
         serviceName: entry.serviceName,
-        origin: entry.origin,
         favorite: favorite,
         edited: entry.edited,
         createdAt: entry.createdAt,

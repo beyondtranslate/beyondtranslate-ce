@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../i18n/i18n.dart';
+import '../../services/app_windows.dart' show showSettingsWindow;
 import '../../utils/platform_util.dart';
 import '../../utils/utils.dart';
 import '../../widgets/ui.dart'
@@ -15,7 +16,6 @@ import '../../widgets/ui.dart'
         CalloutTone,
         DesignThemeContext,
         DesignTypographyStyles;
-import '../app_router.dart' show showSettingsWindow;
 
 class LimitedFunctionalityBanner extends StatelessWidget {
   const LimitedFunctionalityBanner({

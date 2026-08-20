@@ -34,7 +34,6 @@ export 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart'
         HistoryEntry,
         HistoryEntryInput,
         HistoryFilter,
-        HistoryOrigin,
         RuntimeHistory,
         // Translation / look-up types
         DetectLanguageRequest,

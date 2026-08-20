@@ -405,7 +405,7 @@ class TextBlock extends StatelessWidget {
 
   final Widget? label;
 
-  /// Right-aligned hint — ⌥⏎ 重译 · ⌥→ 下一段.
+  /// Right-aligned hint, riding on the label's line — 翻译中, 我改过.
   final Widget? meta;
   final Widget child;
 

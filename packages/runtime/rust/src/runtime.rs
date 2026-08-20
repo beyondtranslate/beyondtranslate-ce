@@ -2893,7 +2893,6 @@ mod tests {
                     target_language: "zh-Hans".to_owned(),
                     service_id: "system+translation".to_owned(),
                     service_name: "System".to_owned(),
-                    origin: crate::domain::history::HistoryOrigin::Workbench,
                     edited: false,
                 })
                 .await

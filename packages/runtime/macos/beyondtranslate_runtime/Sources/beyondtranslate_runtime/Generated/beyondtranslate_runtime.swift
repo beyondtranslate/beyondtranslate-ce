@@ -4603,7 +4603,6 @@ public struct HistoryEntry: Equatable, Hashable {
   public var targetLanguage: String
   public var serviceId: String
   public var serviceName: String
-  public var origin: HistoryOrigin
   public var favorite: Bool
   public var edited: Bool
   public var createdAt: UInt64
@@ -4613,8 +4612,8 @@ public struct HistoryEntry: Equatable, Hashable {
   // declare one manually.
   public init(
     id: String, source: String, translation: String, sourceLanguage: String, targetLanguage: String,
-    serviceId: String, serviceName: String, origin: HistoryOrigin, favorite: Bool, edited: Bool,
-    createdAt: UInt64, updatedAt: UInt64
+    serviceId: String, serviceName: String, favorite: Bool, edited: Bool, createdAt: UInt64,
+    updatedAt: UInt64
   ) {
     self.id = id
     self.source = source
@@ -4623,7 +4622,6 @@ public struct HistoryEntry: Equatable, Hashable {
     self.targetLanguage = targetLanguage
     self.serviceId = serviceId
     self.serviceName = serviceName
-    self.origin = origin
     self.favorite = favorite
     self.edited = edited
     self.createdAt = createdAt
@@ -4650,7 +4648,6 @@ public struct FfiConverterTypeHistoryEntry: FfiConverterRustBuffer {
         targetLanguage: FfiConverterString.read(from: &buf),
         serviceId: FfiConverterString.read(from: &buf),
         serviceName: FfiConverterString.read(from: &buf),
-        origin: FfiConverterTypeHistoryOrigin.read(from: &buf),
         favorite: FfiConverterBool.read(from: &buf),
         edited: FfiConverterBool.read(from: &buf),
         createdAt: FfiConverterUInt64.read(from: &buf),
@@ -4666,7 +4663,6 @@ public struct FfiConverterTypeHistoryEntry: FfiConverterRustBuffer {
     FfiConverterString.write(value.targetLanguage, into: &buf)
     FfiConverterString.write(value.serviceId, into: &buf)
     FfiConverterString.write(value.serviceName, into: &buf)
-    FfiConverterTypeHistoryOrigin.write(value.origin, into: &buf)
     FfiConverterBool.write(value.favorite, into: &buf)
     FfiConverterBool.write(value.edited, into: &buf)
     FfiConverterUInt64.write(value.createdAt, into: &buf)
@@ -4696,15 +4692,13 @@ public struct HistoryEntryInput: Equatable, Hashable {
   public var targetLanguage: String
   public var serviceId: String
   public var serviceName: String
-  public var origin: HistoryOrigin
   public var edited: Bool
 
   // Default memberwise initializers are never public by default, so we
   // declare one manually.
   public init(
     id: String?, source: String, translation: String, sourceLanguage: String,
-    targetLanguage: String, serviceId: String, serviceName: String, origin: HistoryOrigin,
-    edited: Bool
+    targetLanguage: String, serviceId: String, serviceName: String, edited: Bool
   ) {
     self.id = id
     self.source = source
@@ -4713,7 +4707,6 @@ public struct HistoryEntryInput: Equatable, Hashable {
     self.targetLanguage = targetLanguage
     self.serviceId = serviceId
     self.serviceName = serviceName
-    self.origin = origin
     self.edited = edited
   }
 
@@ -4739,7 +4732,6 @@ public struct FfiConverterTypeHistoryEntryInput: FfiConverterRustBuffer {
         targetLanguage: FfiConverterString.read(from: &buf),
         serviceId: FfiConverterString.read(from: &buf),
         serviceName: FfiConverterString.read(from: &buf),
-        origin: FfiConverterTypeHistoryOrigin.read(from: &buf),
         edited: FfiConverterBool.read(from: &buf)
       )
   }
@@ -4752,7 +4744,6 @@ public struct FfiConverterTypeHistoryEntryInput: FfiConverterRustBuffer {
     FfiConverterString.write(value.targetLanguage, into: &buf)
     FfiConverterString.write(value.serviceId, into: &buf)
     FfiConverterString.write(value.serviceName, into: &buf)
-    FfiConverterTypeHistoryOrigin.write(value.origin, into: &buf)
     FfiConverterBool.write(value.edited, into: &buf)
   }
 }
@@ -6471,66 +6462,6 @@ public func FfiConverterTypeHistoryFilter_lift(_ buf: RustBuffer) throws -> Hist
 #endif
 public func FfiConverterTypeHistoryFilter_lower(_ value: HistoryFilter) -> RustBuffer {
   return FfiConverterTypeHistoryFilter.lower(value)
-}
-
-// Note that we don't yet support `indirect` for enums.
-// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
-
-public enum HistoryOrigin: Equatable, Hashable {
-
-  case workbench
-  case miniTranslator
-
-}
-
-#if compiler(>=6)
-  extension HistoryOrigin: Sendable {}
-#endif
-
-#if swift(>=5.8)
-  @_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeHistoryOrigin: FfiConverterRustBuffer {
-  typealias SwiftType = HistoryOrigin
-
-  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> HistoryOrigin
-  {
-    let variant: Int32 = try readInt(&buf)
-    switch variant {
-
-    case 1: return .workbench
-
-    case 2: return .miniTranslator
-
-    default: throw UniffiInternalError.unexpectedEnumCase
-    }
-  }
-
-  public static func write(_ value: HistoryOrigin, into buf: inout [UInt8]) {
-    switch value {
-
-    case .workbench:
-      writeInt(&buf, Int32(1))
-
-    case .miniTranslator:
-      writeInt(&buf, Int32(2))
-
-    }
-  }
-}
-
-#if swift(>=5.8)
-  @_documentation(visibility: private)
-#endif
-public func FfiConverterTypeHistoryOrigin_lift(_ buf: RustBuffer) throws -> HistoryOrigin {
-  return try FfiConverterTypeHistoryOrigin.lift(buf)
-}
-
-#if swift(>=5.8)
-  @_documentation(visibility: private)
-#endif
-public func FfiConverterTypeHistoryOrigin_lower(_ value: HistoryOrigin) -> RustBuffer {
-  return FfiConverterTypeHistoryOrigin.lower(value)
 }
 
 // Note that we don't yet support `indirect` for enums.

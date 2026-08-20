@@ -379,9 +379,6 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     final time = DateFormat('yyyy-MM-dd HH:mm').format(
       DateTime.fromMillisecondsSinceEpoch(entry.createdAt * 1000),
     );
-    final origin = entry.origin == HistoryOrigin.workbench
-        ? strings.origin_workbench
-        : strings.origin_mini;
     final flags = [
       if (entry.favorite) strings.favorite_flag,
       if (entry.edited) strings.edited_flag,
@@ -392,7 +389,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       eyebrow: Text(
         entry.serviceName.isEmpty ? entry.serviceId : entry.serviceName,
       ),
-      meta: Text('$time · $origin'),
+      meta: Text(time),
       flag: flags.isEmpty ? null : Text(flags.join(' · ')),
       primary: Text(entry.source),
       secondary: Text(entry.translation),

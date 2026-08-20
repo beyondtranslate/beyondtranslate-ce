@@ -92,9 +92,6 @@ class _TranslationsCommonKo extends TranslationsCommonEn {
   @override
   late final _TranslationsCommonProviderKo provider =
       _TranslationsCommonProviderKo._(_root);
-  @override
-  late final _TranslationsCommonWordPronunciationKo word_pronunciation =
-      _TranslationsCommonWordPronunciationKo._(_root);
 }
 
 // Path: app
@@ -391,22 +388,6 @@ class _TranslationsCommonProviderKo extends TranslationsCommonProviderEn {
   String get youdao => 'Youdao';
 }
 
-// Path: common.word_pronunciation
-class _TranslationsCommonWordPronunciationKo
-    extends TranslationsCommonWordPronunciationEn {
-  _TranslationsCommonWordPronunciationKo._(TranslationsKo root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsKo _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get us => '미국';
-  @override
-  String get uk => '영국';
-}
-
 // Path: app.tray
 class _TranslationsAppTrayKo extends TranslationsAppTrayEn {
   _TranslationsAppTrayKo._(TranslationsKo root)
@@ -499,8 +480,6 @@ class _TranslationsMiniTranslatorButtonKo
   String get clear => '지우기';
   @override
   String get translate => '번역';
-  @override
-  String get read => '읽기';
   @override
   String get copy => '복사';
   @override
@@ -649,10 +628,6 @@ class _TranslationsWorkbenchHistoryPageKo
   String added_to_glossary({required Object count}) =>
       '기록 ${count}개를 용어집에 추가했습니다';
   @override
-  String get origin_workbench => '메인 창';
-  @override
-  String get origin_mini => '미니 번역기';
-  @override
   String get favorite_flag => '즐겨찾기';
   @override
   String get edited_flag => '수정됨';
@@ -800,8 +775,6 @@ class _TranslationsWorkbenchTranslationKo
   String get service_unavailable => '서비스를 사용할 수 없음';
   @override
   String get waiting => '번역 대기';
-  @override
-  String get read => '읽기';
   @override
   String get copy => '복사';
   @override
@@ -2218,8 +2191,6 @@ extension on TranslationsKo {
       'common.provider.system' => '시스템',
       'common.provider.tencent' => 'Tencent',
       'common.provider.youdao' => 'Youdao',
-      'common.word_pronunciation.us' => '미국',
-      'common.word_pronunciation.uk' => '영국',
       'app.tray.context_menu.show_window' => '창 보기',
       'app.tray.context_menu.dev_tools.title' => '개발자 도구',
       'app.tray.context_menu.dev_tools.open_data_directory' => '데이터 디렉터리 열기',
@@ -2259,7 +2230,6 @@ extension on TranslationsKo {
       'mini_translator.toolbar.menu.open_settings' => '설정…',
       'mini_translator.button.clear' => '지우기',
       'mini_translator.button.translate' => '번역',
-      'mini_translator.button.read' => '읽기',
       'mini_translator.button.copy' => '복사',
       'mini_translator.button.copied' => '복사됨',
       'mini_translator.button.bookmark' => '저장',
@@ -2324,8 +2294,6 @@ extension on TranslationsKo {
       'workbench.history_page.no_glossary' => '먼저 용어집을 만드세요',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '기록 ${count}개를 용어집에 추가했습니다',
-      'workbench.history_page.origin_workbench' => '메인 창',
-      'workbench.history_page.origin_mini' => '미니 번역기',
       'workbench.history_page.favorite_flag' => '즐겨찾기',
       'workbench.history_page.edited_flag' => '수정됨',
       'workbench.history_page.edit_history_hint' => '수정한 번역은 기록에 저장됩니다',
@@ -2385,7 +2353,6 @@ extension on TranslationsKo {
       'workbench.translation.main_translation' => '기본 번역',
       'workbench.translation.service_unavailable' => '서비스를 사용할 수 없음',
       'workbench.translation.waiting' => '번역 대기',
-      'workbench.translation.read' => '읽기',
       'workbench.translation.copy' => '복사',
       'workbench.translation.favorite_unavailable' => '즐겨찾기는 향후 버전에서 제공됩니다',
       'workbench.translation.preferred' => '기본 번역',

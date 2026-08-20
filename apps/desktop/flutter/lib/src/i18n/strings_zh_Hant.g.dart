@@ -94,9 +94,6 @@ class _TranslationsCommonZhHant extends TranslationsCommonEn {
   @override
   late final _TranslationsCommonProviderZhHant provider =
       _TranslationsCommonProviderZhHant._(_root);
-  @override
-  late final _TranslationsCommonWordPronunciationZhHant word_pronunciation =
-      _TranslationsCommonWordPronunciationZhHant._(_root);
 }
 
 // Path: app
@@ -395,22 +392,6 @@ class _TranslationsCommonProviderZhHant extends TranslationsCommonProviderEn {
   String get youdao => '有道';
 }
 
-// Path: common.word_pronunciation
-class _TranslationsCommonWordPronunciationZhHant
-    extends TranslationsCommonWordPronunciationEn {
-  _TranslationsCommonWordPronunciationZhHant._(TranslationsZhHant root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsZhHant _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get us => '美';
-  @override
-  String get uk => '英';
-}
-
 // Path: app.tray
 class _TranslationsAppTrayZhHant extends TranslationsAppTrayEn {
   _TranslationsAppTrayZhHant._(TranslationsZhHant root)
@@ -505,8 +486,6 @@ class _TranslationsMiniTranslatorButtonZhHant
   String get clear => '清除';
   @override
   String get translate => '翻譯';
-  @override
-  String get read => '朗讀';
   @override
   String get copy => '複製';
   @override
@@ -651,10 +630,6 @@ class _TranslationsWorkbenchHistoryPageZhHant
   String get no_glossary => '請先建立一個術語庫';
   @override
   String added_to_glossary({required Object count}) => '已將 ${count} 筆記錄加入術語庫';
-  @override
-  String get origin_workbench => '主視窗';
-  @override
-  String get origin_mini => '迷你翻譯器';
   @override
   String get favorite_flag => '已收藏';
   @override
@@ -801,8 +776,6 @@ class _TranslationsWorkbenchTranslationZhHant
   String get service_unavailable => '服務暫不可用';
   @override
   String get waiting => '等待翻譯';
-  @override
-  String get read => '朗讀';
   @override
   String get copy => '複製';
   @override
@@ -2229,8 +2202,6 @@ extension on TranslationsZhHant {
       'common.provider.system' => '系統',
       'common.provider.tencent' => '騰訊',
       'common.provider.youdao' => '有道',
-      'common.word_pronunciation.us' => '美',
-      'common.word_pronunciation.uk' => '英',
       'app.tray.context_menu.show_window' => '顯示視窗',
       'app.tray.context_menu.dev_tools.title' => '開發工具',
       'app.tray.context_menu.dev_tools.open_data_directory' => '開啟資料目錄',
@@ -2269,7 +2240,6 @@ extension on TranslationsZhHant {
       'mini_translator.toolbar.menu.open_settings' => '設定…',
       'mini_translator.button.clear' => '清除',
       'mini_translator.button.translate' => '翻譯',
-      'mini_translator.button.read' => '朗讀',
       'mini_translator.button.copy' => '複製',
       'mini_translator.button.copied' => '已複製',
       'mini_translator.button.bookmark' => '收藏',
@@ -2329,8 +2299,6 @@ extension on TranslationsZhHant {
       'workbench.history_page.no_glossary' => '請先建立一個術語庫',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '已將 ${count} 筆記錄加入術語庫',
-      'workbench.history_page.origin_workbench' => '主視窗',
-      'workbench.history_page.origin_mini' => '迷你翻譯器',
       'workbench.history_page.favorite_flag' => '已收藏',
       'workbench.history_page.edited_flag' => '我改過',
       'workbench.history_page.edit_history_hint' => '修改後的譯文會儲存到歷史',
@@ -2389,7 +2357,6 @@ extension on TranslationsZhHant {
       'workbench.translation.main_translation' => '主譯文',
       'workbench.translation.service_unavailable' => '服務暫不可用',
       'workbench.translation.waiting' => '等待翻譯',
-      'workbench.translation.read' => '朗讀',
       'workbench.translation.copy' => '複製',
       'workbench.translation.favorite_unavailable' => '收藏功能將在後續版本提供',
       'workbench.translation.preferred' => '首選譯文',

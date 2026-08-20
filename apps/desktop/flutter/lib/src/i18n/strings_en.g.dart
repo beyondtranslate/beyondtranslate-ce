@@ -77,8 +77,6 @@ class TranslationsCommonEn {
       TranslationsCommonThemeStyleEn.internal(_root);
   late final TranslationsCommonProviderEn provider =
       TranslationsCommonProviderEn.internal(_root);
-  late final TranslationsCommonWordPronunciationEn word_pronunciation =
-      TranslationsCommonWordPronunciationEn.internal(_root);
 }
 
 // Path: app
@@ -398,21 +396,6 @@ class TranslationsCommonProviderEn {
   String get youdao => 'Youda';
 }
 
-// Path: common.word_pronunciation
-class TranslationsCommonWordPronunciationEn {
-  TranslationsCommonWordPronunciationEn.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-
-  /// en: 'US'
-  String get us => 'US';
-
-  /// en: 'UK'
-  String get uk => 'UK';
-}
-
 // Path: app.tray
 class TranslationsAppTrayEn {
   TranslationsAppTrayEn.internal(this._root);
@@ -488,9 +471,6 @@ class TranslationsMiniTranslatorButtonEn {
 
   /// en: 'Translate'
   String get translate => 'Translate';
-
-  /// en: 'Read aloud'
-  String get read => 'Read aloud';
 
   /// en: 'Copy'
   String get copy => 'Copy';
@@ -703,12 +683,6 @@ class TranslationsWorkbenchHistoryPageEn {
   /// en: 'Added $count entries to the glossary'
   String added_to_glossary({required Object count}) =>
       'Added ${count} entries to the glossary';
-
-  /// en: 'Main window'
-  String get origin_workbench => 'Main window';
-
-  /// en: 'Mini translator'
-  String get origin_mini => 'Mini translator';
 
   /// en: 'Favorite'
   String get favorite_flag => 'Favorite';
@@ -1005,9 +979,6 @@ class TranslationsWorkbenchTranslationEn {
 
   /// en: 'Waiting to translate'
   String get waiting => 'Waiting to translate';
-
-  /// en: 'Read aloud'
-  String get read => 'Read aloud';
 
   /// en: 'Copy'
   String get copy => 'Copy';
@@ -2481,8 +2452,6 @@ extension on Translations {
       'common.provider.system' => 'System',
       'common.provider.tencent' => 'Tencent',
       'common.provider.youdao' => 'Youda',
-      'common.word_pronunciation.us' => 'US',
-      'common.word_pronunciation.uk' => 'UK',
       'app.tray.context_menu.show_window' => 'Show Window',
       'app.tray.context_menu.dev_tools.title' => 'Dev Tools',
       'app.tray.context_menu.dev_tools.open_data_directory' =>
@@ -2526,7 +2495,6 @@ extension on Translations {
       'mini_translator.toolbar.menu.open_settings' => 'Settings…',
       'mini_translator.button.clear' => 'Clear',
       'mini_translator.button.translate' => 'Translate',
-      'mini_translator.button.read' => 'Read aloud',
       'mini_translator.button.copy' => 'Copy',
       'mini_translator.button.copied' => 'Copied',
       'mini_translator.button.bookmark' => 'Save',
@@ -2605,8 +2573,6 @@ extension on Translations {
       'workbench.history_page.no_glossary' => 'Create a glossary first',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           'Added ${count} entries to the glossary',
-      'workbench.history_page.origin_workbench' => 'Main window',
-      'workbench.history_page.origin_mini' => 'Mini translator',
       'workbench.history_page.favorite_flag' => 'Favorite',
       'workbench.history_page.edited_flag' => 'Edited',
       'workbench.history_page.edit_history_hint' =>
@@ -2722,7 +2688,6 @@ extension on Translations {
       'workbench.translation.main_translation' => 'Primary',
       'workbench.translation.service_unavailable' => 'Service unavailable',
       'workbench.translation.waiting' => 'Waiting to translate',
-      'workbench.translation.read' => 'Read aloud',
       'workbench.translation.copy' => 'Copy',
       'workbench.translation.favorite_unavailable' =>
         'Favorites will be available in a future release',

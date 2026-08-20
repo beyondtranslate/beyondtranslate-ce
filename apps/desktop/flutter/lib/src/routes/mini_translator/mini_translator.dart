@@ -15,6 +15,14 @@ import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
 import '../../routes/settings/provider_meta.dart' show isServiceEnabled;
 import '../../routes/settings/services.dart' show ServicesSettingsPage;
+import '../../services/app_windows.dart'
+    show
+        hideMiniTranslatorWindow,
+        miniTranslatorPositionAtCursorScreenTopRight,
+        miniTranslatorWindowController,
+        showMiniTranslatorWindow,
+        showWorkbenchWindow,
+        showSettingsWindow;
 import '../../services/history_store.dart';
 import '../../services/llm_stream.dart';
 import '../../services/runtime.dart';
@@ -23,12 +31,6 @@ import '../../services/shortcut_service/shortcut_service.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
 import '../../widgets/ui.dart' show DesignThemeContext, PopoverPanel;
-import '../app_router.dart'
-    show
-        miniTranslatorPositionAtCursorScreenTopRight,
-        miniTranslatorWindowController,
-        showWorkbenchWindow,
-        showSettingsWindow;
 import 'limited_functionality_banner.dart';
 import 'translation_input_view.dart';
 import 'translation_results_view.dart';
@@ -87,9 +89,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   String? _preferredServiceId;
   bool _copied = false;
   bool _starred = false;
-  final TranslationHistorySession _historySession = TranslationHistorySession(
-    origin: HistoryOrigin.miniTranslator,
-  );
+  final TranslationHistorySession _historySession = TranslationHistorySession();
   Timer? _copiedTimer;
 
   /// Service display names and the translation-service ids, captured per query
@@ -205,7 +205,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       if (event.windowId == _window.id) {
         _focusNode.unfocus();
         if (!_window.isAlwaysOnTop) {
-          _window.hide();
+          hideMiniTranslatorWindow();
         }
       }
     });
@@ -263,7 +263,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
     final isVisible = _window.isVisible;
     if (!isVisible) {
-      _window.show();
+      // Through the window layer, so the workbench gets out of the way.
+      await showMiniTranslatorWindow();
     } else {
       _window.focus();
     }
@@ -279,7 +280,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   }
 
   Future<void> _windowHide() async {
-    _window.hide();
+    hideMiniTranslatorWindow();
   }
 
   void _scheduleWindowResize({bool animate = true, bool settle = false}) {
@@ -463,7 +464,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         targetLanguage: target?.target ?? defaultTargetLanguage,
         serviceId: serviceId,
         serviceName: (_serviceNameById[serviceId] ?? serviceId).trim(),
-        origin: HistoryOrigin.miniTranslator,
         edited: false,
       ),
     );
@@ -964,7 +964,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           starred: _starred,
           translateEnabled: _text.isNotEmpty,
           retry: noResult,
-          onRead: () {},
           onCopy: _handleButtonTappedCopy,
           onBookmark: _toggleHistoryFavorite,
           onTranslate: _handleButtonTappedTrans,

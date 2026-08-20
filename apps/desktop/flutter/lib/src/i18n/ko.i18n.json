@@ -74,10 +74,6 @@
       "system": "시스템",
       "tencent": "Tencent",
       "youdao": "Youdao"
-    },
-    "word_pronunciation": {
-      "us": "미국",
-      "uk": "영국"
     }
   },
   "app": {
@@ -140,7 +136,6 @@
     "button": {
       "clear": "지우기",
       "translate": "번역",
-      "read": "읽기",
       "copy": "복사",
       "copied": "복사됨",
       "bookmark": "저장",
@@ -201,8 +196,6 @@
       "delete_confirm": "선택한 기록 $count개를 삭제할까요? 되돌릴 수 없습니다.",
       "no_glossary": "먼저 용어집을 만드세요",
       "added_to_glossary": "기록 $count개를 용어집에 추가했습니다",
-      "origin_workbench": "메인 창",
-      "origin_mini": "미니 번역기",
       "favorite_flag": "즐겨찾기",
       "edited_flag": "수정됨",
       "edit_history_hint": "수정한 번역은 기록에 저장됩니다"
@@ -262,7 +255,6 @@
       "main_translation": "기본 번역",
       "service_unavailable": "서비스를 사용할 수 없음",
       "waiting": "번역 대기",
-      "read": "읽기",
       "copy": "복사",
       "favorite_unavailable": "즐겨찾기는 향후 버전에서 제공됩니다",
       "preferred": "기본 번역",

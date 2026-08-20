@@ -74,10 +74,6 @@
       "system": "システム",
       "tencent": "Tencent",
       "youdao": "Youda"
-    },
-    "word_pronunciation": {
-      "us": "米国",
-      "uk": "英国"
     }
   },
   "app": {
@@ -140,7 +136,6 @@
     "button": {
       "clear": "クリア",
       "translate": "翻訳",
-      "read": "読み上げ",
       "copy": "コピー",
       "copied": "コピー済み",
       "bookmark": "保存",
@@ -201,8 +196,6 @@
       "delete_confirm": "選択した $count 件の履歴を削除しますか？元に戻せません。",
       "no_glossary": "先に用語集を作成してください",
       "added_to_glossary": "$count 件を用語集に追加しました",
-      "origin_workbench": "メインウィンドウ",
-      "origin_mini": "ミニ翻訳",
       "favorite_flag": "お気に入り",
       "edited_flag": "編集済み",
       "edit_history_hint": "編集した訳文は履歴に保存されます"
@@ -262,7 +255,6 @@
       "main_translation": "メイン",
       "service_unavailable": "サービスを利用できません",
       "waiting": "翻訳待ち",
-      "read": "読み上げ",
       "copy": "コピー",
       "favorite_unavailable": "お気に入りは今後のリリースで提供します",
       "preferred": "優先訳文",
