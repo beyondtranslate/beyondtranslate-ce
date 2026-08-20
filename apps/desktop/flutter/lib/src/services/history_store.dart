@@ -200,12 +200,9 @@ final historyStore = HistoryStore.instance;
 /// A changed source starts a new history entry; all other saves upsert the
 /// current entry and preserve its favorite state.
 class TranslationHistorySession {
-  TranslationHistorySession({
-    required this.origin,
-    HistoryStore? store,
-  }) : _store = store ?? historyStore;
+  TranslationHistorySession({HistoryStore? store})
+      : _store = store ?? historyStore;
 
-  final HistoryOrigin origin;
   final HistoryStore _store;
   String? _source;
 
@@ -238,7 +235,6 @@ class TranslationHistorySession {
         targetLanguage: input.targetLanguage,
         serviceId: input.serviceId,
         serviceName: input.serviceName,
-        origin: origin,
         edited: input.edited,
       ),
     );

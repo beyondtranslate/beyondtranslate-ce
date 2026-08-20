@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide Badge, TextField;
 import 'package:flutter/services.dart';
@@ -8,14 +7,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../features.dart';
 import '../../i18n/i18n.dart';
+import '../../services/app_windows.dart' show workbenchTextHandoff;
 import '../../services/history_store.dart';
-import '../../services/runtime.dart'
-    show HistoryEntryInput, HistoryOrigin, InputSubmitMode;
+import '../../services/runtime.dart' show HistoryEntryInput, InputSubmitMode;
 import '../../services/settings_store.dart';
 import '../../services/workbench_translation_controller.dart';
 import '../../theme/product_tokens.dart'
     show ProductTokens, ProductTypographyStyles;
-import '../../utils/global_audio_player.dart';
 import '../../utils/language_util.dart';
 import '../../utils/shortcut_util.dart';
 import '../../widgets/avatar.dart' show Avatar, AvatarSize;
@@ -23,8 +21,6 @@ import '../../widgets/blocks.dart'
     show HighlightBlock, HighlightRule, HighlightTone;
 import '../../widgets/data_display.dart' show DetailBlock;
 import '../../widgets/language_selector.dart' show LanguageSelector;
-import '../../widgets/negative_vertical_margin.dart'
-    show NegativeVerticalMargin;
 import '../../widgets/text_field.dart' show TextField;
 import '../../widgets/translation_text.dart';
 import '../../widgets/ui.dart'
@@ -45,7 +41,6 @@ import '../../widgets/ui.dart'
         kTransitionDuration;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import '../settings/services.dart' show ServicesSettingsPage;
-import 'index.dart' show workbenchTextHandoff;
 
 /// 翻译 — the deck's TranslateView: the source block over the preferred
 /// translation, the other services behind a 对比 toggle, and the information
@@ -68,9 +63,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   bool _expanded = false;
   bool _copied = false;
   bool _starred = false;
-  final TranslationHistorySession _historySession = TranslationHistorySession(
-    origin: HistoryOrigin.workbench,
-  );
+  final TranslationHistorySession _historySession = TranslationHistorySession();
   Timer? _copiedTimer;
 
   /// In-place editing of the preferred translation.
@@ -83,6 +76,11 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   /// 命中术语 — open by default; the aside's one foldable section.
   bool _termsOpen = true;
 
+  /// Tracks the branch's [TickerMode] so returning to 翻译 from another
+  /// sidebar destination puts the caret back in the source box. The page
+  /// itself stays mounted offstage in the shell's indexed stack.
+  bool _visibleInShell = true;
+
   @override
   void initState() {
     super.initState();
@@ -93,6 +91,14 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     // reopen.
     settingsStore.addListener(_refresh);
     _initialize();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visible = TickerMode.valuesOf(context).enabled;
+    if (visible && !_visibleInShell) _focusNode.requestFocus();
+    _visibleInShell = visible;
   }
 
   Future<void> _initialize() async {
@@ -145,7 +151,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
         targetLanguage: _controller.effectiveTargetLanguage,
         serviceId: result.service.id,
         serviceName: serviceName,
-        origin: HistoryOrigin.workbench,
         edited: edited,
       ),
     );
@@ -258,12 +263,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 
     return CallbackShortcuts(
       bindings: {
-        // ⌥⏎ 重译, as the source block's meta hint advertises.
-        const SingleActivator(LogicalKeyboardKey.enter, alt: true): () {
-          if (_controller.text.trim().isNotEmpty && !_controller.submitting) {
-            _submit();
-          }
-        },
         // ⌥1…⌥9 promote the matching service, as hinted on the cards.
         for (var digit = 1; digit <= 9; digit++)
           SingleActivator(
@@ -353,13 +352,11 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     );
   }
 
-  /// 原文 — the editable source block at the top of the pane: the label row
-  /// with the ⌥⏎ 重译 hint, the input, and the deck's idle footer (⇧⏎ 换行
-  /// beside the 翻译 button).
+  /// 原文 — the editable source block at the top of the pane: the label row,
+  /// the input, and the deck's idle footer (⇧⏎ 换行 beside the 翻译 button).
   Widget _buildSourceBlock(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final hasResult = (_controller.selectedResult?.text ?? '').isNotEmpty;
     // Read once: the field, the hint under it and the button's key chip all
     // have to name the same key.
     final submitMode = settingsStore.inputSubmitMode;
@@ -379,12 +376,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                   '${t.workbench.translation.source} · ${getSourceDisplayName(_detectedLanguage)}',
                 ),
               ),
-              const Spacer(),
-              // The deck draws this as a static hint; here it is a real
-              // control, so it gets a padded hit target. `-my-1.5` keeps that
-              // padding outside the label's line box instead of growing the
-              // row, so the block's header stays 11px tall.
-              if (hasResult) _buildRetryHint(context),
             ],
           ),
           const SizedBox(height: 10),
@@ -442,39 +433,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     );
   }
 
-  /// ⌥⏎ 重译 — the source block's trailing hint, drawn as a real control.
-  Widget _buildRetryHint(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.chip);
-    const padding = EdgeInsets.symmetric(horizontal: 8, vertical: 6);
-
-    return NegativeVerticalMargin(
-      // Exactly the padding the hit target added, taken back out of the row.
-      shrink: padding.vertical / 2,
-      child: Pressable(
-        onPressed: _controller.submitting ? null : _submit,
-        borderRadius: radius,
-        builder: (context, state) => Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: state.hovered ? colors.inset : null,
-            borderRadius: radius,
-          ),
-          child: Text(
-            '⌥⏎ ${t.mini_translator.result.retry}',
-            style: tokens.typography.displayStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              height: 1,
-              color: state.hovered ? colors.fgSubtle : colors.fgFaint,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// 首选译文 — the one accent block, in the deck's HighlightBlock shape.
   Widget _buildPreferredBlock(
     BuildContext context,
@@ -510,7 +468,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             Button(
               variant: ButtonVariant.primary,
               onPressed: _submit,
-              shortcut: const Text('⌥⏎'),
               child: Text(t.mini_translator.result.retry),
             ),
             const SizedBox(width: 7),
@@ -589,10 +546,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           ? Text(translation.translating)
           : _override != null
               ? Text(t.workbench.history_page.edited_flag)
-              : idle
-                  ? const Text('⌥Space 唤起迷你翻译器')
-                  : null,
-      // 翻译中不给动作行 —— 复制/朗读和对比开关都等结果落地再出现.
+              : null,
+      // 翻译中不给动作行 —— 复制和对比开关都等结果落地再出现.
       actions: idle || translating
           ? null
           : _editing
@@ -629,18 +584,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                       child: Text(
                         _copied ? translation.copied : translation.copy_result,
                       ),
-                    ),
-                    const SizedBox(width: 7),
-                    Button(
-                      variant: ButtonVariant.secondary,
-                      enabled: result?.audioUrl != null,
-                      onPressed: () {
-                        final url = result?.audioUrl;
-                        if (url != null) {
-                          globalAudioPlayer.play(UrlSource(url));
-                        }
-                      },
-                      child: Text(translation.read),
                     ),
                     const SizedBox(width: 7),
                     Button(
@@ -925,7 +868,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           children: [
             Text(
               '${t.workbench.status.shortcuts}\n'
-              '⌥⏎ ${t.mini_translator.result.retry} · '
               '⌥1-9 ${t.mini_translator.result.set_preferred}',
               style: tokens.typography.sansStyle(
                 fontSize: 11,

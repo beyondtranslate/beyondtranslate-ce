@@ -149,7 +149,6 @@ HistoryEntry _entry(
       targetLanguage: 'zh-Hans',
       serviceId: 'system+translation',
       serviceName: 'System',
-      origin: HistoryOrigin.workbench,
       favorite: favorite,
       edited: edited,
       createdAt: 1700000000,

@@ -5,11 +5,11 @@ import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../extensions/window_controller.dart';
 import '../../i18n/i18n.dart';
+import '../../services/app_windows.dart' show miniTranslatorWindowController;
 import '../../utils/language_util.dart';
 import '../../widgets/icon_action_button.dart';
 import '../../widgets/language_selector.dart';
 import '../../widgets/native_menu.dart' show openNativeMenuBelow;
-import '../app_router.dart' show miniTranslatorWindowController;
 
 /// 顶部栏 — the deck's MiniTranslator chrome: the language capsule on the
 /// left (each end opens a native menu, matching the deck's target-language

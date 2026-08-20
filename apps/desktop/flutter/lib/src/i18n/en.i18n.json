@@ -74,10 +74,6 @@
       "system": "System",
       "tencent": "Tencent",
       "youdao": "Youda"
-    },
-    "word_pronunciation": {
-      "us": "US",
-      "uk": "UK"
     }
   },
   "app": {
@@ -140,7 +136,6 @@
     "button": {
       "clear": "Clear",
       "translate": "Translate",
-      "read": "Read aloud",
       "copy": "Copy",
       "copied": "Copied",
       "bookmark": "Save",
@@ -208,8 +203,6 @@
       "delete_confirm": "Delete the selected $count history entries? This cannot be undone.",
       "no_glossary": "Create a glossary first",
       "added_to_glossary": "Added $count entries to the glossary",
-      "origin_workbench": "Main window",
-      "origin_mini": "Mini translator",
       "favorite_flag": "Favorite",
       "edited_flag": "Edited",
       "edit_history_hint": "The edited translation will be saved to history",
@@ -302,7 +295,6 @@
       "main_translation": "Primary",
       "service_unavailable": "Service unavailable",
       "waiting": "Waiting to translate",
-      "read": "Read aloud",
       "copy": "Copy",
       "favorite_unavailable": "Favorites will be available in a future release",
       "preferred": "Preferred translation",

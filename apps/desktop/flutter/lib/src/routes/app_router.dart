@@ -1,370 +1,29 @@
 // ignore_for_file: implementation_imports, invalid_use_of_internal_member
 
-import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/src/widgets/_window.dart' as flutter_window
-    show
-        WindowController,
-        WindowControllerDelegate,
-        WindowEntry,
-        WindowManager,
-        WindowRegistry;
+    show WindowController, WindowEntry, WindowManager, WindowRegistry;
 import 'package:go_router/go_router.dart';
 import 'package:nativeapi/nativeapi.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../extensions/window_controller.dart';
 import '../i18n/i18n.dart';
+import '../services/app_windows.dart';
 import '../services/dock_icon_controller.dart';
 import '../services/mac_app_presentation.dart';
 import '../services/settings_store.dart';
 import '../theme/app_theme.dart';
 import '../utils/language_util.dart';
-import '../utils/platform_util.dart';
 import '../widgets/ui.dart' show DesignThemeProvider;
 import '__root.dart';
 import 'debug/runtime.dart' as debug_runtime_route;
 import 'debug/widget_showcase.dart' as widget_showcase_route;
 import 'mini_translator/mini_translator.dart';
 import 'workbench/index.dart' as workbench_route;
-
-const _kWorkbenchWindowTitle = 'BeyondTranslate';
-const _kMiniTranslatorAppTitle = 'Mini Translator';
-// The deck's main window: 840×560, panes scrolling internally rather than
-// the window growing with content.
-const _kWorkbenchWindowSize = Size(840, 560);
-const _kWorkbenchWindowMinimumSize = Size(840, 560);
-const _kMiniTranslatorTrayGap = 10.0;
-
-TrayIcon? _mainTrayIcon;
-GoRouter? _workbenchRouter;
-String _pendingWorkbenchLocation = '/translate';
-flutter_window.WindowRegistry? _windowRegistry;
-bool _miniTranslatorWindowRegistered = false;
-bool _workbenchWindowConfigured = false;
-bool _miniTranslatorWindowConfigured = false;
-
-enum WorkbenchDestination {
-  translate('/translate'),
-  history('/history'),
-  glossary('/glossary'),
-  settingsGeneral('/settings/general'),
-  settingsServices('/settings/services'),
-  settingsShortcuts('/settings/shortcuts'),
-  settingsProviders('/settings/providers'),
-  settingsAdvanced('/settings/advanced'),
-  settingsAbout('/settings/about');
-
-  const WorkbenchDestination(this.location);
-
-  final String location;
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Window controllers
-// ──────────────────────────────────────────────────────────────────────────────
-
-/// Custom delegate that hides the window instead of destroying it when closed.
-/// The app continues running in the system tray.
-class _HideOnCloseDelegate extends flutter_window.WindowControllerDelegate {
-  @override
-  void onWindowCloseRequested(flutter_window.WindowController controller) {
-    if (controller.window == workbenchWindowController.window) {
-      controller.window.hide();
-    }
-  }
-}
-
-final workbenchWindowController = flutter_window.WindowController(
-  size: _kWorkbenchWindowSize,
-  title: _kWorkbenchWindowTitle,
-  delegate: _HideOnCloseDelegate(),
-)
-  ..setWillShowHook((window) {
-    // Driving the Dock icon from the window hooks rather than from the call
-    // sites keeps the two in sync no matter who shows or hides the workbench.
-    dockIconController.setWorkbenchWindowVisible(true);
-    if (window.isFirstShow) {
-      window.titleBarStyle = TitleBarStyle.hidden;
-      window.setMinimumSize(
-        _kWorkbenchWindowMinimumSize.width,
-        _kWorkbenchWindowMinimumSize.height,
-      );
-      window.setSize(
-        _kWorkbenchWindowSize.width,
-        _kWorkbenchWindowSize.height,
-      );
-      window.center();
-      return true;
-    }
-    return true;
-  })
-  ..setWillHideHook((window) {
-    dockIconController.setWorkbenchWindowVisible(false);
-    return true;
-  });
-
-void showWorkbenchWindow({
-  WorkbenchDestination destination = WorkbenchDestination.translate,
-  String? text,
-}) {
-  _pendingWorkbenchLocation = destination.location;
-  if (text != null) {
-    workbench_route.workbenchTextHandoff.value = text;
-  }
-  _workbenchRouter?.go(_pendingWorkbenchLocation);
-  final window = workbenchWindowController.window;
-  if (Platform.isWindows && !_workbenchWindowConfigured) {
-    _workbenchWindowConfigured = true;
-    window.titleBarStyle = TitleBarStyle.hidden;
-    window.setMinimumSize(
-      _kWorkbenchWindowMinimumSize.width,
-      _kWorkbenchWindowMinimumSize.height,
-    );
-    window.center();
-  }
-  window.show();
-  window.focus();
-}
-
-void showSettingsWindow() {
-  showWorkbenchWindow(destination: WorkbenchDestination.settingsGeneral);
-}
-
-final miniTranslatorWindowController = flutter_window.WindowController(
-  // The deck's mini popover width (`--bt-mini-width`).
-  size: const Size(396, 420),
-  title: _kMiniTranslatorAppTitle,
-)..setWillShowHook((window) {
-    if (window.isFirstShow) {
-      window.titleBarStyle = TitleBarStyle.hidden;
-      window.windowControlButtonsVisible = false;
-      if (kIsMacOS) {
-        // Mini translator uses solid background, no transparency needed.
-      }
-      return false;
-    }
-    return true;
-  });
-
-/// Shows the mini translator window.
-void showMiniTranslatorWindow(
-    {Offset? position, bool belowTray = false}) async {
-  if (!_miniTranslatorWindowRegistered) {
-    final registry = _windowRegistry;
-    if (registry == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showMiniTranslatorWindow(position: position, belowTray: belowTray);
-      });
-      return;
-    }
-    _miniTranslatorWindowRegistered = true;
-    registry.register(
-      flutter_window.WindowEntry(
-        controller: miniTranslatorWindowController,
-        builder: (_) => const MiniTranslatorApp(),
-      ),
-    );
-    await WidgetsBinding.instance.endOfFrame;
-  }
-
-  final window = miniTranslatorWindowController.window;
-  if (Platform.isWindows && !_miniTranslatorWindowConfigured) {
-    _miniTranslatorWindowConfigured = true;
-    window.titleBarStyle = TitleBarStyle.hidden;
-    window.windowControlButtonsVisible = false;
-  }
-  final newPosition =
-      position ?? (belowTray ? miniTranslatorPositionBelowTray() : null);
-  if (newPosition != null) {
-    window.setPosition(newPosition.dx, newPosition.dy);
-  }
-  window.show();
-}
-
-Offset? miniTranslatorPositionBelowTray({Size? windowSize}) {
-  final trayBounds = _mainTrayIcon?.bounds;
-  if (trayBounds == null) return null;
-
-  final size = windowSize ?? miniTranslatorWindowController.window.size;
-  final anchor = _resolveTrayAnchor(trayBounds);
-  if (anchor == null) return null;
-
-  if (!kIsMacOS) {
-    final position = Offset(
-      anchor.bounds.left - (size.width - anchor.bounds.width) / 2,
-      anchor.bounds.bottom + _kMiniTranslatorTrayGap,
-    );
-    return _clampPositionToDisplay(position, size, anchor.display);
-  }
-
-  final displayBounds = _displayBounds(anchor.display);
-  final menuBarBottom = anchor.display.workArea.top > displayBounds.top
-      ? anchor.display.workArea.top
-      : displayBounds.top + anchor.bounds.height;
-  final position = Offset(
-    anchor.bounds.center.dx - size.width / 2,
-    menuBarBottom + _kMiniTranslatorTrayGap,
-  );
-  return _clampPositionToDisplay(position, size, anchor.display);
-}
-
-/// Positions the mini translator at the top-right corner (50, 50) of the
-/// display that currently contains the mouse cursor.
-Offset? miniTranslatorPositionAtCursorScreenTopRight({Size? windowSize}) {
-  final cursorPosition = DisplayManager.instance.getCursorPosition();
-  final displays = DisplayManager.instance.getAll();
-  if (displays.isEmpty) return null;
-
-  // Find the display that contains the cursor position
-  Display? cursorDisplay;
-  for (final display in displays) {
-    final displayRect = Rect.fromLTWH(
-      display.position.dx,
-      display.position.dy,
-      display.size.width,
-      display.size.height,
-    );
-    if (displayRect.contains(cursorPosition)) {
-      cursorDisplay = display;
-      break;
-    }
-  }
-
-  cursorDisplay ??= displays.first;
-  final size = windowSize ?? miniTranslatorWindowController.window.size;
-
-  // Top-right corner of the cursor's display, offset by (50, 50)
-  final position = Offset(
-    cursorDisplay.position.dx + cursorDisplay.size.width - size.width - 50,
-    cursorDisplay.position.dy + 50,
-  );
-
-  return _clampPositionToDisplay(position, size, cursorDisplay);
-}
-
-Offset _clampPositionToDisplay(
-  Offset position,
-  Size windowSize,
-  Display display,
-) {
-  final workArea = display.workArea;
-  return Offset(
-    _clampDouble(position.dx, workArea.left, workArea.right - windowSize.width),
-    _clampDouble(
-      position.dy,
-      workArea.top,
-      workArea.bottom - windowSize.height,
-    ),
-  );
-}
-
-_TrayAnchor? _resolveTrayAnchor(Rect rawBounds) {
-  final displays = DisplayManager.instance.getAll();
-  if (displays.isEmpty) return null;
-
-  final rawCenter = rawBounds.center;
-  for (final display in displays) {
-    if (_displayBounds(display).contains(rawCenter)) {
-      return _TrayAnchor(
-        display: display,
-        bounds: _trayBoundsOnDisplay(rawBounds, display),
-      );
-    }
-  }
-
-  for (final display in displays) {
-    if (_containsHorizontally(_displayBounds(display), rawCenter.dx)) {
-      return _TrayAnchor(
-        display: display,
-        bounds: _trayBoundsOnDisplay(rawBounds, display),
-      );
-    }
-  }
-
-  for (final display in displays) {
-    final normalizedBounds = _normalizeScaledTrayBounds(rawBounds, display);
-    if (_containsHorizontally(
-      _displayBounds(display),
-      normalizedBounds.center.dx,
-    )) {
-      return _TrayAnchor(
-        display: display,
-        bounds: _trayBoundsOnDisplay(normalizedBounds, display),
-      );
-    }
-  }
-
-  displays.sort((a, b) {
-    final aDistance = _distanceSquared(_displayBounds(a).center, rawCenter);
-    final bDistance = _distanceSquared(_displayBounds(b).center, rawCenter);
-    return aDistance.compareTo(bDistance);
-  });
-  final display = displays.first;
-  return _TrayAnchor(
-    display: display,
-    bounds: _trayBoundsOnDisplay(rawBounds, display),
-  );
-}
-
-Rect _displayBounds(Display display) {
-  return Rect.fromLTWH(
-    display.position.dx,
-    display.position.dy,
-    display.size.width,
-    display.size.height,
-  );
-}
-
-Rect _trayBoundsOnDisplay(Rect bounds, Display display) {
-  return Rect.fromLTWH(
-    bounds.left,
-    _displayBounds(display).top,
-    bounds.width,
-    bounds.height,
-  );
-}
-
-Rect _normalizeScaledTrayBounds(Rect bounds, Display display) {
-  final scaleFactor = display.scaleFactor;
-  if (scaleFactor == 0 || scaleFactor == 1) return bounds;
-
-  final displayBounds = _displayBounds(display);
-  return Rect.fromLTWH(
-    displayBounds.left +
-        (bounds.left - displayBounds.left * scaleFactor) / scaleFactor,
-    displayBounds.top +
-        (bounds.top - displayBounds.top * scaleFactor) / scaleFactor,
-    bounds.width / scaleFactor,
-    bounds.height / scaleFactor,
-  );
-}
-
-bool _containsHorizontally(Rect rect, double x) {
-  return x >= rect.left && x <= rect.right;
-}
-
-double _distanceSquared(Offset a, Offset b) {
-  final dx = a.dx - b.dx;
-  final dy = a.dy - b.dy;
-  return dx * dx + dy * dy;
-}
-
-double _clampDouble(double value, double min, double max) {
-  if (max < min) return min;
-  return value.clamp(min, max).toDouble();
-}
-
-class _TrayAnchor {
-  const _TrayAnchor({required this.display, required this.bounds});
-
-  final Display display;
-  final Rect bounds;
-}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Routers
@@ -383,7 +42,7 @@ GoRouter createWorkbenchAppRouter({String? initialLocation}) {
       ...widget_showcase_route.$appRoutes,
       ...workbench_route.$appRoutes,
     ],
-    initialLocation: initialLocation ?? _pendingWorkbenchLocation,
+    initialLocation: initialLocation ?? pendingWorkbenchLocation,
     debugLogDiagnostics: false,
   );
 }
@@ -418,15 +77,13 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
   @override
   void initState() {
     super.initState();
-    _workbenchRouter = _router;
+    attachWorkbenchRouter(_router);
     settingsStore.addListener(_onSettingsChanged);
   }
 
   @override
   void dispose() {
-    if (_workbenchRouter == _router) {
-      _workbenchRouter = null;
-    }
+    detachWorkbenchRouter(_router);
     settingsStore.removeListener(_onSettingsChanged);
     super.dispose();
   }
@@ -439,7 +96,7 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: _kWorkbenchWindowTitle,
+      title: kWorkbenchWindowTitle,
       theme: appThemeData(
         tokensFor(Brightness.light, family: settingsStore.themeFamily),
       ),
@@ -500,7 +157,7 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: _kMiniTranslatorAppTitle,
+      title: kMiniTranslatorWindowTitle,
       theme: appThemeData(
         tokensFor(Brightness.light, family: settingsStore.themeFamily),
       ),
@@ -557,8 +214,9 @@ class _RootBodyViewState extends State<_RootBodyView> {
     MacAppPresentation.setHandlers(
       // The Dock icon only exists while the app is promoted, and the workbench
       // is the only window worth restoring from it — the mini translator is
-      // tray/shortcut driven and closes on blur.
-      onReopen: showWorkbenchWindow,
+      // tray/shortcut driven and closes on blur. Focus rather than show: a
+      // Dock click brings the window back on whatever page it was on.
+      onReopen: focusWorkbenchWindow,
       onOpenSettings: showSettingsWindow,
     );
     super.initState();
@@ -570,9 +228,6 @@ class _RootBodyViewState extends State<_RootBodyView> {
   @override
   void dispose() {
     settingsStore.removeListener(_handleChanged);
-    if (_mainTrayIcon == _trayIcon) {
-      _mainTrayIcon = null;
-    }
     _trayIcon.dispose();
     super.dispose();
   }
@@ -591,7 +246,6 @@ class _RootBodyViewState extends State<_RootBodyView> {
     if (newShowInMenuBar != _showInMenuBar) {
       _showInMenuBar = newShowInMenuBar;
       _trayIcon.isVisible = newShowInMenuBar;
-      _mainTrayIcon = newShowInMenuBar ? _trayIcon : null;
       // Dropping the tray icon would leave the app with no visible entry
       // point, so the Dock icon takes over.
       dockIconController.setTrayIconVisible(newShowInMenuBar);
@@ -604,7 +258,6 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
   void _setupTrayIcon() {
     _trayIcon = TrayIcon();
-    _mainTrayIcon = _trayIcon;
     final icon = Image.fromAsset('resources/images/tray_icon.png');
     if (icon != null) _trayIcon.icon = icon;
     _trayIcon.isVisible = _showInMenuBar;
@@ -612,7 +265,7 @@ class _RootBodyViewState extends State<_RootBodyView> {
     _trayIcon.contextMenu = _buildContextMenu();
     _trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
     _trayIcon.on<TrayIconClickedEvent>((event) {
-      showMiniTranslatorWindow(belowTray: true);
+      handleTrayIconClick(trayBounds: _trayIcon.bounds);
     });
   }
 
@@ -623,7 +276,8 @@ class _RootBodyViewState extends State<_RootBodyView> {
     menu.addItem(
       MenuItem(t.app.tray.context_menu.show_window)
         ..on<MenuItemClickedEvent>((_) {
-          showWorkbenchWindow();
+          // 显示窗口 keeps whatever page the workbench was on.
+          focusWorkbenchWindow();
         }),
     );
 
@@ -681,7 +335,12 @@ class _RootBodyViewState extends State<_RootBodyView> {
         flutter_window.WindowEntry(
           controller: _workbenchController,
           builder: (context) {
-            _windowRegistry = flutter_window.WindowRegistry.of(context);
+            // The mini translator is registered into this same registry on
+            // first use; see `showMiniTranslatorWindow`.
+            attachWindowRegistry(
+              flutter_window.WindowRegistry.of(context),
+              miniTranslatorBuilder: (_) => const MiniTranslatorApp(),
+            );
             return const WorkbenchApp();
           },
         ),

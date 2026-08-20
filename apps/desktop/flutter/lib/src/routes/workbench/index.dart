@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../extensions/window_controller.dart';
 import '../../features.dart';
 import '../../i18n/i18n.dart';
+import '../../services/app_windows.dart'
+    show hideWorkbenchWindow, workbenchWindowController;
 import '../../utils/platform_util.dart';
 import '../../utils/utils.dart';
 import '../../widgets/navigation_item.dart';
@@ -19,7 +21,6 @@ import '../../widgets/ui.dart'
         SidebarCard,
         SidebarGroup;
 import '../../widgets/workbench.dart';
-import '../app_router.dart' show workbenchWindowController;
 import '../settings/about.dart';
 import '../settings/advanced.dart';
 import '../settings/general.dart';
@@ -31,64 +32,81 @@ import 'glossary.dart';
 import 'library.dart';
 import 'translation.dart';
 
-final ValueNotifier<String?> workbenchTextHandoff = ValueNotifier(null);
-
 List<RouteBase> get $appRoutes => <RouteBase>[
-      ShellRoute(
-        builder: (context, state, child) =>
-            WorkbenchShell(location: state.uri.path, child: child),
-        routes: [
-          GoRoute(
-            path: '/translate',
-            pageBuilder: (_, state) =>
-                _noTransitionPage(state, const WorkbenchTranslationPage()),
-          ),
-          GoRoute(
-            path: '/history',
-            pageBuilder: (_, state) =>
-                _noTransitionPage(state, const WorkbenchLibraryPage()),
-          ),
-          if (kGlossaryFeatureEnabled)
-            GoRoute(
-              path: '/glossary',
-              pageBuilder: (_, state) =>
-                  _noTransitionPage(state, const WorkbenchGlossaryPage()),
-            ),
-          ShellRoute(
-            pageBuilder: (context, state, child) => _noTransitionPage(
-              state,
-              SettingsTabsShell(location: state.uri.path, child: child),
-            ),
+      // An indexed-stack shell so each destination keeps its Navigator (and
+      // page state — 翻译 keeps its source text and results) while the
+      // sidebar switches between them.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            WorkbenchShell(location: state.uri.path, child: navigationShell),
+        branches: [
+          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/settings/general',
+                path: '/translate',
                 pageBuilder: (_, state) =>
-                    _noTransitionPage(state, const GeneralSettingsPage()),
+                    _noTransitionPage(state, const WorkbenchTranslationPage()),
               ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
               GoRoute(
-                path: '/settings/services',
+                path: '/history',
                 pageBuilder: (_, state) =>
-                    _noTransitionPage(state, const ServicesSettingsPage()),
+                    _noTransitionPage(state, const WorkbenchLibraryPage()),
               ),
-              GoRoute(
-                path: '/settings/shortcuts',
-                pageBuilder: (_, state) =>
-                    _noTransitionPage(state, const ShortcutsSettingsPage()),
-              ),
-              GoRoute(
-                path: '/settings/providers',
-                pageBuilder: (_, state) =>
-                    _noTransitionPage(state, const ProvidersSettingsPage()),
-              ),
-              GoRoute(
-                path: '/settings/advanced',
-                pageBuilder: (_, state) =>
-                    _noTransitionPage(state, const AdvancedSettingsPage()),
-              ),
-              GoRoute(
-                path: '/settings/about',
-                pageBuilder: (_, state) =>
-                    _noTransitionPage(state, const AboutSettingsPage()),
+            ],
+          ),
+          if (kGlossaryFeatureEnabled)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/glossary',
+                  pageBuilder: (_, state) =>
+                      _noTransitionPage(state, const WorkbenchGlossaryPage()),
+                ),
+              ],
+            ),
+          StatefulShellBranch(
+            routes: [
+              ShellRoute(
+                pageBuilder: (context, state, child) => _noTransitionPage(
+                  state,
+                  SettingsTabsShell(location: state.uri.path, child: child),
+                ),
+                routes: [
+                  GoRoute(
+                    path: '/settings/general',
+                    pageBuilder: (_, state) =>
+                        _noTransitionPage(state, const GeneralSettingsPage()),
+                  ),
+                  GoRoute(
+                    path: '/settings/services',
+                    pageBuilder: (_, state) =>
+                        _noTransitionPage(state, const ServicesSettingsPage()),
+                  ),
+                  GoRoute(
+                    path: '/settings/shortcuts',
+                    pageBuilder: (_, state) =>
+                        _noTransitionPage(state, const ShortcutsSettingsPage()),
+                  ),
+                  GoRoute(
+                    path: '/settings/providers',
+                    pageBuilder: (_, state) =>
+                        _noTransitionPage(state, const ProvidersSettingsPage()),
+                  ),
+                  GoRoute(
+                    path: '/settings/advanced',
+                    pageBuilder: (_, state) =>
+                        _noTransitionPage(state, const AdvancedSettingsPage()),
+                  ),
+                  GoRoute(
+                    path: '/settings/about',
+                    pageBuilder: (_, state) =>
+                        _noTransitionPage(state, const AboutSettingsPage()),
+                  ),
+                ],
               ),
             ],
           ),
@@ -139,7 +157,7 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
           window.maximize();
         }
       },
-      onClose: () => workbenchWindowController.window.hide(),
+      onClose: hideWorkbenchWindow,
       onDragStart: () => workbenchWindowController.window.startDragging(),
     );
   }

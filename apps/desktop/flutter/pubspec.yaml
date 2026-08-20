@@ -9,7 +9,6 @@ environment:
   sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
-  audioplayers: ^6.6.0
   beyondtranslate_runtime: ^0.0.1
   beyondtranslate_ui: ^0.1.0
 
@@ -42,9 +41,9 @@ dev_dependencies:
 
 # dependency_overrides:
 #   cnativeapi:
-#     path: ../../../../libnativeapi/nativeapi-flutter/packages/cnativeapi
+#     path: ../../../../../libnativeapi/nativeapi-flutter/packages/cnativeapi
 #   nativeapi:
-#     path: ../../../../libnativeapi/nativeapi-flutter/packages/nativeapi
+#     path: ../../../../../libnativeapi/nativeapi-flutter/packages/nativeapi
 
 flutter:
   uses-material-design: false

@@ -846,7 +846,6 @@ class HistoryEntry {
   final String targetLanguage;
   final String serviceId;
   final String serviceName;
-  final HistoryOrigin origin;
   final bool favorite;
   final bool edited;
   final int createdAt;
@@ -859,7 +858,6 @@ class HistoryEntry {
     required this.targetLanguage,
     required this.serviceId,
     required this.serviceName,
-    required this.origin,
     required this.favorite,
     required this.edited,
     required this.createdAt,
@@ -902,10 +900,6 @@ class FfiConverterHistoryEntry {
         FfiConverterString.read(Uint8List.view(buf.buffer, new_offset));
     final serviceName = serviceName_lifted.value;
     new_offset += serviceName_lifted.bytesRead;
-    final origin_lifted =
-        FfiConverterHistoryOrigin.read(Uint8List.view(buf.buffer, new_offset));
-    final origin = origin_lifted.value;
-    new_offset += origin_lifted.bytesRead;
     final favorite_lifted =
         FfiConverterBool.read(Uint8List.view(buf.buffer, new_offset));
     final favorite = favorite_lifted.value;
@@ -931,7 +925,6 @@ class FfiConverterHistoryEntry {
           targetLanguage: targetLanguage,
           serviceId: serviceId,
           serviceName: serviceName,
-          origin: origin,
           favorite: favorite,
           edited: edited,
           createdAt: createdAt,
@@ -948,7 +941,6 @@ class FfiConverterHistoryEntry {
         FfiConverterString.allocationSize(value.targetLanguage) +
         FfiConverterString.allocationSize(value.serviceId) +
         FfiConverterString.allocationSize(value.serviceName) +
-        FfiConverterHistoryOrigin.allocationSize(value.origin) +
         FfiConverterBool.allocationSize(value.favorite) +
         FfiConverterBool.allocationSize(value.edited) +
         FfiConverterUInt64.allocationSize(value.createdAt) +
@@ -975,8 +967,6 @@ class FfiConverterHistoryEntry {
         value.serviceId, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterString.write(
         value.serviceName, Uint8List.view(buf.buffer, new_offset));
-    new_offset += FfiConverterHistoryOrigin.write(
-        value.origin, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterBool.write(
         value.favorite, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterBool.write(
@@ -996,7 +986,6 @@ class FfiConverterHistoryEntry {
         FfiConverterString.allocationSize(value.targetLanguage) +
         FfiConverterString.allocationSize(value.serviceId) +
         FfiConverterString.allocationSize(value.serviceName) +
-        FfiConverterHistoryOrigin.allocationSize(value.origin) +
         FfiConverterBool.allocationSize(value.favorite) +
         FfiConverterBool.allocationSize(value.edited) +
         FfiConverterUInt64.allocationSize(value.createdAt) +
@@ -1013,7 +1002,6 @@ class HistoryEntryInput {
   final String targetLanguage;
   final String serviceId;
   final String serviceName;
-  final HistoryOrigin origin;
   final bool edited;
   HistoryEntryInput({
     this.id,
@@ -1023,7 +1011,6 @@ class HistoryEntryInput {
     required this.targetLanguage,
     required this.serviceId,
     required this.serviceName,
-    required this.origin,
     required this.edited,
   });
 }
@@ -1063,10 +1050,6 @@ class FfiConverterHistoryEntryInput {
         FfiConverterString.read(Uint8List.view(buf.buffer, new_offset));
     final serviceName = serviceName_lifted.value;
     new_offset += serviceName_lifted.bytesRead;
-    final origin_lifted =
-        FfiConverterHistoryOrigin.read(Uint8List.view(buf.buffer, new_offset));
-    final origin = origin_lifted.value;
-    new_offset += origin_lifted.bytesRead;
     final edited_lifted =
         FfiConverterBool.read(Uint8List.view(buf.buffer, new_offset));
     final edited = edited_lifted.value;
@@ -1080,7 +1063,6 @@ class FfiConverterHistoryEntryInput {
           targetLanguage: targetLanguage,
           serviceId: serviceId,
           serviceName: serviceName,
-          origin: origin,
           edited: edited,
         ),
         new_offset - buf.offsetInBytes);
@@ -1094,7 +1076,6 @@ class FfiConverterHistoryEntryInput {
         FfiConverterString.allocationSize(value.targetLanguage) +
         FfiConverterString.allocationSize(value.serviceId) +
         FfiConverterString.allocationSize(value.serviceName) +
-        FfiConverterHistoryOrigin.allocationSize(value.origin) +
         FfiConverterBool.allocationSize(value.edited) +
         0;
     final buf = Uint8List(total_length);
@@ -1118,8 +1099,6 @@ class FfiConverterHistoryEntryInput {
         value.serviceId, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterString.write(
         value.serviceName, Uint8List.view(buf.buffer, new_offset));
-    new_offset += FfiConverterHistoryOrigin.write(
-        value.origin, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterBool.write(
         value.edited, Uint8List.view(buf.buffer, new_offset));
     return new_offset - buf.offsetInBytes;
@@ -1133,7 +1112,6 @@ class FfiConverterHistoryEntryInput {
         FfiConverterString.allocationSize(value.targetLanguage) +
         FfiConverterString.allocationSize(value.serviceId) +
         FfiConverterString.allocationSize(value.serviceName) +
-        FfiConverterHistoryOrigin.allocationSize(value.origin) +
         FfiConverterBool.allocationSize(value.edited) +
         0;
   }
@@ -4081,50 +4059,6 @@ class FfiConverterHistoryFilter {
   }
 
   static int write(HistoryFilter value, Uint8List buf) {
-    buf.buffer.asByteData(buf.offsetInBytes).setInt32(0, value.index + 1);
-    return 4;
-  }
-}
-
-enum HistoryOrigin {
-  workbench,
-  miniTranslator,
-  ;
-}
-
-class FfiConverterHistoryOrigin {
-  static LiftRetVal<HistoryOrigin> read(Uint8List buf) {
-    final index = buf.buffer.asByteData(buf.offsetInBytes).getInt32(0);
-    switch (index) {
-      case 1:
-        return LiftRetVal(
-          HistoryOrigin.workbench,
-          4,
-        );
-      case 2:
-        return LiftRetVal(
-          HistoryOrigin.miniTranslator,
-          4,
-        );
-      default:
-        throw UniffiInternalError(UniffiInternalError.unexpectedEnumCase,
-            "Unable to determine enum variant");
-    }
-  }
-
-  static HistoryOrigin lift(RustBuffer buffer) {
-    return FfiConverterHistoryOrigin.read(buffer.asUint8List()).value;
-  }
-
-  static RustBuffer lower(HistoryOrigin input) {
-    return toRustBuffer(createUint8ListFromInt(input.index + 1));
-  }
-
-  static int allocationSize(HistoryOrigin _value) {
-    return 4;
-  }
-
-  static int write(HistoryOrigin value, Uint8List buf) {
     buf.buffer.asByteData(buf.offsetInBytes).setInt32(0, value.index + 1);
     return 4;
   }

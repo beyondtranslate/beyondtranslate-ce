@@ -74,10 +74,6 @@
       "system": "系统",
       "tencent": "腾讯",
       "youdao": "有道"
-    },
-    "word_pronunciation": {
-      "us": "美",
-      "uk": "英"
     }
   },
   "app": {
@@ -140,7 +136,6 @@
     "button": {
       "clear": "清空",
       "translate": "翻译",
-      "read": "朗读",
       "copy": "复制",
       "copied": "已复制",
       "bookmark": "收藏",
@@ -208,8 +203,6 @@
       "delete_confirm": "确定删除选中的 $count 条历史？此操作无法撤销。",
       "no_glossary": "请先创建一个术语库",
       "added_to_glossary": "已将 $count 条记录加入术语库",
-      "origin_workbench": "主窗口",
-      "origin_mini": "迷你翻译器",
       "favorite_flag": "已收藏",
       "edited_flag": "我改过",
       "edit_history_hint": "修改后的译文会保存到历史",
@@ -302,7 +295,6 @@
       "main_translation": "主译文",
       "service_unavailable": "服务暂不可用",
       "waiting": "等待翻译",
-      "read": "朗读",
       "copy": "复制",
       "favorite_unavailable": "收藏功能将在后续版本中提供",
       "preferred": "首选译文",

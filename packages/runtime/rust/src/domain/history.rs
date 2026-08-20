@@ -14,13 +14,6 @@ const HISTORY_FILE: &str = "history.json";
 const HISTORY_VERSION: u32 = 1;
 const RETENTION_SECS: u64 = 90 * 24 * 60 * 60;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
-#[serde(rename_all = "snake_case")]
-pub enum HistoryOrigin {
-    Workbench,
-    MiniTranslator,
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, uniffi::Enum)]
 pub enum HistoryFilter {
     All,
@@ -38,7 +31,6 @@ pub struct HistoryEntry {
     pub target_language: String,
     pub service_id: String,
     pub service_name: String,
-    pub origin: HistoryOrigin,
     pub favorite: bool,
     pub edited: bool,
     pub created_at: u64,
@@ -54,7 +46,6 @@ pub struct HistoryEntryInput {
     pub target_language: String,
     pub service_id: String,
     pub service_name: String,
-    pub origin: HistoryOrigin,
     pub edited: bool,
 }
 
@@ -221,7 +212,6 @@ impl HistoryStore {
             target_language: input.target_language.trim().to_owned(),
             service_id: input.service_id.trim().to_owned(),
             service_name: input.service_name.trim().to_owned(),
-            origin: input.origin,
             favorite,
             edited: input.edited,
             created_at,
@@ -392,7 +382,6 @@ mod tests {
             target_language: "zh-Hans".to_owned(),
             service_id: "system+translation".to_owned(),
             service_name: "System".to_owned(),
-            origin: HistoryOrigin::Workbench,
             edited: false,
         }
     }
@@ -479,7 +468,6 @@ mod tests {
                     target_language: "zh".to_owned(),
                     service_id: "a".to_owned(),
                     service_name: "A".to_owned(),
-                    origin: HistoryOrigin::Workbench,
                     favorite: false,
                     edited: false,
                     created_at: old,
@@ -493,7 +481,6 @@ mod tests {
                     target_language: "zh".to_owned(),
                     service_id: "a".to_owned(),
                     service_name: "A".to_owned(),
-                    origin: HistoryOrigin::MiniTranslator,
                     favorite: true,
                     edited: false,
                     created_at: old,

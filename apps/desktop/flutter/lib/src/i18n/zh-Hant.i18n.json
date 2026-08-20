@@ -74,10 +74,6 @@
       "system": "系統",
       "tencent": "騰訊",
       "youdao": "有道"
-    },
-    "word_pronunciation": {
-      "us": "美",
-      "uk": "英"
     }
   },
   "app": {
@@ -140,7 +136,6 @@
     "button": {
       "clear": "清除",
       "translate": "翻譯",
-      "read": "朗讀",
       "copy": "複製",
       "copied": "已複製",
       "bookmark": "收藏",
@@ -201,8 +196,6 @@
       "delete_confirm": "確定刪除選取的 $count 筆歷史？此操作無法復原。",
       "no_glossary": "請先建立一個術語庫",
       "added_to_glossary": "已將 $count 筆記錄加入術語庫",
-      "origin_workbench": "主視窗",
-      "origin_mini": "迷你翻譯器",
       "favorite_flag": "已收藏",
       "edited_flag": "我改過",
       "edit_history_hint": "修改後的譯文會儲存到歷史"
@@ -262,7 +255,6 @@
       "main_translation": "主譯文",
       "service_unavailable": "服務暫不可用",
       "waiting": "等待翻譯",
-      "read": "朗讀",
       "copy": "複製",
       "favorite_unavailable": "收藏功能將在後續版本提供",
       "preferred": "首選譯文",

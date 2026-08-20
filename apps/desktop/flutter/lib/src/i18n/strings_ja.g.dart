@@ -92,9 +92,6 @@ class _TranslationsCommonJa extends TranslationsCommonEn {
   @override
   late final _TranslationsCommonProviderJa provider =
       _TranslationsCommonProviderJa._(_root);
-  @override
-  late final _TranslationsCommonWordPronunciationJa word_pronunciation =
-      _TranslationsCommonWordPronunciationJa._(_root);
 }
 
 // Path: app
@@ -391,22 +388,6 @@ class _TranslationsCommonProviderJa extends TranslationsCommonProviderEn {
   String get youdao => 'Youda';
 }
 
-// Path: common.word_pronunciation
-class _TranslationsCommonWordPronunciationJa
-    extends TranslationsCommonWordPronunciationEn {
-  _TranslationsCommonWordPronunciationJa._(TranslationsJa root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsJa _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get us => '米国';
-  @override
-  String get uk => '英国';
-}
-
 // Path: app.tray
 class _TranslationsAppTrayJa extends TranslationsAppTrayEn {
   _TranslationsAppTrayJa._(TranslationsJa root)
@@ -499,8 +480,6 @@ class _TranslationsMiniTranslatorButtonJa
   String get clear => 'クリア';
   @override
   String get translate => '翻訳';
-  @override
-  String get read => '読み上げ';
   @override
   String get copy => 'コピー';
   @override
@@ -646,10 +625,6 @@ class _TranslationsWorkbenchHistoryPageJa
   String get no_glossary => '先に用語集を作成してください';
   @override
   String added_to_glossary({required Object count}) => '${count} 件を用語集に追加しました';
-  @override
-  String get origin_workbench => 'メインウィンドウ';
-  @override
-  String get origin_mini => 'ミニ翻訳';
   @override
   String get favorite_flag => 'お気に入り';
   @override
@@ -797,8 +772,6 @@ class _TranslationsWorkbenchTranslationJa
   String get service_unavailable => 'サービスを利用できません';
   @override
   String get waiting => '翻訳待ち';
-  @override
-  String get read => '読み上げ';
   @override
   String get copy => 'コピー';
   @override
@@ -2214,8 +2187,6 @@ extension on TranslationsJa {
       'common.provider.system' => 'システム',
       'common.provider.tencent' => 'Tencent',
       'common.provider.youdao' => 'Youda',
-      'common.word_pronunciation.us' => '米国',
-      'common.word_pronunciation.uk' => '英国',
       'app.tray.context_menu.show_window' => 'ウィンドウを表示',
       'app.tray.context_menu.dev_tools.title' => '開発ツール',
       'app.tray.context_menu.dev_tools.open_data_directory' => 'データディレクトリを開く',
@@ -2255,7 +2226,6 @@ extension on TranslationsJa {
       'mini_translator.toolbar.menu.open_settings' => '設定…',
       'mini_translator.button.clear' => 'クリア',
       'mini_translator.button.translate' => '翻訳',
-      'mini_translator.button.read' => '読み上げ',
       'mini_translator.button.copy' => 'コピー',
       'mini_translator.button.copied' => 'コピー済み',
       'mini_translator.button.bookmark' => '保存',
@@ -2318,8 +2288,6 @@ extension on TranslationsJa {
       'workbench.history_page.no_glossary' => '先に用語集を作成してください',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '${count} 件を用語集に追加しました',
-      'workbench.history_page.origin_workbench' => 'メインウィンドウ',
-      'workbench.history_page.origin_mini' => 'ミニ翻訳',
       'workbench.history_page.favorite_flag' => 'お気に入り',
       'workbench.history_page.edited_flag' => '編集済み',
       'workbench.history_page.edit_history_hint' => '編集した訳文は履歴に保存されます',
@@ -2379,7 +2347,6 @@ extension on TranslationsJa {
       'workbench.translation.main_translation' => 'メイン',
       'workbench.translation.service_unavailable' => 'サービスを利用できません',
       'workbench.translation.waiting' => '翻訳待ち',
-      'workbench.translation.read' => '読み上げ',
       'workbench.translation.copy' => 'コピー',
       'workbench.translation.favorite_unavailable' => 'お気に入りは今後のリリースで提供します',
       'workbench.translation.preferred' => '優先訳文',

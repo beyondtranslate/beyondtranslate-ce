@@ -74,10 +74,6 @@
       "system": "Sistema",
       "tencent": "Tencent",
       "youdao": "Youdao"
-    },
-    "word_pronunciation": {
-      "us": "EE. UU.",
-      "uk": "RU"
     }
   },
   "app": {
@@ -140,7 +136,6 @@
     "button": {
       "clear": "Limpiar",
       "translate": "Traducir",
-      "read": "Leer",
       "copy": "Copiar",
       "copied": "Copiado",
       "bookmark": "Guardar",
@@ -201,8 +196,6 @@
       "delete_confirm": "¿Eliminar las $count entradas seleccionadas? No se puede deshacer.",
       "no_glossary": "Crea primero un glosario",
       "added_to_glossary": "$count entradas añadidas al glosario",
-      "origin_workbench": "Ventana principal",
-      "origin_mini": "Minitraductor",
       "favorite_flag": "Favorito",
       "edited_flag": "Editado",
       "edit_history_hint": "La traducción editada se guardará en el historial"
@@ -262,7 +255,6 @@
       "main_translation": "Principal",
       "service_unavailable": "Servicio no disponible",
       "waiting": "Esperando traducción",
-      "read": "Leer",
       "copy": "Copiar",
       "favorite_unavailable": "Favoritos estará disponible más adelante",
       "preferred": "Traducción preferida",

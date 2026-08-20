@@ -120,7 +120,6 @@ class MiniTranslatorActionButtons extends StatelessWidget {
     required this.starred,
     required this.translateEnabled,
     required this.retry,
-    required this.onRead,
     required this.onCopy,
     required this.onBookmark,
     required this.onTranslate,
@@ -143,7 +142,6 @@ class MiniTranslatorActionButtons extends StatelessWidget {
 
   /// Every service came back empty, so the same button now asks again.
   final bool retry;
-  final VoidCallback onRead;
   final VoidCallback onCopy;
   final VoidCallback onBookmark;
   final VoidCallback onTranslate;
@@ -159,12 +157,6 @@ class MiniTranslatorActionButtons extends StatelessWidget {
         children: [
           ActionBar(
             children: [
-              Button(
-                variant: ButtonVariant.ghost,
-                enabled: hasContent,
-                onPressed: onRead,
-                child: Text(buttons.read),
-              ),
               Button(
                 variant: ButtonVariant.ghost,
                 enabled: hasContent,

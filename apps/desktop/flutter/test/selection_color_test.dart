@@ -49,10 +49,9 @@ void main() {
     testOn(TargetPlatform.macOS, 'hands the accent to AppKit', (tester) async {
       await pump(tester, const TranslationText('hello'));
 
-      expect(
-        tester.widget<NativeText>(find.byType(NativeText)).selectionColor,
-        selection,
-      );
+      final text = tester.widget<NativeText>(find.byType(NativeText));
+      expect(text.selectionColor, selection);
+      expect(text.brightness, tokens.brightness);
     });
 
     testOn(TargetPlatform.linux, 'dresses the Flutter selection to match',
@@ -77,6 +76,7 @@ void main() {
       );
       expect(field.cursorColor, accent);
       expect(field.selectionColor, selection);
+      expect(field.brightness, tokens.brightness);
     });
 
     testOn(TargetPlatform.linux, 'carries the accent into EditableText',
@@ -89,6 +89,24 @@ void main() {
       expect(editable.cursorColor, accent);
       expect(editable.selectionColor, selection);
     });
+  });
+
+  testOn(TargetPlatform.macOS, 'a dark theme reaches AppKit as dark',
+      (tester) async {
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: DesignTheme(
+          tokens: DesignThemes.brightDark,
+          child: const TranslationText('hello'),
+        ),
+      ),
+    );
+
+    expect(
+      tester.widget<NativeText>(find.byType(NativeText)).brightness,
+      Brightness.dark,
+    );
   });
 
   testWidgets('a different theme moves the colours with it', (tester) async {
