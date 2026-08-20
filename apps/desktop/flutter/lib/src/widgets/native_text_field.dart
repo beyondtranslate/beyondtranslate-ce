@@ -30,6 +30,9 @@ class NativeTextField extends StatefulWidget {
     this.submitOnMetaEnter = false,
     this.textCapitalization = TextCapitalization.none,
     this.selectionHeightStyle = BoxHeightStyle.tight,
+    this.cursorColor,
+    this.selectionColor,
+    this.brightness,
     this.onChanged,
     this.onSubmitted,
     this.onTap,
@@ -54,6 +57,21 @@ class NativeTextField extends StatefulWidget {
   final bool submitOnMetaEnter;
   final TextCapitalization textCapitalization;
   final BoxHeightStyle selectionHeightStyle;
+
+  /// The caret, and the wash behind selected glyphs. Left null, AppKit falls
+  /// back to the system accent — the colour in System Settings, which has
+  /// nothing to do with the app's theme.
+  final Color? cursorColor;
+  final Color? selectionColor;
+
+  /// The app theme's brightness, handed to AppKit as an `NSAppearance`.
+  ///
+  /// Without it the field inherits the *system* appearance, and every colour
+  /// AppKit still resolves for itself — the unemphasized selection behind the
+  /// shared field editor above all — comes back light while the app is drawing
+  /// dark.
+  final Brightness? brightness;
+
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final GestureTapCallback? onTap;
@@ -105,6 +123,27 @@ class _NativeTextFieldState extends State<NativeTextField> {
         widget.textInputAction != oldWidget.textInputAction) {
       _updateSubmitMode();
     }
+    if (widget.cursorColor != oldWidget.cursorColor ||
+        widget.selectionColor != oldWidget.selectionColor) {
+      _updateSelectionColors();
+    }
+    if (widget.brightness != oldWidget.brightness) {
+      _channel?.invokeMethod<void>('setAppearance', _encodeBrightness());
+    }
+  }
+
+  void _updateSelectionColors() {
+    _channel?.invokeMethod<void>(
+      'setSelectionColors',
+      _encodeSelectionColors(),
+    );
+  }
+
+  Map<String, Object?> _encodeSelectionColors() {
+    return <String, Object?>{
+      'cursorColor': widget.cursorColor?.toARGB32(),
+      'selectionColor': widget.selectionColor?.toARGB32(),
+    };
   }
 
   void _updatePlaceholder() {
@@ -248,6 +287,8 @@ class _NativeTextFieldState extends State<NativeTextField> {
         'submitOnEnter': _submitsOnEnter,
         'submitOnMetaEnter': widget.submitOnMetaEnter,
         'autofocus': widget.autofocus,
+        ..._encodeSelectionColors(),
+        'appearance': _encodeBrightness(),
       },
       creationParamsCodec: const StandardMessageCodec(),
       onPlatformViewCreated: _handlePlatformViewCreated,
@@ -283,6 +324,12 @@ class _NativeTextFieldState extends State<NativeTextField> {
     final fontSize = style.fontSize ?? 14;
     return fontSize * (style.height ?? 1.2);
   }
+
+  String? _encodeBrightness() => switch (widget.brightness) {
+        Brightness.dark => 'dark',
+        Brightness.light => 'light',
+        null => null,
+      };
 
   Map<String, double> _encodePadding(EdgeInsets padding) {
     return <String, double>{

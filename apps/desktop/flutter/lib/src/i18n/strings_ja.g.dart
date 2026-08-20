@@ -634,15 +634,11 @@ class _TranslationsWorkbenchHistoryPageJa
   @override
   String get exit_select => '選択を終了';
   @override
-  String get export => 'CSV を書き出す';
-  @override
   String get add_to_glossary => '用語集に追加';
   @override
   String get favorite => 'お気に入り';
   @override
   String get unfavorite => 'お気に入り解除';
-  @override
-  String get retention => '通常履歴は90日、お気に入りは無期限';
   @override
   String delete_confirm({required Object count}) =>
       '選択した ${count} 件の履歴を削除しますか？元に戻せません。';
@@ -650,10 +646,6 @@ class _TranslationsWorkbenchHistoryPageJa
   String get no_glossary => '先に用語集を作成してください';
   @override
   String added_to_glossary({required Object count}) => '${count} 件を用語集に追加しました';
-  @override
-  String get exported => '履歴を書き出しました';
-  @override
-  String export_failed({required Object error}) => '書き出しに失敗しました：${error}';
   @override
   String get origin_workbench => 'メインウィンドウ';
   @override
@@ -2318,19 +2310,14 @@ extension on TranslationsJa {
       'workbench.history_page.selected_count' => ({required Object count}) =>
           '${count} 件選択中',
       'workbench.history_page.exit_select' => '選択を終了',
-      'workbench.history_page.export' => 'CSV を書き出す',
       'workbench.history_page.add_to_glossary' => '用語集に追加',
       'workbench.history_page.favorite' => 'お気に入り',
       'workbench.history_page.unfavorite' => 'お気に入り解除',
-      'workbench.history_page.retention' => '通常履歴は90日、お気に入りは無期限',
       'workbench.history_page.delete_confirm' => ({required Object count}) =>
           '選択した ${count} 件の履歴を削除しますか？元に戻せません。',
       'workbench.history_page.no_glossary' => '先に用語集を作成してください',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '${count} 件を用語集に追加しました',
-      'workbench.history_page.exported' => '履歴を書き出しました',
-      'workbench.history_page.export_failed' => ({required Object error}) =>
-          '書き出しに失敗しました：${error}',
       'workbench.history_page.origin_workbench' => 'メインウィンドウ',
       'workbench.history_page.origin_mini' => 'ミニ翻訳',
       'workbench.history_page.favorite_flag' => 'お気に入り',

@@ -653,15 +653,11 @@ class _TranslationsWorkbenchHistoryPageZhHans
   @override
   String get exit_select => '退出多选';
   @override
-  String get export => '导出 CSV';
-  @override
   String get add_to_glossary => '加入术语库';
   @override
   String get favorite => '收藏';
   @override
   String get unfavorite => '取消收藏';
-  @override
-  String get retention => '普通历史保留 90 天，收藏永久';
   @override
   String delete_confirm({required Object count}) =>
       '确定删除选中的 ${count} 条历史？此操作无法撤销。';
@@ -669,10 +665,6 @@ class _TranslationsWorkbenchHistoryPageZhHans
   String get no_glossary => '请先创建一个术语库';
   @override
   String added_to_glossary({required Object count}) => '已将 ${count} 条记录加入术语库';
-  @override
-  String get exported => '历史已导出';
-  @override
-  String export_failed({required Object error}) => '导出失败：${error}';
   @override
   String get origin_workbench => '主窗口';
   @override
@@ -687,49 +679,6 @@ class _TranslationsWorkbenchHistoryPageZhHans
   String get copy_translation => '复制译文';
   @override
   String get more_actions => '更多';
-  @override
-  String get export_all => '导出全部';
-  @override
-  String get retention_short => '历史保留 90 天';
-  @override
-  String get manage => '管理...';
-  @override
-  String get export_title => '导出记录';
-  @override
-  String export_scope_selected({required Object count}) => '已选 ${count} 条';
-  @override
-  String export_scope_all({required Object count}) => '全部 ${count} 条';
-  @override
-  String get export_format => '格式';
-  @override
-  String get format_csv_hint => '表格与脚本';
-  @override
-  String get format_md_hint => '可读的对照';
-  @override
-  String get format_tmx_hint => '翻译记忆库';
-  @override
-  String get export_content => '内容';
-  @override
-  String get export_with_meta => '附服务、时间与来源';
-  @override
-  String get export_only_edited => '只导出我改过的译文';
-  @override
-  String get manage_title => '管理历史';
-  @override
-  String manage_subtitle({required Object count}) => '共 ${count} 条记录';
-  @override
-  String get retention_section => '保留时长';
-  @override
-  String get clear_section => '清空';
-  @override
-  String get clear_description => '删除全部记录，包括收藏和你改过的译文。术语库不受影响。';
-  @override
-  String get clear_button => '清空全部历史...';
-  @override
-  String get clear_confirm_title => '清空全部历史';
-  @override
-  String clear_confirm_message({required Object count}) =>
-      '删除全部 ${count} 条记录，包括收藏和你改过的译文。此操作无法撤销，术语库不受影响。';
   @override
   String get delete_title_one => '删除这条记录';
   @override
@@ -2476,19 +2425,14 @@ extension on TranslationsZhHans {
       'workbench.history_page.selected_count' => ({required Object count}) =>
           '已选 ${count} 条',
       'workbench.history_page.exit_select' => '退出多选',
-      'workbench.history_page.export' => '导出 CSV',
       'workbench.history_page.add_to_glossary' => '加入术语库',
       'workbench.history_page.favorite' => '收藏',
       'workbench.history_page.unfavorite' => '取消收藏',
-      'workbench.history_page.retention' => '普通历史保留 90 天，收藏永久',
       'workbench.history_page.delete_confirm' => ({required Object count}) =>
           '确定删除选中的 ${count} 条历史？此操作无法撤销。',
       'workbench.history_page.no_glossary' => '请先创建一个术语库',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '已将 ${count} 条记录加入术语库',
-      'workbench.history_page.exported' => '历史已导出',
-      'workbench.history_page.export_failed' => ({required Object error}) =>
-          '导出失败：${error}',
       'workbench.history_page.origin_workbench' => '主窗口',
       'workbench.history_page.origin_mini' => '迷你翻译器',
       'workbench.history_page.favorite_flag' => '已收藏',
@@ -2496,33 +2440,6 @@ extension on TranslationsZhHans {
       'workbench.history_page.edit_history_hint' => '修改后的译文会保存到历史',
       'workbench.history_page.copy_translation' => '复制译文',
       'workbench.history_page.more_actions' => '更多',
-      'workbench.history_page.export_all' => '导出全部',
-      'workbench.history_page.retention_short' => '历史保留 90 天',
-      'workbench.history_page.manage' => '管理...',
-      'workbench.history_page.export_title' => '导出记录',
-      'workbench.history_page.export_scope_selected' =>
-        ({required Object count}) => '已选 ${count} 条',
-      'workbench.history_page.export_scope_all' => ({required Object count}) =>
-          '全部 ${count} 条',
-      'workbench.history_page.export_format' => '格式',
-      'workbench.history_page.format_csv_hint' => '表格与脚本',
-      'workbench.history_page.format_md_hint' => '可读的对照',
-      'workbench.history_page.format_tmx_hint' => '翻译记忆库',
-      'workbench.history_page.export_content' => '内容',
-      'workbench.history_page.export_with_meta' => '附服务、时间与来源',
-      'workbench.history_page.export_only_edited' => '只导出我改过的译文',
-      'workbench.history_page.manage_title' => '管理历史',
-      'workbench.history_page.manage_subtitle' => ({required Object count}) =>
-          '共 ${count} 条记录',
-      'workbench.history_page.retention_section' => '保留时长',
-      'workbench.history_page.clear_section' => '清空',
-      'workbench.history_page.clear_description' =>
-        '删除全部记录，包括收藏和你改过的译文。术语库不受影响。',
-      'workbench.history_page.clear_button' => '清空全部历史...',
-      'workbench.history_page.clear_confirm_title' => '清空全部历史',
-      'workbench.history_page.clear_confirm_message' => (
-              {required Object count}) =>
-          '删除全部 ${count} 条记录，包括收藏和你改过的译文。此操作无法撤销，术语库不受影响。',
       'workbench.history_page.delete_title_one' => '删除这条记录',
       'workbench.history_page.delete_title_many' => ({required Object count}) =>
           '删除 ${count} 条记录',

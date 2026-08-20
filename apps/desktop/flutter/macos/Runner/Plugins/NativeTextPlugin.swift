@@ -53,13 +53,14 @@ private final class NativeTextView: NSView {
   private var textStyle: NativeTextStyle
   private var alignment: NSTextAlignment
   private var isSelectable: Bool
+  private var selectionColor: NSColor?
 
   /// TextKit 1, assembled by hand. A programmatically created `NSTextView`
   /// comes up on TextKit 2 and only falls back the moment `layoutManager` is
   /// touched; owning the stack keeps `usedRect(for:)` — the whole basis for the
   /// height reported to Flutter — off that implicit downgrade.
   private let textStorage = NSTextStorage()
-  private let layoutManager = NSLayoutManager()
+  private let layoutManager = SelectionLayoutManager()
   private let textContainer = NSTextContainer(size: .zero)
   private let textView: SelectableTextView
 
@@ -81,6 +82,7 @@ private final class NativeTextView: NSView {
     textStyle = NativeTextStyle(arguments: args["style"] as? [String: Any])
     alignment = NativeTextView.decodeAlignment(args["textAlign"])
     isSelectable = args["selectable"] as? Bool ?? true
+    selectionColor = NativeTextStyle.decodeColor(args["selectionColor"])
 
     textStorage.addLayoutManager(layoutManager)
     layoutManager.addTextContainer(textContainer)
@@ -90,6 +92,7 @@ private final class NativeTextView: NSView {
 
     super.init(frame: .zero)
 
+    appearance = NativeTextView.decodeAppearance(args["appearance"])
     wantsLayer = true
     layer?.backgroundColor = NSColor.clear.cgColor
     setupTextView()
@@ -119,6 +122,7 @@ private final class NativeTextView: NSView {
       width: CGFloat.greatestFiniteMagnitude,
       height: CGFloat.greatestFiniteMagnitude
     )
+    applySelectionColor()
     textView.onClick = { [weak self] clickCount in
       guard let self else { return }
       self.channel.invokeMethod("tapped", arguments: nil)
@@ -215,6 +219,13 @@ private final class NativeTextView: NSView {
       case "setStyle":
         self.setStyle(call.arguments as? [String: Any] ?? [:])
         result(nil)
+      case "setAppearance":
+        self.appearance = NativeTextView.decodeAppearance(call.arguments)
+        result(nil)
+      case "setSelectionColor":
+        self.selectionColor = NativeTextStyle.decodeColor(call.arguments)
+        self.applySelectionColor()
+        result(nil)
       case "setSelectable":
         self.isSelectable = call.arguments as? Bool ?? true
         self.textView.isSelectable = self.isSelectable
@@ -229,6 +240,15 @@ private final class NativeTextView: NSView {
         result(FlutterMethodNotImplemented)
       }
     }
+  }
+
+  /// Left unset, AppKit paints the selection in the system accent — the colour
+  /// from System Settings, which has nothing to do with the app's theme. Only
+  /// the background is named, so the glyphs keep the colour the style gave them.
+  private func applySelectionColor() {
+    guard let selectionColor else { return }
+    textView.selectedTextAttributes = [.backgroundColor: selectionColor]
+    layoutManager.selectionColor = selectionColor
   }
 
   private func setText(_ newText: String) {
@@ -290,6 +310,21 @@ private final class NativeTextView: NSView {
       "contentSizeChanged",
       arguments: ["width": Double(size.width), "height": Double(size.height)]
     )
+  }
+
+  /// The app's theme decides the appearance, not the system.
+  ///
+  /// AppKit still resolves a handful of colours for itself here — the
+  /// unemphasized selection behind a blurred field above all, which is an
+  /// opaque near-white in the light appearance. Inheriting the system's choice
+  /// paints that over a dark theme; naming the theme's own brightness is what
+  /// keeps it in step.
+  private static func decodeAppearance(_ value: Any?) -> NSAppearance? {
+    switch value as? String {
+    case "dark": return NSAppearance(named: .darkAqua)
+    case "light": return NSAppearance(named: .aqua)
+    default: return nil
+    }
   }
 
   private static func decodePadding(_ value: Any?) -> NSEdgeInsets {
@@ -424,7 +459,7 @@ private struct NativeTextStyle {
     }
   }
 
-  private static func decodeColor(_ value: Any?) -> NSColor? {
+  fileprivate static func decodeColor(_ value: Any?) -> NSColor? {
     guard let number = value as? NSNumber else { return nil }
     let argb = number.uint32Value
     let alpha = CGFloat((argb >> 24) & 0xff) / 255

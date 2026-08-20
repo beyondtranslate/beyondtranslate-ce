@@ -46,6 +46,13 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   private var placeholder: String
   private let textStyle: NativeTextStyle
   private var placeholderStyle: NativeTextStyle
+  /// The multiline editor's TextKit 1 stack, held here because a text view
+  /// only keeps its container — and because the layout manager is what draws
+  /// the selection. See [SelectionLayoutManager].
+  private var textStorage: NSTextStorage?
+  private var selectionLayoutManager: SelectionLayoutManager?
+  private var cursorColor: NSColor?
+  private var selectionColor: NSColor?
 
   private var textField: NSTextField?
   private var textView: NSTextView?
@@ -76,9 +83,12 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     placeholderStyle = NativeTextStyle(
       arguments: args["placeholderStyle"] as? [String: Any]
     )
+    cursorColor = NativeTextStyle.decodeColor(args["cursorColor"])
+    selectionColor = NativeTextStyle.decodeColor(args["selectionColor"])
 
     super.init(frame: .zero)
 
+    appearance = NativeTextFieldView.decodeAppearance(args["appearance"])
     wantsLayer = true
     layer?.backgroundColor = NSColor.clear.cgColor
     setupInput(initialText: args["text"] as? String ?? "")
@@ -224,6 +234,7 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   }
 
   func controlTextDidBeginEditing(_ obj: Notification) {
+    applySelectionColors()
     channel.invokeMethod("focused", arguments: nil)
   }
 
@@ -313,7 +324,14 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     scroll.hasHorizontalScroller = false
     scroll.autohidesScrollers = true
 
-    let view = TrimmingTextView()
+    let storage = NSTextStorage()
+    let layout = SelectionLayoutManager()
+    let container = NSTextContainer(size: .zero)
+    storage.addLayoutManager(layout)
+    layout.addTextContainer(container)
+    let view = TrimmingTextView(frame: .zero, textContainer: container)
+    textStorage = storage
+    selectionLayoutManager = layout
     view.string = initialText
     view.delegate = self
     view.drawsBackground = false
@@ -331,7 +349,7 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     view.textContainer?.lineFragmentPadding = 0
     view.font = textStyle.font
     view.textColor = textStyle.color
-    view.insertionPointColor = NSColor.controlAccentColor
+    view.insertionPointColor = cursorColor ?? NSColor.controlAccentColor
     scroll.documentView = view
 
     let label = PassthroughTextField(labelWithString: placeholder)
@@ -348,7 +366,28 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     textView = view
     placeholderLabel = label
     updatePlaceholderVisibility()
+    applySelectionColors()
     reportContentHeightIfNeeded()
+  }
+
+  /// The caret and the wash behind selected glyphs, in the app's accent rather
+  /// than the system one from System Settings.
+  ///
+  /// The multiline editor is ours and keeps these for its lifetime. The
+  /// single-line field borrows the window's shared field editor, which is
+  /// handed around between every field in the window — so it has to be dressed
+  /// again each time editing begins here.
+  private func applySelectionColors() {
+    let editors = [textView, textField?.currentEditor() as? NSTextView]
+    for editor in editors.compactMap({ $0 }) {
+      if let cursorColor {
+        editor.insertionPointColor = cursorColor
+      }
+      if let selectionColor {
+        editor.selectedTextAttributes = [.backgroundColor: selectionColor]
+      }
+    }
+    selectionLayoutManager?.selectionColor = selectionColor
   }
 
   private func setupChannel() {
@@ -367,6 +406,15 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
         result(nil)
       case "blur":
         self.window?.makeFirstResponder(nil)
+        result(nil)
+      case "setAppearance":
+        self.appearance = NativeTextFieldView.decodeAppearance(call.arguments)
+        result(nil)
+      case "setSelectionColors":
+        let args = call.arguments as? [String: Any] ?? [:]
+        self.cursorColor = NativeTextStyle.decodeColor(args["cursorColor"])
+        self.selectionColor = NativeTextStyle.decodeColor(args["selectionColor"])
+        self.applySelectionColors()
         result(nil)
       case "setPlaceholder":
         self.setPlaceholder(call.arguments as? [String: Any] ?? [:])
@@ -484,6 +532,21 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     submit()
   }
 
+  /// The app's theme decides the appearance, not the system.
+  ///
+  /// AppKit still resolves a handful of colours for itself here — the
+  /// unemphasized selection behind a blurred field above all, which is an
+  /// opaque near-white in the light appearance. Inheriting the system's choice
+  /// paints that over a dark theme; naming the theme's own brightness is what
+  /// keeps it in step.
+  private static func decodeAppearance(_ value: Any?) -> NSAppearance? {
+    switch value as? String {
+    case "dark": return NSAppearance(named: .darkAqua)
+    case "light": return NSAppearance(named: .aqua)
+    default: return nil
+    }
+  }
+
   private static func decodePadding(_ value: Any?) -> NSEdgeInsets {
     guard let args = value as? [String: Any] else {
       return NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -530,7 +593,7 @@ private struct NativeTextStyle {
     color = NativeTextStyle.decodeColor(args["color"]) ?? NSColor.labelColor
   }
 
-  private static func decodeColor(_ value: Any?) -> NSColor? {
+  fileprivate static func decodeColor(_ value: Any?) -> NSColor? {
     guard let number = value as? NSNumber else { return nil }
     let argb = number.uint32Value
     let alpha = CGFloat((argb >> 24) & 0xff) / 255

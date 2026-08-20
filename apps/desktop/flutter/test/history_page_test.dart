@@ -1,6 +1,7 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/workbench/library.dart';
 import 'package:beyondtranslate_desktop/src/services/history_store.dart';
+import 'package:beyondtranslate_desktop/src/widgets/native_menu.dart';
 import 'package:beyondtranslate_desktop/src/widgets/ui.dart';
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
@@ -63,6 +64,16 @@ void main() {
     await tester.pumpWidget(_specimen(WorkbenchLibraryPage(store: store)));
     await tester.pumpAndSettle();
 
+    // The ⋯ menu is the platform's, and a widget test has no AppKit to open
+    // one against: this stands in for it, and picks 删除 off the items the row
+    // handed over.
+    var offered = const <String>[];
+    NativeMenu.debugPresenter = (items) async {
+      offered = [for (final item in items) item.label];
+      return items.firstWhere((item) => item.label == '删除');
+    };
+    addTearDown(() => NativeMenu.debugPresenter = null);
+
     // The row's actions only surface under the pointer.
     final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await pointer.addPointer(location: Offset.zero);
@@ -72,10 +83,8 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('更多'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('删除'));
-    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
+    expect(offered, ['复制译文', '删除']);
 
     // The sheet asks; nothing has gone yet.
     expect(find.text('删除这条记录'), findsOneWidget);
@@ -98,11 +107,9 @@ void main() {
     await tester.pumpWidget(_specimen(WorkbenchLibraryPage(store: store)));
     await tester.pumpAndSettle();
 
-    // The footer carries what acts on the list, and the retention note that
-    // opens 管理历史 — nothing that acts on one record.
+    // The footer carries what acts on the list — nothing that acts on one
+    // record.
     expect(find.text('多选'), findsOneWidget);
-    expect(find.text('导出全部'), findsOneWidget);
-    expect(find.textContaining('管理...'), findsOneWidget);
     expect(find.text('删除'), findsNothing);
 
     final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);

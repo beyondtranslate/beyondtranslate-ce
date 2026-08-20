@@ -642,15 +642,11 @@ class _TranslationsWorkbenchHistoryPageEs
   @override
   String get exit_select => 'Salir de selección';
   @override
-  String get export => 'Exportar CSV';
-  @override
   String get add_to_glossary => 'Añadir al glosario';
   @override
   String get favorite => 'Favorito';
   @override
   String get unfavorite => 'Quitar favorito';
-  @override
-  String get retention => 'Historial durante 90 días; favoritos para siempre';
   @override
   String delete_confirm({required Object count}) =>
       '¿Eliminar las ${count} entradas seleccionadas? No se puede deshacer.';
@@ -659,11 +655,6 @@ class _TranslationsWorkbenchHistoryPageEs
   @override
   String added_to_glossary({required Object count}) =>
       '${count} entradas añadidas al glosario';
-  @override
-  String get exported => 'Historial exportado';
-  @override
-  String export_failed({required Object error}) =>
-      'Error al exportar: ${error}';
   @override
   String get origin_workbench => 'Ventana principal';
   @override
@@ -2382,20 +2373,14 @@ extension on TranslationsEs {
       'workbench.history_page.selected_count' => ({required Object count}) =>
           '${count} seleccionadas',
       'workbench.history_page.exit_select' => 'Salir de selección',
-      'workbench.history_page.export' => 'Exportar CSV',
       'workbench.history_page.add_to_glossary' => 'Añadir al glosario',
       'workbench.history_page.favorite' => 'Favorito',
       'workbench.history_page.unfavorite' => 'Quitar favorito',
-      'workbench.history_page.retention' =>
-        'Historial durante 90 días; favoritos para siempre',
       'workbench.history_page.delete_confirm' => ({required Object count}) =>
           '¿Eliminar las ${count} entradas seleccionadas? No se puede deshacer.',
       'workbench.history_page.no_glossary' => 'Crea primero un glosario',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '${count} entradas añadidas al glosario',
-      'workbench.history_page.exported' => 'Historial exportado',
-      'workbench.history_page.export_failed' => ({required Object error}) =>
-          'Error al exportar: ${error}',
       'workbench.history_page.origin_workbench' => 'Ventana principal',
       'workbench.history_page.origin_mini' => 'Minitraductor',
       'workbench.history_page.favorite_flag' => 'Favorito',

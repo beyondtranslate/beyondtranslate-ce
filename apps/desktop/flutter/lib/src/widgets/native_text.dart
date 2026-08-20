@@ -29,6 +29,8 @@ class NativeText extends StatefulWidget {
     this.textAlign = TextAlign.start,
     this.padding = EdgeInsets.zero,
     this.selectable = true,
+    this.selectionColor,
+    this.brightness,
     this.onTap,
     this.onDoubleTap,
   });
@@ -38,6 +40,19 @@ class NativeText extends StatefulWidget {
   final TextAlign textAlign;
   final EdgeInsetsGeometry padding;
   final bool selectable;
+
+  /// The wash behind selected glyphs. Left null, AppKit falls back to the
+  /// system accent — the colour in System Settings, which has nothing to do
+  /// with the app's theme.
+  final Color? selectionColor;
+
+  /// The app theme's brightness, handed to AppKit as an `NSAppearance`.
+  ///
+  /// Without it the view inherits the *system* appearance, and every colour
+  /// AppKit still resolves for itself — the unemphasized selection, the context
+  /// menu, the IME candidates — comes back light while the app is drawing dark.
+  final Brightness? brightness;
+
   final GestureTapCallback? onTap;
   final GestureTapCallback? onDoubleTap;
 
@@ -69,6 +84,18 @@ class _NativeTextState extends State<NativeText> {
     }
     if (widget.selectable != oldWidget.selectable) {
       _channel?.invokeMethod<void>('setSelectable', widget.selectable);
+    }
+    if (widget.brightness != oldWidget.brightness) {
+      _channel?.invokeMethod<void>(
+        'setAppearance',
+        _encodeBrightness(widget.brightness),
+      );
+    }
+    if (widget.selectionColor != oldWidget.selectionColor) {
+      _channel?.invokeMethod<void>(
+        'setSelectionColor',
+        widget.selectionColor?.toARGB32(),
+      );
     }
   }
 
@@ -152,12 +179,20 @@ class _NativeTextState extends State<NativeText> {
           'textAlign': _encodeTextAlign(widget.textAlign, textDirection),
           'padding': _encodePadding(padding),
           'selectable': widget.selectable,
+          'selectionColor': widget.selectionColor?.toARGB32(),
+          'appearance': _encodeBrightness(widget.brightness),
         },
         creationParamsCodec: const StandardMessageCodec(),
         onPlatformViewCreated: _handlePlatformViewCreated,
       ),
     );
   }
+
+  String? _encodeBrightness(Brightness? brightness) => switch (brightness) {
+        Brightness.dark => 'dark',
+        Brightness.light => 'light',
+        null => null,
+      };
 
   Map<String, double> _encodePadding(EdgeInsets padding) {
     return <String, double>{
