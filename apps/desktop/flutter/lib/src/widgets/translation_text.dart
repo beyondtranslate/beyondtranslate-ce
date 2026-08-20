@@ -4,6 +4,11 @@ import 'package:flutter/material.dart' show SelectableText;
 import 'package:flutter/widgets.dart';
 
 import 'native_text.dart';
+import 'ui.dart' show DesignThemeContext;
+
+/// The selection sits behind the glyphs, so it reads as the accent without
+/// taking the text with it.
+const double _kSelectionOpacity = 0.2;
 
 /// 译文 — the translated text itself, wherever the app shows it.
 ///
@@ -41,6 +46,13 @@ class TranslationText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Neither AppKit nor Flutter reaches for the app's theme on its own: one
+    // falls back to the system accent, the other to Material's.
+    final tokens = context.tokens;
+    final selectionColor = tokens.colors.accent.withValues(
+      alpha: _kSelectionOpacity,
+    );
+
     // The same predicate [NativeText] guards its own `AppKitView` with — asking
     // the host OS instead would hand the text to a platform view that then
     // refuses to draw.
@@ -50,6 +62,8 @@ class TranslationText extends StatelessWidget {
         style: style,
         textAlign: textAlign,
         padding: padding,
+        selectionColor: selectionColor,
+        brightness: tokens.brightness,
         onTap: onTap,
         onDoubleTap: onDoubleTap,
       );
@@ -57,7 +71,10 @@ class TranslationText extends StatelessWidget {
 
     final Widget text = Padding(
       padding: padding,
-      child: SelectableText(data, style: style, textAlign: textAlign),
+      child: DefaultSelectionStyle(
+        selectionColor: selectionColor,
+        child: SelectableText(data, style: style, textAlign: textAlign),
+      ),
     );
     if (onTap == null && onDoubleTap == null) return text;
     return GestureDetector(

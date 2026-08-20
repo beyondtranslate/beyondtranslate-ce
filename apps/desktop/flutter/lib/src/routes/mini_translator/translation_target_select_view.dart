@@ -8,6 +8,7 @@ import '../../i18n/i18n.dart';
 import '../../utils/language_util.dart';
 import '../../widgets/icon_action_button.dart';
 import '../../widgets/language_selector.dart';
+import '../../widgets/native_menu.dart' show openNativeMenuBelow;
 import '../app_router.dart' show miniTranslatorWindowController;
 
 /// 顶部栏 — the deck's MiniTranslator chrome: the language capsule on the

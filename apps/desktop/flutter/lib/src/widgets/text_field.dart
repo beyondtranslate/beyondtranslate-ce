@@ -6,13 +6,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'native_text_field.dart';
+import 'ui.dart' show DesignThemeContext;
 
 const EdgeInsets _kDefaultPadding = EdgeInsets.symmetric(
   horizontal: 12,
   vertical: 8,
 );
-const Color _kDefaultCursorColor = Color(0xFF007AFF);
 const Color _kDefaultBackgroundCursorColor = Color(0x33000000);
+
+/// The selection sits behind the glyphs, so it reads as the accent without
+/// taking the text with it.
+const double _kSelectionOpacity = 0.2;
 
 /// A lightweight app text field with Cupertino-style defaults.
 ///
@@ -169,6 +173,12 @@ class _TextFieldState extends State<TextField> {
 
   @override
   Widget build(BuildContext context) {
+    // Neither AppKit nor Flutter reaches for the app's theme on its own: one
+    // falls back to the system accent, the other to Material's.
+    final tokens = context.tokens;
+    final cursorColor = tokens.colors.accent;
+    final selectionColor = cursorColor.withValues(alpha: _kSelectionOpacity);
+
     // The same predicate [NativeTextField] guards its own `AppKitView` with —
     // asking the host OS instead would hand the field to a platform view that
     // then refuses to draw.
@@ -193,6 +203,9 @@ class _TextFieldState extends State<TextField> {
         submitOnMetaEnter: widget.submitOnMetaEnter,
         textCapitalization: widget.textCapitalization,
         selectionHeightStyle: widget.selectionHeightStyle,
+        cursorColor: cursorColor,
+        selectionColor: selectionColor,
+        brightness: tokens.brightness,
         onChanged: widget.onChanged,
         onSubmitted: widget.onSubmitted,
         onTap: widget.onTap,
@@ -237,9 +250,9 @@ class _TextFieldState extends State<TextField> {
               textCapitalization: widget.textCapitalization,
               selectionHeightStyle: widget.selectionHeightStyle,
               style: textStyle,
-              cursorColor: _kDefaultCursorColor,
+              cursorColor: cursorColor,
               backgroundCursorColor: _kDefaultBackgroundCursorColor,
-              selectionColor: _kDefaultCursorColor.withValues(alpha: 0.2),
+              selectionColor: selectionColor,
               maxLines: widget.obscureText ? 1 : widget.maxLines,
               minLines: widget.minLines,
               autofocus: widget.autofocus,

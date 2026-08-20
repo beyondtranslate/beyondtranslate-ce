@@ -684,9 +684,6 @@ class TranslationsWorkbenchHistoryPageEn {
   /// en: 'Exit selection'
   String get exit_select => 'Exit selection';
 
-  /// en: 'Export CSV'
-  String get export => 'Export CSV';
-
   /// en: 'Add to glossary'
   String get add_to_glossary => 'Add to glossary';
 
@@ -695,9 +692,6 @@ class TranslationsWorkbenchHistoryPageEn {
 
   /// en: 'Unfavorite'
   String get unfavorite => 'Unfavorite';
-
-  /// en: 'History is kept for 90 days; favorites forever'
-  String get retention => 'History is kept for 90 days; favorites forever';
 
   /// en: 'Delete the selected $count history entries? This cannot be undone.'
   String delete_confirm({required Object count}) =>
@@ -709,12 +703,6 @@ class TranslationsWorkbenchHistoryPageEn {
   /// en: 'Added $count entries to the glossary'
   String added_to_glossary({required Object count}) =>
       'Added ${count} entries to the glossary';
-
-  /// en: 'History exported'
-  String get exported => 'History exported';
-
-  /// en: 'Export failed: $error'
-  String export_failed({required Object error}) => 'Export failed: ${error}';
 
   /// en: 'Main window'
   String get origin_workbench => 'Main window';
@@ -737,71 +725,6 @@ class TranslationsWorkbenchHistoryPageEn {
 
   /// en: 'More'
   String get more_actions => 'More';
-
-  /// en: 'Export all'
-  String get export_all => 'Export all';
-
-  /// en: 'History kept 90 days'
-  String get retention_short => 'History kept 90 days';
-
-  /// en: 'Manage…'
-  String get manage => 'Manage…';
-
-  /// en: 'Export records'
-  String get export_title => 'Export records';
-
-  /// en: '$count selected'
-  String export_scope_selected({required Object count}) => '${count} selected';
-
-  /// en: 'All $count'
-  String export_scope_all({required Object count}) => 'All ${count}';
-
-  /// en: 'Format'
-  String get export_format => 'Format';
-
-  /// en: 'Spreadsheets and scripts'
-  String get format_csv_hint => 'Spreadsheets and scripts';
-
-  /// en: 'A readable side-by-side'
-  String get format_md_hint => 'A readable side-by-side';
-
-  /// en: 'Translation memory'
-  String get format_tmx_hint => 'Translation memory';
-
-  /// en: 'Contents'
-  String get export_content => 'Contents';
-
-  /// en: 'Include service, time and origin'
-  String get export_with_meta => 'Include service, time and origin';
-
-  /// en: 'Only translations I edited'
-  String get export_only_edited => 'Only translations I edited';
-
-  /// en: 'Manage history'
-  String get manage_title => 'Manage history';
-
-  /// en: '$count records'
-  String manage_subtitle({required Object count}) => '${count} records';
-
-  /// en: 'Retention'
-  String get retention_section => 'Retention';
-
-  /// en: 'Clear'
-  String get clear_section => 'Clear';
-
-  /// en: 'Deletes every record, favourites and your own wording included. The glossary is untouched.'
-  String get clear_description =>
-      'Deletes every record, favourites and your own wording included. The glossary is untouched.';
-
-  /// en: 'Clear all history…'
-  String get clear_button => 'Clear all history…';
-
-  /// en: 'Clear all history'
-  String get clear_confirm_title => 'Clear all history';
-
-  /// en: 'Deletes all $count records, favourites and your own wording included. This cannot be undone; the glossary is untouched.'
-  String clear_confirm_message({required Object count}) =>
-      'Deletes all ${count} records, favourites and your own wording included. This cannot be undone; the glossary is untouched.';
 
   /// en: 'Delete this record'
   String get delete_title_one => 'Delete this record';
@@ -2674,20 +2597,14 @@ extension on Translations {
       'workbench.history_page.selected_count' => ({required Object count}) =>
           '${count} selected',
       'workbench.history_page.exit_select' => 'Exit selection',
-      'workbench.history_page.export' => 'Export CSV',
       'workbench.history_page.add_to_glossary' => 'Add to glossary',
       'workbench.history_page.favorite' => 'Favorite',
       'workbench.history_page.unfavorite' => 'Unfavorite',
-      'workbench.history_page.retention' =>
-        'History is kept for 90 days; favorites forever',
       'workbench.history_page.delete_confirm' => ({required Object count}) =>
           'Delete the selected ${count} history entries? This cannot be undone.',
       'workbench.history_page.no_glossary' => 'Create a glossary first',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           'Added ${count} entries to the glossary',
-      'workbench.history_page.exported' => 'History exported',
-      'workbench.history_page.export_failed' => ({required Object error}) =>
-          'Export failed: ${error}',
       'workbench.history_page.origin_workbench' => 'Main window',
       'workbench.history_page.origin_mini' => 'Mini translator',
       'workbench.history_page.favorite_flag' => 'Favorite',
@@ -2696,35 +2613,6 @@ extension on Translations {
         'The edited translation will be saved to history',
       'workbench.history_page.copy_translation' => 'Copy translation',
       'workbench.history_page.more_actions' => 'More',
-      'workbench.history_page.export_all' => 'Export all',
-      'workbench.history_page.retention_short' => 'History kept 90 days',
-      'workbench.history_page.manage' => 'Manage…',
-      'workbench.history_page.export_title' => 'Export records',
-      'workbench.history_page.export_scope_selected' =>
-        ({required Object count}) => '${count} selected',
-      'workbench.history_page.export_scope_all' => ({required Object count}) =>
-          'All ${count}',
-      'workbench.history_page.export_format' => 'Format',
-      'workbench.history_page.format_csv_hint' => 'Spreadsheets and scripts',
-      'workbench.history_page.format_md_hint' => 'A readable side-by-side',
-      'workbench.history_page.format_tmx_hint' => 'Translation memory',
-      'workbench.history_page.export_content' => 'Contents',
-      'workbench.history_page.export_with_meta' =>
-        'Include service, time and origin',
-      'workbench.history_page.export_only_edited' =>
-        'Only translations I edited',
-      'workbench.history_page.manage_title' => 'Manage history',
-      'workbench.history_page.manage_subtitle' => ({required Object count}) =>
-          '${count} records',
-      'workbench.history_page.retention_section' => 'Retention',
-      'workbench.history_page.clear_section' => 'Clear',
-      'workbench.history_page.clear_description' =>
-        'Deletes every record, favourites and your own wording included. The glossary is untouched.',
-      'workbench.history_page.clear_button' => 'Clear all history…',
-      'workbench.history_page.clear_confirm_title' => 'Clear all history',
-      'workbench.history_page.clear_confirm_message' => (
-              {required Object count}) =>
-          'Deletes all ${count} records, favourites and your own wording included. This cannot be undone; the glossary is untouched.',
       'workbench.history_page.delete_title_one' => 'Delete this record',
       'workbench.history_page.delete_title_many' => ({required Object count}) =>
           'Delete ${count} records',

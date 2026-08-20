@@ -3,39 +3,9 @@ import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../i18n/i18n.dart';
 import '../utils/language_util.dart';
+import 'native_menu.dart' show openNativeMenuBelow;
 import 'swap_pair.dart' show SwapPair, SwapPairSize;
 import 'ui.dart' show Badge, BadgeTone;
-
-/// Opens [menu] just under the widget [anchorKey] is attached to.
-///
-/// [anchorX] picks the horizontal anchor along that widget: 0.5 centres the
-/// menu under it, 1.0 pins it to the trailing edge. [window] defaults to the
-/// focused one, which is the window the press came from.
-void openNativeMenuBelow(
-  GlobalKey anchorKey,
-  nativeapi.Menu menu, {
-  nativeapi.Placement placement = nativeapi.Placement.bottom,
-  double anchorX = 0.5,
-  nativeapi.Window? window,
-}) {
-  final renderBox = anchorKey.currentContext?.findRenderObject() as RenderBox?;
-  if (renderBox == null || !renderBox.hasSize) return;
-
-  final target = window ?? nativeapi.WindowManager.instance.getCurrent();
-  if (target == null) return;
-
-  final localPosition = renderBox.localToGlobal(Offset.zero);
-  final size = renderBox.size;
-  final anchorPosition = Offset(
-    localPosition.dx + size.width * anchorX,
-    localPosition.dy + size.height + 4,
-  );
-
-  menu.open(
-    nativeapi.PositioningStrategy.relativeToWindow(target, anchorPosition),
-    placement,
-  );
-}
 
 /// Populates [menu] with the common languages, a 更多语言 submenu, and the
 /// 管理常用语言 item that leads into settings.

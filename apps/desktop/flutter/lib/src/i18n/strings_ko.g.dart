@@ -635,15 +635,11 @@ class _TranslationsWorkbenchHistoryPageKo
   @override
   String get exit_select => '선택 종료';
   @override
-  String get export => 'CSV 내보내기';
-  @override
   String get add_to_glossary => '용어집에 추가';
   @override
   String get favorite => '즐겨찾기';
   @override
   String get unfavorite => '즐겨찾기 해제';
-  @override
-  String get retention => '일반 기록은 90일, 즐겨찾기는 영구 보관';
   @override
   String delete_confirm({required Object count}) =>
       '선택한 기록 ${count}개를 삭제할까요? 되돌릴 수 없습니다.';
@@ -652,10 +648,6 @@ class _TranslationsWorkbenchHistoryPageKo
   @override
   String added_to_glossary({required Object count}) =>
       '기록 ${count}개를 용어집에 추가했습니다';
-  @override
-  String get exported => '기록을 내보냈습니다';
-  @override
-  String export_failed({required Object error}) => '내보내기 실패: ${error}';
   @override
   String get origin_workbench => '메인 창';
   @override
@@ -2324,19 +2316,14 @@ extension on TranslationsKo {
       'workbench.history_page.selected_count' => ({required Object count}) =>
           '${count}개 선택됨',
       'workbench.history_page.exit_select' => '선택 종료',
-      'workbench.history_page.export' => 'CSV 내보내기',
       'workbench.history_page.add_to_glossary' => '용어집에 추가',
       'workbench.history_page.favorite' => '즐겨찾기',
       'workbench.history_page.unfavorite' => '즐겨찾기 해제',
-      'workbench.history_page.retention' => '일반 기록은 90일, 즐겨찾기는 영구 보관',
       'workbench.history_page.delete_confirm' => ({required Object count}) =>
           '선택한 기록 ${count}개를 삭제할까요? 되돌릴 수 없습니다.',
       'workbench.history_page.no_glossary' => '먼저 용어집을 만드세요',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '기록 ${count}개를 용어집에 추가했습니다',
-      'workbench.history_page.exported' => '기록을 내보냈습니다',
-      'workbench.history_page.export_failed' => ({required Object error}) =>
-          '내보내기 실패: ${error}',
       'workbench.history_page.origin_workbench' => '메인 창',
       'workbench.history_page.origin_mini' => '미니 번역기',
       'workbench.history_page.favorite_flag' => '즐겨찾기',

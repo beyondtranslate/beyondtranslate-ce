@@ -639,15 +639,11 @@ class _TranslationsWorkbenchHistoryPageZhHant
   @override
   String get exit_select => '退出多選';
   @override
-  String get export => '匯出 CSV';
-  @override
   String get add_to_glossary => '加入術語庫';
   @override
   String get favorite => '收藏';
   @override
   String get unfavorite => '取消收藏';
-  @override
-  String get retention => '一般歷史保留 90 天，收藏永久';
   @override
   String delete_confirm({required Object count}) =>
       '確定刪除選取的 ${count} 筆歷史？此操作無法復原。';
@@ -655,10 +651,6 @@ class _TranslationsWorkbenchHistoryPageZhHant
   String get no_glossary => '請先建立一個術語庫';
   @override
   String added_to_glossary({required Object count}) => '已將 ${count} 筆記錄加入術語庫';
-  @override
-  String get exported => '歷史已匯出';
-  @override
-  String export_failed({required Object error}) => '匯出失敗：${error}';
   @override
   String get origin_workbench => '主視窗';
   @override
@@ -2329,19 +2321,14 @@ extension on TranslationsZhHant {
       'workbench.history_page.selected_count' => ({required Object count}) =>
           '已選 ${count} 筆',
       'workbench.history_page.exit_select' => '退出多選',
-      'workbench.history_page.export' => '匯出 CSV',
       'workbench.history_page.add_to_glossary' => '加入術語庫',
       'workbench.history_page.favorite' => '收藏',
       'workbench.history_page.unfavorite' => '取消收藏',
-      'workbench.history_page.retention' => '一般歷史保留 90 天，收藏永久',
       'workbench.history_page.delete_confirm' => ({required Object count}) =>
           '確定刪除選取的 ${count} 筆歷史？此操作無法復原。',
       'workbench.history_page.no_glossary' => '請先建立一個術語庫',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '已將 ${count} 筆記錄加入術語庫',
-      'workbench.history_page.exported' => '歷史已匯出',
-      'workbench.history_page.export_failed' => ({required Object error}) =>
-          '匯出失敗：${error}',
       'workbench.history_page.origin_workbench' => '主視窗',
       'workbench.history_page.origin_mini' => '迷你翻譯器',
       'workbench.history_page.favorite_flag' => '已收藏',

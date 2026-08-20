@@ -643,15 +643,11 @@ class _TranslationsWorkbenchHistoryPageFr
   @override
   String get exit_select => 'Quitter la sélection';
   @override
-  String get export => 'Exporter en CSV';
-  @override
   String get add_to_glossary => 'Ajouter au glossaire';
   @override
   String get favorite => 'Ajouter aux favoris';
   @override
   String get unfavorite => 'Retirer des favoris';
-  @override
-  String get retention => 'Historique conservé 90 jours, favoris sans limite';
   @override
   String delete_confirm({required Object count}) =>
       'Supprimer les ${count} entrées sélectionnées ? Cette action est irréversible.';
@@ -660,11 +656,6 @@ class _TranslationsWorkbenchHistoryPageFr
   @override
   String added_to_glossary({required Object count}) =>
       '${count} entrées ajoutées au glossaire';
-  @override
-  String get exported => 'Historique exporté';
-  @override
-  String export_failed({required Object error}) =>
-      'Échec de l’exportation : ${error}';
   @override
   String get origin_workbench => 'Fenêtre principale';
   @override
@@ -2386,20 +2377,14 @@ extension on TranslationsFr {
       'workbench.history_page.selected_count' => ({required Object count}) =>
           '${count} sélectionnées',
       'workbench.history_page.exit_select' => 'Quitter la sélection',
-      'workbench.history_page.export' => 'Exporter en CSV',
       'workbench.history_page.add_to_glossary' => 'Ajouter au glossaire',
       'workbench.history_page.favorite' => 'Ajouter aux favoris',
       'workbench.history_page.unfavorite' => 'Retirer des favoris',
-      'workbench.history_page.retention' =>
-        'Historique conservé 90 jours, favoris sans limite',
       'workbench.history_page.delete_confirm' => ({required Object count}) =>
           'Supprimer les ${count} entrées sélectionnées ? Cette action est irréversible.',
       'workbench.history_page.no_glossary' => 'Créez d’abord un glossaire',
       'workbench.history_page.added_to_glossary' => ({required Object count}) =>
           '${count} entrées ajoutées au glossaire',
-      'workbench.history_page.exported' => 'Historique exporté',
-      'workbench.history_page.export_failed' => ({required Object error}) =>
-          'Échec de l’exportation : ${error}',
       'workbench.history_page.origin_workbench' => 'Fenêtre principale',
       'workbench.history_page.origin_mini' => 'Mini-traducteur',
       'workbench.history_page.favorite_flag' => 'Favori',
