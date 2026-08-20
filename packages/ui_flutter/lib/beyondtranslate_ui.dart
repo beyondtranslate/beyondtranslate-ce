@@ -62,5 +62,6 @@ export 'src/widgets/step_list.dart';
 export 'src/widgets/surface.dart';
 export 'src/widgets/switch.dart';
 export 'src/widgets/tabs.dart';
+export 'src/widgets/toast.dart';
 export 'src/widgets/window_controls.dart';
 export 'src/widgets/window_frame.dart';

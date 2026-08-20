@@ -308,6 +308,37 @@ void main() {
       );
     });
 
+    testWidgets('toasts', (tester) async {
+      // No Spinner variant here: its repeat animation never settles under
+      // pumpAndSettle. The in-flight story lives in the example app instead.
+      await expectGolden(
+        tester,
+        'toasts',
+        width: 460,
+        column([
+          const Toast(child: Text('已存至「下载」· 3.6 MB')),
+          const Toast(tone: ToastTone.success, child: Text('已复制译文')),
+          const Toast(
+            tone: ToastTone.warn,
+            child: Text('DeepL 超时 —— 已切换到 OpenAI 兜底'),
+          ),
+          Toast(
+            tone: ToastTone.danger,
+            onDismiss: () {},
+            child: const Text('连接已断开 —— 正在重试'),
+          ),
+          Toast(
+            action: Button(
+              variant: ButtonVariant.quiet,
+              onPressed: () {},
+              child: const Text('撤销'),
+            ),
+            child: const Text('已存入生词本'),
+          ),
+        ]),
+      );
+    });
+
     testWidgets('sidebar group', (tester) async {
       await expectGolden(
         tester,

@@ -1,4 +1,3 @@
-import 'package:bot_toast/bot_toast.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide Checkbox, IconButton;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
@@ -14,6 +13,7 @@ import '../../widgets/confirm_dialog.dart';
 import '../../widgets/list_card.dart' show ListCard;
 import '../../widgets/native_menu.dart'
     show NativeMenu, NativeMenuAlign, NativeMenuItem;
+import '../../widgets/toast_host.dart' show showToast;
 import '../../widgets/ui.dart'
     show
         Button,
@@ -29,6 +29,7 @@ import '../../widgets/ui.dart'
         Rail,
         RailItem,
         SearchField,
+        ToastTone,
         WindowFooter;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 
@@ -121,13 +122,14 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
 
   Future<void> _copyTranslation(HistoryEntry entry) async {
     await Clipboard.setData(ClipboardData(text: entry.translation));
-    BotToast.showText(text: t.workbench.translation.copied);
+    if (!mounted) return;
+    showToast(context, t.workbench.translation.copied, tone: ToastTone.success);
   }
 
   Future<void> _addToGlossary(List<HistoryEntry> entries) async {
     if (entries.isEmpty) return;
     if (glossaryStore.selectedBook == null) {
-      BotToast.showText(text: t.workbench.history_page.no_glossary);
+      showToast(context, t.workbench.history_page.no_glossary);
       if (mounted) context.go('/glossary');
       return;
     }
@@ -139,9 +141,11 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       );
       if (result != null) saved++;
     }
-    if (saved > 0) {
-      BotToast.showText(
-        text: t.workbench.history_page.added_to_glossary(count: saved),
+    if (saved > 0 && mounted) {
+      showToast(
+        context,
+        t.workbench.history_page.added_to_glossary(count: saved),
+        tone: ToastTone.success,
       );
     }
   }

@@ -2,7 +2,6 @@
 
 import 'dart:io';
 
-import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/src/widgets/_window.dart' as flutter_window
@@ -18,6 +17,7 @@ import '../services/mac_app_presentation.dart';
 import '../services/settings_store.dart';
 import '../theme/app_theme.dart';
 import '../utils/language_util.dart';
+import '../widgets/toast_host.dart';
 import '../widgets/ui.dart' show DesignThemeProvider;
 import '__root.dart';
 import 'debug/runtime.dart' as debug_runtime_route;
@@ -114,14 +114,16 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
 }
 
 /// Publishes the token set matching the resolved Material brightness, so every
-/// `ui` widget below reads the same palette [appThemeData] was built from.
+/// `ui` widget below reads the same palette [appThemeData] was built from —
+/// and gives the window its own [ToastHost], so each window stacks its own
+/// notifications.
 Widget _withDesignTokens(BuildContext context, Widget child) {
   return DesignThemeProvider(
     tokens: tokensFor(
       Theme.of(context).brightness,
       family: settingsStore.themeFamily,
     ),
-    child: child,
+    child: ToastHost(child: child),
   );
 }
 
@@ -153,8 +155,6 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
 
   @override
   Widget build(BuildContext context) {
-    final botToastBuilder = BotToastInit();
-
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: kMiniTranslatorWindowTitle,
@@ -165,10 +165,7 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
         tokensFor(Brightness.dark, family: settingsStore.themeFamily),
       ),
       themeMode: settingsStore.themeMode,
-      builder: (context, child) {
-        child = botToastBuilder(context, child);
-        return _withDesignTokens(context, child);
-      },
+      builder: (context, child) => _withDesignTokens(context, child!),
       routerConfig: _router,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,

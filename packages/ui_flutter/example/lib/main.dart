@@ -555,6 +555,43 @@ class _AtomsState extends State<_Atoms> {
               ],
             ),
             _Section(
+              title: 'Toast',
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Toast(child: Text('已存至「下载」· 3.6 MB')),
+                    const SizedBox(height: 10),
+                    const Toast(
+                      tone: ToastTone.success,
+                      child: Text('已复制译文'),
+                    ),
+                    const SizedBox(height: 10),
+                    const Toast(
+                      tone: ToastTone.warn,
+                      child: Text('DeepL 超时 —— 已切换到 OpenAI 兜底'),
+                    ),
+                    const SizedBox(height: 10),
+                    Toast(
+                      tone: ToastTone.danger,
+                      onDismiss: () {},
+                      child: const Text('连接已断开 —— 正在重试'),
+                    ),
+                    const SizedBox(height: 10),
+                    Toast(
+                      icon: const Spinner(size: SpinnerSize.sm),
+                      action: Button(
+                        variant: ButtonVariant.quiet,
+                        onPressed: () {},
+                        child: const Text('取消'),
+                      ),
+                      child: const Text('正在导出 PDF · 第 4 / 15 页'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            _Section(
               title: 'DataTable',
               children: [
                 SizedBox(

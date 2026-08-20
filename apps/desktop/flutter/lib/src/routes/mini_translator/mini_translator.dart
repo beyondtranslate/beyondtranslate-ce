@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +29,8 @@ import '../../services/settings_store.dart';
 import '../../services/shortcut_service/shortcut_service.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
-import '../../widgets/ui.dart' show DesignThemeContext, PopoverPanel;
+import '../../widgets/toast_host.dart' show showToast;
+import '../../widgets/ui.dart' show DesignThemeContext, PopoverPanel, ToastTone;
 import 'limited_functionality_banner.dart';
 import 'translation_input_view.dart';
 import 'translation_results_view.dart';
@@ -787,11 +787,12 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _handleTextChanged(text, isRequery: true);
     } catch (error) {
       await _windowShow();
+      if (!mounted) return;
       _setStateAndScheduleWindowResize(() {});
-      BotToast.showText(
-        text:
-            '${t.mini_translator.message.ocr_recognition_failed}: ${error.toString()}',
-        align: Alignment.center,
+      showToast(
+        context,
+        '${t.mini_translator.message.ocr_recognition_failed}: ${error.toString()}',
+        tone: ToastTone.danger,
       );
     }
   }
@@ -853,10 +854,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   void _handleButtonTappedTrans() async {
     if (_text.isEmpty) {
-      BotToast.showText(
-        text: t.mini_translator.message.please_enter_word_or_text,
-        align: Alignment.center,
-      );
+      showToast(context, t.mini_translator.message.please_enter_word_or_text);
       _focusNode.requestFocus();
       return;
     }
@@ -881,18 +879,21 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           _isAllowedScreenSelectionAccess =
               await runtime.permission().isAccessibilityPermissionGranted();
 
+          if (!context.mounted) return;
           _setStateAndScheduleWindowResize(() {});
 
           if (_isAllowedScreenCaptureAccess &&
               _isAllowedScreenSelectionAccess) {
-            BotToast.showText(
-              text: t.mini_translator.limited_banner.feedback.enabled,
-              align: Alignment.center,
+            showToast(
+              context,
+              t.mini_translator.limited_banner.feedback.enabled,
+              tone: ToastTone.success,
             );
           } else {
-            BotToast.showText(
-              text: t.mini_translator.limited_banner.feedback.still_missing,
-              align: Alignment.center,
+            showToast(
+              context,
+              t.mini_translator.limited_banner.feedback.still_missing,
+              tone: ToastTone.warn,
             );
           }
         },
