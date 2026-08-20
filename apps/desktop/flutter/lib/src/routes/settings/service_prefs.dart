@@ -384,34 +384,38 @@ class _LanguageField extends StatelessWidget {
     final window = nativeapi.WindowManager.instance.getCurrent();
     if (window == null) return;
 
-    final menu = nativeapi.Menu();
+    final menu = nativeapi.Menu.create()!;
     final menuItems = <nativeapi.MenuItem>[];
     final itemIds = <int, String>{};
 
+    void onItemEvent(nativeapi.MenuEvent e) {
+      if (e is! nativeapi.MenuItemClickedEvent) return;
+      final v = itemIds[e.itemId];
+      if (v != null) onChanged(v);
+    }
+
     // Auto detect
     if (showAutoDetect) {
-      final item = nativeapi.MenuItem(t.mini_translator.language.auto_detect);
+      final item = nativeapi.MenuItem.createWithLabelAndType(
+        t.mini_translator.language.auto_detect,
+        nativeapi.MenuItemType.normal,
+      )!;
       menuItems.add(item);
       itemIds[item.id] = kAutoSource;
-      item.on<nativeapi.MenuItemClickedEvent>((e) {
-        final v = itemIds[e.menuItemId];
-        if (v != null) onChanged(v);
-      });
+      item.addListener(onItemEvent);
       menu.addItem(item);
     }
 
     // Common languages
     final common = getCommonLanguages(commonLanguageCodes);
     for (final lang in common) {
-      final item = nativeapi.MenuItem(
+      final item = nativeapi.MenuItem.createWithLabelAndType(
         getLanguageName(lang, showNative: showNative),
-      );
+        nativeapi.MenuItemType.normal,
+      )!;
       menuItems.add(item);
       itemIds[item.id] = lang;
-      item.on<nativeapi.MenuItemClickedEvent>((e) {
-        final v = itemIds[e.menuItemId];
-        if (v != null) onChanged(v);
-      });
+      item.addListener(onItemEvent);
       menu.addItem(item);
     }
 
@@ -421,15 +425,13 @@ class _LanguageField extends StatelessWidget {
       menu.addSeparator();
     }
     for (final lang in other) {
-      final item = nativeapi.MenuItem(
+      final item = nativeapi.MenuItem.createWithLabelAndType(
         getLanguageName(lang, showNative: showNative),
-      );
+        nativeapi.MenuItemType.normal,
+      )!;
       menuItems.add(item);
       itemIds[item.id] = lang;
-      item.on<nativeapi.MenuItemClickedEvent>((e) {
-        final v = itemIds[e.menuItemId];
-        if (v != null) onChanged(v);
-      });
+      item.addListener(onItemEvent);
       menu.addItem(item);
     }
 
@@ -442,10 +444,12 @@ class _LanguageField extends StatelessWidget {
     _liveLanguageMenu = menu;
     _liveLanguageItems = menuItems;
 
-    menu.open(
-      nativeapi.PositioningStrategy.relativeToWindow(window, offset),
-      nativeapi.Placement.bottomStart,
+    final strategy = nativeapi.PositioningStrategy.relativeWithWindowAndOffset(
+      window,
+      offset,
     );
+    if (strategy == null) return;
+    menu.open(strategy, nativeapi.Placement.bottomStart);
   }
 }
 

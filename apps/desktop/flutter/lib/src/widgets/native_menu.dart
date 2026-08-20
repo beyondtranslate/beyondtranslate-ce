@@ -28,10 +28,13 @@ bool openNativeMenuBelow(
     localPosition.dy + size.height + 4,
   );
 
-  return menu.open(
-    nativeapi.PositioningStrategy.relativeToWindow(target, anchorPosition),
-    placement,
+  final strategy = nativeapi.PositioningStrategy.relativeWithWindowAndOffset(
+    target,
+    anchorPosition,
   );
+  if (strategy == null) return false;
+
+  return menu.open(strategy, placement);
 }
 
 /// One row of a [NativeMenu].
@@ -166,19 +169,19 @@ class _NativeMenuState extends State<NativeMenu> {
     // Whatever is left of the previous menu goes now, not when it closed.
     _release();
 
-    final menu = nativeapi.Menu();
+    final menu = nativeapi.Menu.create()!;
     final items = <nativeapi.MenuItem>[];
     final actions = <int, VoidCallback>{};
 
     for (final entry in widget.items) {
       if (entry.separatorBefore && items.isNotEmpty) menu.addSeparator();
-      final item = nativeapi.MenuItem(
+      final item = nativeapi.MenuItem.createWithLabelAndType(
         entry.label,
         entry.checked == null
             ? nativeapi.MenuItemType.normal
             : nativeapi.MenuItemType.checkbox,
-      );
-      item.enabled = entry.enabled;
+      )!;
+      item.isEnabled = entry.enabled;
       if (entry.checked != null) {
         item.state = entry.checked!
             ? nativeapi.MenuItemState.checked
@@ -187,15 +190,17 @@ class _NativeMenuState extends State<NativeMenu> {
       final onSelect = entry.onSelect;
       if (onSelect != null) {
         actions[item.id] = onSelect;
-        item.on<nativeapi.MenuItemClickedEvent>((event) {
-          actions[event.menuItemId]?.call();
+        item.addListener((event) {
+          if (event is! nativeapi.MenuItemClickedEvent) return;
+          actions[event.itemId]?.call();
         });
       }
       items.add(item);
       menu.addItem(item);
     }
 
-    menu.on<nativeapi.MenuClosedEvent>((_) {
+    menu.addListener((event) {
+      if (event is! nativeapi.MenuClosedEvent) return;
       // Only the open state — the menu itself outlives its own close event so
       // the click that follows can still find its item.
       if (mounted) setState(() => _open = false);

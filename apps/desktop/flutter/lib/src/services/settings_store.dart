@@ -23,7 +23,7 @@ import 'runtime.dart' as runtime_service;
 /// runtime. Anything UI-only (e.g. window sizing) should live elsewhere.
 class SettingsStore extends ChangeNotifier {
   SettingsStore._() {
-    _launchAtLogin = LaunchAtLogin();
+    _launchAtLogin = LaunchAtLogin.create()!;
   }
 
   static final SettingsStore instance = SettingsStore._();

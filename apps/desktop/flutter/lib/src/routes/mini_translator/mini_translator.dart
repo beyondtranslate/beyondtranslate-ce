@@ -180,28 +180,30 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           50,
         );
       }
-      _window.setPosition(_lastShownPosition.dx, _lastShownPosition.dy);
+      _window.position = _lastShownPosition;
     } else if (kIsMacOS) {
       final position = miniTranslatorPositionAtCursorScreenTopRight(
         windowSize: _window.size,
       );
       if (position != null) {
         _lastShownPosition = position;
-        _window.setPosition(position.dx, position.dy);
+        _window.position = position;
       }
     }
     _setStateAndScheduleWindowResize(() {});
   }
 
   void _registerWindowEvents() {
-    _windowFocusedListenerId = nativeapi.WindowManager.instance
-        .on<nativeapi.WindowFocusedEvent>((event) {
+    _windowFocusedListenerId =
+        nativeapi.WindowManager.instance.addListener((event) {
+      if (event is! nativeapi.WindowFocusedEvent) return;
       if (event.windowId == _window.id) {
         _focusNode.requestFocus();
       }
     });
-    _windowBlurredListenerId = nativeapi.WindowManager.instance
-        .on<nativeapi.WindowBlurredEvent>((event) {
+    _windowBlurredListenerId =
+        nativeapi.WindowManager.instance.addListener((event) {
+      if (event is! nativeapi.WindowBlurredEvent) return;
       if (event.windowId == _window.id) {
         _focusNode.unfocus();
         if (!_window.isAlwaysOnTop) {
@@ -209,25 +211,26 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         }
       }
     });
-    _windowMovedListenerId = nativeapi.WindowManager.instance
-        .on<nativeapi.WindowMovedEvent>((event) {
+    _windowMovedListenerId =
+        nativeapi.WindowManager.instance.addListener((event) {
+      if (event is! nativeapi.WindowMovedEvent) return;
       if (event.windowId == _window.id) {
-        _lastShownPosition = event.position;
+        _lastShownPosition = event.newPosition;
       }
     });
   }
 
   void _unregisterWindowEvents() {
     if (_windowFocusedListenerId != null) {
-      nativeapi.WindowManager.instance.off(_windowFocusedListenerId!);
+      nativeapi.WindowManager.instance.removeListener(_windowFocusedListenerId!);
       _windowFocusedListenerId = null;
     }
     if (_windowBlurredListenerId != null) {
-      nativeapi.WindowManager.instance.off(_windowBlurredListenerId!);
+      nativeapi.WindowManager.instance.removeListener(_windowBlurredListenerId!);
       _windowBlurredListenerId = null;
     }
     if (_windowMovedListenerId != null) {
-      nativeapi.WindowManager.instance.off(_windowMovedListenerId!);
+      nativeapi.WindowManager.instance.removeListener(_windowMovedListenerId!);
       _windowMovedListenerId = null;
     }
   }
@@ -241,7 +244,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     // final windowSize = _window.size;
 
     if (kIsLinux) {
-      _window.setPosition(_lastShownPosition.dx, _lastShownPosition.dy);
+      _window.position = _lastShownPosition;
     }
 
     // if (kIsMacOS && isShowBelowTray) {
@@ -318,7 +321,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       if (oldSize.width == newSize.width && oldSize.height == newSize.height) {
         return;
       }
-      _window.setSize(newSize.width, newSize.height, animate: animate);
+      _window.setSize(newSize, animate);
     } catch (error) {
       // ignore
     }

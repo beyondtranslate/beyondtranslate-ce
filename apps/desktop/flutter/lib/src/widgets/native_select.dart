@@ -117,7 +117,7 @@ class _NativeSelectState<T> extends State<NativeSelect<T>> {
     _release();
 
     final origin = box.localToGlobal(Offset.zero);
-    final menu = nativeapi.Menu();
+    final menu = nativeapi.Menu.create()!;
     final items = <nativeapi.MenuItem>[];
     final values = <int, T>{};
 
@@ -126,20 +126,25 @@ class _NativeSelectState<T> extends State<NativeSelect<T>> {
       // The mark comes from the item's state, not from a radio type: a plain
       // item is the shape the rest of the app already opens menus with, and
       // the state is what AppKit draws the checkmark from.
-      final item = nativeapi.MenuItem(entry.label);
+      final item = nativeapi.MenuItem.createWithLabelAndType(
+        entry.label,
+        nativeapi.MenuItemType.normal,
+      )!;
       item.state = entry.value == widget.value
           ? nativeapi.MenuItemState.checked
           : nativeapi.MenuItemState.unchecked;
       values[item.id] = entry.value;
-      item.on<nativeapi.MenuItemClickedEvent>((event) {
-        final value = values[event.menuItemId];
+      item.addListener((event) {
+        if (event is! nativeapi.MenuItemClickedEvent) return;
+        final value = values[event.itemId];
         if (value != null) widget.onChanged?.call(value);
       });
       items.add(item);
       menu.addItem(item);
     }
 
-    menu.on<nativeapi.MenuClosedEvent>((_) {
+    menu.addListener((event) {
+      if (event is! nativeapi.MenuClosedEvent) return;
       // Only the open state — the menu itself outlives its own close event so
       // the click that follows can still find its item.
       if (mounted) setState(() => _open = false);
@@ -148,13 +153,12 @@ class _NativeSelectState<T> extends State<NativeSelect<T>> {
     _menu = menu;
     _items = items;
     setState(() => _open = true);
-    menu.open(
-      nativeapi.PositioningStrategy.relativeToWindow(
-        window,
-        Offset(origin.dx, origin.dy + box.size.height),
-      ),
-      nativeapi.Placement.bottomStart,
+    final strategy = nativeapi.PositioningStrategy.relativeWithWindowAndOffset(
+      window,
+      Offset(origin.dx, origin.dy + box.size.height),
     );
+    if (strategy == null) return;
+    menu.open(strategy, nativeapi.Placement.bottomStart);
   }
 
   @override

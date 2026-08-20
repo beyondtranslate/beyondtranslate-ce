@@ -132,14 +132,8 @@ final workbenchWindowController = flutter_window.WindowController(
     dockIconController.setWorkbenchWindowVisible(true);
     if (window.isFirstShow) {
       window.titleBarStyle = TitleBarStyle.hidden;
-      window.setMinimumSize(
-        _kWorkbenchWindowMinimumSize.width,
-        _kWorkbenchWindowMinimumSize.height,
-      );
-      window.setSize(
-        _kWorkbenchWindowSize.width,
-        _kWorkbenchWindowSize.height,
-      );
+      window.minimumSize = _kWorkbenchWindowMinimumSize;
+      window.setSize(_kWorkbenchWindowSize, false);
       window.center();
       return true;
     }
@@ -170,10 +164,7 @@ void focusWorkbenchWindow() {
   if (Platform.isWindows && !_workbenchWindowConfigured) {
     _workbenchWindowConfigured = true;
     window.titleBarStyle = TitleBarStyle.hidden;
-    window.setMinimumSize(
-      _kWorkbenchWindowMinimumSize.width,
-      _kWorkbenchWindowMinimumSize.height,
-    );
+    window.minimumSize = _kWorkbenchWindowMinimumSize;
     window.center();
   }
   // A minimized window is brought front but not out of the Dock by show().
@@ -222,7 +213,7 @@ final miniTranslatorWindowController = flutter_window.WindowController(
 )..setWillShowHook((window) {
     if (window.isFirstShow) {
       window.titleBarStyle = TitleBarStyle.hidden;
-      window.windowControlButtonsVisible = false;
+      window.isWindowControlButtonsVisible = false;
       if (kIsMacOS) {
         // Mini translator uses solid background, no transparency needed.
       }
@@ -263,14 +254,14 @@ Future<void> showMiniTranslatorWindow({
   if (Platform.isWindows && !_miniTranslatorWindowConfigured) {
     _miniTranslatorWindowConfigured = true;
     window.titleBarStyle = TitleBarStyle.hidden;
-    window.windowControlButtonsVisible = false;
+    window.isWindowControlButtonsVisible = false;
   }
   final newPosition = position ??
       (trayBounds != null
           ? _miniTranslatorPositionBelowTray(trayBounds)
           : null);
   if (newPosition != null) {
-    window.setPosition(newPosition.dx, newPosition.dy);
+    window.position = newPosition;
   }
   window.show();
   hideWorkbenchWindow();

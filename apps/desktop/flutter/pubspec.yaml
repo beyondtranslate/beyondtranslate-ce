@@ -38,11 +38,11 @@ dev_dependencies:
   go_router_builder: ^4.2.1
   slang_build_runner: ^4.13.0
 
-# dependency_overrides:
-#   cnativeapi:
-#     path: ../../../../../libnativeapi/nativeapi-flutter/packages/cnativeapi
-#   nativeapi:
-#     path: ../../../../../libnativeapi/nativeapi-flutter/packages/nativeapi
+dependency_overrides:
+  cnativeapi:
+    path: ../../../../../libnativeapi/nativeapi-flutter/packages/cnativeapi
+  nativeapi:
+    path: ../../../../../libnativeapi/nativeapi-flutter/packages/nativeapi
 
 flutter:
   uses-material-design: false

@@ -21,52 +21,52 @@ void populateLanguageMenu(
   final other = getOtherLanguages(commonLanguageCodes);
 
   for (final lang in common) {
-    final item = nativeapi.MenuItem(
+    final item = nativeapi.MenuItem.createWithLabelAndType(
       displayName(lang),
       nativeapi.MenuItemType.checkbox,
-    );
+    )!;
     item.state = lang == selectedLanguage
         ? nativeapi.MenuItemState.checked
         : nativeapi.MenuItemState.unchecked;
-    item.on<nativeapi.MenuItemClickedEvent>((_) {
-      onSelected(lang);
+    item.addListener((event) {
+      if (event is nativeapi.MenuItemClickedEvent) onSelected(lang);
     });
     menu.addItem(item);
   }
 
   if (other.isNotEmpty) {
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    menu.addSeparator();
 
-    final moreMenu = nativeapi.Menu();
+    final moreMenu = nativeapi.Menu.create()!;
     for (final lang in other) {
-      final item = nativeapi.MenuItem(
+      final item = nativeapi.MenuItem.createWithLabelAndType(
         displayName(lang),
         nativeapi.MenuItemType.checkbox,
-      );
+      )!;
       item.state = lang == selectedLanguage
           ? nativeapi.MenuItemState.checked
           : nativeapi.MenuItemState.unchecked;
-      item.on<nativeapi.MenuItemClickedEvent>((_) {
-        onSelected(lang);
+      item.addListener((event) {
+        if (event is nativeapi.MenuItemClickedEvent) onSelected(lang);
       });
       moreMenu.addItem(item);
     }
 
-    final moreItem = nativeapi.MenuItem(
+    final moreItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.language.more_languages,
       nativeapi.MenuItemType.submenu,
-    );
+    )!;
     moreItem.submenu = moreMenu;
     menu.addItem(moreItem);
   }
 
-  menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
-  final manageItem = nativeapi.MenuItem(
+  menu.addSeparator();
+  final manageItem = nativeapi.MenuItem.createWithLabelAndType(
     t.mini_translator.language.manage_common_languages,
     nativeapi.MenuItemType.normal,
-  );
-  manageItem.on<nativeapi.MenuItemClickedEvent>((_) {
-    onManageCommonLanguages();
+  )!;
+  manageItem.addListener((event) {
+    if (event is nativeapi.MenuItemClickedEvent) onManageCommonLanguages();
   });
   menu.addItem(manageItem);
 }
@@ -131,20 +131,21 @@ class _LanguageSelectorState extends State<LanguageSelector> {
   final GlobalKey _targetKey = GlobalKey();
 
   void _showSourceMenu() {
-    final menu = nativeapi.Menu();
+    final menu = nativeapi.Menu.create()!;
 
-    final autoItem = nativeapi.MenuItem(
+    final autoItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.language.auto_detect,
       nativeapi.MenuItemType.checkbox,
-    );
+    )!;
     autoItem.state = isAutoSource(widget.sourceLanguage)
         ? nativeapi.MenuItemState.checked
         : nativeapi.MenuItemState.unchecked;
-    autoItem.on<nativeapi.MenuItemClickedEvent>((_) {
+    autoItem.addListener((event) {
+      if (event is! nativeapi.MenuItemClickedEvent) return;
       widget.onSourceChanged(kAutoSource);
     });
     menu.addItem(autoItem);
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    menu.addSeparator();
 
     populateLanguageMenu(
       menu,
@@ -158,21 +159,22 @@ class _LanguageSelectorState extends State<LanguageSelector> {
   }
 
   void _showTargetMenu() {
-    final menu = nativeapi.Menu();
+    final menu = nativeapi.Menu.create()!;
 
     if (widget.allowAutoTarget) {
-      final autoItem = nativeapi.MenuItem(
+      final autoItem = nativeapi.MenuItem.createWithLabelAndType(
         t.mini_translator.language.auto_match,
         nativeapi.MenuItemType.checkbox,
-      );
+      )!;
       autoItem.state = widget.targetLanguage == null
           ? nativeapi.MenuItemState.checked
           : nativeapi.MenuItemState.unchecked;
-      autoItem.on<nativeapi.MenuItemClickedEvent>((_) {
+      autoItem.addListener((event) {
+        if (event is! nativeapi.MenuItemClickedEvent) return;
         widget.onTargetChanged(null);
       });
       menu.addItem(autoItem);
-      menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+      menu.addSeparator();
     }
 
     populateLanguageMenu(

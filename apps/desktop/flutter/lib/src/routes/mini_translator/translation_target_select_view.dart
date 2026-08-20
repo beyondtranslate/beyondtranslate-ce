@@ -63,42 +63,46 @@ class MiniTranslatorTopBar extends StatelessWidget {
   /// The ⋯ menu — 取词 sources, window-level entries, and the 切换目标
   /// submenu that used to live behind its own options button.
   void _showMoreMenu() {
-    final menu = nativeapi.Menu();
+    final menu = nativeapi.Menu.create()!;
 
-    final captureItem = nativeapi.MenuItem(
+    final captureItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.toolbar.menu.extract_from_screen_capture,
       nativeapi.MenuItemType.normal,
-    );
-    captureItem.on<nativeapi.MenuItemClickedEvent>(
-      (_) => onExtractScreenCapture(),
-    );
+    )!;
+    captureItem.addListener((event) {
+      if (event is nativeapi.MenuItemClickedEvent) onExtractScreenCapture();
+    });
     menu.addItem(captureItem);
 
-    final clipboardItem = nativeapi.MenuItem(
+    final clipboardItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.toolbar.menu.extract_from_clipboard,
       nativeapi.MenuItemType.normal,
-    );
-    clipboardItem.on<nativeapi.MenuItemClickedEvent>(
-      (_) => onExtractClipboard(),
-    );
+    )!;
+    clipboardItem.addListener((event) {
+      if (event is nativeapi.MenuItemClickedEvent) onExtractClipboard();
+    });
     menu.addItem(clipboardItem);
 
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    menu.addSeparator();
     menu.addItem(_buildConfigSubmenuItem());
-    menu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    menu.addSeparator();
 
-    final workbenchItem = nativeapi.MenuItem(
+    final workbenchItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.toolbar.menu.open_main_window,
       nativeapi.MenuItemType.normal,
-    );
-    workbenchItem.on<nativeapi.MenuItemClickedEvent>((_) => onOpenWorkbench());
+    )!;
+    workbenchItem.addListener((event) {
+      if (event is nativeapi.MenuItemClickedEvent) onOpenWorkbench();
+    });
     menu.addItem(workbenchItem);
 
-    final settingsItem = nativeapi.MenuItem(
+    final settingsItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.toolbar.menu.open_settings,
       nativeapi.MenuItemType.normal,
-    );
-    settingsItem.on<nativeapi.MenuItemClickedEvent>((_) => onOpenSettings());
+    )!;
+    settingsItem.addListener((event) {
+      if (event is nativeapi.MenuItemClickedEvent) onOpenSettings();
+    });
     menu.addItem(settingsItem);
 
     openNativeMenuBelow(
@@ -111,59 +115,68 @@ class MiniTranslatorTopBar extends StatelessWidget {
   }
 
   nativeapi.MenuItem _buildConfigSubmenuItem() {
-    final submenu = nativeapi.Menu();
+    final submenu = nativeapi.Menu.create()!;
 
     final autoLabel =
         '${t.mini_translator.language.auto_detect} -> ${t.mini_translator.language.auto_match}';
-    final autoItem = nativeapi.MenuItem(
+    final autoItem = nativeapi.MenuItem.createWithLabelAndType(
       autoLabel,
       nativeapi.MenuItemType.checkbox,
-    );
+    )!;
     autoItem.state = activeConfigIndex == -1 &&
             isAutoSource(sourceLanguage) &&
             selectedTargetLanguage == null
         ? nativeapi.MenuItemState.checked
         : nativeapi.MenuItemState.unchecked;
-    autoItem.on<nativeapi.MenuItemClickedEvent>((_) {
+    autoItem.addListener((event) {
+      if (event is! nativeapi.MenuItemClickedEvent) return;
       onConfigTargetSelected(-1);
     });
     submenu.addItem(autoItem);
-    submenu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    submenu.addSeparator();
 
     for (var i = 0; i < persistentTargets.length; i++) {
       final target = persistentTargets[i];
       final label =
           '${getSourceDisplayName(target.source)} -> ${getLanguageName(target.target)}';
-      final item = nativeapi.MenuItem(label, nativeapi.MenuItemType.checkbox);
+      final item = nativeapi.MenuItem.createWithLabelAndType(
+        label,
+        nativeapi.MenuItemType.checkbox,
+      )!;
       item.state = activeConfigIndex == i
           ? nativeapi.MenuItemState.checked
           : nativeapi.MenuItemState.unchecked;
-      item.on<nativeapi.MenuItemClickedEvent>((_) {
+      item.addListener((event) {
+        if (event is! nativeapi.MenuItemClickedEvent) return;
         onConfigTargetSelected(i);
       });
       submenu.addItem(item);
     }
 
-    submenu.addItem(nativeapi.MenuItem('', nativeapi.MenuItemType.separator));
+    submenu.addSeparator();
 
-    final addItem = nativeapi.MenuItem(
+    final addItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.language.add_target,
       nativeapi.MenuItemType.normal,
-    );
-    addItem.on<nativeapi.MenuItemClickedEvent>((_) => onAddTarget());
+    )!;
+    addItem.addListener((event) {
+      if (event is nativeapi.MenuItemClickedEvent) onAddTarget();
+    });
     submenu.addItem(addItem);
 
-    final manageItem = nativeapi.MenuItem(
+    final manageItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.language.manage_targets,
       nativeapi.MenuItemType.normal,
-    );
-    manageItem.on<nativeapi.MenuItemClickedEvent>((_) => onManageTargets());
+    )!;
+    manageItem.addListener((event) {
+      if (event is nativeapi.MenuItemClickedEvent) onManageTargets();
+    });
     submenu.addItem(manageItem);
 
-    final configItem = nativeapi.MenuItem(
+    final configItem = nativeapi.MenuItem.createWithLabelAndType(
       t.mini_translator.language.switch_config,
       nativeapi.MenuItemType.submenu,
-    );
+    )!;
     configItem.submenu = submenu;
     return configItem;
   }

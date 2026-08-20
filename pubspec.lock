@@ -146,12 +146,11 @@ packages:
     source: hosted
     version: "1.1.2"
   cnativeapi:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: cnativeapi
-      sha256: "8316cee1e5ba8e80a3c6365a188119c3dc044f6a4b7e43a135dc802ab0bdfb0b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../libnativeapi/nativeapi-flutter/packages/cnativeapi"
+      relative: true
+    source: path
     version: "0.1.4"
   code_assets:
     dependency: transitive
@@ -494,12 +493,11 @@ packages:
     source: hosted
     version: "0.17.6"
   nativeapi:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: nativeapi
-      sha256: bcf391b5fe317c540f3966810400a1a2f0f238e382ff5cfbbbf82203967b4fc4
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../libnativeapi/nativeapi-flutter/packages/nativeapi"
+      relative: true
+    source: path
     version: "0.1.4"
   objective_c:
     dependency: transitive

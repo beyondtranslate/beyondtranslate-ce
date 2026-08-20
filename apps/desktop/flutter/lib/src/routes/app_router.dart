@@ -235,14 +235,14 @@ class _RootBodyViewState extends State<_RootBodyView> {
     final newLocale = languageToLocale(settingsStore.appLanguage);
     if (newLocale != oldLocale) {
       await context.setLocale(newLocale);
-      _trayIcon.contextMenu = _buildContextMenu();
+      _trayIcon.setContextMenu(_buildContextMenu());
     }
 
     // Handle show in menu bar toggle
     final newShowInMenuBar = settingsStore.general.showInMenuBar;
     if (newShowInMenuBar != _showInMenuBar) {
       _showInMenuBar = newShowInMenuBar;
-      _trayIcon.isVisible = newShowInMenuBar;
+      _trayIcon.setVisible(newShowInMenuBar);
       // Dropping the tray icon would leave the app with no visible entry
       // point, so the Dock icon takes over.
       dockIconController.setTrayIconVisible(newShowInMenuBar);
@@ -254,25 +254,31 @@ class _RootBodyViewState extends State<_RootBodyView> {
   // ────────────────────────────────────────────────────────────────────────────
 
   void _setupTrayIcon() {
-    _trayIcon = TrayIcon();
-    final icon = Image.fromAsset('resources/images/tray_icon.png');
+    _trayIcon = TrayIcon.create()!;
+    final icon = ImageAsset.fromAsset('resources/images/tray_icon.png');
     if (icon != null) _trayIcon.icon = icon;
-    _trayIcon.isVisible = _showInMenuBar;
+    _trayIcon.setVisible(_showInMenuBar);
     dockIconController.setTrayIconVisible(_showInMenuBar);
-    _trayIcon.contextMenu = _buildContextMenu();
-    _trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
-    _trayIcon.on<TrayIconClickedEvent>((event) {
-      handleTrayIconClick(trayBounds: _trayIcon.bounds);
+    _trayIcon.setContextMenu(_buildContextMenu());
+    _trayIcon.setContextMenuTrigger(ContextMenuTrigger.rightClicked);
+    _trayIcon.addListener((event) {
+      if (event is TrayIconClickedEvent) {
+        handleTrayIconClick(trayBounds: _trayIcon.getBounds());
+      }
     });
   }
 
   Menu _buildContextMenu() {
-    final menu = Menu();
+    final menu = Menu.create()!;
 
     // ── 显示窗口 ──
     menu.addItem(
-      MenuItem(t.app.tray.context_menu.show_window)
-        ..on<MenuItemClickedEvent>((_) {
+      MenuItem.createWithLabelAndType(
+        t.app.tray.context_menu.show_window,
+        MenuItemType.normal,
+      )!
+        ..addListener((event) {
+          if (event is! MenuItemClickedEvent) return;
           // 显示窗口 keeps whatever page the workbench was on.
           focusWorkbenchWindow();
         }),
@@ -282,32 +288,45 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
     // ── 🔧 开发工具 (仅 Debug 模式可见) ──
     if (kDebugMode) {
-      final devToolsSubmenu = Menu();
+      final devToolsSubmenu = Menu.create()!;
 
       // 打开数据目录
       devToolsSubmenu.addItem(
-        MenuItem(t.app.tray.context_menu.dev_tools.open_data_directory)
-          ..on<MenuItemClickedEvent>((_) async {
+        MenuItem.createWithLabelAndType(
+          t.app.tray.context_menu.dev_tools.open_data_directory,
+          MenuItemType.normal,
+        )!
+          ..addListener((event) async {
+            if (event is! MenuItemClickedEvent) return;
             final dir = await getApplicationSupportDirectory();
             UrlOpener.instance.open('file://${dir.path}');
           }),
       );
 
-      final devToolsItem = MenuItem(
+      final devToolsItem = MenuItem.createWithLabelAndType(
         t.app.tray.context_menu.dev_tools.title,
         MenuItemType.submenu,
-      );
+      )!;
       devToolsItem.submenu = devToolsSubmenu;
       menu.addItem(devToolsItem);
     }
 
     // ── Check for updates (暂不实现) ──
-    menu.addItem(MenuItem(t.app.tray.context_menu.check_for_updates));
+    menu.addItem(
+      MenuItem.createWithLabelAndType(
+        t.app.tray.context_menu.check_for_updates,
+        MenuItemType.normal,
+      ),
+    );
 
     // ── 设置 ──
     menu.addItem(
-      MenuItem(t.app.tray.context_menu.settings)
-        ..on<MenuItemClickedEvent>((_) {
+      MenuItem.createWithLabelAndType(
+        t.app.tray.context_menu.settings,
+        MenuItemType.normal,
+      )!
+        ..addListener((event) {
+          if (event is! MenuItemClickedEvent) return;
           showSettingsWindow();
         }),
     );
@@ -316,8 +335,12 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
     // ── 退出 ──
     menu.addItem(
-      MenuItem(t.app.tray.context_menu.quit)
-        ..on<MenuItemClickedEvent>((_) {
+      MenuItem.createWithLabelAndType(
+        t.app.tray.context_menu.quit,
+        MenuItemType.normal,
+      )!
+        ..addListener((event) {
+          if (event is! MenuItemClickedEvent) return;
           exit(0);
         }),
     );

@@ -21,18 +21,32 @@ void setupGlobalWillShowHook() {
   if (Platform.isWindows) return;
   if (_globalWillShowHookInitialized) return;
   _globalWillShowHookInitialized = true;
+  // The native side cancels the show once a hook is set; letting it proceed
+  // is done explicitly through callOriginalShow.
+  //
+  // The binding invokes this synchronously from inside the platform's show
+  // call — on the very first shows Flutter's windowing backend has not set
+  // the window title yet, so the title-keyed hook lookup would miss and burn
+  // the isFirstShow budget. Deferring one event-loop turn lets the backend
+  // finish configuring the window first (the pre-regeneration binding was
+  // async and had exactly this timing).
   WindowManager.instance.setWillShowHook((windowId) {
-    final window = WindowManager.instance.getAll().firstWhereOrNull(
-          (e) => e.id == windowId,
-        );
-    if (window != null) {
-      window._incrementShowCount();
-      final hook = _windowWillShowHooks[window.title];
-      if (hook != null) {
-        return hook(window);
+    Future(() {
+      final window = WindowManager.instance.getAll().firstWhereOrNull(
+            (e) => e.id == windowId,
+          );
+      var proceed = true;
+      if (window != null) {
+        window._incrementShowCount();
+        final hook = _windowWillShowHooks[window.title];
+        if (hook != null) {
+          proceed = hook(window);
+        }
       }
-    }
-    return true;
+      if (proceed) {
+        WindowManager.instance.callOriginalShow(windowId);
+      }
+    });
   });
 }
 
@@ -41,16 +55,22 @@ void setupGlobalWillHideHook() {
   if (_globalWillHideHookInitialized) return;
   _globalWillHideHookInitialized = true;
   WindowManager.instance.setWillHideHook((windowId) {
-    final window = WindowManager.instance.getAll().firstWhereOrNull(
-          (e) => e.id == windowId,
-        );
-    if (window != null) {
-      final hook = _windowWillHideHooks[window.title];
-      if (hook != null) {
-        return hook(window);
+    // Deferred for the same reason as the will-show hook above.
+    Future(() {
+      final window = WindowManager.instance.getAll().firstWhereOrNull(
+            (e) => e.id == windowId,
+          );
+      var proceed = true;
+      if (window != null) {
+        final hook = _windowWillHideHooks[window.title];
+        if (hook != null) {
+          proceed = hook(window);
+        }
       }
-    }
-    return true;
+      if (proceed) {
+        WindowManager.instance.callOriginalHide(windowId);
+      }
+    });
   });
 }
 

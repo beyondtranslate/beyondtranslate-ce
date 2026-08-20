@@ -106,17 +106,21 @@ class NativeDropdownField<T> extends StatelessWidget {
     final window = nativeapi.WindowManager.instance.getCurrent();
     if (window == null) return;
 
-    final menu = nativeapi.Menu();
+    final menu = nativeapi.Menu.create()!;
     final menuItems = <nativeapi.MenuItem>[];
     final itemIds = <int, T>{};
 
     // Build native menu items
     for (final item in items) {
-      final menuItem = nativeapi.MenuItem(_labelOf(item));
+      final menuItem = nativeapi.MenuItem.createWithLabelAndType(
+        _labelOf(item),
+        nativeapi.MenuItemType.normal,
+      )!;
       menuItems.add(menuItem);
       itemIds[menuItem.id] = item;
-      menuItem.on<nativeapi.MenuItemClickedEvent>((event) {
-        final selected = itemIds[event.menuItemId];
+      menuItem.addListener((event) {
+        if (event is! nativeapi.MenuItemClickedEvent) return;
+        final selected = itemIds[event.itemId];
         if (selected != null) {
           onChanged(selected);
         }
@@ -133,10 +137,12 @@ class NativeDropdownField<T> extends StatelessWidget {
     _liveDropdownMenu = menu;
     _liveDropdownItems = menuItems;
 
-    final opened = menu.open(
-      nativeapi.PositioningStrategy.relativeToWindow(window, offset),
-      nativeapi.Placement.bottomStart,
+    final strategy = nativeapi.PositioningStrategy.relativeWithWindowAndOffset(
+      window,
+      offset,
     );
+    final opened = strategy != null &&
+        menu.open(strategy, nativeapi.Placement.bottomStart);
 
     // Nothing was shown, so nothing can be clicked — safe to release now.
     if (!opened) _releaseDropdownMenu();
