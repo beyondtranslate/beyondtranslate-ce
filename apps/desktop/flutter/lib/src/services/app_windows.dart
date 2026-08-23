@@ -52,6 +52,7 @@ String _pendingWorkbenchLocation = '/translate';
 flutter_window.WindowRegistry? _windowRegistry;
 WidgetBuilder? _miniTranslatorBuilder;
 bool _miniTranslatorWindowRegistered = false;
+bool _miniTranslatorEverPositioned = false;
 bool _workbenchWindowConfigured = false;
 bool _miniTranslatorWindowConfigured = false;
 
@@ -256,11 +257,17 @@ Future<void> showMiniTranslatorWindow({
     window.titleBarStyle = TitleBarStyle.hidden;
     window.isWindowControlButtonsVisible = false;
   }
-  final newPosition = position ??
+  var newPosition = position ??
       (trayBounds != null
           ? _miniTranslatorPositionBelowTray(trayBounds)
           : null);
+  // A first-ever show with no anchor (the global shortcut) would otherwise
+  // appear wherever the OS created the window.
+  if (newPosition == null && !_miniTranslatorEverPositioned) {
+    newPosition = miniTranslatorPositionAtCursorScreenTopRight();
+  }
   if (newPosition != null) {
+    _miniTranslatorEverPositioned = true;
     window.position = newPosition;
   }
   window.show();

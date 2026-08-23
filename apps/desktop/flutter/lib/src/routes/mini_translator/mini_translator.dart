@@ -171,23 +171,27 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     ShortcutService.instance.start();
 
     await Future.delayed(const Duration(milliseconds: 100));
-    if (kIsLinux || kIsWindows) {
-      final primaryDisplay = nativeapi.DisplayManager.instance.getPrimary();
-      if (primaryDisplay != null) {
-        final windowSize = _window.size;
-        _lastShownPosition = Offset(
-          primaryDisplay.size.width - windowSize.width - 50,
-          50,
+    // This page is only built as part of the window's first show, which has
+    // already placed the window (tray anchor, or the default in
+    // showMiniTranslatorWindow) — moving it here would yank it away from
+    // that anchor. Only seed the remembered position if nothing has yet.
+    if (_lastShownPosition == Offset.zero) {
+      if (kIsLinux || kIsWindows) {
+        final primaryDisplay = nativeapi.DisplayManager.instance.getPrimary();
+        if (primaryDisplay != null) {
+          final windowSize = _window.size;
+          _lastShownPosition = Offset(
+            primaryDisplay.size.width - windowSize.width - 50,
+            50,
+          );
+        }
+      } else if (kIsMacOS) {
+        final position = miniTranslatorPositionAtCursorScreenTopRight(
+          windowSize: _window.size,
         );
-      }
-      _window.position = _lastShownPosition;
-    } else if (kIsMacOS) {
-      final position = miniTranslatorPositionAtCursorScreenTopRight(
-        windowSize: _window.size,
-      );
-      if (position != null) {
-        _lastShownPosition = position;
-        _window.position = position;
+        if (position != null) {
+          _lastShownPosition = position;
+        }
       }
     }
     _setStateAndScheduleWindowResize(() {});
