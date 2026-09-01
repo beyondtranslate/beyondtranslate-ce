@@ -114,8 +114,7 @@ final class SystemTranslationServiceBridge {
 
         let srcLocale = Locale.Language(identifier: sourceLanguage!)
 
-        let availability = LanguageAvailability()
-        let status = await availability.status(from: srcLocale, to: tgtLocale)
+        let status = await installedStatus(from: srcLocale, to: tgtLocale)
         switch status {
         case .installed:
           break
@@ -212,6 +211,43 @@ final class SystemTranslationServiceBridge {
         ])
       }
     }
+  }
+
+  // MARK: - Language availability
+
+  /// How long an availability check waits for the asset catalog before it
+  /// believes a `.supported` verdict.
+  private static let assetCatalogGrace: TimeInterval = 3
+
+  /// Whether the language files for `source` → `target` are on this Mac.
+  ///
+  /// `LanguageAvailability` answers out of an asset catalog that
+  /// `translationd` fills in asynchronously — and on a Mac where nothing has
+  /// translated yet, this very request is what launches `translationd`. For
+  /// the few hundred milliseconds until the catalog lands, *every* installed
+  /// pair reads `.supported`: "the system can translate this pair, the files
+  /// are not on disk." Believing that sent the user to System Settings to
+  /// install language files they already had — and only ever on the first
+  /// translation of a session, because the second one found the catalog
+  /// loaded.
+  ///
+  /// So `.supported` is asked again until it settles or the grace runs out.
+  /// `.unsupported` needs no grace: which pairs the framework can handle at
+  /// all is static, and it is answered correctly while the catalog is still
+  /// empty.
+  @available(macOS 26, *)
+  private static func installedStatus(
+    from source: Locale.Language,
+    to target: Locale.Language
+  ) async -> LanguageAvailability.Status {
+    let availability = LanguageAvailability()
+    let deadline = Date().addingTimeInterval(assetCatalogGrace)
+    var status = await availability.status(from: source, to: target)
+    while status == .supported, Date() < deadline {
+      try? await Task.sleep(for: .milliseconds(100))
+      status = await availability.status(from: source, to: target)
+    }
+    return status
   }
 
   // MARK: - Language detection
