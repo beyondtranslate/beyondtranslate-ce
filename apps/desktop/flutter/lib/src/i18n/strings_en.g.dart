@@ -710,6 +710,12 @@ class TranslationsWorkbenchHistoryPageEn {
   /// en: 'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.'
   String get delete_message =>
       'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.';
+
+  /// en: 'Show full text'
+  String get expand => 'Show full text';
+
+  /// en: 'Collapse'
+  String get collapse => 'Collapse';
 }
 
 // Path: workbench.subtitle
@@ -1071,6 +1077,8 @@ class TranslationsSettingsGeneralEn {
       TranslationsSettingsGeneralOptionEn.internal(_root);
   late final TranslationsSettingsGeneralEditorEn editor =
       TranslationsSettingsGeneralEditorEn.internal(_root);
+  late final TranslationsSettingsGeneralLanguagesEditorEn languages_editor =
+      TranslationsSettingsGeneralLanguagesEditorEn.internal(_root);
 }
 
 // Path: settings.appearance
@@ -1559,32 +1567,17 @@ class TranslationsSettingsGeneralRowEn {
   /// en: 'Common Languages'
   String get common_languages => 'Common Languages';
 
-  /// en: 'Shown at the top of language pickers.'
-  String get common_languages_description =>
-      'Shown at the top of language pickers.';
+  /// en: 'Listed at the top of language menus in this order; the rest fold into “More languages”.'
+  String get common_languages_hint =>
+      'Listed at the top of language menus in this order; the rest fold into “More languages”.';
 
-  /// en: 'Select your common languages:'
-  String get common_languages_hint => 'Select your common languages:';
-
-  /// en: 'Sort by Code'
-  String get common_languages_sort => 'Sort by Code';
+  /// en: 'Not set · language menus list all $count languages flat'
+  String common_languages_empty({required Object count}) =>
+      'Not set · language menus list all ${count} languages flat';
 
   /// en: 'Double click to copy translation result'
   String get double_click_copy_result =>
       'Double click to copy translation result';
-
-  /// en: 'Reset to Defaults'
-  String get common_languages_reset => 'Reset to Defaults';
-
-  /// en: 'Reset to the default set of common languages'
-  String get common_languages_reset_help =>
-      'Reset to the default set of common languages';
-
-  /// en: 'Search languages...'
-  String get common_languages_search => 'Search languages...';
-
-  /// en: 'All Languages'
-  String get common_languages_all => 'All Languages';
 
   /// en: 'Submit with Enter'
   String get submit_with_enter => 'Submit with Enter';
@@ -1692,6 +1685,67 @@ class TranslationsSettingsGeneralEditorEn {
 
   /// en: 'Translate into {} when {} is detected.'
   String get hint_source => 'Translate into {} when {} is detected.';
+}
+
+// Path: settings.general.languages_editor
+class TranslationsSettingsGeneralLanguagesEditorEn {
+  TranslationsSettingsGeneralLanguagesEditorEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Ordered as on the left at the top of language menus; the right folds into “More languages”'
+  String get subtitle =>
+      'Ordered as on the left at the top of language menus; the right folds into “More languages”';
+
+  /// en: 'Common · $count'
+  String common_pane({required Object count}) => 'Common · ${count}';
+
+  /// en: 'More languages · $count'
+  String more_pane({required Object count}) => 'More languages · ${count}';
+
+  /// en: 'Sort'
+  String get sort => 'Sort';
+
+  /// en: 'Reorder to match the language roster'
+  String get sort_help => 'Reorder to match the language roster';
+
+  /// en: 'No common languages yet. Add at least one from the right.'
+  String get empty_common =>
+      'No common languages yet.\nAdd at least one from the right.';
+
+  /// en: 'Search'
+  String get search => 'Search';
+
+  /// en: 'Every language is already common.'
+  String get all_in_common => 'Every language is already common.';
+
+  /// en: 'Languages matching “$query” are already on the left.'
+  String matches_in_common({required Object query}) =>
+      'Languages matching “${query}” are already on the left.';
+
+  /// en: 'No languages match “$query”'
+  String no_matches({required Object query}) => 'No languages match “${query}”';
+
+  /// en: 'Drag the handle to reorder common languages, or focus it and press ↑↓.'
+  String get reorder_hint =>
+      'Drag the handle to reorder common languages, or focus it and press ↑↓.';
+
+  /// en: 'Reset to Defaults'
+  String get reset => 'Reset to Defaults';
+
+  /// en: 'Add $name to common languages'
+  String add_language({required Object name}) =>
+      'Add ${name} to common languages';
+
+  /// en: 'Remove $name from common languages'
+  String remove_language({required Object name}) =>
+      'Remove ${name} from common languages';
+
+  /// en: '$name, position $position, press up or down to reorder'
+  String handle_label({required Object name, required Object position}) =>
+      '${name}, position ${position}, press up or down to reorder';
 }
 
 // Path: settings.appearance.section
@@ -2584,6 +2638,8 @@ extension on Translations {
           'Delete ${count} records',
       'workbench.history_page.delete_message' =>
         'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.',
+      'workbench.history_page.expand' => 'Show full text',
+      'workbench.history_page.collapse' => 'Collapse',
       'workbench.glossary' => 'Glossary',
       'workbench.recent_languages' => 'Recent Languages',
       'workbench.not_configured' => 'Not configured',
@@ -2747,18 +2803,13 @@ extension on Translations {
       'settings.general.row.translation_target_hint' =>
         'Configure language pairs used by the translator.',
       'settings.general.row.common_languages' => 'Common Languages',
-      'settings.general.row.common_languages_description' =>
-        'Shown at the top of language pickers.',
       'settings.general.row.common_languages_hint' =>
-        'Select your common languages:',
-      'settings.general.row.common_languages_sort' => 'Sort by Code',
+        'Listed at the top of language menus in this order; the rest fold into “More languages”.',
+      'settings.general.row.common_languages_empty' => (
+              {required Object count}) =>
+          'Not set · language menus list all ${count} languages flat',
       'settings.general.row.double_click_copy_result' =>
         'Double click to copy translation result',
-      'settings.general.row.common_languages_reset' => 'Reset to Defaults',
-      'settings.general.row.common_languages_reset_help' =>
-        'Reset to the default set of common languages',
-      'settings.general.row.common_languages_search' => 'Search languages...',
-      'settings.general.row.common_languages_all' => 'All Languages',
       'settings.general.row.submit_with_enter' => 'Submit with Enter',
       'settings.general.row.submit_with_meta_enter_mac' =>
         'Submit with ⌘ + Enter',
@@ -2797,6 +2848,35 @@ extension on Translations {
         'Translate into {} when no other rule matches.',
       'settings.general.editor.hint_source' =>
         'Translate into {} when {} is detected.',
+      'settings.general.languages_editor.subtitle' =>
+        'Ordered as on the left at the top of language menus; the right folds into “More languages”',
+      'settings.general.languages_editor.common_pane' =>
+        ({required Object count}) => 'Common · ${count}',
+      'settings.general.languages_editor.more_pane' =>
+        ({required Object count}) => 'More languages · ${count}',
+      'settings.general.languages_editor.sort' => 'Sort',
+      'settings.general.languages_editor.sort_help' =>
+        'Reorder to match the language roster',
+      'settings.general.languages_editor.empty_common' =>
+        'No common languages yet.\nAdd at least one from the right.',
+      'settings.general.languages_editor.search' => 'Search',
+      'settings.general.languages_editor.all_in_common' =>
+        'Every language is already common.',
+      'settings.general.languages_editor.matches_in_common' => (
+              {required Object query}) =>
+          'Languages matching “${query}” are already on the left.',
+      'settings.general.languages_editor.no_matches' =>
+        ({required Object query}) => 'No languages match “${query}”',
+      'settings.general.languages_editor.reorder_hint' =>
+        'Drag the handle to reorder common languages, or focus it and press ↑↓.',
+      'settings.general.languages_editor.reset' => 'Reset to Defaults',
+      'settings.general.languages_editor.add_language' =>
+        ({required Object name}) => 'Add ${name} to common languages',
+      'settings.general.languages_editor.remove_language' =>
+        ({required Object name}) => 'Remove ${name} from common languages',
+      'settings.general.languages_editor.handle_label' => (
+              {required Object name, required Object position}) =>
+          '${name}, position ${position}, press up or down to reorder',
       'settings.appearance.title' => 'Appearance',
       'settings.appearance.section.app_language' => 'Display Language',
       'settings.appearance.section.theme_mode' => 'Theme Mode',

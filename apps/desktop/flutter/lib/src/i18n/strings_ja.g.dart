@@ -631,6 +631,10 @@ class _TranslationsWorkbenchHistoryPageJa
   String get edited_flag => '編集済み';
   @override
   String get edit_history_hint => '編集した訳文は履歴に保存されます';
+  @override
+  String get expand => '全文を表示';
+  @override
+  String get collapse => '折りたたむ';
 }
 
 // Path: workbench.subtitle
@@ -846,6 +850,9 @@ class _TranslationsSettingsGeneralJa extends TranslationsSettingsGeneralEn {
   @override
   late final _TranslationsSettingsGeneralEditorJa editor =
       _TranslationsSettingsGeneralEditorJa._(_root);
+  @override
+  late final _TranslationsSettingsGeneralLanguagesEditorJa languages_editor =
+      _TranslationsSettingsGeneralLanguagesEditorJa._(_root);
 }
 
 // Path: settings.appearance
@@ -1298,19 +1305,10 @@ class _TranslationsSettingsGeneralRowJa
   @override
   String get common_languages => 'よく使う言語';
   @override
-  String get common_languages_description => 'よく使う言語は言語選択リストの先頭に表示されます。';
+  String get common_languages_hint => 'この順序で言語メニューの先頭に並び、残りは「その他の言語」に収まります。';
   @override
-  String get common_languages_hint => 'よく使う言語を選択してください：';
-  @override
-  String get common_languages_sort => 'コードで並べ替え';
-  @override
-  String get common_languages_reset => 'デフォルトにリセット';
-  @override
-  String get common_languages_reset_help => 'デフォルトのよく使う言語セットにリセット';
-  @override
-  String get common_languages_search => '言語を検索...';
-  @override
-  String get common_languages_all => 'すべての言語';
+  String common_languages_empty({required Object count}) =>
+      '未設定 · 言語メニューには全 ${count} 言語がそのまま並びます';
   @override
   String get double_click_copy_result => 'ダブルクリックで翻訳結果をコピー';
   @override
@@ -1400,6 +1398,50 @@ class _TranslationsSettingsGeneralEditorJa
   String get hint_auto => '他のルールに一致しない場合は{}に翻訳します。';
   @override
   String get hint_source => '{}を検出したら{}に翻訳します。';
+}
+
+// Path: settings.general.languages_editor
+class _TranslationsSettingsGeneralLanguagesEditorJa
+    extends TranslationsSettingsGeneralLanguagesEditorEn {
+  _TranslationsSettingsGeneralLanguagesEditorJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get subtitle => '左の順序で言語メニューの先頭に並び、右は「その他の言語」に収まります';
+  @override
+  String common_pane({required Object count}) => 'よく使う · ${count} 言語';
+  @override
+  String more_pane({required Object count}) => 'その他の言語 · ${count} 言語';
+  @override
+  String get sort => '並べ替え';
+  @override
+  String get sort_help => '言語一覧の順序に並べ替える';
+  @override
+  String get empty_common => 'よく使う言語がまだありません。\n右から 1 つ以上追加してください。';
+  @override
+  String get search => '検索';
+  @override
+  String get all_in_common => 'すべての言語がすでによく使う言語です。';
+  @override
+  String matches_in_common({required Object query}) =>
+      '「${query}」に一致する言語はすでに左側にあります。';
+  @override
+  String no_matches({required Object query}) => '「${query}」に一致する言語はありません';
+  @override
+  String get reorder_hint => 'ハンドルをドラッグして順序を変更するか、ハンドルにフォーカスして ↑↓ を押します。';
+  @override
+  String get reset => 'デフォルトに戻す';
+  @override
+  String add_language({required Object name}) => '${name} をよく使う言語に追加';
+  @override
+  String remove_language({required Object name}) => '${name} をよく使う言語から削除';
+  @override
+  String handle_label({required Object name, required Object position}) =>
+      '${name}、${position} 番目、上下キーで順序を変更';
 }
 
 // Path: settings.appearance.section
@@ -2291,6 +2333,8 @@ extension on TranslationsJa {
       'workbench.history_page.favorite_flag' => 'お気に入り',
       'workbench.history_page.edited_flag' => '編集済み',
       'workbench.history_page.edit_history_hint' => '編集した訳文は履歴に保存されます',
+      'workbench.history_page.expand' => '全文を表示',
+      'workbench.history_page.collapse' => '折りたたむ',
       'workbench.glossary' => '用語集',
       'workbench.recent_languages' => '最近の言語',
       'workbench.not_configured' => '未設定',
@@ -2390,15 +2434,10 @@ extension on TranslationsJa {
       'settings.general.row.default_translation_service' => 'デフォルトの翻訳サービス',
       'settings.general.row.translation_target_hint' => '翻訳で使用する言語ペアを設定します。',
       'settings.general.row.common_languages' => 'よく使う言語',
-      'settings.general.row.common_languages_description' =>
-        'よく使う言語は言語選択リストの先頭に表示されます。',
-      'settings.general.row.common_languages_hint' => 'よく使う言語を選択してください：',
-      'settings.general.row.common_languages_sort' => 'コードで並べ替え',
-      'settings.general.row.common_languages_reset' => 'デフォルトにリセット',
-      'settings.general.row.common_languages_reset_help' =>
-        'デフォルトのよく使う言語セットにリセット',
-      'settings.general.row.common_languages_search' => '言語を検索...',
-      'settings.general.row.common_languages_all' => 'すべての言語',
+      'settings.general.row.common_languages_hint' =>
+        'この順序で言語メニューの先頭に並び、残りは「その他の言語」に収まります。',
+      'settings.general.row.common_languages_empty' =>
+        ({required Object count}) => '未設定 · 言語メニューには全 ${count} 言語がそのまま並びます',
       'settings.general.row.double_click_copy_result' => 'ダブルクリックで翻訳結果をコピー',
       'settings.general.row.submit_with_enter' => 'Enterで送信',
       'settings.general.row.submit_with_meta_enter_mac' => '⌘ + Enterで送信',
@@ -2429,6 +2468,33 @@ extension on TranslationsJa {
       'settings.general.editor.duplicate' => '同じ組み合わせのターゲットがすでにあります。',
       'settings.general.editor.hint_auto' => '他のルールに一致しない場合は{}に翻訳します。',
       'settings.general.editor.hint_source' => '{}を検出したら{}に翻訳します。',
+      'settings.general.languages_editor.subtitle' =>
+        '左の順序で言語メニューの先頭に並び、右は「その他の言語」に収まります',
+      'settings.general.languages_editor.common_pane' =>
+        ({required Object count}) => 'よく使う · ${count} 言語',
+      'settings.general.languages_editor.more_pane' =>
+        ({required Object count}) => 'その他の言語 · ${count} 言語',
+      'settings.general.languages_editor.sort' => '並べ替え',
+      'settings.general.languages_editor.sort_help' => '言語一覧の順序に並べ替える',
+      'settings.general.languages_editor.empty_common' =>
+        'よく使う言語がまだありません。\n右から 1 つ以上追加してください。',
+      'settings.general.languages_editor.search' => '検索',
+      'settings.general.languages_editor.all_in_common' =>
+        'すべての言語がすでによく使う言語です。',
+      'settings.general.languages_editor.matches_in_common' =>
+        ({required Object query}) => '「${query}」に一致する言語はすでに左側にあります。',
+      'settings.general.languages_editor.no_matches' =>
+        ({required Object query}) => '「${query}」に一致する言語はありません',
+      'settings.general.languages_editor.reorder_hint' =>
+        'ハンドルをドラッグして順序を変更するか、ハンドルにフォーカスして ↑↓ を押します。',
+      'settings.general.languages_editor.reset' => 'デフォルトに戻す',
+      'settings.general.languages_editor.add_language' =>
+        ({required Object name}) => '${name} をよく使う言語に追加',
+      'settings.general.languages_editor.remove_language' =>
+        ({required Object name}) => '${name} をよく使う言語から削除',
+      'settings.general.languages_editor.handle_label' => (
+              {required Object name, required Object position}) =>
+          '${name}、${position} 番目、上下キーで順序を変更',
       'settings.appearance.title' => '外観',
       'settings.appearance.section.app_language' => '表示言語',
       'settings.appearance.section.theme_mode' => 'テーマモード',

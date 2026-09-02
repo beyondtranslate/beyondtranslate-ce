@@ -198,7 +198,9 @@
       "added_to_glossary": "$count 件を用語集に追加しました",
       "favorite_flag": "お気に入り",
       "edited_flag": "編集済み",
-      "edit_history_hint": "編集した訳文は履歴に保存されます"
+      "edit_history_hint": "編集した訳文は履歴に保存されます",
+      "expand": "全文を表示",
+      "collapse": "折りたたむ"
     },
     "glossary": "用語集",
     "recent_languages": "最近の言語",
@@ -306,13 +308,8 @@
         "default_translation_service": "デフォルトの翻訳サービス",
         "translation_target_hint": "翻訳で使用する言語ペアを設定します。",
         "common_languages": "よく使う言語",
-        "common_languages_description": "よく使う言語は言語選択リストの先頭に表示されます。",
-        "common_languages_hint": "よく使う言語を選択してください：",
-        "common_languages_sort": "コードで並べ替え",
-        "common_languages_reset": "デフォルトにリセット",
-        "common_languages_reset_help": "デフォルトのよく使う言語セットにリセット",
-        "common_languages_search": "言語を検索...",
-        "common_languages_all": "すべての言語",
+        "common_languages_hint": "この順序で言語メニューの先頭に並び、残りは「その他の言語」に収まります。",
+        "common_languages_empty": "未設定 · 言語メニューには全 $count 言語がそのまま並びます",
         "double_click_copy_result": "ダブルクリックで翻訳結果をコピー",
         "submit_with_enter": "Enterで送信",
         "submit_with_meta_enter_mac": "⌘ + Enterで送信",
@@ -348,6 +345,23 @@
         "duplicate": "同じ組み合わせのターゲットがすでにあります。",
         "hint_auto": "他のルールに一致しない場合は{}に翻訳します。",
         "hint_source": "{}を検出したら{}に翻訳します。"
+      },
+      "languages_editor": {
+        "subtitle": "左の順序で言語メニューの先頭に並び、右は「その他の言語」に収まります",
+        "common_pane": "よく使う · $count 言語",
+        "more_pane": "その他の言語 · $count 言語",
+        "sort": "並べ替え",
+        "sort_help": "言語一覧の順序に並べ替える",
+        "empty_common": "よく使う言語がまだありません。\n右から 1 つ以上追加してください。",
+        "search": "検索",
+        "all_in_common": "すべての言語がすでによく使う言語です。",
+        "matches_in_common": "「$query」に一致する言語はすでに左側にあります。",
+        "no_matches": "「$query」に一致する言語はありません",
+        "reorder_hint": "ハンドルをドラッグして順序を変更するか、ハンドルにフォーカスして ↑↓ を押します。",
+        "reset": "デフォルトに戻す",
+        "add_language": "$name をよく使う言語に追加",
+        "remove_language": "$name をよく使う言語から削除",
+        "handle_label": "$name、$position 番目、上下キーで順序を変更"
       }
     },
     "appearance": {

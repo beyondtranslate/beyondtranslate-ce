@@ -25,6 +25,7 @@
 		2A0D6A452E0A100100A1B2C3 /* NativeTextFieldPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */; };
 		2A0D6A4D2E0A100100A1B2C3 /* NativeTextPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A4C2E0A100100A1B2C3 /* NativeTextPlugin.swift */; };
 		2A0D6A4F2E0A100100A1B2C3 /* SelectionLayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A4E2E0A100100A1B2C3 /* SelectionLayoutManager.swift */; };
+		2A0D6A512E0A100100A1B2C3 /* NativeTextStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A502E0A100100A1B2C3 /* NativeTextStyle.swift */; };
 		2A0D6A492E0A100100A1B2C3 /* MacAppPresentationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D6A482E0A100100A1B2C3 /* MacAppPresentationPlugin.swift */; };
 		331C80D8294CF71000263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C80D7294CF71000263BE5 /* RunnerTests.swift */; };
 		335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */; };
@@ -103,6 +104,7 @@
 		2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTextFieldPlugin.swift; sourceTree = "<group>"; };
 		2A0D6A4C2E0A100100A1B2C3 /* NativeTextPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTextPlugin.swift; sourceTree = "<group>"; };
 		2A0D6A4E2E0A100100A1B2C3 /* SelectionLayoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionLayoutManager.swift; sourceTree = "<group>"; };
+		2A0D6A502E0A100100A1B2C3 /* NativeTextStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTextStyle.swift; sourceTree = "<group>"; };
 		2A0D6A482E0A100100A1B2C3 /* MacAppPresentationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppPresentationPlugin.swift; sourceTree = "<group>"; };
 		331C80D5294CF71000263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		331C80D7294CF71000263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				2A0D6A412E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift */,
 				2A0D6A442E0A100100A1B2C3 /* NativeTextFieldPlugin.swift */,
 				2A0D6A4C2E0A100100A1B2C3 /* NativeTextPlugin.swift */,
+				2A0D6A502E0A100100A1B2C3 /* NativeTextStyle.swift */,
 				2A0D6A4E2E0A100100A1B2C3 /* SelectionLayoutManager.swift */,
 			);
 			path = Plugins;
@@ -611,6 +614,7 @@
 				2A0D6A422E0A100100A1B2C3 /* MacWindowAppearancePlugin.swift in Sources */,
 				2A0D6A452E0A100100A1B2C3 /* NativeTextFieldPlugin.swift in Sources */,
 				2A0D6A4D2E0A100100A1B2C3 /* NativeTextPlugin.swift in Sources */,
+				2A0D6A512E0A100100A1B2C3 /* NativeTextStyle.swift in Sources */,
 				2A0D6A4F2E0A100100A1B2C3 /* SelectionLayoutManager.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,

@@ -1,4 +1,6 @@
 import 'package:beyondtranslate_desktop/src/services/workbench_translation_controller.dart';
+import 'package:beyondtranslate_desktop/src/utils/language_util.dart'
+    show kAutoSource;
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -107,6 +109,36 @@ void main() {
     expect(controller.effectiveTargetLanguage, 'zh-Hans');
     expect(gateway.requestedTargets, ['zh-Hans']);
     expect(controller.results.single.error, isNull);
+  });
+
+  test('自动匹配 routes off the source once the user names one', () async {
+    final gateway = _FakeGateway(
+      configured: [
+        _target(source: kAutoSource, target: 'zh-Hans'),
+        _target(source: kAutoSource, target: 'en'),
+      ],
+      detected: 'en',
+      active: [_target(source: kAutoSource, target: 'en')],
+    );
+    final controller = WorkbenchTranslationController(
+      gateway: gateway,
+      initialTargetLanguage: 'en',
+    );
+    addTearDown(controller.dispose);
+    await controller.initialize();
+
+    // 自动检测 leaves the routing to the detector…
+    controller
+      ..setTargetLanguage(null)
+      ..setText('hello');
+    await controller.submit();
+    expect(gateway.detectedPassedToActive, 'en');
+
+    // …while a named source is the user telling us what the text is, which
+    // is a better answer than the detector's and outranks it.
+    controller.setSourceLanguage('zh-Hans');
+    await controller.submit();
+    expect(gateway.detectedPassedToActive, 'zh-Hans');
   });
 
   test('the roster picks up the first configured target', () async {

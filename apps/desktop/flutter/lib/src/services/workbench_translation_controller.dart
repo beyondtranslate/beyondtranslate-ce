@@ -289,8 +289,8 @@ class WorkbenchTranslationController extends ChangeNotifier {
   }
 
   /// The language this submit translates into. A concrete pick is its own
-  /// answer; 自动匹配 defers to the configured translation targets, filtered
-  /// by what detection found — the same rule the mini translator follows.
+  /// answer; 自动匹配 defers to the configured translation targets, routed by
+  /// what the text is already in — the same rule the mini translator follows.
   /// With nothing configured, nothing matching, or a runtime that would not
   /// answer, the last concrete target stands: a target we cannot resolve is
   /// no reason to fail the whole query.
@@ -304,7 +304,9 @@ class WorkbenchTranslationController extends ChangeNotifier {
     try {
       final active = await _gateway.activeTranslationTargets(
         configured,
-        detectedLanguage,
+        // A source the user picked outranks the detector: they have said
+        // what the text is, and 自动匹配 routes away from it just the same.
+        isAutoSource(sourceLanguage) ? detectedLanguage : sourceLanguage,
       );
       if (requestId != _requestId) return _resolvedTarget;
       final match = active.firstOrNull;

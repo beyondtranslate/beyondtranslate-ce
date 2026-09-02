@@ -395,11 +395,18 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       ),
       meta: Text(time),
       flag: flags.isEmpty ? null : Text(flags.join(' · ')),
-      primary: Text(entry.source),
-      secondary: Text(entry.translation),
+      primary: entry.source,
+      secondary: entry.translation,
       active: active,
-      onPressed: () =>
-          _selecting ? _toggle(entry.id) : setState(() => _activeId = entry.id),
+      // 一段摘要式的记录在列表里只露原文两行、译文三行；点开才是全文，再点
+      // 收起。多选时保持收起 —— 勾选是在挑记录，不是在读记录。
+      expanded: !_selecting && entry.id == _activeId,
+      expandable: !_selecting,
+      onPressed: () => _selecting
+          ? _toggle(entry.id)
+          : setState(
+              () => _activeId = _activeId == entry.id ? null : entry.id,
+            ),
       // 收藏 as a word, because it is the one verb used often enough to deserve
       // a direct hit, and a ⋯ menu for the rest. In a selection the row's own
       // actions step aside for the checkbox.

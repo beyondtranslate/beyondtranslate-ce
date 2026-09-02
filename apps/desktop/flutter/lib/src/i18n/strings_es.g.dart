@@ -641,6 +641,10 @@ class _TranslationsWorkbenchHistoryPageEs
   @override
   String get edit_history_hint =>
       'La traducción editada se guardará en el historial';
+  @override
+  String get expand => 'Mostrar texto completo';
+  @override
+  String get collapse => 'Contraer';
 }
 
 // Path: workbench.subtitle
@@ -863,6 +867,9 @@ class _TranslationsSettingsGeneralEs extends TranslationsSettingsGeneralEn {
   @override
   late final _TranslationsSettingsGeneralEditorEs editor =
       _TranslationsSettingsGeneralEditorEs._(_root);
+  @override
+  late final _TranslationsSettingsGeneralLanguagesEditorEs languages_editor =
+      _TranslationsSettingsGeneralLanguagesEditorEs._(_root);
 }
 
 // Path: settings.appearance
@@ -1327,21 +1334,11 @@ class _TranslationsSettingsGeneralRowEs
   @override
   String get common_languages => 'Idiomas comunes';
   @override
-  String get common_languages_description =>
-      'Los idiomas comunes aparecen al principio de los selectores de idioma.';
+  String get common_languages_hint =>
+      'Aparecen al principio de los menús de idioma en este orden; el resto se agrupa en «Más idiomas».';
   @override
-  String get common_languages_hint => 'Selecciona tus idiomas comunes:';
-  @override
-  String get common_languages_sort => 'Ordenar por código';
-  @override
-  String get common_languages_reset => 'Restablecer valores predeterminados';
-  @override
-  String get common_languages_reset_help =>
-      'Restablecer el conjunto predeterminado de idiomas comunes';
-  @override
-  String get common_languages_search => 'Buscar idiomas...';
-  @override
-  String get common_languages_all => 'Todos los idiomas';
+  String common_languages_empty({required Object count}) =>
+      'Sin configurar · los menús de idioma listan los ${count} idiomas sin agrupar';
   @override
   String get double_click_copy_result =>
       'Doble clic para copiar el resultado de la traducción';
@@ -1437,6 +1434,56 @@ class _TranslationsSettingsGeneralEditorEs
   String get hint_auto => 'Traducir a {} cuando ninguna otra regla coincida.';
   @override
   String get hint_source => 'Traducir a {} cuando se detecte {}.';
+}
+
+// Path: settings.general.languages_editor
+class _TranslationsSettingsGeneralLanguagesEditorEs
+    extends TranslationsSettingsGeneralLanguagesEditorEn {
+  _TranslationsSettingsGeneralLanguagesEditorEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get subtitle =>
+      'En el orden de la izquierda al principio de los menús de idioma; la derecha se agrupa en «Más idiomas»';
+  @override
+  String common_pane({required Object count}) => 'Habituales · ${count}';
+  @override
+  String more_pane({required Object count}) => 'Más idiomas · ${count}';
+  @override
+  String get sort => 'Ordenar';
+  @override
+  String get sort_help => 'Reordenar según la lista de idiomas';
+  @override
+  String get empty_common =>
+      'Aún no hay idiomas habituales.\nAñade al menos uno desde la derecha.';
+  @override
+  String get search => 'Buscar';
+  @override
+  String get all_in_common => 'Todos los idiomas ya son habituales.';
+  @override
+  String matches_in_common({required Object query}) =>
+      'Los idiomas que coinciden con «${query}» ya están a la izquierda.';
+  @override
+  String no_matches({required Object query}) =>
+      'Ningún idioma coincide con «${query}»';
+  @override
+  String get reorder_hint =>
+      'Arrastra el asa para reordenar, o enfócala y pulsa ↑↓.';
+  @override
+  String get reset => 'Restablecer valores predeterminados';
+  @override
+  String add_language({required Object name}) =>
+      'Añadir ${name} a los idiomas habituales';
+  @override
+  String remove_language({required Object name}) =>
+      'Quitar ${name} de los idiomas habituales';
+  @override
+  String handle_label({required Object name, required Object position}) =>
+      '${name}, posición ${position}, usa las flechas arriba y abajo para reordenar';
 }
 
 // Path: settings.appearance.section
@@ -2355,6 +2402,8 @@ extension on TranslationsEs {
       'workbench.history_page.edited_flag' => 'Editado',
       'workbench.history_page.edit_history_hint' =>
         'La traducción editada se guardará en el historial',
+      'workbench.history_page.expand' => 'Mostrar texto completo',
+      'workbench.history_page.collapse' => 'Contraer',
       'workbench.glossary' => 'Glosario',
       'workbench.recent_languages' => 'Idiomas recientes',
       'workbench.not_configured' => 'Sin configurar',
@@ -2477,17 +2526,11 @@ extension on TranslationsEs {
       'settings.general.row.translation_target_hint' =>
         'Configura los pares de idiomas usados por el traductor.',
       'settings.general.row.common_languages' => 'Idiomas comunes',
-      'settings.general.row.common_languages_description' =>
-        'Los idiomas comunes aparecen al principio de los selectores de idioma.',
       'settings.general.row.common_languages_hint' =>
-        'Selecciona tus idiomas comunes:',
-      'settings.general.row.common_languages_sort' => 'Ordenar por código',
-      'settings.general.row.common_languages_reset' =>
-        'Restablecer valores predeterminados',
-      'settings.general.row.common_languages_reset_help' =>
-        'Restablecer el conjunto predeterminado de idiomas comunes',
-      'settings.general.row.common_languages_search' => 'Buscar idiomas...',
-      'settings.general.row.common_languages_all' => 'Todos los idiomas',
+        'Aparecen al principio de los menús de idioma en este orden; el resto se agrupa en «Más idiomas».',
+      'settings.general.row.common_languages_empty' => (
+              {required Object count}) =>
+          'Sin configurar · los menús de idioma listan los ${count} idiomas sin agrupar',
       'settings.general.row.double_click_copy_result' =>
         'Doble clic para copiar el resultado de la traducción',
       'settings.general.row.submit_with_enter' => 'Enviar con Enter',
@@ -2530,6 +2573,36 @@ extension on TranslationsEs {
         'Traducir a {} cuando ninguna otra regla coincida.',
       'settings.general.editor.hint_source' =>
         'Traducir a {} cuando se detecte {}.',
+      'settings.general.languages_editor.subtitle' =>
+        'En el orden de la izquierda al principio de los menús de idioma; la derecha se agrupa en «Más idiomas»',
+      'settings.general.languages_editor.common_pane' =>
+        ({required Object count}) => 'Habituales · ${count}',
+      'settings.general.languages_editor.more_pane' =>
+        ({required Object count}) => 'Más idiomas · ${count}',
+      'settings.general.languages_editor.sort' => 'Ordenar',
+      'settings.general.languages_editor.sort_help' =>
+        'Reordenar según la lista de idiomas',
+      'settings.general.languages_editor.empty_common' =>
+        'Aún no hay idiomas habituales.\nAñade al menos uno desde la derecha.',
+      'settings.general.languages_editor.search' => 'Buscar',
+      'settings.general.languages_editor.all_in_common' =>
+        'Todos los idiomas ya son habituales.',
+      'settings.general.languages_editor.matches_in_common' => (
+              {required Object query}) =>
+          'Los idiomas que coinciden con «${query}» ya están a la izquierda.',
+      'settings.general.languages_editor.no_matches' =>
+        ({required Object query}) => 'Ningún idioma coincide con «${query}»',
+      'settings.general.languages_editor.reorder_hint' =>
+        'Arrastra el asa para reordenar, o enfócala y pulsa ↑↓.',
+      'settings.general.languages_editor.reset' =>
+        'Restablecer valores predeterminados',
+      'settings.general.languages_editor.add_language' =>
+        ({required Object name}) => 'Añadir ${name} a los idiomas habituales',
+      'settings.general.languages_editor.remove_language' =>
+        ({required Object name}) => 'Quitar ${name} de los idiomas habituales',
+      'settings.general.languages_editor.handle_label' => (
+              {required Object name, required Object position}) =>
+          '${name}, posición ${position}, usa las flechas arriba y abajo para reordenar',
       'settings.appearance.title' => 'Apariencia',
       'settings.appearance.section.app_language' => 'Idioma de la interfaz',
       'settings.appearance.section.theme_mode' => 'Modo de tema',

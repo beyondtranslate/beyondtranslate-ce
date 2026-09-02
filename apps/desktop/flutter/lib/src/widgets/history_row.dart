@@ -21,12 +21,9 @@ class HistoryRow extends StatelessWidget {
     return ListCard(
       eyebrow: Text(term),
       meta: Text(timestamp),
-      primary: const SizedBox.shrink(),
-      secondary: Text(
-        translation,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
+      primary: '',
+      secondary: translation,
+      expandable: false,
       onPressed: onTap,
     );
   }

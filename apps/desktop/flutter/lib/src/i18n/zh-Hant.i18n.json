@@ -198,7 +198,9 @@
       "added_to_glossary": "已將 $count 筆記錄加入術語庫",
       "favorite_flag": "已收藏",
       "edited_flag": "我改過",
-      "edit_history_hint": "修改後的譯文會儲存到歷史"
+      "edit_history_hint": "修改後的譯文會儲存到歷史",
+      "expand": "展開全文",
+      "collapse": "收合"
     },
     "glossary": "術語庫",
     "recent_languages": "最近語言",
@@ -306,13 +308,8 @@
         "default_translation_service": "預設翻譯服務",
         "translation_target_hint": "設定翻譯器使用的語言目標。",
         "common_languages": "常用語言",
-        "common_languages_description": "顯示在語言選擇列表頂部。",
-        "common_languages_hint": "選擇你常用的語言：",
-        "common_languages_sort": "按代碼排序",
-        "common_languages_reset": "恢復預設",
-        "common_languages_reset_help": "恢復為預設的常用語言集合",
-        "common_languages_search": "搜索語言...",
-        "common_languages_all": "所有語言",
+        "common_languages_hint": "排在語言選單頂部，其餘收進「更多語言」。",
+        "common_languages_empty": "未設定 · 語言選單會平鋪全部 $count 種語言",
         "double_click_copy_result": "雙擊複製翻譯結果",
         "submit_with_enter": "按 Enter 提交",
         "submit_with_meta_enter_mac": "按 ⌘ + Enter 提交",
@@ -348,6 +345,23 @@
         "duplicate": "已經有一條同樣的翻譯目標了。",
         "hint_auto": "未符合其他規則時，一律譯成{}。",
         "hint_source": "偵測到{}時，譯成{}。"
+      },
+      "languages_editor": {
+        "subtitle": "按左邊的順序排在語言選單頂部，右邊的收進「更多語言」",
+        "common_pane": "常用 · $count 種",
+        "more_pane": "更多語言 · $count 種",
+        "sort": "排序",
+        "sort_help": "按語言表的順序重排",
+        "empty_common": "還沒有常用語言。\n從右邊新增至少一種。",
+        "search": "搜尋",
+        "all_in_common": "全部語言都已經是常用語言。",
+        "matches_in_common": "符合「$query」的語言已經在左邊了。",
+        "no_matches": "沒有符合「$query」的語言",
+        "reorder_hint": "拖曳把手調整常用語言的順序，或聚焦把手後按 ↑↓。",
+        "reset": "恢復預設",
+        "add_language": "把 $name 加入常用語言",
+        "remove_language": "將 $name 移出常用語言",
+        "handle_label": "$name，第 $position 位，按上下方向鍵調整順序"
       }
     },
     "appearance": {

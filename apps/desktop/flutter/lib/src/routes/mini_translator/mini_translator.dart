@@ -226,11 +226,13 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   void _unregisterWindowEvents() {
     if (_windowFocusedListenerId != null) {
-      nativeapi.WindowManager.instance.removeListener(_windowFocusedListenerId!);
+      nativeapi.WindowManager.instance
+          .removeListener(_windowFocusedListenerId!);
       _windowFocusedListenerId = null;
     }
     if (_windowBlurredListenerId != null) {
-      nativeapi.WindowManager.instance.removeListener(_windowBlurredListenerId!);
+      nativeapi.WindowManager.instance
+          .removeListener(_windowBlurredListenerId!);
       _windowBlurredListenerId = null;
     }
     if (_windowMovedListenerId != null) {
@@ -931,7 +933,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
               MiniTranslatorInput(
                 focusNode: _focusNode,
                 controller: _textEditingController,
-                text: _text,
                 inputSubmitMode: settingsStore.inputSubmitMode,
                 targetLanguageName: _selectedTargetLanguage == null
                     ? null
@@ -940,7 +941,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                     '${getSourceDisplayName(_detectedLanguage ?? _sourceLanguage)}',
                 onChanged: (v) => _handleTextChanged(v),
                 onSubmitted: _handleButtonTappedTrans,
-                onClear: _handleButtonTappedClear,
               ),
               MiniTranslatorTranslation(
                 querySubmitted: _querySubmitted,
@@ -975,6 +975,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           onCopy: _handleButtonTappedCopy,
           onBookmark: _toggleHistoryFavorite,
           onTranslate: _handleButtonTappedTrans,
+          onClear: _handleButtonTappedClear,
         ),
       ],
     );
@@ -1005,7 +1006,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 key: _toolbarViewKey,
                 sourceLanguage: _sourceLanguage,
                 selectedTargetLanguage: _selectedTargetLanguage,
-                detectedLanguage: _detectedLanguage,
                 activeConfigIndex: _activeConfigIndex,
                 persistentTargets: settingsStore.general.translationTargets,
                 commonLanguageCodes:

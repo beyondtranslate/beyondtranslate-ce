@@ -118,6 +118,9 @@ class _NativeTextFieldState extends State<NativeTextField> {
         widget.placeholderStyle != oldWidget.placeholderStyle) {
       _updatePlaceholder();
     }
+    if (widget.style != oldWidget.style) {
+      _updateTextStyle();
+    }
     if (widget.submitOnEnter != oldWidget.submitOnEnter ||
         widget.submitOnMetaEnter != oldWidget.submitOnMetaEnter ||
         widget.textInputAction != oldWidget.textInputAction) {
@@ -159,6 +162,12 @@ class _NativeTextFieldState extends State<NativeTextField> {
       'placeholder': widget.placeholder ?? '',
       'style': _encodeTextStyle(placeholderStyle),
     });
+  }
+
+  void _updateTextStyle() {
+    if (_channel == null) return;
+    final textStyle = widget.style ?? DefaultTextStyle.of(context).style;
+    _channel!.invokeMethod<void>('setStyle', _encodeTextStyle(textStyle));
   }
 
   void _updateSubmitMode() {
@@ -341,10 +350,15 @@ class _NativeTextFieldState extends State<NativeTextField> {
   }
 
   Map<String, Object?> _encodeTextStyle(TextStyle style) {
+    // The same shape `NativeText` sends: the two share one decoder on the
+    // AppKit side, so 原文 and 译文 come out on identical line metrics.
     return <String, Object?>{
       'fontSize': style.fontSize,
       'fontFamily': style.fontFamily,
+      'fontFamilyFallback': style.fontFamilyFallback,
+      'fontWeight': style.fontWeight?.value,
       'height': style.height,
+      'letterSpacing': style.letterSpacing,
       'color': style.color?.toARGB32(),
     };
   }

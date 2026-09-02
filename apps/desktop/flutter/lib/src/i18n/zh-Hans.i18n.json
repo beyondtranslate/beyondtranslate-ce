@@ -210,7 +210,9 @@
       "more_actions": "更多",
       "delete_title_one": "删除这条记录",
       "delete_title_many": "删除 $count 条记录",
-      "delete_message": "删除后无法恢复。收藏和你改过的译文也会一起删除，术语库不受影响。"
+      "delete_message": "删除后无法恢复。收藏和你改过的译文也会一起删除，术语库不受影响。",
+      "expand": "展开全文",
+      "collapse": "收起"
     },
     "glossary": "术语库",
     "recent_languages": "最近语言",
@@ -348,13 +350,8 @@
         "default_translation_service": "默认翻译服务",
         "translation_target_hint": "配置翻译器使用的语言目标。",
         "common_languages": "常用语言",
-        "common_languages_description": "显示在语言选择列表顶部。",
-        "common_languages_hint": "选择你常用的语言：",
-        "common_languages_sort": "按代码排序",
-        "common_languages_reset": "恢复默认",
-        "common_languages_reset_help": "恢复为默认的常用语言集合",
-        "common_languages_search": "搜索语言...",
-        "common_languages_all": "所有语言",
+        "common_languages_hint": "排在语言菜单顶部，其余收进「更多语言」。",
+        "common_languages_empty": "未设置 · 语言菜单会平铺全部 $count 种语言",
         "double_click_copy_result": "双击复制翻译结果",
         "submit_with_enter": "按 Enter 提交",
         "submit_with_meta_enter_mac": "按 ⌘ + Enter 提交",
@@ -390,6 +387,23 @@
         "duplicate": "已经有一条同样的翻译目标了。",
         "hint_auto": "未匹配到其他规则时，一律译成{}。",
         "hint_source": "检测到{}时，译成{}。"
+      },
+      "languages_editor": {
+        "subtitle": "按左边的顺序排在语言菜单顶部，右边的收进「更多语言」",
+        "common_pane": "常用 · $count 种",
+        "more_pane": "更多语言 · $count 种",
+        "sort": "排序",
+        "sort_help": "按语言表的顺序重排",
+        "empty_common": "还没有常用语言。\n从右边添加至少一种。",
+        "search": "搜索",
+        "all_in_common": "全部语言都已经是常用语言。",
+        "matches_in_common": "匹配「$query」的语言已经在左边了。",
+        "no_matches": "没有匹配「$query」的语言",
+        "reorder_hint": "拖动手柄调整常用语言的顺序，或聚焦手柄后按 ↑↓。",
+        "reset": "恢复默认",
+        "add_language": "把 $name 加入常用语言",
+        "remove_language": "将 $name 移出常用语言",
+        "handle_label": "$name，第 $position 位，按上下方向键调整顺序"
       }
     },
     "appearance": {

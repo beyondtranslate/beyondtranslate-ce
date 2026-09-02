@@ -633,6 +633,10 @@ class _TranslationsWorkbenchHistoryPageKo
   String get edited_flag => '수정됨';
   @override
   String get edit_history_hint => '수정한 번역은 기록에 저장됩니다';
+  @override
+  String get expand => '전체 보기';
+  @override
+  String get collapse => '접기';
 }
 
 // Path: workbench.subtitle
@@ -849,6 +853,9 @@ class _TranslationsSettingsGeneralKo extends TranslationsSettingsGeneralEn {
   @override
   late final _TranslationsSettingsGeneralEditorKo editor =
       _TranslationsSettingsGeneralEditorKo._(_root);
+  @override
+  late final _TranslationsSettingsGeneralLanguagesEditorKo languages_editor =
+      _TranslationsSettingsGeneralLanguagesEditorKo._(_root);
 }
 
 // Path: settings.appearance
@@ -1300,19 +1307,11 @@ class _TranslationsSettingsGeneralRowKo
   @override
   String get common_languages => '자주 사용하는 언어';
   @override
-  String get common_languages_description => '자주 사용하는 언어는 언어 선택기 상단에 표시됩니다.';
+  String get common_languages_hint =>
+      '이 순서대로 언어 메뉴 상단에 표시되며, 나머지는 「더 많은 언어」에 들어갑니다.';
   @override
-  String get common_languages_hint => '자주 사용하는 언어를 선택하세요:';
-  @override
-  String get common_languages_sort => '코드로 정렬';
-  @override
-  String get common_languages_reset => '기본값으로 재설정';
-  @override
-  String get common_languages_reset_help => '기본 공용 언어 세트로 재설정';
-  @override
-  String get common_languages_search => '언어 검색...';
-  @override
-  String get common_languages_all => '모든 언어';
+  String common_languages_empty({required Object count}) =>
+      '설정 안 됨 · 언어 메뉴에 전체 ${count}개 언어가 그대로 나열됩니다';
   @override
   String get double_click_copy_result => '더블 클릭으로 번역 결과 복사';
   @override
@@ -1403,6 +1402,51 @@ class _TranslationsSettingsGeneralEditorKo
   String get hint_auto => '다른 규칙과 일치하지 않으면 {}(으)로 번역합니다.';
   @override
   String get hint_source => '{}이(가) 감지되면 {}(으)로 번역합니다.';
+}
+
+// Path: settings.general.languages_editor
+class _TranslationsSettingsGeneralLanguagesEditorKo
+    extends TranslationsSettingsGeneralLanguagesEditorEn {
+  _TranslationsSettingsGeneralLanguagesEditorKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get subtitle => '왼쪽 순서대로 언어 메뉴 상단에 표시되고, 오른쪽은 「더 많은 언어」에 들어갑니다';
+  @override
+  String common_pane({required Object count}) => '자주 사용 · ${count}개';
+  @override
+  String more_pane({required Object count}) => '더 많은 언어 · ${count}개';
+  @override
+  String get sort => '정렬';
+  @override
+  String get sort_help => '언어 목록 순서대로 재정렬';
+  @override
+  String get empty_common => '자주 사용하는 언어가 아직 없습니다.\n오른쪽에서 하나 이상 추가하세요.';
+  @override
+  String get search => '검색';
+  @override
+  String get all_in_common => '모든 언어가 이미 자주 사용하는 언어입니다.';
+  @override
+  String matches_in_common({required Object query}) =>
+      '「${query}」와 일치하는 언어는 이미 왼쪽에 있습니다.';
+  @override
+  String no_matches({required Object query}) => '「${query}」와 일치하는 언어가 없습니다';
+  @override
+  String get reorder_hint => '핸들을 드래그해 순서를 조정하거나, 핸들에 포커스한 뒤 ↑↓를 누르세요.';
+  @override
+  String get reset => '기본값으로 복원';
+  @override
+  String add_language({required Object name}) => '${name}을(를) 자주 사용하는 언어에 추가';
+  @override
+  String remove_language({required Object name}) =>
+      '${name}을(를) 자주 사용하는 언어에서 제거';
+  @override
+  String handle_label({required Object name, required Object position}) =>
+      '${name}, ${position}번째, 위아래 방향키로 순서 조정';
 }
 
 // Path: settings.appearance.section
@@ -2297,6 +2341,8 @@ extension on TranslationsKo {
       'workbench.history_page.favorite_flag' => '즐겨찾기',
       'workbench.history_page.edited_flag' => '수정됨',
       'workbench.history_page.edit_history_hint' => '수정한 번역은 기록에 저장됩니다',
+      'workbench.history_page.expand' => '전체 보기',
+      'workbench.history_page.collapse' => '접기',
       'workbench.glossary' => '용어집',
       'workbench.recent_languages' => '최근 언어',
       'workbench.not_configured' => '설정되지 않음',
@@ -2397,14 +2443,11 @@ extension on TranslationsKo {
       'settings.general.row.default_translation_service' => '기본 번역 서비스',
       'settings.general.row.translation_target_hint' => '번역기에 사용할 언어 쌍을 설정합니다.',
       'settings.general.row.common_languages' => '자주 사용하는 언어',
-      'settings.general.row.common_languages_description' =>
-        '자주 사용하는 언어는 언어 선택기 상단에 표시됩니다.',
-      'settings.general.row.common_languages_hint' => '자주 사용하는 언어를 선택하세요:',
-      'settings.general.row.common_languages_sort' => '코드로 정렬',
-      'settings.general.row.common_languages_reset' => '기본값으로 재설정',
-      'settings.general.row.common_languages_reset_help' => '기본 공용 언어 세트로 재설정',
-      'settings.general.row.common_languages_search' => '언어 검색...',
-      'settings.general.row.common_languages_all' => '모든 언어',
+      'settings.general.row.common_languages_hint' =>
+        '이 순서대로 언어 메뉴 상단에 표시되며, 나머지는 「더 많은 언어」에 들어갑니다.',
+      'settings.general.row.common_languages_empty' => (
+              {required Object count}) =>
+          '설정 안 됨 · 언어 메뉴에 전체 ${count}개 언어가 그대로 나열됩니다',
       'settings.general.row.double_click_copy_result' => '더블 클릭으로 번역 결과 복사',
       'settings.general.row.submit_with_enter' => 'Enter로 제출',
       'settings.general.row.submit_with_meta_enter_mac' => '⌘ + Enter로 제출',
@@ -2436,6 +2479,33 @@ extension on TranslationsKo {
       'settings.general.editor.duplicate' => '같은 조합의 대상이 이미 있습니다.',
       'settings.general.editor.hint_auto' => '다른 규칙과 일치하지 않으면 {}(으)로 번역합니다.',
       'settings.general.editor.hint_source' => '{}이(가) 감지되면 {}(으)로 번역합니다.',
+      'settings.general.languages_editor.subtitle' =>
+        '왼쪽 순서대로 언어 메뉴 상단에 표시되고, 오른쪽은 「더 많은 언어」에 들어갑니다',
+      'settings.general.languages_editor.common_pane' =>
+        ({required Object count}) => '자주 사용 · ${count}개',
+      'settings.general.languages_editor.more_pane' =>
+        ({required Object count}) => '더 많은 언어 · ${count}개',
+      'settings.general.languages_editor.sort' => '정렬',
+      'settings.general.languages_editor.sort_help' => '언어 목록 순서대로 재정렬',
+      'settings.general.languages_editor.empty_common' =>
+        '자주 사용하는 언어가 아직 없습니다.\n오른쪽에서 하나 이상 추가하세요.',
+      'settings.general.languages_editor.search' => '검색',
+      'settings.general.languages_editor.all_in_common' =>
+        '모든 언어가 이미 자주 사용하는 언어입니다.',
+      'settings.general.languages_editor.matches_in_common' =>
+        ({required Object query}) => '「${query}」와 일치하는 언어는 이미 왼쪽에 있습니다.',
+      'settings.general.languages_editor.no_matches' =>
+        ({required Object query}) => '「${query}」와 일치하는 언어가 없습니다',
+      'settings.general.languages_editor.reorder_hint' =>
+        '핸들을 드래그해 순서를 조정하거나, 핸들에 포커스한 뒤 ↑↓를 누르세요.',
+      'settings.general.languages_editor.reset' => '기본값으로 복원',
+      'settings.general.languages_editor.add_language' =>
+        ({required Object name}) => '${name}을(를) 자주 사용하는 언어에 추가',
+      'settings.general.languages_editor.remove_language' =>
+        ({required Object name}) => '${name}을(를) 자주 사용하는 언어에서 제거',
+      'settings.general.languages_editor.handle_label' => (
+              {required Object name, required Object position}) =>
+          '${name}, ${position}번째, 위아래 방향키로 순서 조정',
       'settings.appearance.title' => '외관',
       'settings.appearance.section.app_language' => '표시 언어',
       'settings.appearance.section.theme_mode' => '테마 모드',

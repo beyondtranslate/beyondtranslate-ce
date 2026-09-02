@@ -20,7 +20,6 @@ class MiniTranslatorTopBar extends StatelessWidget {
     Key? key,
     required this.sourceLanguage,
     required this.selectedTargetLanguage,
-    required this.detectedLanguage,
     required this.activeConfigIndex,
     required this.persistentTargets,
     required this.commonLanguageCodes,
@@ -40,7 +39,6 @@ class MiniTranslatorTopBar extends StatelessWidget {
 
   final String sourceLanguage;
   final String? selectedTargetLanguage;
-  final String? detectedLanguage;
   final int activeConfigIndex;
   final List<TranslationTarget> persistentTargets;
   final List<String> commonLanguageCodes;
@@ -192,7 +190,6 @@ class MiniTranslatorTopBar extends StatelessWidget {
           LanguageSelector(
             sourceLanguage: sourceLanguage,
             targetLanguage: selectedTargetLanguage,
-            detectedLanguage: detectedLanguage,
             commonLanguageCodes: commonLanguageCodes,
             allowAutoTarget: true,
             window: miniTranslatorWindowController.window,

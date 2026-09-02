@@ -1,12 +1,12 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide Checkbox, Dialog;
+import 'package:flutter/services.dart' show KeyDownEvent, LogicalKeyboardKey;
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
 import '../../utils/language_util.dart';
-import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/ui.dart'
     show
@@ -19,12 +19,14 @@ import '../../widgets/ui.dart'
         DialogBody,
         DialogFooter,
         DialogHeader,
-        Checkbox,
         DesignThemeContext,
         DesignTypographyStyles,
         Field,
         FieldState,
+        HoverRegion,
+        Label,
         Pressable,
+        SearchField,
         controlDecoration;
 
 /// The sheets and pickers a capability's own settings open — 常用语言,
@@ -225,63 +227,538 @@ Future<void> showEditTargetDialog(
     _showTargetDialog(context, target: target);
 
 Future<void> showCommonLanguagesDialog(BuildContext context) async {
-  final selected = Set<String>.from(settingsStore.general.commonLanguages);
-  final available = supportedLanguages;
-
   final result = await showDialogInCurrentWindow<List<String>>(
     context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AppDialog(
-            width: 380,
-            title: Text(t.settings.general.row.common_languages),
-            subtitle: Text(t.settings.general.row.common_languages_hint),
-            content: SizedBox(
-              height: 360,
-              child: ListView(
-                children: [
-                  for (final lang in available)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Checkbox(
-                        checked: selected.contains(lang),
-                        onChanged: (checked) {
-                          setDialogState(() {
-                            if (checked) {
-                              selected.add(lang);
-                            } else {
-                              selected.remove(lang);
-                            }
-                          });
-                        },
-                        child: Text(getLanguageName(lang, showNative: true)),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            actions: [
-              Button(
-                variant: ButtonVariant.secondary,
-                onPressed: () => Navigator.pop(context),
-                child: Text(t.common.ui.button.cancel),
-              ),
-              Button(
-                variant: ButtonVariant.primary,
-                onPressed: () => Navigator.pop(context, selected.toList()),
-                child: Text(t.common.ui.button.save),
-              ),
-            ],
-          );
-        },
-      );
-    },
+    builder: (context) => const Center(child: _CommonLanguagesSheet()),
   );
 
   if (result != null) {
     await settingsStore.updateGeneral(
       GeneralSettingsPatch(commonLanguages: result),
+    );
+  }
+}
+
+/// 常用语言 — the block that sits above the separator in every language menu.
+///
+/// The setting is an **ordered list**, not a set: the menus print the codes in
+/// the order they are stored and drop everything else into 更多语言. So the
+/// sheet is the menu, taken apart — 常用 on the left, in menu order and
+/// draggable, 更多语言 on the right to pick from. One ticked roster would have
+/// hidden the order completely, and re-ticking a language would have silently
+/// sent it to the bottom of the menu. The panes hold disjoint sets — a
+/// language is in one or the other — so adding and removing read as moves
+/// across the divider, which is what they are.
+class _CommonLanguagesSheet extends StatefulWidget {
+  const _CommonLanguagesSheet();
+
+  @override
+  State<_CommonLanguagesSheet> createState() => _CommonLanguagesSheetState();
+}
+
+class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
+  late final List<String> _selected =
+      List<String>.from(settingsStore.general.commonLanguages);
+  String _query = '';
+
+  /// Where each code sits in the full roster — what 排序 restores.
+  late final Map<String, int> _rosterIndex = {
+    for (final (index, code) in supportedLanguages.indexed) code: index,
+  };
+
+  final ScrollController _chosenList = ScrollController();
+
+  @override
+  void dispose() {
+    _chosenList.dispose();
+    super.dispose();
+  }
+
+  bool _matches(String code) {
+    final needle = _query.trim().toLowerCase();
+    return '${getLanguageName(code)} ${getLanguageNativeName(code)} $code'
+        .toLowerCase()
+        .contains(needle);
+  }
+
+  bool get _isDefault {
+    final defaults = defaultCommonLanguages();
+    if (_selected.length != defaults.length) return false;
+    for (final (index, code) in _selected.indexed) {
+      if (code != defaults[index]) return false;
+    }
+    return true;
+  }
+
+  bool get _isRosterOrder {
+    for (var i = 1; i < _selected.length; i++) {
+      if ((_rosterIndex[_selected[i - 1]] ?? 0) >
+          (_rosterIndex[_selected[i]] ?? 0)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _add(String code) {
+    setState(() => _selected.add(code));
+    // Added to the end, which on a full list is below the fold; without this
+    // the left pane looks like it did nothing.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_chosenList.hasClients) return;
+      _chosenList.jumpTo(_chosenList.position.maxScrollExtent);
+    });
+  }
+
+  void _remove(String code) => setState(() => _selected.remove(code));
+
+  /// Lifts the row at [from] out of the list and drops it back in at [to].
+  void _move(int from, int to) {
+    if (from < 0 || to < 0 || to >= _selected.length || to == from) return;
+    setState(() {
+      final code = _selected.removeAt(from);
+      _selected.insert(to, code);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final strings = t.settings.general.languages_editor;
+
+    return Dialog(
+      width: 620,
+      children: [
+        DialogHeader(
+          title: Text(t.settings.general.row.common_languages),
+          subtitle: Text(strings.subtitle),
+        ),
+        DialogBody(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 296,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(tokens.radii.box),
+                    border: Border.all(
+                      color: colors.hairline,
+                      width: context.hairlineWidth,
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: _buildChosenPane(context)),
+                      Container(
+                        width: context.hairlineWidth,
+                        color: colors.hairline,
+                      ),
+                      Expanded(child: _buildRosterPane(context)),
+                    ],
+                  ),
+                ),
+                if (_selected.length > 1) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    strings.reorder_hint,
+                    style: tokens.typography.sansStyle(
+                      fontSize: 11,
+                      height: 1.7,
+                      color: colors.fgSubtle,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+        DialogFooter(
+          children: [
+            // Scoped to the whole sheet, so it sits in the footer rather than
+            // in either pane's header.
+            Button(
+              variant: ButtonVariant.plain,
+              enabled: !_isDefault,
+              onPressed: () => setState(
+                () => _selected
+                  ..clear()
+                  ..addAll(defaultCommonLanguages()),
+              ),
+              child: Text(strings.reset),
+            ),
+            const Spacer(),
+            Button(
+              variant: ButtonVariant.ghost,
+              size: ButtonSize.md,
+              onPressed: () => Navigator.pop(context),
+              child: Text(t.common.ui.button.cancel),
+            ),
+            Button(
+              variant: ButtonVariant.primary,
+              size: ButtonSize.md,
+              onPressed: () =>
+                  Navigator.pop(context, List<String>.from(_selected)),
+              child: Text(t.common.ui.button.save),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// ── Left: the common block, in menu order ──
+  Widget _buildChosenPane(BuildContext context) {
+    final strings = t.settings.general.languages_editor;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _PaneHeader(
+          children: [
+            Label(
+              child: Text(strings.common_pane(count: _selected.length)),
+            ),
+            const Spacer(),
+            Button(
+              variant: ButtonVariant.plain,
+              size: ButtonSize.xs,
+              enabled: _selected.length >= 2 && !_isRosterOrder,
+              semanticsLabel: strings.sort_help,
+              onPressed: () => setState(
+                () => _selected.sort(
+                  (a, b) =>
+                      (_rosterIndex[a] ?? 0).compareTo(_rosterIndex[b] ?? 0),
+                ),
+              ),
+              child: Text(strings.sort),
+            ),
+          ],
+        ),
+        Expanded(
+          child: _selected.isEmpty
+              ? _PaneEmpty(text: strings.empty_common)
+              : ReorderableListView.builder(
+                  scrollController: _chosenList,
+                  padding: const EdgeInsets.all(4),
+                  buildDefaultDragHandles: false,
+                  itemCount: _selected.length,
+                  onReorderItem: _move,
+                  // The list is its own drop indicator; the lifted row keeps
+                  // the row look with the accent wash, not a Material shadow.
+                  proxyDecorator: (child, index, animation) =>
+                      _buildChosenRow(context, index, lifted: true),
+                  itemBuilder: (context, index) => KeyedSubtree(
+                    key: ValueKey(_selected[index]),
+                    child: _buildChosenRow(context, index),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChosenRow(BuildContext context, int index,
+      {bool lifted = false}) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final strings = t.settings.general.languages_editor;
+    final code = _selected[index];
+    final radius = BorderRadius.circular(tokens.radii.controlSm);
+
+    return HoverRegion(
+      builder: (context, hovered) => Container(
+        constraints: const BoxConstraints(minHeight: 28),
+        padding: const EdgeInsetsDirectional.only(start: 2, end: 4),
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          color: lifted
+              ? colors.accent.withValues(alpha: 0.12)
+              : hovered
+                  ? colors.subtle
+                  : null,
+        ),
+        child: Row(
+          children: [
+            ReorderableDragStartListener(
+              index: index,
+              child: Focus(
+                onKeyEvent: (node, event) {
+                  if (event is! KeyDownEvent) return KeyEventResult.ignored;
+                  final up = event.logicalKey == LogicalKeyboardKey.arrowUp;
+                  final down = event.logicalKey == LogicalKeyboardKey.arrowDown;
+                  if (!up && !down) return KeyEventResult.ignored;
+                  _move(index, index + (up ? -1 : 1));
+                  return KeyEventResult.handled;
+                },
+                // Rows are keyed by code, so the handle keeps focus across a
+                // move and ↑↓ can be pressed repeatedly.
+                child: Semantics(
+                  label: strings.handle_label(
+                    name: getLanguageNativeName(code),
+                    position: index + 1,
+                  ),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.grab,
+                    child: SizedBox.square(
+                      dimension: 20,
+                      child: Icon(
+                        FluentIcons.re_order_dots_vertical_20_regular,
+                        size: 14,
+                        color: colors.fgFaint,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(child: _LanguageNameText(code: code)),
+            const SizedBox(width: 6),
+            _LanguageCodeText(code: code),
+            const SizedBox(width: 6),
+            // Standing, not hover-revealed: the pane opposite carries a + on
+            // every row, and side by side an empty column against a full one
+            // reads as a missing control.
+            Pressable(
+              onPressed: () => _remove(code),
+              borderRadius: radius,
+              semanticsLabel: strings.remove_language(
+                name: getLanguageNativeName(code),
+              ),
+              builder: (context, state) => Container(
+                width: 20,
+                height: 20,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: radius,
+                  color: state.hovered ? colors.control : null,
+                ),
+                child: Icon(
+                  FluentIcons.dismiss_12_regular,
+                  size: 12,
+                  color: hovered ? colors.fgTertiary : colors.fgFaint,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ── Right: everything else, to pick from ──
+  Widget _buildRosterPane(BuildContext context) {
+    final strings = t.settings.general.languages_editor;
+
+    final common = _selected.toSet();
+    final rest = [
+      for (final code in supportedLanguages)
+        if (!common.contains(code)) code,
+    ];
+    final needle = _query.trim();
+    final restRows = needle.isEmpty
+        ? rest
+        : [
+            for (final c in rest)
+              if (_matches(c)) c
+          ];
+    // A search that only turns up languages already common needs saying so.
+    final hiddenByCommon = needle.isNotEmpty && _selected.any(_matches);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _PaneHeader(
+          children: [
+            Label(child: Text(strings.more_pane(count: rest.length))),
+            const Spacer(),
+            // Kept open rather than folded behind a magnifier — over a roster
+            // this long, search is the way in, not an extra.
+            SizedBox(
+              width: 132,
+              child: SearchField(
+                value: _query,
+                onChanged: (value) => setState(() => _query = value),
+                placeholder: strings.search,
+                shortcut: '',
+                semanticsLabel: strings.search,
+              ),
+            ),
+          ],
+        ),
+        Expanded(
+          child: restRows.isEmpty
+              ? _PaneEmpty(
+                  text: rest.isEmpty
+                      ? strings.all_in_common
+                      : hiddenByCommon
+                          ? strings.matches_in_common(query: needle)
+                          : strings.no_matches(query: needle),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(4),
+                  itemCount: restRows.length,
+                  itemBuilder: (context, index) =>
+                      _buildRosterRow(context, restRows[index]),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRosterRow(BuildContext context, String code) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final strings = t.settings.general.languages_editor;
+
+    return Pressable(
+      onPressed: () => _add(code),
+      borderRadius: BorderRadius.circular(tokens.radii.controlSm),
+      semanticsLabel: strings.add_language(
+        name: getLanguageNativeName(code),
+      ),
+      builder: (context, state) => Container(
+        constraints: const BoxConstraints(minHeight: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(tokens.radii.controlSm),
+          color: state.hovered ? colors.subtle : null,
+        ),
+        child: Row(
+          children: [
+            Expanded(child: _LanguageNameText(code: code)),
+            const SizedBox(width: 6),
+            _LanguageCodeText(code: code),
+            const SizedBox(width: 6),
+            SizedBox.square(
+              dimension: 20,
+              child: Icon(
+                FluentIcons.add_16_regular,
+                size: 13,
+                color: state.hovered ? colors.accentText : colors.fgFaint,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The band over a pane's list — a label, and whatever that pane acts on.
+class _PaneHeader extends StatelessWidget {
+  const _PaneHeader({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Container(
+      // 36 rather than the React 32: the compact SearchField keeps the shared
+      // 28px control box, and 32 would leave it 2px of air.
+      constraints: const BoxConstraints(minHeight: 36),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: colors.hairline,
+            width: context.hairlineWidth,
+          ),
+        ),
+      ),
+      child: Row(children: children),
+    );
+  }
+}
+
+/// What a pane says when it has no rows to show.
+class _PaneEmpty extends StatelessWidget {
+  const _PaneEmpty({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: tokens.typography.sansStyle(
+            fontSize: 11,
+            height: 1.7,
+            color: tokens.colors.fgSubtle,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// `English 英语`; the native name leads, since that is what the menu prints.
+class _LanguageNameText extends StatelessWidget {
+  const _LanguageNameText({required this.code});
+
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final native = getLanguageNativeName(code);
+    final label = getLanguageName(code);
+
+    return Text.rich(
+      TextSpan(
+        text: native,
+        style: tokens.typography.sansStyle(
+          fontSize: 12,
+          height: 1,
+          fontWeight: FontWeight.w500,
+          color: colors.fg,
+        ),
+        children: [
+          if (label != native)
+            TextSpan(
+              text: ' $label',
+              style: tokens.typography.sansStyle(
+                fontSize: 12,
+                height: 1,
+                color: colors.fgSubtle,
+              ),
+            ),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+/// The machine name, in its own column down the right edge of a pane.
+class _LanguageCodeText extends StatelessWidget {
+  const _LanguageCodeText({required this.code});
+
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Text(
+      code,
+      style: tokens.typography.monoStyle(
+        fontSize: 11,
+        height: 1,
+        color: tokens.colors.fgFaint,
+      ),
     );
   }
 }

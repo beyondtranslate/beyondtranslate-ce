@@ -5,7 +5,6 @@ import '../i18n/i18n.dart';
 import '../utils/language_util.dart';
 import 'native_menu.dart' show openNativeMenuBelow;
 import 'swap_pair.dart' show SwapPair, SwapPairSize;
-import 'ui.dart' show Badge, BadgeTone;
 
 /// Populates [menu] with the common languages, a 更多语言 submenu, and the
 /// 管理常用语言 item that leads into settings.
@@ -88,7 +87,6 @@ class LanguageSelector extends StatefulWidget {
     required this.onSourceChanged,
     required this.onTargetChanged,
     required this.onManageCommonLanguages,
-    this.detectedLanguage,
     this.allowAutoTarget = false,
     this.size = SwapPairSize.md,
     this.window,
@@ -99,11 +97,6 @@ class LanguageSelector extends StatefulWidget {
 
   /// Null renders as 自动匹配, and is only reachable with [allowAutoTarget].
   final String? targetLanguage;
-
-  /// Shown as a badge beside the capsule when it says something the capsule
-  /// does not — the detection behind 自动检测, or a source that disagrees
-  /// with what was typed.
-  final String? detectedLanguage;
 
   final List<String> commonLanguageCodes;
 
@@ -199,31 +192,21 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     final targetName = widget.targetLanguage == null
         ? t.mini_translator.language.auto_match
         : getLanguageName(widget.targetLanguage!);
-    final detected = widget.detectedLanguage;
     final canSwap = !isAutoSource(widget.sourceLanguage);
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Both ends are menu triggers here, which is the design system's
-        // LanguagePair with `onSourceClick` and `onTargetClick` both wired.
-        SwapPair(
-          size: widget.size,
-          start: sourceName,
-          end: targetName,
-          startKey: _sourceKey,
-          endKey: _targetKey,
-          onStartPressed: _showSourceMenu,
-          onEndPressed: _showTargetMenu,
-          // Nothing concrete to swap in while the source is 自动检测.
-          onSwap: canSwap ? _swap : null,
-          swapSemanticsLabel: '交换语言',
-        ),
-        if (detected != null && detected != widget.sourceLanguage) ...[
-          const SizedBox(width: 8),
-          Badge(tone: BadgeTone.accent, child: Text(getLanguageName(detected))),
-        ],
-      ],
+    // Both ends are menu triggers here, which is the design system's
+    // LanguagePair with `onSourceClick` and `onTargetClick` both wired.
+    return SwapPair(
+      size: widget.size,
+      start: sourceName,
+      end: targetName,
+      startKey: _sourceKey,
+      endKey: _targetKey,
+      onStartPressed: _showSourceMenu,
+      onEndPressed: _showTargetMenu,
+      // Nothing concrete to swap in while the source is 自动检测.
+      onSwap: canSwap ? _swap : null,
+      swapSemanticsLabel: '交换语言',
     );
   }
 }

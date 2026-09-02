@@ -36,6 +36,13 @@ private final class NativeTextFieldFactory: NSObject, FlutterPlatformViewFactory
   }
 }
 
+/// An editable field drawn by AppKit, single-line or multiline.
+///
+/// Both shapes are the same `NSTextView`, laid out on the same TextKit stack,
+/// and the placeholder is drawn by that view on the very layout the text will
+/// take — so the two share a left edge, a baseline and a line box without any
+/// inset arithmetic between them. `NSTextField` is kept only for 密码: AppKit's
+/// bullets live in `NSSecureTextField` and nowhere else.
 private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextViewDelegate {
   private let channel: FlutterMethodChannel
   private let padding: NSEdgeInsets
@@ -44,20 +51,21 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   private var submitOnEnter: Bool
   private var submitOnMetaEnter: Bool
   private var placeholder: String
-  private let textStyle: NativeTextStyle
+  private var textStyle: NativeTextStyle
   private var placeholderStyle: NativeTextStyle
-  /// The multiline editor's TextKit 1 stack, held here because a text view
-  /// only keeps its container — and because the layout manager is what draws
-  /// the selection. See [SelectionLayoutManager].
+  /// The editor's TextKit 1 stack, held here because a text view only keeps
+  /// its container — and because the layout manager is what draws the
+  /// selection. See [SelectionLayoutManager].
   private var textStorage: NSTextStorage?
   private var selectionLayoutManager: SelectionLayoutManager?
   private var cursorColor: NSColor?
   private var selectionColor: NSColor?
 
+  /// The obscured field; nil for every other input.
   private var textField: NSTextField?
-  private var textView: NSTextView?
+  /// The editor; nil when the input is obscured.
+  private var textView: FieldTextView?
   private var scrollView: NSScrollView?
-  private var placeholderLabel: NSTextField?
   private var isUpdatingFromFlutter = false
   private var lastReportedContentHeight: CGFloat = 0
   private var trackingArea: NSTrackingArea?
@@ -118,11 +126,32 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
       width: max(0, bounds.width - padding.left - padding.right),
       height: max(0, bounds.height - padding.top - padding.bottom)
     )
-    textField?.frame = inputFrame
-    scrollView?.frame = inputFrame
-    placeholderLabel?.frame = inputFrame
-    updateTextContainerSize(width: inputFrame.width)
+    if let textField {
+      // The cell centres its one line in whatever frame it gets, so hand it
+      // exactly one line and centre that.
+      let lineHeight = ceil(textStyle.font.ascender - textStyle.font.descender)
+      textField.frame = Self.centeredLine(height: lineHeight, in: inputFrame)
+    }
+    if let scrollView {
+      // Flutter reserves `fontSize × height` per line. Multiline fills the box
+      // line by line from the top; single-line is one such line box, centred.
+      scrollView.frame =
+        isMultiline
+        ? inputFrame
+        : Self.centeredLine(height: textStyle.lineHeight, in: inputFrame)
+      updateTextContainerSize(scrollView.frame.size)
+    }
     reportContentHeightIfNeeded()
+  }
+
+  private static func centeredLine(height: CGFloat, in frame: NSRect) -> NSRect {
+    let lineHeight = min(frame.height, height)
+    return NSRect(
+      x: frame.minX,
+      y: frame.midY - lineHeight / 2,
+      width: frame.width,
+      height: lineHeight
+    )
   }
 
   override func updateTrackingAreas() {
@@ -142,9 +171,7 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
 
   override func mouseEntered(with event: NSEvent) {
     super.mouseEntered(with: event)
-    if textField != nil || textView != nil {
-      NSCursor.iBeam.set()
-    }
+    NSCursor.iBeam.set()
   }
 
   override func mouseExited(with event: NSEvent) {
@@ -173,11 +200,10 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
       return true
     }
 
-    // The multiline editor trims paste in its own subclass, so every route
-    // into it — the Edit menu, the context menu, ⌘V — comes out trimmed. The
-    // single-line field borrows the window's shared field editor, a stock
-    // NSTextView there is no subclass to reach; ⌘V is the route that matters,
-    // and it is this one.
+    // The editor trims paste in its own subclass, so every route into it — the
+    // Edit menu, the context menu, ⌘V — comes out trimmed. The obscured field
+    // borrows the window's shared field editor, a stock NSTextView there is no
+    // subclass to reach; ⌘V is the route that matters, and it is this one.
     if modifiers.subtracting(.shift) == .command,
       event.charactersIgnoringModifiers?.lowercased() == "v",
       isEditing,
@@ -233,6 +259,8 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     }
   }
 
+  // MARK: - NSTextFieldDelegate (the obscured field)
+
   func controlTextDidBeginEditing(_ obj: Notification) {
     applySelectionColors()
     channel.invokeMethod("focused", arguments: nil)
@@ -247,26 +275,69 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     channel.invokeMethod("changed", arguments: currentText())
   }
 
+  // MARK: - NSTextViewDelegate (the editor)
+
   func textDidBeginEditing(_ notification: Notification) {
-    updatePlaceholderVisibility()
     channel.invokeMethod("focused", arguments: nil)
   }
 
   func textDidEndEditing(_ notification: Notification) {
-    updatePlaceholderVisibility()
     channel.invokeMethod("blurred", arguments: nil)
   }
 
   func textDidChange(_ notification: Notification) {
-    updatePlaceholderVisibility()
+    // Plain-text mode carries the typing attributes along from the text
+    // around the caret; once there is none, make sure they are still ours.
+    if let textView, textView.string.isEmpty {
+      textView.typingAttributes = textStyle.attributes()
+    }
     reportContentHeightIfNeeded()
     guard !isUpdatingFromFlutter else { return }
     channel.invokeMethod("changed", arguments: currentText())
   }
 
+  /// A single-line field has no second line to put a newline on. Pasted line
+  /// breaks — a PDF's hard wraps, most often — become spaces rather than
+  /// vanishing, so the words on either side stay apart.
+  func textView(
+    _ textView: NSTextView,
+    shouldChangeTextIn affectedCharRange: NSRange,
+    replacementString: String?
+  ) -> Bool {
+    guard !isMultiline,
+      let replacementString,
+      replacementString.rangeOfCharacter(from: .newlines) != nil
+    else {
+      return true
+    }
+    let flattened = replacementString
+      .components(separatedBy: .newlines)
+      .joined(separator: " ")
+    textView.insertText(flattened, replacementRange: affectedCharRange)
+    return false
+  }
+
   func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-    guard commandSelector == #selector(NSResponder.insertNewline(_:)) else {
+    switch commandSelector {
+    case #selector(NSResponder.insertNewline(_:)):
+      return handleNewline()
+    case #selector(NSResponder.insertTab(_:)) where !isMultiline:
+      // Tab leaves a one-line field, the way it leaves an `NSTextField`.
+      window?.selectKeyView(following: textView)
+      return true
+    case #selector(NSResponder.insertBacktab(_:)) where !isMultiline:
+      window?.selectKeyView(preceding: textView)
+      return true
+    default:
       return false
+    }
+  }
+
+  private func handleNewline() -> Bool {
+    // Single-line: Return submits, the way an `NSTextField`'s action fires.
+    guard isMultiline else {
+      submit()
+      return true
     }
     let modifiers =
       NSApp.currentEvent?.modifierFlags.intersection(.deviceIndependentFlagsMask) ?? []
@@ -285,15 +356,15 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   }
 
   private func setupInput(initialText: String) {
-    if isMultiline {
-      setupTextView(initialText: initialText)
+    if obscureText {
+      setupSecureField(initialText: initialText)
     } else {
-      setupTextField(initialText: initialText)
+      setupTextView(initialText: initialText)
     }
   }
 
-  private func setupTextField(initialText: String) {
-    let field: NSTextField = obscureText ? NSSecureTextField() : NSTextField()
+  private func setupSecureField(initialText: String) {
+    let field = NSSecureTextField()
     field.stringValue = initialText
     field.placeholderString = placeholder
     field.isBordered = false
@@ -329,43 +400,36 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     let container = NSTextContainer(size: .zero)
     storage.addLayoutManager(layout)
     layout.addTextContainer(container)
-    let view = TrimmingTextView(frame: .zero, textContainer: container)
+    container.lineFragmentPadding = 0
+    container.widthTracksTextView = false
+    let view = FieldTextView(frame: .zero, textContainer: container)
     textStorage = storage
     selectionLayoutManager = layout
-    view.string = initialText
     view.delegate = self
     view.drawsBackground = false
     view.isRichText = false
     view.importsGraphics = false
+    view.usesFontPanel = false
     view.allowsUndo = true
-    view.isVerticallyResizable = true
-    view.isHorizontallyResizable = false
+    view.textContainerInset = .zero
+    // Multiline grows downward at a fixed width; single-line grows sideways
+    // at a fixed height and scrolls the caret into view, the way a field does.
+    view.isVerticallyResizable = isMultiline
+    view.isHorizontallyResizable = !isMultiline
     view.minSize = .zero
     view.maxSize = NSSize(
       width: CGFloat.greatestFiniteMagnitude,
       height: CGFloat.greatestFiniteMagnitude
     )
-    view.textContainerInset = .zero
-    view.textContainer?.lineFragmentPadding = 0
-    view.font = textStyle.font
-    view.textColor = textStyle.color
     view.insertionPointColor = cursorColor ?? NSColor.controlAccentColor
     scroll.documentView = view
 
-    let label = PassthroughTextField(labelWithString: placeholder)
-    label.font = placeholderStyle.font
-    label.textColor = placeholderStyle.color
-    label.backgroundColor = .clear
-    label.isBordered = false
-    label.isEditable = false
-    label.isSelectable = false
-
     addSubview(scroll)
-    addSubview(label)
     scrollView = scroll
     textView = view
-    placeholderLabel = label
-    updatePlaceholderVisibility()
+    view.string = initialText
+    applyTextStyle()
+    applyPlaceholder()
     applySelectionColors()
     reportContentHeightIfNeeded()
   }
@@ -373,10 +437,10 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   /// The caret and the wash behind selected glyphs, in the app's accent rather
   /// than the system one from System Settings.
   ///
-  /// The multiline editor is ours and keeps these for its lifetime. The
-  /// single-line field borrows the window's shared field editor, which is
-  /// handed around between every field in the window — so it has to be dressed
-  /// again each time editing begins here.
+  /// The editor is ours and keeps these for its lifetime. The obscured field
+  /// borrows the window's shared field editor, which is handed around between
+  /// every field in the window — so it has to be dressed again each time
+  /// editing begins here.
   private func applySelectionColors() {
     let editors = [textView, textField?.currentEditor() as? NSTextView]
     for editor in editors.compactMap({ $0 }) {
@@ -419,6 +483,9 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
       case "setPlaceholder":
         self.setPlaceholder(call.arguments as? [String: Any] ?? [:])
         result(nil)
+      case "setStyle":
+        self.setStyle(call.arguments as? [String: Any] ?? [:])
+        result(nil)
       case "setEditableState":
         let args = call.arguments as? [String: Any] ?? [:]
         self.applyEditableState(
@@ -452,34 +519,66 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     }
     isUpdatingFromFlutter = true
     textField?.stringValue = text
-    textView?.string = text
-    updatePlaceholderVisibility()
+    if let textView {
+      textView.string = text
+      applyTextStyle()
+    }
     reportContentHeightIfNeeded()
     isUpdatingFromFlutter = false
   }
 
   private func setPlaceholder(_ args: [String: Any]) {
-    let newPlaceholder = args["placeholder"] as? String ?? ""
-    placeholder = newPlaceholder
+    placeholder = args["placeholder"] as? String ?? ""
     if let argsStyle = args["style"] as? [String: Any] {
       placeholderStyle = NativeTextStyle(arguments: argsStyle)
     }
 
     if let field = textField {
-      field.placeholderString = newPlaceholder
+      field.placeholderString = placeholder
       field.placeholderAttributedString = NSAttributedString(
-        string: newPlaceholder,
+        string: placeholder,
         attributes: [
           .font: placeholderStyle.font,
           .foregroundColor: placeholderStyle.color,
         ]
       )
-    } else if let label = placeholderLabel {
-      label.stringValue = newPlaceholder
-      label.font = placeholderStyle.font
-      label.textColor = placeholderStyle.color
     }
-    updatePlaceholderVisibility()
+    applyPlaceholder()
+  }
+
+  private func setStyle(_ args: [String: Any]) {
+    textStyle = NativeTextStyle(arguments: args)
+    textField?.font = textStyle.font
+    textField?.textColor = textStyle.color
+    applyTextStyle()
+    // The placeholder sits in the text's line box, so it moves with the text.
+    applyPlaceholder()
+    needsLayout = true
+    reportContentHeightIfNeeded()
+  }
+
+  /// Dresses whatever the editor holds, and whatever gets typed next, in the
+  /// text style — font, colour, and the line box Flutter sized the field for.
+  private func applyTextStyle() {
+    guard let textView, let textStorage else { return }
+    let attributes = textStyle.attributes()
+    textStorage.setAttributes(
+      attributes,
+      range: NSRange(location: 0, length: textStorage.length)
+    )
+    textView.typingAttributes = attributes
+    textView.needsDisplay = true
+  }
+
+  /// The placeholder in its own face, laid out in the *text's* line box so it
+  /// takes the baseline the first line of text will.
+  private func applyPlaceholder() {
+    textView?.setPlaceholder(
+      placeholderStyle.attributedString(
+        placeholder,
+        lineHeight: textStyle.lineHeight
+      )
+    )
   }
 
   private func focus() {
@@ -487,7 +586,6 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
       window?.makeFirstResponder(textField)
     } else if let textView {
       window?.makeFirstResponder(textView)
-      updatePlaceholderVisibility()
     }
   }
 
@@ -498,18 +596,27 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     return textView?.string ?? ""
   }
 
-  private func updatePlaceholderVisibility() {
-    let hasMarkedText = textView?.hasMarkedText() ?? false
-    placeholderLabel?.isHidden = !currentText().isEmpty || hasMarkedText
-  }
-
-  private func updateTextContainerSize(width: CGFloat) {
-    guard let textView else { return }
-    textView.textContainer?.containerSize = NSSize(
-      width: max(0, width),
-      height: CGFloat.greatestFiniteMagnitude
-    )
-    textView.textContainer?.widthTracksTextView = false
+  private func updateTextContainerSize(_ size: NSSize) {
+    guard let textView, let container = textView.textContainer else { return }
+    if isMultiline {
+      container.containerSize = NSSize(
+        width: max(0, size.width),
+        height: CGFloat.greatestFiniteMagnitude
+      )
+    } else {
+      // Never narrower than the field, so a click past the end of a short
+      // string still lands on the editor; never taller than its one line.
+      container.containerSize = NSSize(
+        width: CGFloat.greatestFiniteMagnitude,
+        height: size.height
+      )
+      textView.minSize = size
+      textView.maxSize = NSSize(
+        width: CGFloat.greatestFiniteMagnitude,
+        height: size.height
+      )
+    }
+    textView.syncPlaceholderContainer()
   }
 
   private func reportContentHeightIfNeeded() {
@@ -520,8 +627,8 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
 
     layoutManager.ensureLayout(for: textContainer)
     let usedRect = layoutManager.usedRect(for: textContainer)
-    let contentHeight = ceil(
-      max(textStyle.font.ascender - textStyle.font.descender, usedRect.height))
+    // An empty field still occupies its line, the way Flutter's would.
+    let contentHeight = ceil(max(textStyle.lineHeight, usedRect.height))
     guard abs(contentHeight - lastReportedContentHeight) >= 0.5 else { return }
 
     lastReportedContentHeight = contentHeight
@@ -570,56 +677,87 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
   }
 }
 
-private final class PassthroughTextField: NSTextField {
-  override func hitTest(_ point: NSPoint) -> NSView? {
-    nil
-  }
-}
-
-private struct NativeTextStyle {
-  let font: NSFont
-  let color: NSColor
-
-  init(arguments: [String: Any]?) {
-    let args = arguments ?? [:]
-    let fontSize = CGFloat(NativeTextStyle.decodeDouble(args["fontSize"]) ?? 14)
-    if let family = args["fontFamily"] as? String,
-      let customFont = NSFont(name: family, size: fontSize)
-    {
-      font = customFont
-    } else {
-      font = NSFont.systemFont(ofSize: fontSize)
-    }
-    color = NativeTextStyle.decodeColor(args["color"]) ?? NSColor.labelColor
-  }
-
-  fileprivate static func decodeColor(_ value: Any?) -> NSColor? {
-    guard let number = value as? NSNumber else { return nil }
-    let argb = number.uint32Value
-    let alpha = CGFloat((argb >> 24) & 0xff) / 255
-    let red = CGFloat((argb >> 16) & 0xff) / 255
-    let green = CGFloat((argb >> 8) & 0xff) / 255
-    let blue = CGFloat(argb & 0xff) / 255
-    return NSColor(
-      calibratedRed: red,
-      green: green,
-      blue: blue,
-      alpha: alpha
-    )
-  }
-
-  private static func decodeDouble(_ value: Any?) -> Double? {
-    if let double = value as? Double { return double }
-    return (value as? NSNumber)?.doubleValue
-  }
-}
-
-/// The multiline editor, with paste trimmed.
+/// The editor behind every field: paste trimmed, placeholder drawn in place.
 ///
-/// Text copied out of a web page or a PDF arrives with the edges of the
-/// selection attached — a trailing newline, an indent off the left margin —
-/// and in a translation input those edges are never wanted.
-private final class TrimmingTextView: NSTextView {
+/// The placeholder has a TextKit stack of its own, configured exactly like the
+/// editor's — same container width, no fragment padding, and attributes that
+/// name the same line box — so the first line it lays out *is* the line the
+/// text will take. Drawing it from `draw(_:)` at the editor's own container
+/// origin is what makes the two coincide; there is no second view to keep in
+/// step and no cell inset to guess at.
+private final class FieldTextView: NSTextView {
+  private let placeholderStorage = NSTextStorage()
+  private let placeholderLayoutManager = NSLayoutManager()
+  private let placeholderContainer = NSTextContainer(size: .zero)
+
+  override init(frame frameRect: NSRect, textContainer container: NSTextContainer?) {
+    super.init(frame: frameRect, textContainer: container)
+    placeholderStorage.addLayoutManager(placeholderLayoutManager)
+    placeholderLayoutManager.addTextContainer(placeholderContainer)
+    placeholderContainer.lineFragmentPadding = 0
+    placeholderContainer.widthTracksTextView = false
+  }
+
+  @available(*, unavailable)
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  func setPlaceholder(_ placeholder: NSAttributedString) {
+    placeholderStorage.setAttributedString(placeholder)
+    needsDisplay = true
+  }
+
+  /// The placeholder wraps where the text would: call whenever the editor's
+  /// container is resized.
+  func syncPlaceholderContainer() {
+    guard let textContainer else { return }
+    placeholderContainer.containerSize = textContainer.containerSize
+    needsDisplay = true
+  }
+
+  /// Shown on an empty field — and not while an input method is composing,
+  /// when the marked text is standing where the placeholder would.
+  private var showsPlaceholder: Bool {
+    string.isEmpty && !hasMarkedText() && placeholderStorage.length > 0
+  }
+
+  override func draw(_ dirtyRect: NSRect) {
+    super.draw(dirtyRect)
+    guard showsPlaceholder else { return }
+    placeholderLayoutManager.ensureLayout(for: placeholderContainer)
+    let glyphs = placeholderLayoutManager.glyphRange(for: placeholderContainer)
+    placeholderLayoutManager.drawGlyphs(forGlyphRange: glyphs, at: textContainerOrigin)
+  }
+
+  /// An edit invalidates only the glyphs it touched; the placeholder comes and
+  /// goes with the whole first line, so redraw all of it.
+  override func didChangeText() {
+    super.didChangeText()
+    needsDisplay = true
+  }
+
+  override func setMarkedText(
+    _ string: Any,
+    selectedRange: NSRange,
+    replacementRange: NSRange
+  ) {
+    super.setMarkedText(
+      string,
+      selectedRange: selectedRange,
+      replacementRange: replacementRange
+    )
+    needsDisplay = true
+  }
+
+  override func unmarkText() {
+    super.unmarkText()
+    needsDisplay = true
+  }
+
+  /// Text copied out of a web page or a PDF arrives with the edges of the
+  /// selection attached — a trailing newline, an indent off the left margin —
+  /// and in a translation input those edges are never wanted.
   override func paste(_ sender: Any?) {
     if !insertTrimmedPasteboardString() {
       super.paste(sender)

@@ -198,7 +198,9 @@
       "added_to_glossary": "기록 $count개를 용어집에 추가했습니다",
       "favorite_flag": "즐겨찾기",
       "edited_flag": "수정됨",
-      "edit_history_hint": "수정한 번역은 기록에 저장됩니다"
+      "edit_history_hint": "수정한 번역은 기록에 저장됩니다",
+      "expand": "전체 보기",
+      "collapse": "접기"
     },
     "glossary": "용어집",
     "recent_languages": "최근 언어",
@@ -306,13 +308,8 @@
         "default_translation_service": "기본 번역 서비스",
         "translation_target_hint": "번역기에 사용할 언어 쌍을 설정합니다.",
         "common_languages": "자주 사용하는 언어",
-        "common_languages_description": "자주 사용하는 언어는 언어 선택기 상단에 표시됩니다.",
-        "common_languages_hint": "자주 사용하는 언어를 선택하세요:",
-        "common_languages_sort": "코드로 정렬",
-        "common_languages_reset": "기본값으로 재설정",
-        "common_languages_reset_help": "기본 공용 언어 세트로 재설정",
-        "common_languages_search": "언어 검색...",
-        "common_languages_all": "모든 언어",
+        "common_languages_hint": "이 순서대로 언어 메뉴 상단에 표시되며, 나머지는 「더 많은 언어」에 들어갑니다.",
+        "common_languages_empty": "설정 안 됨 · 언어 메뉴에 전체 $count개 언어가 그대로 나열됩니다",
         "double_click_copy_result": "더블 클릭으로 번역 결과 복사",
         "submit_with_enter": "Enter로 제출",
         "submit_with_meta_enter_mac": "⌘ + Enter로 제출",
@@ -348,6 +345,23 @@
         "duplicate": "같은 조합의 대상이 이미 있습니다.",
         "hint_auto": "다른 규칙과 일치하지 않으면 {}(으)로 번역합니다.",
         "hint_source": "{}이(가) 감지되면 {}(으)로 번역합니다."
+      },
+      "languages_editor": {
+        "subtitle": "왼쪽 순서대로 언어 메뉴 상단에 표시되고, 오른쪽은 「더 많은 언어」에 들어갑니다",
+        "common_pane": "자주 사용 · $count개",
+        "more_pane": "더 많은 언어 · $count개",
+        "sort": "정렬",
+        "sort_help": "언어 목록 순서대로 재정렬",
+        "empty_common": "자주 사용하는 언어가 아직 없습니다.\n오른쪽에서 하나 이상 추가하세요.",
+        "search": "검색",
+        "all_in_common": "모든 언어가 이미 자주 사용하는 언어입니다.",
+        "matches_in_common": "「$query」와 일치하는 언어는 이미 왼쪽에 있습니다.",
+        "no_matches": "「$query」와 일치하는 언어가 없습니다",
+        "reorder_hint": "핸들을 드래그해 순서를 조정하거나, 핸들에 포커스한 뒤 ↑↓를 누르세요.",
+        "reset": "기본값으로 복원",
+        "add_language": "$name을(를) 자주 사용하는 언어에 추가",
+        "remove_language": "$name을(를) 자주 사용하는 언어에서 제거",
+        "handle_label": "$name, $position번째, 위아래 방향키로 순서 조정"
       }
     },
     "appearance": {

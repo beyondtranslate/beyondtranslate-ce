@@ -210,7 +210,9 @@
       "more_actions": "More",
       "delete_title_one": "Delete this record",
       "delete_title_many": "Delete $count records",
-      "delete_message": "This cannot be undone. Favourites and your own wording go with it; the glossary is untouched."
+      "delete_message": "This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.",
+      "expand": "Show full text",
+      "collapse": "Collapse"
     },
     "glossary": "Glossary",
     "recent_languages": "Recent Languages",
@@ -348,14 +350,9 @@
         "default_translation_service": "Default translation service",
         "translation_target_hint": "Configure language pairs used by the translator.",
         "common_languages": "Common Languages",
-        "common_languages_description": "Shown at the top of language pickers.",
-        "common_languages_hint": "Select your common languages:",
-        "common_languages_sort": "Sort by Code",
+        "common_languages_hint": "Listed at the top of language menus in this order; the rest fold into “More languages”.",
+        "common_languages_empty": "Not set · language menus list all $count languages flat",
         "double_click_copy_result": "Double click to copy translation result",
-        "common_languages_reset": "Reset to Defaults",
-        "common_languages_reset_help": "Reset to the default set of common languages",
-        "common_languages_search": "Search languages...",
-        "common_languages_all": "All Languages",
         "submit_with_enter": "Submit with Enter",
         "submit_with_meta_enter_mac": "Submit with ⌘ + Enter",
         "screen_capture_access_hint": "Capturing text from the screen needs to read screen contents.",
@@ -390,6 +387,23 @@
         "duplicate": "There is already a target with this pair.",
         "hint_auto": "Translate into {} when no other rule matches.",
         "hint_source": "Translate into {} when {} is detected."
+      },
+      "languages_editor": {
+        "subtitle": "Ordered as on the left at the top of language menus; the right folds into “More languages”",
+        "common_pane": "Common · $count",
+        "more_pane": "More languages · $count",
+        "sort": "Sort",
+        "sort_help": "Reorder to match the language roster",
+        "empty_common": "No common languages yet.\nAdd at least one from the right.",
+        "search": "Search",
+        "all_in_common": "Every language is already common.",
+        "matches_in_common": "Languages matching “$query” are already on the left.",
+        "no_matches": "No languages match “$query”",
+        "reorder_hint": "Drag the handle to reorder common languages, or focus it and press ↑↓.",
+        "reset": "Reset to Defaults",
+        "add_language": "Add $name to common languages",
+        "remove_language": "Remove $name from common languages",
+        "handle_label": "$name, position $position, press up or down to reorder"
       }
     },
     "appearance": {

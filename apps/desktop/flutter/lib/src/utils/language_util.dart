@@ -78,6 +78,11 @@ String getLanguageName(String language, {bool showNative = false}) {
   return '$translated ($native)';
 }
 
+/// The language's own name for itself — `English`, `日本語`. Falls back to the
+/// code when the runtime does not know the language.
+String getLanguageNativeName(String language) =>
+    _nativeNames[language] ?? language;
+
 /// Looks up the translated name for a language code via the i18n system.
 String? _languageNameFromT(String language) {
   final value =

@@ -1,5 +1,4 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide TextField;
 
 import '../../i18n/i18n.dart';
@@ -9,7 +8,6 @@ import '../../widgets/ui.dart'
     show
         ActionBar,
         Button,
-        ButtonSize,
         ButtonVariant,
         DesignThemeContext,
         DesignTypographyStyles,
@@ -21,18 +19,15 @@ class MiniTranslatorInput extends StatelessWidget {
     Key? key,
     required this.focusNode,
     required this.controller,
-    required this.text,
     required this.inputSubmitMode,
     this.targetLanguageName,
     required this.sourceLabel,
     required this.onChanged,
     required this.onSubmitted,
-    required this.onClear,
   }) : super(key: key);
 
   final FocusNode focusNode;
   final TextEditingController controller;
-  final String text;
   final InputSubmitMode inputSubmitMode;
 
   /// Repeats the chosen target in the placeholder — 输入单词或文本，翻译为X.
@@ -43,7 +38,6 @@ class MiniTranslatorInput extends StatelessWidget {
   final String sourceLabel;
   final ValueChanged<String?> onChanged;
   final VoidCallback onSubmitted;
-  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
@@ -58,53 +52,36 @@ class MiniTranslatorInput extends StatelessWidget {
     // Inside the panel card; the result block below draws the separation.
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 11, 15, 12),
-      child: Stack(
-        alignment: Alignment.topRight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Label(tone: LabelTone.faint, child: Text(sourceLabel)),
-              const SizedBox(height: 6),
-              TextField(
-                focusNode: focusNode,
-                controller: controller,
-                padding: const EdgeInsets.only(right: 26),
-                placeholder: placeholder,
-                placeholderStyle: tokens.typography.sansStyle(
-                  fontSize: 12,
-                  height: 1.7,
-                  color: colors.fgFaint,
-                ),
-                style: tokens.typography.sansStyle(
-                  fontSize: 12,
-                  height: 1.7,
-                  color: colors.fgMuted,
-                ),
-                maxLines: 4,
-                minLines: 1,
-                // 提交方式 decides which key sends the box; the field takes
-                // Enter into its own hands only because it was told which one.
-                submitOnEnter: inputSubmitMode == InputSubmitMode.enter,
-                submitOnMetaEnter:
-                    inputSubmitMode == InputSubmitMode.commandEnter,
-                onChanged: onChanged,
-                onSubmitted: (_) => onSubmitted(),
-              ),
-            ],
-          ),
-          if (text.isNotEmpty)
-            Button(
-              variant: ButtonVariant.quiet,
-              size: ButtonSize.xs,
-              onPressed: onClear,
-              child: Icon(
-                FluentIcons.dismiss_20_regular,
-                size: 15,
-                color: colors.fgFaint,
-              ),
+          Label(tone: LabelTone.faint, child: Text(sourceLabel)),
+          const SizedBox(height: 6),
+          TextField(
+            focusNode: focusNode,
+            controller: controller,
+            padding: EdgeInsets.zero,
+            placeholder: placeholder,
+            placeholderStyle: tokens.typography.sansStyle(
+              fontSize: 12,
+              height: 1.7,
+              color: colors.fgFaint,
             ),
+            style: tokens.typography.sansStyle(
+              fontSize: 12,
+              height: 1.7,
+              color: colors.fgMuted,
+            ),
+            maxLines: 4,
+            minLines: 1,
+            // 提交方式 decides which key sends the box; the field takes
+            // Enter into its own hands only because it was told which one.
+            submitOnEnter: inputSubmitMode == InputSubmitMode.enter,
+            submitOnMetaEnter: inputSubmitMode == InputSubmitMode.commandEnter,
+            onChanged: onChanged,
+            onSubmitted: (_) => onSubmitted(),
+          ),
         ],
       ),
     );
@@ -123,6 +100,7 @@ class MiniTranslatorActionButtons extends StatelessWidget {
     required this.onCopy,
     required this.onBookmark,
     required this.onTranslate,
+    required this.onClear,
   }) : super(key: key);
 
   /// Only so the 翻译 chip names the key that submits — the button is a way
@@ -145,6 +123,7 @@ class MiniTranslatorActionButtons extends StatelessWidget {
   final VoidCallback onCopy;
   final VoidCallback onBookmark;
   final VoidCallback onTranslate;
+  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +151,13 @@ class MiniTranslatorActionButtons extends StatelessWidget {
             ],
           ),
           const Spacer(),
+          Button(
+            variant: ButtonVariant.ghost,
+            enabled: translateEnabled,
+            onPressed: onClear,
+            child: Text(buttons.clear),
+          ),
+          const SizedBox(width: 6),
           Button(
             variant: ButtonVariant.primary,
             enabled: translateEnabled,

@@ -198,7 +198,9 @@
       "added_to_glossary": "$count entradas añadidas al glosario",
       "favorite_flag": "Favorito",
       "edited_flag": "Editado",
-      "edit_history_hint": "La traducción editada se guardará en el historial"
+      "edit_history_hint": "La traducción editada se guardará en el historial",
+      "expand": "Mostrar texto completo",
+      "collapse": "Contraer"
     },
     "glossary": "Glosario",
     "recent_languages": "Idiomas recientes",
@@ -306,13 +308,8 @@
         "default_translation_service": "Servicio de traducción predeterminado",
         "translation_target_hint": "Configura los pares de idiomas usados por el traductor.",
         "common_languages": "Idiomas comunes",
-        "common_languages_description": "Los idiomas comunes aparecen al principio de los selectores de idioma.",
-        "common_languages_hint": "Selecciona tus idiomas comunes:",
-        "common_languages_sort": "Ordenar por código",
-        "common_languages_reset": "Restablecer valores predeterminados",
-        "common_languages_reset_help": "Restablecer el conjunto predeterminado de idiomas comunes",
-        "common_languages_search": "Buscar idiomas...",
-        "common_languages_all": "Todos los idiomas",
+        "common_languages_hint": "Aparecen al principio de los menús de idioma en este orden; el resto se agrupa en «Más idiomas».",
+        "common_languages_empty": "Sin configurar · los menús de idioma listan los $count idiomas sin agrupar",
         "double_click_copy_result": "Doble clic para copiar el resultado de la traducción",
         "submit_with_enter": "Enviar con Enter",
         "submit_with_meta_enter_mac": "Enviar con ⌘ + Enter",
@@ -348,6 +345,23 @@
         "duplicate": "Ya existe un destino con esta combinación.",
         "hint_auto": "Traducir a {} cuando ninguna otra regla coincida.",
         "hint_source": "Traducir a {} cuando se detecte {}."
+      },
+      "languages_editor": {
+        "subtitle": "En el orden de la izquierda al principio de los menús de idioma; la derecha se agrupa en «Más idiomas»",
+        "common_pane": "Habituales · $count",
+        "more_pane": "Más idiomas · $count",
+        "sort": "Ordenar",
+        "sort_help": "Reordenar según la lista de idiomas",
+        "empty_common": "Aún no hay idiomas habituales.\nAñade al menos uno desde la derecha.",
+        "search": "Buscar",
+        "all_in_common": "Todos los idiomas ya son habituales.",
+        "matches_in_common": "Los idiomas que coinciden con «$query» ya están a la izquierda.",
+        "no_matches": "Ningún idioma coincide con «$query»",
+        "reorder_hint": "Arrastra el asa para reordenar, o enfócala y pulsa ↑↓.",
+        "reset": "Restablecer valores predeterminados",
+        "add_language": "Añadir $name a los idiomas habituales",
+        "remove_language": "Quitar $name de los idiomas habituales",
+        "handle_label": "$name, posición $position, usa las flechas arriba y abajo para reordenar"
       }
     },
     "appearance": {

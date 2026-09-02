@@ -660,6 +660,10 @@ class _TranslationsWorkbenchHistoryPageZhHans
   String delete_title_many({required Object count}) => '删除 ${count} 条记录';
   @override
   String get delete_message => '删除后无法恢复。收藏和你改过的译文也会一起删除，术语库不受影响。';
+  @override
+  String get expand => '展开全文';
+  @override
+  String get collapse => '收起';
 }
 
 // Path: workbench.subtitle
@@ -936,6 +940,10 @@ class _TranslationsSettingsGeneralZhHans extends TranslationsSettingsGeneralEn {
   @override
   late final _TranslationsSettingsGeneralEditorZhHans editor =
       _TranslationsSettingsGeneralEditorZhHans._(_root);
+  @override
+  late final _TranslationsSettingsGeneralLanguagesEditorZhHans
+      languages_editor =
+      _TranslationsSettingsGeneralLanguagesEditorZhHans._(_root);
 }
 
 // Path: settings.appearance
@@ -1405,19 +1413,10 @@ class _TranslationsSettingsGeneralRowZhHans
   @override
   String get common_languages => '常用语言';
   @override
-  String get common_languages_description => '显示在语言选择列表顶部。';
+  String get common_languages_hint => '排在语言菜单顶部，其余收进「更多语言」。';
   @override
-  String get common_languages_hint => '选择你常用的语言：';
-  @override
-  String get common_languages_sort => '按代码排序';
-  @override
-  String get common_languages_reset => '恢复默认';
-  @override
-  String get common_languages_reset_help => '恢复为默认的常用语言集合';
-  @override
-  String get common_languages_search => '搜索语言...';
-  @override
-  String get common_languages_all => '所有语言';
+  String common_languages_empty({required Object count}) =>
+      '未设置 · 语言菜单会平铺全部 ${count} 种语言';
   @override
   String get double_click_copy_result => '双击复制翻译结果';
   @override
@@ -1507,6 +1506,49 @@ class _TranslationsSettingsGeneralEditorZhHans
   String get hint_auto => '未匹配到其他规则时，一律译成{}。';
   @override
   String get hint_source => '检测到{}时，译成{}。';
+}
+
+// Path: settings.general.languages_editor
+class _TranslationsSettingsGeneralLanguagesEditorZhHans
+    extends TranslationsSettingsGeneralLanguagesEditorEn {
+  _TranslationsSettingsGeneralLanguagesEditorZhHans._(TranslationsZhHans root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHans _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get subtitle => '按左边的顺序排在语言菜单顶部，右边的收进「更多语言」';
+  @override
+  String common_pane({required Object count}) => '常用 · ${count} 种';
+  @override
+  String more_pane({required Object count}) => '更多语言 · ${count} 种';
+  @override
+  String get sort => '排序';
+  @override
+  String get sort_help => '按语言表的顺序重排';
+  @override
+  String get empty_common => '还没有常用语言。\n从右边添加至少一种。';
+  @override
+  String get search => '搜索';
+  @override
+  String get all_in_common => '全部语言都已经是常用语言。';
+  @override
+  String matches_in_common({required Object query}) => '匹配「${query}」的语言已经在左边了。';
+  @override
+  String no_matches({required Object query}) => '没有匹配「${query}」的语言';
+  @override
+  String get reorder_hint => '拖动手柄调整常用语言的顺序，或聚焦手柄后按 ↑↓。';
+  @override
+  String get reset => '恢复默认';
+  @override
+  String add_language({required Object name}) => '把 ${name} 加入常用语言';
+  @override
+  String remove_language({required Object name}) => '将 ${name} 移出常用语言';
+  @override
+  String handle_label({required Object name, required Object position}) =>
+      '${name}，第 ${position} 位，按上下方向键调整顺序';
 }
 
 // Path: settings.appearance.section
@@ -2413,6 +2455,8 @@ extension on TranslationsZhHans {
           '删除 ${count} 条记录',
       'workbench.history_page.delete_message' =>
         '删除后无法恢复。收藏和你改过的译文也会一起删除，术语库不受影响。',
+      'workbench.history_page.expand' => '展开全文',
+      'workbench.history_page.collapse' => '收起',
       'workbench.glossary' => '术语库',
       'workbench.recent_languages' => '最近语言',
       'workbench.not_configured' => '尚未配置',
@@ -2550,13 +2594,9 @@ extension on TranslationsZhHans {
       'settings.general.row.default_translation_service' => '默认翻译服务',
       'settings.general.row.translation_target_hint' => '配置翻译器使用的语言目标。',
       'settings.general.row.common_languages' => '常用语言',
-      'settings.general.row.common_languages_description' => '显示在语言选择列表顶部。',
-      'settings.general.row.common_languages_hint' => '选择你常用的语言：',
-      'settings.general.row.common_languages_sort' => '按代码排序',
-      'settings.general.row.common_languages_reset' => '恢复默认',
-      'settings.general.row.common_languages_reset_help' => '恢复为默认的常用语言集合',
-      'settings.general.row.common_languages_search' => '搜索语言...',
-      'settings.general.row.common_languages_all' => '所有语言',
+      'settings.general.row.common_languages_hint' => '排在语言菜单顶部，其余收进「更多语言」。',
+      'settings.general.row.common_languages_empty' =>
+        ({required Object count}) => '未设置 · 语言菜单会平铺全部 ${count} 种语言',
       'settings.general.row.double_click_copy_result' => '双击复制翻译结果',
       'settings.general.row.submit_with_enter' => '按 Enter 提交',
       'settings.general.row.submit_with_meta_enter_mac' => '按 ⌘ + Enter 提交',
@@ -2586,6 +2626,32 @@ extension on TranslationsZhHans {
       'settings.general.editor.duplicate' => '已经有一条同样的翻译目标了。',
       'settings.general.editor.hint_auto' => '未匹配到其他规则时，一律译成{}。',
       'settings.general.editor.hint_source' => '检测到{}时，译成{}。',
+      'settings.general.languages_editor.subtitle' =>
+        '按左边的顺序排在语言菜单顶部，右边的收进「更多语言」',
+      'settings.general.languages_editor.common_pane' =>
+        ({required Object count}) => '常用 · ${count} 种',
+      'settings.general.languages_editor.more_pane' =>
+        ({required Object count}) => '更多语言 · ${count} 种',
+      'settings.general.languages_editor.sort' => '排序',
+      'settings.general.languages_editor.sort_help' => '按语言表的顺序重排',
+      'settings.general.languages_editor.empty_common' =>
+        '还没有常用语言。\n从右边添加至少一种。',
+      'settings.general.languages_editor.search' => '搜索',
+      'settings.general.languages_editor.all_in_common' => '全部语言都已经是常用语言。',
+      'settings.general.languages_editor.matches_in_common' =>
+        ({required Object query}) => '匹配「${query}」的语言已经在左边了。',
+      'settings.general.languages_editor.no_matches' =>
+        ({required Object query}) => '没有匹配「${query}」的语言',
+      'settings.general.languages_editor.reorder_hint' =>
+        '拖动手柄调整常用语言的顺序，或聚焦手柄后按 ↑↓。',
+      'settings.general.languages_editor.reset' => '恢复默认',
+      'settings.general.languages_editor.add_language' =>
+        ({required Object name}) => '把 ${name} 加入常用语言',
+      'settings.general.languages_editor.remove_language' =>
+        ({required Object name}) => '将 ${name} 移出常用语言',
+      'settings.general.languages_editor.handle_label' => (
+              {required Object name, required Object position}) =>
+          '${name}，第 ${position} 位，按上下方向键调整顺序',
       'settings.appearance.title' => '外观',
       'settings.appearance.section.app_language' => '显示语言',
       'settings.appearance.section.theme_mode' => '主题模式',

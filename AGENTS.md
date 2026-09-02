@@ -105,6 +105,7 @@ beyondtranslate/
 - Write clear, descriptive commit messages in English.
 - Reference issues and pull requests when applicable.
 - Keep commits focused on a single concern.
+- Do not add `Co-authored-by` trailers to commit messages.
 
 ---
 

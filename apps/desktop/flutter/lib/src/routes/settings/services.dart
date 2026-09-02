@@ -265,24 +265,25 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                   ),
                 ],
               ),
-              PreferenceRow(
-                title: Text(general.row.common_languages),
-                subtitle: Text(general.row.common_languages_hint),
-                trailing: [
-                  Text(
-                    '${settings.commonLanguages.length}'
-                    ' / ${supportedLanguages.length}',
-                    style: context.typography.sansStyle(
-                      fontSize: 12,
-                      height: 1,
-                      color: context.colors.fgSubtle,
-                    ),
+              // The one list-valued row on the page, so it is allowed the
+              // extra line its value needs.
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  PreferenceRow(
+                    title: Text(general.row.common_languages),
+                    subtitle: Text(general.row.common_languages_hint),
+                    trailing: [
+                      Button(
+                        variant: ButtonVariant.quiet,
+                        onPressed: () => showCommonLanguagesDialog(context),
+                        child: Text(t.common.ui.button.edit),
+                      ),
+                    ],
                   ),
-                  Button(
-                    variant: ButtonVariant.quiet,
-                    onPressed: () => showCommonLanguagesDialog(context),
-                    child: Text(t.common.ui.button.edit),
-                  ),
+                  const SizedBox(height: 8),
+                  _CommonLanguageStrip(codes: settings.commonLanguages),
                 ],
               ),
             ],
@@ -560,6 +561,61 @@ class _ServiceRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The chosen languages, read left to right in the order the menus print them.
+///
+/// The row used to carry a bare 6 / 32, which is the least a row can say about
+/// a list: it named a size and left the contents — and their order, the whole
+/// point of the setting — behind a click. The strip is the menu's own top
+/// block, shown in the row that configures it.
+class _CommonLanguageStrip extends StatelessWidget {
+  const _CommonLanguageStrip({required this.codes});
+
+  final List<String> codes;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+
+    if (codes.isEmpty) {
+      return Text(
+        t.settings.general.row.common_languages_empty(
+          count: supportedLanguages.length,
+        ),
+        style: tokens.typography.sansStyle(
+          fontSize: 11,
+          height: 1,
+          color: colors.fgFaint,
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      children: [
+        for (final code in getCommonLanguages(codes))
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: colors.control,
+              borderRadius: BorderRadius.circular(tokens.radii.chip),
+            ),
+            child: Text(
+              getLanguageNativeName(code),
+              style: tokens.typography.sansStyle(
+                fontSize: 11,
+                height: 1,
+                fontWeight: FontWeight.w500,
+                color: colors.fgTertiary,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -636,6 +636,10 @@ class _TranslationsWorkbenchHistoryPageZhHant
   String get edited_flag => '我改過';
   @override
   String get edit_history_hint => '修改後的譯文會儲存到歷史';
+  @override
+  String get expand => '展開全文';
+  @override
+  String get collapse => '收合';
 }
 
 // Path: workbench.subtitle
@@ -850,6 +854,10 @@ class _TranslationsSettingsGeneralZhHant extends TranslationsSettingsGeneralEn {
   @override
   late final _TranslationsSettingsGeneralEditorZhHant editor =
       _TranslationsSettingsGeneralEditorZhHant._(_root);
+  @override
+  late final _TranslationsSettingsGeneralLanguagesEditorZhHant
+      languages_editor =
+      _TranslationsSettingsGeneralLanguagesEditorZhHant._(_root);
 }
 
 // Path: settings.appearance
@@ -1311,19 +1319,10 @@ class _TranslationsSettingsGeneralRowZhHant
   @override
   String get common_languages => '常用語言';
   @override
-  String get common_languages_description => '顯示在語言選擇列表頂部。';
+  String get common_languages_hint => '排在語言選單頂部，其餘收進「更多語言」。';
   @override
-  String get common_languages_hint => '選擇你常用的語言：';
-  @override
-  String get common_languages_sort => '按代碼排序';
-  @override
-  String get common_languages_reset => '恢復預設';
-  @override
-  String get common_languages_reset_help => '恢復為預設的常用語言集合';
-  @override
-  String get common_languages_search => '搜索語言...';
-  @override
-  String get common_languages_all => '所有語言';
+  String common_languages_empty({required Object count}) =>
+      '未設定 · 語言選單會平鋪全部 ${count} 種語言';
   @override
   String get double_click_copy_result => '雙擊複製翻譯結果';
   @override
@@ -1413,6 +1412,49 @@ class _TranslationsSettingsGeneralEditorZhHant
   String get hint_auto => '未符合其他規則時，一律譯成{}。';
   @override
   String get hint_source => '偵測到{}時，譯成{}。';
+}
+
+// Path: settings.general.languages_editor
+class _TranslationsSettingsGeneralLanguagesEditorZhHant
+    extends TranslationsSettingsGeneralLanguagesEditorEn {
+  _TranslationsSettingsGeneralLanguagesEditorZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get subtitle => '按左邊的順序排在語言選單頂部，右邊的收進「更多語言」';
+  @override
+  String common_pane({required Object count}) => '常用 · ${count} 種';
+  @override
+  String more_pane({required Object count}) => '更多語言 · ${count} 種';
+  @override
+  String get sort => '排序';
+  @override
+  String get sort_help => '按語言表的順序重排';
+  @override
+  String get empty_common => '還沒有常用語言。\n從右邊新增至少一種。';
+  @override
+  String get search => '搜尋';
+  @override
+  String get all_in_common => '全部語言都已經是常用語言。';
+  @override
+  String matches_in_common({required Object query}) => '符合「${query}」的語言已經在左邊了。';
+  @override
+  String no_matches({required Object query}) => '沒有符合「${query}」的語言';
+  @override
+  String get reorder_hint => '拖曳把手調整常用語言的順序，或聚焦把手後按 ↑↓。';
+  @override
+  String get reset => '恢復預設';
+  @override
+  String add_language({required Object name}) => '把 ${name} 加入常用語言';
+  @override
+  String remove_language({required Object name}) => '將 ${name} 移出常用語言';
+  @override
+  String handle_label({required Object name, required Object position}) =>
+      '${name}，第 ${position} 位，按上下方向鍵調整順序';
 }
 
 // Path: settings.appearance.section
@@ -2302,6 +2344,8 @@ extension on TranslationsZhHant {
       'workbench.history_page.favorite_flag' => '已收藏',
       'workbench.history_page.edited_flag' => '我改過',
       'workbench.history_page.edit_history_hint' => '修改後的譯文會儲存到歷史',
+      'workbench.history_page.expand' => '展開全文',
+      'workbench.history_page.collapse' => '收合',
       'workbench.glossary' => '術語庫',
       'workbench.recent_languages' => '最近語言',
       'workbench.not_configured' => '尚未設定',
@@ -2400,13 +2444,9 @@ extension on TranslationsZhHant {
       'settings.general.row.default_translation_service' => '預設翻譯服務',
       'settings.general.row.translation_target_hint' => '設定翻譯器使用的語言目標。',
       'settings.general.row.common_languages' => '常用語言',
-      'settings.general.row.common_languages_description' => '顯示在語言選擇列表頂部。',
-      'settings.general.row.common_languages_hint' => '選擇你常用的語言：',
-      'settings.general.row.common_languages_sort' => '按代碼排序',
-      'settings.general.row.common_languages_reset' => '恢復預設',
-      'settings.general.row.common_languages_reset_help' => '恢復為預設的常用語言集合',
-      'settings.general.row.common_languages_search' => '搜索語言...',
-      'settings.general.row.common_languages_all' => '所有語言',
+      'settings.general.row.common_languages_hint' => '排在語言選單頂部，其餘收進「更多語言」。',
+      'settings.general.row.common_languages_empty' =>
+        ({required Object count}) => '未設定 · 語言選單會平鋪全部 ${count} 種語言',
       'settings.general.row.double_click_copy_result' => '雙擊複製翻譯結果',
       'settings.general.row.submit_with_enter' => '按 Enter 提交',
       'settings.general.row.submit_with_meta_enter_mac' => '按 ⌘ + Enter 提交',
@@ -2436,6 +2476,32 @@ extension on TranslationsZhHant {
       'settings.general.editor.duplicate' => '已經有一條同樣的翻譯目標了。',
       'settings.general.editor.hint_auto' => '未符合其他規則時，一律譯成{}。',
       'settings.general.editor.hint_source' => '偵測到{}時，譯成{}。',
+      'settings.general.languages_editor.subtitle' =>
+        '按左邊的順序排在語言選單頂部，右邊的收進「更多語言」',
+      'settings.general.languages_editor.common_pane' =>
+        ({required Object count}) => '常用 · ${count} 種',
+      'settings.general.languages_editor.more_pane' =>
+        ({required Object count}) => '更多語言 · ${count} 種',
+      'settings.general.languages_editor.sort' => '排序',
+      'settings.general.languages_editor.sort_help' => '按語言表的順序重排',
+      'settings.general.languages_editor.empty_common' =>
+        '還沒有常用語言。\n從右邊新增至少一種。',
+      'settings.general.languages_editor.search' => '搜尋',
+      'settings.general.languages_editor.all_in_common' => '全部語言都已經是常用語言。',
+      'settings.general.languages_editor.matches_in_common' =>
+        ({required Object query}) => '符合「${query}」的語言已經在左邊了。',
+      'settings.general.languages_editor.no_matches' =>
+        ({required Object query}) => '沒有符合「${query}」的語言',
+      'settings.general.languages_editor.reorder_hint' =>
+        '拖曳把手調整常用語言的順序，或聚焦把手後按 ↑↓。',
+      'settings.general.languages_editor.reset' => '恢復預設',
+      'settings.general.languages_editor.add_language' =>
+        ({required Object name}) => '把 ${name} 加入常用語言',
+      'settings.general.languages_editor.remove_language' =>
+        ({required Object name}) => '將 ${name} 移出常用語言',
+      'settings.general.languages_editor.handle_label' => (
+              {required Object name, required Object position}) =>
+          '${name}，第 ${position} 位，按上下方向鍵調整順序',
       'settings.appearance.title' => '外觀',
       'settings.appearance.section.app_language' => '顯示語言',
       'settings.appearance.section.theme_mode' => '主題模式',
