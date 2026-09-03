@@ -582,6 +582,32 @@ class _TranslationsMiniTranslatorResultZhHans
   String get unknown_error => '服务没有说明原因。';
   @override
   String get no_result_tag => '未返回结果';
+  @override
+  String language_missing_sentence(
+          {required Object source, required Object target}) =>
+      '系统翻译还没有下载「${source} → ${target}」的语言文件。';
+  @override
+  String get language_missing_settings_path => '系统设置 › 通用 › 语言与地区 › 翻译语言';
+  @override
+  String language_missing_body_main({required Object path}) =>
+      '到「${path}」下载后重试。';
+  @override
+  String get language_missing_mini_before => '到';
+  @override
+  String get language_missing_mini_link => '系统设置';
+  @override
+  String language_missing_mini_after({required Object key}) =>
+      '下载后按 ${key} 重试。';
+  @override
+  String language_missing_note(
+          {required Object source, required Object target}) =>
+      '「${source} → ${target}」语言文件未下载';
+  @override
+  String get language_missing_flag => '语言文件未下载';
+  @override
+  String get language_missing_kept => '原文已保留，下载完成后重试即可';
+  @override
+  String get open_system_settings => '前往系统设置';
 }
 
 // Path: workbench.history_page
@@ -891,6 +917,8 @@ class _TranslationsWorkbenchTranslationZhHans
   @override
   String input_hint_translate_to({required Object language}) =>
       '输入或粘贴要翻译的文本，翻译为${language}';
+  @override
+  String get target_separator => '、';
   @override
   String newline_hint({required Object key}) => '${key} 换行';
   @override
@@ -2412,6 +2440,23 @@ extension on TranslationsZhHans {
       'mini_translator.result.collapse_reasons' => '收起原因',
       'mini_translator.result.unknown_error' => '服务没有说明原因。',
       'mini_translator.result.no_result_tag' => '未返回结果',
+      'mini_translator.result.language_missing_sentence' => (
+              {required Object source, required Object target}) =>
+          '系统翻译还没有下载「${source} → ${target}」的语言文件。',
+      'mini_translator.result.language_missing_settings_path' =>
+        '系统设置 › 通用 › 语言与地区 › 翻译语言',
+      'mini_translator.result.language_missing_body_main' =>
+        ({required Object path}) => '到「${path}」下载后重试。',
+      'mini_translator.result.language_missing_mini_before' => '到',
+      'mini_translator.result.language_missing_mini_link' => '系统设置',
+      'mini_translator.result.language_missing_mini_after' =>
+        ({required Object key}) => '下载后按 ${key} 重试。',
+      'mini_translator.result.language_missing_note' => (
+              {required Object source, required Object target}) =>
+          '「${source} → ${target}」语言文件未下载',
+      'mini_translator.result.language_missing_flag' => '语言文件未下载',
+      'mini_translator.result.language_missing_kept' => '原文已保留，下载完成后重试即可',
+      'mini_translator.result.open_system_settings' => '前往系统设置',
       'workbench.workspace' => '工作区',
       'workbench.translate' => '翻译',
       'workbench.history' => '历史',
@@ -2562,6 +2607,7 @@ extension on TranslationsZhHans {
       'workbench.translation.other_services_disabled' => '其他服务已停用',
       'workbench.translation.input_hint_translate_to' =>
         ({required Object language}) => '输入或粘贴要翻译的文本，翻译为${language}',
+      'workbench.translation.target_separator' => '、',
       'workbench.translation.newline_hint' => ({required Object key}) =>
           '${key} 换行',
       'workbench.translation.failed_body' =>

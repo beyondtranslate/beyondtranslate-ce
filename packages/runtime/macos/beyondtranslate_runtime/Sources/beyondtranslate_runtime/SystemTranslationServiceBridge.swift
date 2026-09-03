@@ -146,12 +146,23 @@ final class SystemTranslationServiceBridge {
           "detectedSourceLanguage": sourceLanguage!,
         ]
       } catch {
-        resultPayload = [
+        var payload = [
           "requestId": requestId,
           "operation": "translate",
           "success": "false",
           "error": error.localizedDescription,
         ]
+        // A code the Rust side can act on: the message is for people, and
+        // "install the language files" needs to be told apart from every
+        // other way a translation can fail.
+        if let failure = error as? TranslationError, let code = failure.code {
+          payload["errorCode"] = code
+          if let (source, target) = failure.languagePair {
+            payload["errorSourceLanguage"] = source
+            payload["errorTargetLanguage"] = target
+          }
+        }
+        resultPayload = payload
       }
 
       postResponse(resultPayload)
@@ -476,6 +487,25 @@ private enum TranslationError: LocalizedError {
   case translationUnavailable
   case languagePairNotInstalled(source: String, target: String)
   case unsupportedLanguagePair(source: String, target: String)
+
+  /// Stable identifier the bridge sends beside the description, for the
+  /// failures a caller can do something about.
+  var code: String? {
+    switch self {
+    case .languagePairNotInstalled: return "languagePairNotInstalled"
+    case .unsupportedLanguagePair: return "unsupportedLanguagePair"
+    default: return nil
+    }
+  }
+
+  var languagePair: (String, String)? {
+    switch self {
+    case .languagePairNotInstalled(let source, let target),
+      .unsupportedLanguagePair(let source, let target):
+      return (source, target)
+    default: return nil
+    }
+  }
 
   var errorDescription: String? {
     switch self {

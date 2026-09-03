@@ -102,7 +102,9 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final providers = settingsStore.providers;
+    // The built-in provider is not the user's to configure, so it has no row
+    // here — its fixed services show on 服务.
+    final providers = configurableProviders(settingsStore.providers);
     final services = settingsStore.services;
 
     final detail = _detailProviderId == null

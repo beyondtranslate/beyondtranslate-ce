@@ -113,18 +113,65 @@ class RuntimeWorkbenchTranslationGateway
   }
 }
 
-class WorkbenchServiceResult {
-  WorkbenchServiceResult({required this.service, required this.provider});
-
-  final ServiceConfigEntry service;
-  final ProviderConfigEntry? provider;
-
+/// What one service returned for one target — 自动匹配 can ask for several
+/// languages at once, and each keeps its own text, error and in-flight flag.
+class WorkbenchTranslationOutput {
   String text = '';
   String? audioUrl;
   Object? error;
   bool loading = true;
 
   bool get hasText => text.trim().isNotEmpty;
+}
+
+class WorkbenchServiceResult {
+  WorkbenchServiceResult({
+    required this.service,
+    required this.provider,
+    required List<String> targets,
+  }) : outputs = {
+          for (final target in targets) target: WorkbenchTranslationOutput(),
+        };
+
+  final ServiceConfigEntry service;
+  final ProviderConfigEntry? provider;
+
+  /// One output per target, in the order the targets were resolved.
+  final Map<String, WorkbenchTranslationOutput> outputs;
+
+  /// The output for [target]. A target this result was never asked for reads
+  /// as still loading rather than as a crash: the UI lists the resolved
+  /// targets and the results are re-keyed the moment resolution lands.
+  WorkbenchTranslationOutput output(String target) =>
+      outputs[target] ?? WorkbenchTranslationOutput();
+
+  /// The first target's output — what the single-target callers (history,
+  /// the ⌥n fallback) read, and the whole story when 自动匹配 lands on one.
+  WorkbenchTranslationOutput get primary =>
+      outputs.values.firstOrNull ?? WorkbenchTranslationOutput();
+
+  String get text => primary.text;
+  String? get audioUrl => primary.audioUrl;
+  Object? get error => primary.error;
+  bool get loading => primary.loading;
+  bool get hasText => primary.hasText;
+
+  /// Whether every target's output is still in flight.
+  bool get loadingAll => outputs.values.every((output) => output.loading);
+
+  /// Whether any target came back with text.
+  bool get hasAnyText => outputs.values.any((output) => output.hasText);
+
+  /// Re-key the outputs once 自动匹配 has resolved: the query was armed on the
+  /// standing targets, and what detection routed to may differ.
+  void resetTargets(List<String> targets) {
+    outputs
+      ..clear()
+      ..addEntries([
+        for (final target in targets)
+          MapEntry(target, WorkbenchTranslationOutput()),
+      ]);
+  }
 }
 
 class WorkbenchTranslationController extends ChangeNotifier {
@@ -134,7 +181,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
   })  : _gateway = gateway ?? RuntimeWorkbenchTranslationGateway(),
         _usesRuntimeDefaults = gateway == null,
         targetLanguage = initialTargetLanguage,
-        _resolvedTarget = initialTargetLanguage;
+        _resolvedTargets = [initialTargetLanguage];
 
   final WorkbenchTranslationGateway _gateway;
   final bool _usesRuntimeDefaults;
@@ -146,14 +193,24 @@ class WorkbenchTranslationController extends ChangeNotifier {
   /// first item, which hands the choice to the configured translation targets.
   String? targetLanguage;
 
-  /// What 自动匹配 last landed on. A concrete language is needed before the
+  /// What 自动匹配 last landed on. Concrete languages are needed before the
   /// query is sent — for the input placeholder and for what history records —
-  /// and re-resolving it on every rebuild would mean a runtime call per frame.
-  String _resolvedTarget;
+  /// and re-resolving them on every rebuild would mean a runtime call per
+  /// frame. More than one when a specific rule and the 自动检测 fallback both
+  /// apply: the core translates into each, and the pane stacks a block per
+  /// target.
+  List<String> _resolvedTargets;
 
-  /// The language a submit actually translates into: the pick when there is
-  /// one, otherwise whatever 自动匹配 resolved to last.
-  String get effectiveTargetLanguage => targetLanguage ?? _resolvedTarget;
+  /// The languages a submit actually translates into: the pick when there is
+  /// one, otherwise whatever 自动匹配 resolved to last. Never empty.
+  List<String> get effectiveTargetLanguages {
+    final picked = targetLanguage;
+    return picked != null ? [picked] : List.unmodifiable(_resolvedTargets);
+  }
+
+  /// The first of [effectiveTargetLanguages] — the one history records and
+  /// the single-target callers read.
+  String get effectiveTargetLanguage => effectiveTargetLanguages.first;
 
   String? detectedLanguage;
   String? selectedServiceId;
@@ -209,10 +266,10 @@ class WorkbenchTranslationController extends ChangeNotifier {
       if (enabledTargets.isNotEmpty) {
         sourceLanguage = enabledTargets.first.source;
         targetLanguage = enabledTargets.first.target;
-        _resolvedTarget = enabledTargets.first.target;
+        _resolvedTargets = [enabledTargets.first.target];
       } else if (_usesRuntimeDefaults) {
         targetLanguage = defaultTargetLanguage;
-        _resolvedTarget = defaultTargetLanguage;
+        _resolvedTargets = [defaultTargetLanguage];
       }
     } catch (error) {
       setupError = error;
@@ -250,6 +307,9 @@ class WorkbenchTranslationController extends ChangeNotifier {
     submitting = true;
     detectedLanguage = null;
     dictionaryResult = null;
+    // Armed on the standing targets so the skeletons show while detection
+    // runs; re-keyed below once 自动匹配 has spoken.
+    final standing = effectiveTargetLanguages;
     results
       ..clear()
       ..addAll(
@@ -257,6 +317,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
           (service) => WorkbenchServiceResult(
             service: service,
             provider: _providerFor(service),
+            targets: standing,
           ),
         ),
       );
@@ -266,40 +327,49 @@ class WorkbenchTranslationController extends ChangeNotifier {
     await _detectLanguage(query, requestId);
     if (requestId != _requestId) return;
 
-    // 自动匹配 can only be settled once detection has spoken, so the target is
-    // resolved here rather than when it was picked.
-    final target = await _resolveTarget(requestId);
+    // 自动匹配 can only be settled once detection has spoken, so the targets
+    // are resolved here rather than when they were picked.
+    final targets = await _resolveTargets(requestId);
     if (requestId != _requestId) return;
+    if (!listEquals(targets, standing)) {
+      for (final result in results) {
+        result.resetTargets(targets);
+      }
+      _notify();
+    }
 
     final futures = <Future<void>>[
       for (final result in results)
-        _translate(result, query, requestId, target),
+        for (final target in targets)
+          _translate(result, query, requestId, target),
       if (dictionaryServices.isNotEmpty)
-        _lookUp(dictionaryServices.first, query, requestId, target),
+        _lookUp(dictionaryServices.first, query, requestId, targets.first),
     ];
     await Future.wait(futures);
 
     if (requestId != _requestId) return;
     submitting = false;
-    final firstSuccess = results.where((result) => result.hasText).firstOrNull;
-    if (selectedResult?.hasText != true && firstSuccess != null) {
+    final firstSuccess =
+        results.where((result) => result.hasAnyText).firstOrNull;
+    if (selectedResult?.hasAnyText != true && firstSuccess != null) {
       selectedServiceId = firstSuccess.service.id;
     }
     _notify();
   }
 
-  /// The language this submit translates into. A concrete pick is its own
+  /// The languages this submit translates into. A concrete pick is its own
   /// answer; 自动匹配 defers to the configured translation targets, routed by
-  /// what the text is already in — the same rule the mini translator follows.
-  /// With nothing configured, nothing matching, or a runtime that would not
-  /// answer, the last concrete target stands: a target we cannot resolve is
-  /// no reason to fail the whole query.
-  Future<String> _resolveTarget(int requestId) async {
+  /// what the text is already in — the same rule the mini translator follows,
+  /// and every target the rules hand back is translated into. With nothing
+  /// configured, nothing matching, or a runtime that would not answer, the
+  /// last concrete targets stand: a target we cannot resolve is no reason to
+  /// fail the whole query.
+  Future<List<String>> _resolveTargets(int requestId) async {
     final picked = targetLanguage;
-    if (picked != null) return picked;
+    if (picked != null) return [picked];
 
     final configured = _gateway.configuredTranslationTargets();
-    if (configured.isEmpty) return _resolvedTarget;
+    if (configured.isEmpty) return _resolvedTargets;
 
     try {
       final active = await _gateway.activeTranslationTargets(
@@ -308,16 +378,20 @@ class WorkbenchTranslationController extends ChangeNotifier {
         // what the text is, and 自动匹配 routes away from it just the same.
         isAutoSource(sourceLanguage) ? detectedLanguage : sourceLanguage,
       );
-      if (requestId != _requestId) return _resolvedTarget;
-      final match = active.firstOrNull;
-      if (match != null && match.target != _resolvedTarget) {
-        _resolvedTarget = match.target;
+      if (requestId != _requestId) return _resolvedTargets;
+      // Two rules naming the same language are one translation, not two.
+      final matched = <String>[];
+      for (final target in active) {
+        if (!matched.contains(target.target)) matched.add(target.target);
+      }
+      if (matched.isNotEmpty && !listEquals(matched, _resolvedTargets)) {
+        _resolvedTargets = matched;
         _notify();
       }
     } catch (_) {
-      // Keep the standing target rather than failing the submit.
+      // Keep the standing targets rather than failing the submit.
     }
-    return _resolvedTarget;
+    return _resolvedTargets;
   }
 
   Future<void> _detectLanguage(String query, int requestId) async {
@@ -341,6 +415,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
     int requestId,
     String target,
   ) async {
+    final output = result.output(target);
     try {
       if (_isLlm(result.provider?.type)) {
         final buffer = StringBuffer();
@@ -353,7 +428,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
           if (requestId != _requestId) return;
           if (content.isNotEmpty) {
             buffer.write(content);
-            result.text = buffer.toString();
+            output.text = buffer.toString();
             _notify();
           }
         }
@@ -370,16 +445,16 @@ class WorkbenchTranslationController extends ChangeNotifier {
         if (requestId != _requestId) return;
         if (response.translations.isNotEmpty) {
           final translation = response.translations.first;
-          result.text = translation.text;
-          result.audioUrl = translation.audioUrl;
+          output.text = translation.text;
+          output.audioUrl = translation.audioUrl;
         }
       }
     } catch (error) {
       if (requestId != _requestId) return;
-      result.error = error;
+      output.error = error;
     } finally {
       if (requestId == _requestId) {
-        result.loading = false;
+        output.loading = false;
         _notify();
       }
     }

@@ -141,6 +141,106 @@ void main() {
     expect(gateway.detectedPassedToActive, 'zh-Hans');
   });
 
+  test('自动匹配 translates into every target the rules hand back', () async {
+    final gateway = _FakeGateway(
+      configured: [
+        _target(source: 'en', target: 'zh-Hans'),
+        _target(source: kAutoSource, target: 'ja'),
+      ],
+      detected: 'en',
+      // A specific rule and the 自动检测 fallback both apply; the core
+      // returns both, and the pane stacks a block per target.
+      active: [
+        _target(source: 'en', target: 'zh-Hans'),
+        _target(source: kAutoSource, target: 'ja'),
+      ],
+    );
+    final controller = WorkbenchTranslationController(
+      gateway: gateway,
+      initialTargetLanguage: 'en',
+    );
+    addTearDown(controller.dispose);
+    await controller.initialize();
+
+    controller
+      ..setTargetLanguage(null)
+      ..setText('hello');
+    await controller.submit();
+
+    expect(controller.effectiveTargetLanguages, ['zh-Hans', 'ja']);
+    // History and the single-target readers take the first.
+    expect(controller.effectiveTargetLanguage, 'zh-Hans');
+    expect(gateway.requestedTargets, unorderedEquals(['zh-Hans', 'ja']));
+    final result = controller.results.single;
+    expect(result.outputs.keys, ['zh-Hans', 'ja']);
+    expect(result.output('zh-Hans').text, 'ok');
+    expect(result.output('ja').text, 'ok');
+    expect(result.output('ja').loading, isFalse);
+  });
+
+  test('two rules naming one language are one translation', () async {
+    final gateway = _FakeGateway(
+      configured: [
+        _target(source: 'en', target: 'zh-Hans'),
+        _target(source: kAutoSource, target: 'zh-Hans'),
+      ],
+      detected: 'en',
+      active: [
+        _target(source: 'en', target: 'zh-Hans'),
+        _target(source: kAutoSource, target: 'zh-Hans'),
+      ],
+    );
+    final controller = WorkbenchTranslationController(
+      gateway: gateway,
+      initialTargetLanguage: 'en',
+    );
+    addTearDown(controller.dispose);
+    await controller.initialize();
+
+    controller
+      ..setTargetLanguage(null)
+      ..setText('hello');
+    await controller.submit();
+
+    expect(controller.effectiveTargetLanguages, ['zh-Hans']);
+    expect(gateway.requestedTargets, ['zh-Hans']);
+  });
+
+  test('a named target collapses the set back to one', () async {
+    final gateway = _FakeGateway(
+      configured: [
+        _target(source: 'en', target: 'zh-Hans'),
+        _target(source: kAutoSource, target: 'ja'),
+      ],
+      detected: 'en',
+      active: [
+        _target(source: 'en', target: 'zh-Hans'),
+        _target(source: kAutoSource, target: 'ja'),
+      ],
+    );
+    final controller = WorkbenchTranslationController(
+      gateway: gateway,
+      initialTargetLanguage: 'en',
+    );
+    addTearDown(controller.dispose);
+    await controller.initialize();
+
+    controller
+      ..setTargetLanguage(null)
+      ..setText('hello');
+    await controller.submit();
+    expect(controller.effectiveTargetLanguages, ['zh-Hans', 'ja']);
+
+    // Picking a language is the user overriding the rules: one target, and
+    // the runtime is not consulted for it.
+    controller.setTargetLanguage('ko');
+    expect(controller.effectiveTargetLanguages, ['ko']);
+    gateway.requestedTargets.clear();
+    await controller.submit();
+    expect(gateway.requestedTargets, ['ko']);
+    expect(controller.results.single.outputs.keys, ['ko']);
+  });
+
   test('the roster picks up the first configured target', () async {
     final gateway = _FakeGateway(
       configured: [_target(source: 'ja', target: 'zh-Hans')],

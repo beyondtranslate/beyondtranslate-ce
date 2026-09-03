@@ -93,6 +93,7 @@ class MiniTranslatorActionButtons extends StatelessWidget {
     Key? key,
     required this.inputSubmitMode,
     required this.hasContent,
+    this.copyVisible = true,
     required this.copied,
     required this.starred,
     required this.translateEnabled,
@@ -108,6 +109,11 @@ class MiniTranslatorActionButtons extends StatelessWidget {
   final InputSubmitMode inputSubmitMode;
 
   final bool hasContent;
+
+  /// Several targets: 复制 rides on each section's attribution row, so it
+  /// acts on that language's text, and the footer keeps only the
+  /// paragraph-level 收藏 and 翻译. One target: the footer serves as before.
+  final bool copyVisible;
 
   /// 复制 flips to 已复制 for a beat after copying.
   final bool copied;
@@ -136,12 +142,13 @@ class MiniTranslatorActionButtons extends StatelessWidget {
         children: [
           ActionBar(
             children: [
-              Button(
-                variant: ButtonVariant.ghost,
-                enabled: hasContent,
-                onPressed: onCopy,
-                child: Text(copied ? buttons.copied : buttons.copy),
-              ),
+              if (copyVisible)
+                Button(
+                  variant: ButtonVariant.ghost,
+                  enabled: hasContent,
+                  onPressed: onCopy,
+                  child: Text(copied ? buttons.copied : buttons.copy),
+                ),
               Button(
                 variant: ButtonVariant.ghost,
                 enabled: hasContent,

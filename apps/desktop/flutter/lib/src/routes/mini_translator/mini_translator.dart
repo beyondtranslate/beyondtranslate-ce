@@ -12,7 +12,8 @@ import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
-import '../../routes/settings/provider_meta.dart' show isServiceEnabled;
+import '../../routes/settings/provider_meta.dart'
+    show isServiceEnabled, serviceDisplayName;
 import '../../routes/settings/services.dart' show ServicesSettingsPage;
 import '../../services/app_windows.dart'
     show
@@ -39,6 +40,9 @@ import 'translation_target_select_view.dart';
 /// The tray's own inset (`--bt-mini-tray-pad`): the top bar, the panel card and
 /// the action bar all float this far inside the window edge.
 const double _kTrayInset = 8;
+
+/// What the footer's 复制 is keyed under — it copies the first target's text.
+const String _kCopiedAll = '*';
 
 class MiniTranslatorPage extends StatefulWidget {
   const MiniTranslatorPage({Key? key}) : super(key: key);
@@ -80,14 +84,20 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   String? _detectedLanguage;
   bool _isTextDetecting = false; // ignore: unused_field
   List<TranslationResult> _translationResultList = [];
-  bool _showCompare = false;
+
+  /// 对比 — per target: the candidates are the other services' renderings
+  /// into that language, so each target's block folds out its own list.
+  final Set<String> _compareOpen = {};
 
   /// The source was edited after the last query — arms ⏎ 重新翻译.
   bool _resultStale = false;
 
   /// Service promoted with 设为首选 / ⌥n; the preferred block follows it.
   String? _preferredServiceId;
-  bool _copied = false;
+
+  /// Which target's 复制 just fired — a block's, or [_kCopiedAll] for the
+  /// footer's.
+  String? _copiedTarget;
   bool _starred = false;
   final TranslationHistorySession _historySession = TranslationHistorySession();
   Timer? _copiedTimer;
@@ -372,7 +382,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _detectedLanguage = null;
       _translationResultList = [];
       _resultStale = false;
-      _copied = false;
+      _copiedTarget = null;
     });
 
     final settings = runtime.settings();
@@ -393,7 +403,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         )
         .toList();
     _serviceNameById = {
-      for (final service in queryServices) service.id: service.name,
+      for (final service in queryServices)
+        service.id: serviceDisplayName(service),
     };
     _translationServiceIds = {
       for (final service in queryServices)
@@ -830,7 +841,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _isTextDetecting = false;
       _translationResultList = [];
       _resultStale = false;
-      _copied = false;
+      _copiedTarget = null;
       _starred = false;
       _historySession.reset();
     });
@@ -844,21 +855,41 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _preferredServiceId,
     );
     if (preferred == null) return;
-    Clipboard.setData(ClipboardData(text: preferred.text));
-    setState(() => _copied = true);
+    _copy(preferred.text, _kCopiedAll);
+  }
+
+  /// 复制 on one target's attribution row — that language's preferred text.
+  void _handleCopyTarget(String target) {
+    for (final result in _translationResultList) {
+      if (result.translationTarget?.target != target) continue;
+      final preferred = preferredTranslation([result], _preferredServiceId);
+      if (preferred != null) _copy(preferred.text, target);
+      return;
+    }
+  }
+
+  void _copy(String text, String key) {
+    Clipboard.setData(ClipboardData(text: text));
+    setState(() => _copiedTarget = key);
     _copiedTimer?.cancel();
     _copiedTimer = Timer(const Duration(milliseconds: 1400), () {
-      if (mounted) setState(() => _copied = false);
+      if (mounted) setState(() => _copiedTarget = null);
     });
   }
 
-  /// ⌥1/⌥2/⌥3 promote a service, matching the shortcut hints on the cards.
+  void _handleToggleCompare(String target) {
+    _setStateAndScheduleWindowResize(() {
+      if (!_compareOpen.add(target)) _compareOpen.remove(target);
+    });
+  }
+
+  /// ⌥1/⌥2/⌥3 promote a service, matching the shortcut hints on the cards —
+  /// numbered by the service's position in the configured list, whichever
+  /// target's list the hint was read from.
   void _handlePreferServiceAt(int index) {
-    final translations = serviceTranslations(_translationResultList);
-    if (index < 0 || index >= translations.length) return;
-    final serviceId = translations[index].record.translationServiceId;
-    if (serviceId == null) return;
-    _preferService(serviceId);
+    final ids = _translationServiceIds.toList();
+    if (index < 0 || index >= ids.length) return;
+    _preferService(ids[index]);
   }
 
   void _handleButtonTappedTrans() async {
@@ -916,6 +947,17 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
             null;
     final noResult = _querySubmitted &&
         allServicesFailed(_translationResultList, _translationServiceIds);
+    // Several targets: 复制 moves onto each block's attribution row, and the
+    // footer keeps only the paragraph-level 收藏 and 翻译.
+    final stacked = _translationResultList.length > 1;
+    // 语言文件未下载 on every target is a failed query like 未返回结果: nothing
+    // to copy or star, and ⏎ is a retry.
+    final allMissing = _querySubmitted &&
+        allTargetsMissingLanguage(
+          _translationResultList,
+          _preferredServiceId,
+          _translationServiceIds,
+        );
 
     return Column(
       key: _contentViewKey,
@@ -950,12 +992,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 preferredServiceId: _preferredServiceId,
                 inputSubmitMode: settingsStore.inputSubmitMode,
                 stale: _resultStale,
-                showCompare: _showCompare,
-                onToggleCompare: () {
-                  _setStateAndScheduleWindowResize(() {
-                    _showCompare = !_showCompare;
-                  });
-                },
+                compareOpenTargets: _compareOpen,
+                copiedTarget: _copiedTarget,
+                onToggleCompare: _handleToggleCompare,
+                onCopyTarget: _handleCopyTarget,
                 onPreferService: _preferService,
                 onRequery: _handleButtonTappedTrans,
               ),
@@ -967,11 +1007,12 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         ),
         MiniTranslatorActionButtons(
           inputSubmitMode: settingsStore.inputSubmitMode,
-          hasContent: hasTranslation,
-          copied: _copied,
+          hasContent: hasTranslation && !allMissing,
+          copyVisible: !stacked,
+          copied: _copiedTarget == _kCopiedAll,
           starred: _starred,
           translateEnabled: _text.isNotEmpty,
-          retry: noResult,
+          retry: noResult || allMissing,
           onCopy: _handleButtonTappedCopy,
           onBookmark: _toggleHistoryFavorite,
           onTranslate: _handleButtonTappedTrans,

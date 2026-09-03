@@ -171,7 +171,17 @@
       "show_reasons": "Why $count services failed",
       "collapse_reasons": "Hide reasons",
       "unknown_error": "The service gave no reason.",
-      "no_result_tag": "no result"
+      "no_result_tag": "no result",
+      "language_missing_sentence": "System Translation has not downloaded the language files for “$source → $target”.",
+      "language_missing_settings_path": "System Settings › General › Language & Region › Translation Languages",
+      "language_missing_body_main": "Download them under “$path”, then retry.",
+      "language_missing_mini_before": "Download them in ",
+      "language_missing_mini_link": "System Settings",
+      "language_missing_mini_after": ", then press $key to retry.",
+      "language_missing_note": "“$source → $target” language files not downloaded",
+      "language_missing_flag": "Language files not downloaded",
+      "language_missing_kept": "Your text is kept; retry once the download finishes.",
+      "open_system_settings": "Open System Settings"
     }
   },
   "workbench": {
@@ -311,6 +321,7 @@
       "shortcuts": "Shortcuts",
       "other_services_disabled": "Other services are disabled",
       "input_hint_translate_to": "Type or paste text to translate into $language",
+      "target_separator": ", ",
       "newline_hint": "$key for a new line",
       "failed_body": "This passage did not get a translation. Check your connection and retry, or expand to work through each service's reason."
     },

@@ -598,6 +598,44 @@ class TranslationsMiniTranslatorResultEn {
 
   /// en: 'no result'
   String get no_result_tag => 'no result';
+
+  /// en: 'System Translation has not downloaded the language files for “$source → $target”.'
+  String language_missing_sentence(
+          {required Object source, required Object target}) =>
+      'System Translation has not downloaded the language files for “${source} → ${target}”.';
+
+  /// en: 'System Settings › General › Language & Region › Translation Languages'
+  String get language_missing_settings_path =>
+      'System Settings › General › Language & Region › Translation Languages';
+
+  /// en: 'Download them under “$path”, then retry.'
+  String language_missing_body_main({required Object path}) =>
+      'Download them under “${path}”, then retry.';
+
+  /// en: 'Download them in '
+  String get language_missing_mini_before => 'Download them in ';
+
+  /// en: 'System Settings'
+  String get language_missing_mini_link => 'System Settings';
+
+  /// en: ', then press $key to retry.'
+  String language_missing_mini_after({required Object key}) =>
+      ', then press ${key} to retry.';
+
+  /// en: '“$source → $target” language files not downloaded'
+  String language_missing_note(
+          {required Object source, required Object target}) =>
+      '“${source} → ${target}” language files not downloaded';
+
+  /// en: 'Language files not downloaded'
+  String get language_missing_flag => 'Language files not downloaded';
+
+  /// en: 'Your text is kept; retry once the download finishes.'
+  String get language_missing_kept =>
+      'Your text is kept; retry once the download finishes.';
+
+  /// en: 'Open System Settings'
+  String get open_system_settings => 'Open System Settings';
 }
 
 // Path: workbench.history_page
@@ -1029,6 +1067,9 @@ class TranslationsWorkbenchTranslationEn {
   /// en: 'Type or paste text to translate into $language'
   String input_hint_translate_to({required Object language}) =>
       'Type or paste text to translate into ${language}';
+
+  /// en: ', '
+  String get target_separator => ', ';
 
   /// en: '$key for a new line'
   String newline_hint({required Object key}) => '${key} for a new line';
@@ -2592,6 +2633,27 @@ extension on Translations {
       'mini_translator.result.collapse_reasons' => 'Hide reasons',
       'mini_translator.result.unknown_error' => 'The service gave no reason.',
       'mini_translator.result.no_result_tag' => 'no result',
+      'mini_translator.result.language_missing_sentence' => (
+              {required Object source, required Object target}) =>
+          'System Translation has not downloaded the language files for “${source} → ${target}”.',
+      'mini_translator.result.language_missing_settings_path' =>
+        'System Settings › General › Language & Region › Translation Languages',
+      'mini_translator.result.language_missing_body_main' => (
+              {required Object path}) =>
+          'Download them under “${path}”, then retry.',
+      'mini_translator.result.language_missing_mini_before' =>
+        'Download them in ',
+      'mini_translator.result.language_missing_mini_link' => 'System Settings',
+      'mini_translator.result.language_missing_mini_after' =>
+        ({required Object key}) => ', then press ${key} to retry.',
+      'mini_translator.result.language_missing_note' => (
+              {required Object source, required Object target}) =>
+          '“${source} → ${target}” language files not downloaded',
+      'mini_translator.result.language_missing_flag' =>
+        'Language files not downloaded',
+      'mini_translator.result.language_missing_kept' =>
+        'Your text is kept; retry once the download finishes.',
+      'mini_translator.result.open_system_settings' => 'Open System Settings',
       'workbench.workspace' => 'Workspace',
       'workbench.translate' => 'Translate',
       'workbench.history' => 'History',
@@ -2763,6 +2825,7 @@ extension on Translations {
       'workbench.translation.input_hint_translate_to' => (
               {required Object language}) =>
           'Type or paste text to translate into ${language}',
+      'workbench.translation.target_separator' => ', ',
       'workbench.translation.newline_hint' => ({required Object key}) =>
           '${key} for a new line',
       'workbench.translation.failed_body' =>

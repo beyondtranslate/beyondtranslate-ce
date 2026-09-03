@@ -105,7 +105,8 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
     final draft = await showDialogInCurrentWindow<ServiceDraft>(
       context: context,
       builder: (_) => AddServiceDialog(
-        providers: settingsStore.providers,
+        // The built-in provider's services are fixed, so it is not on offer.
+        providers: configurableProviders(settingsStore.providers),
         // The derived services count as taken ids, so a second service of the
         // same kind gets a suffix instead of shadowing the provider's own.
         existing: settingsStore.services,
@@ -206,8 +207,17 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
     };
   }
 
+  /// The default is stored as the service id `list_services` hands out;
+  /// older settings carried the bare provider id, which the runtime now
+  /// rewrites on load, but a row still answers to it in the meantime.
+  bool _isDefault(ServiceType type, ServiceConfigEntry service) {
+    final current = _defaultOf(type);
+    return current == service.id ||
+        (isImplicitService(service) && current == service.providerId);
+  }
+
   Future<void> _setDefault(ServiceType type, String serviceId) async {
-    final id = providerIdOfService(serviceId);
+    final id = serviceId;
     final patch = switch (type) {
       ServiceType.translation => GeneralSettingsPatch(
           defaultTranslationService: id,
@@ -324,7 +334,9 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final services = settingsStore.services;
-    final providers = settingsStore.providers;
+    // Only a configured provider can take another service; the built-in one
+    // already lists its fixed rows.
+    final providers = configurableProviders(settingsStore.providers);
 
     // Every capability the app can serve gets a group, whether or not one is
     // configured yet: an empty group is where 添加服务 lives, and filtering it
@@ -395,11 +407,15 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                       provider: providers
                           .where((entry) => entry.id == service.providerId)
                           .firstOrNull,
-                      isDefault: service.id == _defaultOf(type),
+                      isDefault: _isDefault(type, service),
                       enabled: isServiceEnabled(service),
                       onMakeDefault: () => _setDefault(type, service.id),
                       onEnabledChange: (value) => _setEnabled(service, value),
-                      onEdit: () => _openServiceEditor(type, existing: service),
+                      // A built-in service has nothing to edit and cannot be
+                      // deleted, so the row offers neither.
+                      onEdit: isBuiltinService(service)
+                          ? null
+                          : () => _openServiceEditor(type, existing: service),
                     ),
               ],
             ),
@@ -454,13 +470,15 @@ class _ServiceRow extends StatelessWidget {
   final bool enabled;
   final VoidCallback onMakeDefault;
   final ValueChanged<bool> onEnabledChange;
-  final VoidCallback onEdit;
+
+  /// Null for a fixed service — the built-in ones — which has no editor.
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final name = service.name.isEmpty ? service.id : service.name;
+    final name = serviceDisplayName(service);
 
     return HoverRegion(
       builder: (context, hovered) => ConstrainedBox(
@@ -528,13 +546,14 @@ class _ServiceRow extends StatelessWidget {
                         onPressed: onMakeDefault,
                         child: Text(t.settings.services.make_default),
                       ),
-                      const SizedBox(width: 10),
+                      if (onEdit != null) const SizedBox(width: 10),
                     ],
-                    Button(
-                      variant: ButtonVariant.quiet,
-                      onPressed: onEdit,
-                      child: Text(t.common.ui.button.edit),
-                    ),
+                    if (onEdit != null)
+                      Button(
+                        variant: ButtonVariant.quiet,
+                        onPressed: onEdit,
+                        child: Text(t.common.ui.button.edit),
+                      ),
                   ],
                 ),
               ),

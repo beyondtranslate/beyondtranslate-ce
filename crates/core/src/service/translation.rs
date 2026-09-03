@@ -23,6 +23,22 @@ pub enum TranslationError {
     NetworkError(String),
     #[error("serialization error: {0}")]
     SerializationError(String),
+    /// The provider can translate this pair but its language files are not
+    /// on this machine — the user has to download them first. The Display
+    /// text is the contract the app's UI parses (`language pair not
+    /// installed: <source> -> <target>`), since errors cross the FFI as a
+    /// string. (Not named `source`: thiserror reads that as the cause.)
+    #[error("language pair not installed: {source_language} -> {target_language}")]
+    LanguageNotInstalled {
+        source_language: String,
+        target_language: String,
+    },
+    /// The provider cannot translate between these two languages at all.
+    #[error("unsupported language pair: {source_language} -> {target_language}")]
+    UnsupportedLanguagePair {
+        source_language: String,
+        target_language: String,
+    },
 }
 
 impl TranslationError {

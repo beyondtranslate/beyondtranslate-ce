@@ -481,8 +481,11 @@ class HighlightBlock extends StatelessWidget {
     super.key,
     required this.label,
     this.meta,
+    this.metaControls = false,
     this.actions,
+    this.expansion,
     this.rule = HighlightRule.bottom,
+    this.hairline = false,
     this.tone = HighlightTone.accent,
     this.stretch = false,
     required this.child,
@@ -494,13 +497,31 @@ class HighlightBlock extends StatelessWidget {
   /// Right-aligned quality note — 2 处术语已对齐.
   final Widget? meta;
 
+  /// [meta] carries 24px icon buttons — 朗读 / 复制 riding on a stacked
+  /// target's attribution row. The deck pulls them into the row with negative
+  /// margins so the row keeps its rhythm; here the excess comes out of the
+  /// inset above and the gap below instead, to the same total.
+  final bool metaControls;
+
   /// Action row rendered under the translation.
   final Widget? actions;
+
+  /// Disclosure rows under the action row — the 对比 list of candidate
+  /// services. They live inside the block so the comparison stays on the same
+  /// surface as the translation it compares against, instead of breaking the
+  /// output area into alternating bands; see [CompareTray].
+  final List<Widget>? expansion;
 
   /// Where the accent rule sits. Its thickness is a layout token — 2px in
   /// every theme, so the rule reads as the marker it is rather than as another
   /// hairline.
   final HighlightRule rule;
+
+  /// A neutral 1px hairline on top instead of the accent rule — a further
+  /// target's block, which shares the surface: the accent is the "output
+  /// begins here" signal, and a second one would read as a second output
+  /// rather than a section of this one. Ignored when [rule] is on top.
+  final bool hairline;
 
   /// [HighlightTone.danger] when the slot has nothing to show because every
   /// service failed: the block keeps its place, size and rhythm — marker,
@@ -523,15 +544,18 @@ class HighlightBlock extends StatelessWidget {
       color: danger ? colors.dangerHairline : colors.accentHairline,
       width: ProductTokens.highlightRule,
     );
+    final hairlineSide = BorderSide(
+      color: colors.hairline,
+      width: context.hairlineWidth,
+    );
+    final expansion = this.expansion;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-      decoration: BoxDecoration(
-        color: danger ? colors.dangerSurface : colors.accentSurface,
-        border: Border(
-          top: rule == HighlightRule.top ? side : BorderSide.none,
-          bottom: rule == HighlightRule.bottom ? side : BorderSide.none,
-        ),
+    final body = Padding(
+      padding: EdgeInsets.fromLTRB(
+        22,
+        metaControls ? 14 : 20,
+        22,
+        expansion == null ? 20 : 0,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -572,7 +596,7 @@ class HighlightBlock extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: metaControls ? 6 : 12),
           DefaultTextStyle(
             style: tokens.typography.translationStyle(color: colors.fg),
             child: child,
@@ -581,6 +605,89 @@ class HighlightBlock extends StatelessWidget {
             const SizedBox(height: 12),
             if (stretch) const Spacer(),
             actions!,
+          ],
+        ],
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: danger ? colors.dangerSurface : colors.accentSurface,
+        border: Border(
+          top: rule == HighlightRule.top
+              ? side
+              : hairline
+                  ? hairlineSide
+                  : BorderSide.none,
+          bottom: rule == HighlightRule.bottom ? side : BorderSide.none,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          if (stretch) Expanded(child: body) else body,
+          if (expansion != null)
+            CompareTray(
+              margin: const EdgeInsets.only(top: 4),
+              // 6px short of the block's 22px inset: each row's attribution
+              // chip hangs that far past the text column, so the text itself
+              // still lands on the column.
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              color: colors.window,
+              children: expansion,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A tray at the foot of a result block: full-bleed, a neutral hairline
+/// above, the block's tint lightened with a wash of [color] at 55%, rows
+/// divided by hairlines — inside the block, yet clearly not the translation.
+///
+/// The 翻译 pane washes with the window colour, the mini translator with its
+/// panel's; both are white in the light themes and part ways in the dark.
+class CompareTray extends StatelessWidget {
+  const CompareTray({
+    super.key,
+    required this.color,
+    required this.padding,
+    this.margin = EdgeInsets.zero,
+    required this.children,
+  });
+
+  final Color color;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final hairline = BorderSide(
+      color: colors.hairline,
+      width: context.hairlineWidth,
+    );
+
+    return Container(
+      margin: margin,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.55),
+        border: Border(top: hairline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0)
+              Container(
+                decoration: BoxDecoration(border: Border(top: hairline)),
+              ),
+            children[i],
           ],
         ],
       ),

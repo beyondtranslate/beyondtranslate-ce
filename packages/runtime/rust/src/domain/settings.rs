@@ -10,6 +10,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 use struct_patch::Patch;
 
+/// The provider the app ships with: the operating system's own translation,
+/// dictionary and OCR. It lives in memory only — never in `settings.json` —
+/// and the settings API refuses to add, edit or delete it.
+pub const SYSTEM_PROVIDER_ID: &str = "system";
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, Patch, uniffi::Record)]
 #[patch(attribute(derive(Clone, Debug, Default, Deserialize, Serialize, uniffi::Record)))]
 pub struct ShortcutSettings {
@@ -262,6 +267,7 @@ pub struct Settings {
     #[serde(
         default,
         skip_serializing_if = "HashMap::is_empty",
+        serialize_with = "serialize_services",
         deserialize_with = "deserialize_services"
     )]
     pub services: HashMap<String, ServiceConfigEntry>,
@@ -372,11 +378,45 @@ fn serialize_providers<S>(
 where
     S: Serializer,
 {
-    let mut map = serializer.serialize_map(Some(providers.len()))?;
-    for (provider_id, provider) in providers {
+    // The built-in provider is installed by the runtime on every launch, so
+    // writing it out would only let a stale copy drift from the code.
+    let persisted: Vec<_> = providers
+        .iter()
+        .filter(|(provider_id, provider)| {
+            provider.r#type != ProviderType::System && !is_builtin_provider(provider_id)
+        })
+        .collect();
+    let mut map = serializer.serialize_map(Some(persisted.len()))?;
+    for (provider_id, provider) in persisted {
         let config = provider_config_from_settings(provider).map_err(serde::ser::Error::custom)?;
         let value = provider_config_json_value(&config).map_err(serde::ser::Error::custom)?;
         map.serialize_entry(provider_id, &value)?;
+    }
+    map.end()
+}
+
+/// True for the provider the app ships with — see [`SYSTEM_PROVIDER_ID`].
+pub fn is_builtin_provider(provider_id: &str) -> bool {
+    provider_id == SYSTEM_PROVIDER_ID
+}
+
+/// Serializes `Settings::services` without the built-in provider's services:
+/// those are fixed by the runtime, and a copy in the file would show up as a
+/// second, editable "system" service next to the real one.
+fn serialize_services<S>(
+    services: &HashMap<String, ServiceConfigEntry>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let persisted: Vec<_> = services
+        .iter()
+        .filter(|(_, service)| !is_builtin_provider(&service.provider_id))
+        .collect();
+    let mut map = serializer.serialize_map(Some(persisted.len()))?;
+    for (service_id, service) in persisted {
+        map.serialize_entry(service_id, service)?;
     }
     map.end()
 }

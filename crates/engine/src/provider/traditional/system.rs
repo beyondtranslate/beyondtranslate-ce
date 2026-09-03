@@ -450,9 +450,32 @@ mod platform {
         } else {
             let err_msg =
                 read_key("error").unwrap_or_else(|| "unknown system translation error".into());
-            let _ = entry
-                .sender
-                .send(Err(TranslationError::NetworkError(err_msg)));
+            // The bridge names the failures a user can act on; everything
+            // else stays a generic error carrying the framework's message.
+            let pair = || {
+                (
+                    read_key("errorSourceLanguage").unwrap_or_default(),
+                    read_key("errorTargetLanguage").unwrap_or_default(),
+                )
+            };
+            let error = match read_key("errorCode").as_deref() {
+                Some("languagePairNotInstalled") => {
+                    let (source_language, target_language) = pair();
+                    TranslationError::LanguageNotInstalled {
+                        source_language,
+                        target_language,
+                    }
+                }
+                Some("unsupportedLanguagePair") => {
+                    let (source_language, target_language) = pair();
+                    TranslationError::UnsupportedLanguagePair {
+                        source_language,
+                        target_language,
+                    }
+                }
+                _ => TranslationError::NetworkError(err_msg),
+            };
+            let _ = entry.sender.send(Err(error));
         }
     }
 

@@ -22,7 +22,6 @@ const List<ProviderType> kKnownProviderTypes = <ProviderType>[
   ProviderType.openAiCompatible,
   ProviderType.ollama,
   ProviderType.qwen,
-  ProviderType.system,
   ProviderType.tencent,
   ProviderType.xAi,
   ProviderType.youdao,
@@ -195,6 +194,41 @@ String capabilityNote(ServiceType type) {
   }
 }
 
+/// The provider the runtime ships with — `SYSTEM_PROVIDER_ID` on the Rust
+/// side. It is installed on every launch and never written to settings, so
+/// the UI neither offers it in a picker nor lets it be edited or deleted; its
+/// services are the fixed 系统/翻译 and 系统/OCR rows.
+const String kSystemProviderId = 'system';
+
+bool isBuiltinProvider(ProviderConfigEntry provider) {
+  return provider.id == kSystemProviderId ||
+      provider.type == ProviderType.system;
+}
+
+bool isBuiltinService(ServiceConfigEntry service) {
+  return service.providerId == kSystemProviderId;
+}
+
+/// The providers a user can act on: everything the runtime lists minus the
+/// built-in one. This is what the providers page and the service editor's
+/// provider picker show.
+List<ProviderConfigEntry> configurableProviders(
+  List<ProviderConfigEntry> providers,
+) {
+  return providers
+      .where((provider) => !isBuiltinProvider(provider))
+      .toList(growable: false);
+}
+
+/// What a service is called on screen. The runtime names the built-in ones in
+/// English; here they read 系统/翻译 and 系统/OCR in the app's language.
+String serviceDisplayName(ServiceConfigEntry service) {
+  if (isBuiltinService(service)) {
+    return '${t.common.provider.system}/${serviceTypeLabel(service.type)}';
+  }
+  return service.name.isEmpty ? service.id : service.name;
+}
+
 /// The suffixes the runtime appends when it synthesises a service from a
 /// provider's capabilities — see `list_services` in the Rust runtime.
 const List<String> kImplicitServiceSuffixes = [
@@ -207,9 +241,10 @@ const List<String> kImplicitServiceSuffixes = [
 /// the user creating it. Such a service has nothing of its own to edit or
 /// delete: it exists exactly as long as the provider does.
 bool isImplicitService(ServiceConfigEntry service) {
-  return kImplicitServiceSuffixes.any(
-    (suffix) => service.id == '${service.providerId}$suffix',
-  );
+  return isBuiltinService(service) ||
+      kImplicitServiceSuffixes.any(
+        (suffix) => service.id == '${service.providerId}$suffix',
+      );
 }
 
 /// Strips the capability suffix a synthesised service id carries, so a stored

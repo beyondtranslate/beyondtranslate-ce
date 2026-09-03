@@ -23,14 +23,16 @@ use crate::domain::history::{
 };
 use crate::domain::permission;
 use crate::domain::settings::{
-    provider_entry_from_config, AdvancedSettings, AdvancedSettingsPatch, AppearanceSettings,
-    AppearanceSettingsPatch, GeneralSettings, GeneralSettingsPatch, ProviderConfigEntry,
-    ServiceConfigEntry, ServiceType, Settings, ShortcutSettings, ShortcutSettingsPatch,
+    is_builtin_provider, provider_entry_from_config, AdvancedSettings, AdvancedSettingsPatch,
+    AppearanceSettings, AppearanceSettingsPatch, GeneralSettings, GeneralSettingsPatch,
+    ProviderConfigEntry, ServiceConfigEntry, ServiceType, Settings, ShortcutSettings,
+    ShortcutSettingsPatch, SYSTEM_PROVIDER_ID,
 };
 use crate::domain::text_extractor;
 use crate::RuntimeApiServer;
 use beyondtranslate_core::TranslationTarget;
 use beyondtranslate_engine::prompt::GlossaryTerm;
+use beyondtranslate_engine::{Provider, ProviderType};
 
 /// Error type returned by all uniffi-exported Runtime methods.
 #[derive(Debug, thiserror::Error, uniffi::Error)]
@@ -95,23 +97,178 @@ struct RuntimeState {
 
 impl RuntimeState {
     fn new(mut settings: Settings) -> Result<Self, String> {
-        // Auto-create the system provider on first launch so it appears in
-        // the provider list like any other provider. Users can modify or
-        // delete it freely; it will persist to settings.json.
-        if !settings.providers.contains_key("system") {
-            settings.providers.insert(
-                "system".to_owned(),
-                ProviderConfigEntry {
-                    id: "system".to_owned(),
-                    r#type: beyondtranslate_engine::ProviderType::System,
-                    fields: HashMap::new(),
-                    created_at: None,
-                },
-            );
-        }
+        install_builtin_provider(&mut settings);
         let engine = engine::build_from_settings(&settings)?;
+        normalize_default_services(&mut settings, &engine);
         Ok(Self { settings, engine })
     }
+}
+
+/// Puts the built-in provider in place and clears out anything a settings
+/// file may still carry for it — older builds persisted `system` as an
+/// ordinary provider, and let users add `system+ocr-2`-style services on top
+/// of it. Both would show up beside the fixed built-in services as
+/// duplicates.
+fn install_builtin_provider(settings: &mut Settings) {
+    settings.providers.retain(|provider_id, provider| {
+        provider.r#type != ProviderType::System && !is_builtin_provider(provider_id)
+    });
+    let providers = &settings.providers;
+    settings.services.retain(|service_id, service| {
+        !is_builtin_provider(&service.provider_id)
+            && !is_builtin_service(service_id)
+            && providers.contains_key(&service.provider_id)
+    });
+    settings.providers.insert(
+        SYSTEM_PROVIDER_ID.to_owned(),
+        ProviderConfigEntry {
+            id: SYSTEM_PROVIDER_ID.to_owned(),
+            r#type: ProviderType::System,
+            fields: HashMap::new(),
+            created_at: None,
+        },
+    );
+}
+
+/// The fixed services the built-in provider offers: one per capability, with
+/// an id the UI can rely on. Names are English fallbacks; the apps localize
+/// them by id.
+const BUILTIN_SERVICES: [(ServiceType, &str, &str); 3] = [
+    (
+        ServiceType::Translation,
+        "system+translation",
+        "System Translation",
+    ),
+    (
+        ServiceType::Dictionary,
+        "system+dictionary",
+        "System Dictionary",
+    ),
+    (ServiceType::Ocr, "system+ocr", "System OCR"),
+];
+
+fn builtin_service_id(kind: ServiceType) -> &'static str {
+    BUILTIN_SERVICES
+        .iter()
+        .find(|(service_type, _, _)| *service_type == kind)
+        .map(|(_, id, _)| *id)
+        // `Llm` has no built-in counterpart; the translation one is the closest
+        // thing a caller asking for it could mean.
+        .unwrap_or("system+translation")
+}
+
+fn is_builtin_service(service_id: &str) -> bool {
+    BUILTIN_SERVICES.iter().any(|(_, id, _)| *id == service_id)
+}
+
+/// The built-in services this platform can actually run — the system
+/// provider declares all three, but a platform without, say, OCR should not
+/// list a service that can only fail.
+fn builtin_service_entries(engine: &beyondtranslate_engine::Engine) -> Vec<ServiceConfigEntry> {
+    let Ok(provider) = engine.require(SYSTEM_PROVIDER_ID) else {
+        return Vec::new();
+    };
+    BUILTIN_SERVICES
+        .iter()
+        .filter(|(kind, _, _)| provider_supports(provider.as_ref(), *kind))
+        .map(|(kind, id, name)| ServiceConfigEntry {
+            id: (*id).to_owned(),
+            provider_id: SYSTEM_PROVIDER_ID.to_owned(),
+            r#type: *kind,
+            name: (*name).to_owned(),
+            fields: HashMap::new(),
+            created_at: None,
+        })
+        .collect()
+}
+
+fn provider_supports(provider: &dyn Provider, kind: ServiceType) -> bool {
+    match kind {
+        ServiceType::Dictionary => provider.dictionary().is_some(),
+        ServiceType::Ocr => provider.ocr().is_some(),
+        ServiceType::Translation => provider.translation().is_some() || provider.llm().is_some(),
+        ServiceType::Llm => provider.llm().is_some(),
+    }
+}
+
+/// The suffix `list_services` appends when it derives a service of this kind
+/// from a provider.
+fn kind_suffix(kind: ServiceType) -> &'static str {
+    match kind {
+        ServiceType::Dictionary => "+dictionary",
+        ServiceType::Ocr => "+ocr",
+        ServiceType::Translation => "+translation",
+        ServiceType::Llm => "+llm",
+    }
+}
+
+/// `deepl+translation` → `deepl`; a bare provider id passes through. Stored
+/// ids may carry either form, so every lookup that falls back from the
+/// services map to the providers map goes through here.
+fn strip_kind_suffix(service_id: &str, kind: ServiceType) -> &str {
+    let suffixes: &[&str] = match kind {
+        ServiceType::Translation => &["+translation", "+llm"],
+        ServiceType::Llm => &["+llm", "+translation"],
+        ServiceType::Dictionary => &["+dictionary"],
+        ServiceType::Ocr => &["+ocr"],
+    };
+    suffixes
+        .iter()
+        .find_map(|suffix| service_id.strip_suffix(suffix))
+        .unwrap_or(service_id)
+}
+
+/// Every default names a service that exists, in the `provider+kind` form
+/// the UI compares against. A default left pointing at a deleted service —
+/// or at nothing at all — falls back to the built-in one, which is always
+/// there.
+fn normalize_default_services(settings: &mut Settings, engine: &beyondtranslate_engine::Engine) {
+    let translation = normalized_default_service(
+        settings,
+        engine,
+        &settings.general.default_translation_service,
+        ServiceType::Translation,
+    );
+    let dictionary = normalized_default_service(
+        settings,
+        engine,
+        &settings.general.default_directory_service,
+        ServiceType::Dictionary,
+    );
+    let ocr = normalized_default_service(
+        settings,
+        engine,
+        &settings.general.default_ocr_service,
+        ServiceType::Ocr,
+    );
+    settings.general.default_translation_service = translation;
+    settings.general.default_directory_service = dictionary;
+    settings.general.default_ocr_service = ocr;
+}
+
+fn normalized_default_service(
+    settings: &Settings,
+    engine: &beyondtranslate_engine::Engine,
+    current: &str,
+    kind: ServiceType,
+) -> String {
+    let current = current.trim();
+    if !current.is_empty() {
+        if let Some(service) = settings.services.get(current) {
+            if service.r#type == kind && settings.providers.contains_key(&service.provider_id) {
+                return current.to_owned();
+            }
+        }
+        let provider_id = strip_kind_suffix(current, kind);
+        let supported = settings.providers.contains_key(provider_id)
+            && engine
+                .require(provider_id)
+                .is_ok_and(|provider| provider_supports(provider.as_ref(), kind));
+        if supported {
+            return format!("{provider_id}{}", kind_suffix(kind));
+        }
+    }
+    builtin_service_id(kind).to_owned()
 }
 
 /// Shared, process-wide state behind a [`Runtime`] handle. All [`Runtime`]
@@ -477,33 +634,28 @@ impl Runtime {
             });
         }
 
+        // Not a stored service, so it names a provider — either bare or in
+        // the `provider+kind` form `list_services` hands out.
+        let provider_id = strip_kind_suffix(service_id, expected_type);
         let provider = state
             .settings
             .providers
-            .get(service_id)
+            .get(provider_id)
             .ok_or_else(|| format!("service or provider `{service_id}` does not exist"))?;
         let engine_provider = state
             .engine
-            .require(service_id)
+            .require(provider_id)
             .map_err(|error| error.to_string())?;
-        let supported = match expected_type {
-            ServiceType::Dictionary => engine_provider.dictionary().is_some(),
-            ServiceType::Ocr => engine_provider.ocr().is_some(),
-            ServiceType::Translation => {
-                engine_provider.translation().is_some() || engine_provider.llm().is_some()
-            }
-            ServiceType::Llm => engine_provider.llm().is_some(),
-        };
-        if !supported {
+        if !provider_supports(engine_provider.as_ref(), expected_type) {
             return Err(format!(
-                "provider `{service_id}` does not support {expected_type:?}"
+                "provider `{provider_id}` does not support {expected_type:?}"
             ));
         }
         Ok(ResolvedService {
-            provider_id: service_id.to_owned(),
+            provider_id: provider_id.to_owned(),
             entry: service_entry_for_provider_type(
                 service_id,
-                &normalized_provider_entry(service_id, provider),
+                &normalized_provider_entry(provider_id, provider),
                 expected_type,
             ),
         })
@@ -593,12 +745,14 @@ impl RuntimeSettings {
         let settings_file_path = self.runtime.inner.settings_file_path.as_ref();
         if engine_changed {
             let next_engine = engine::build_from_settings(&next_settings)?;
+            normalize_default_services(&mut next_settings, &next_engine);
             next_settings.save(settings_file_path)?;
             *state = RuntimeState {
                 settings: next_settings,
                 engine: next_engine,
             };
         } else {
+            normalize_default_services(&mut next_settings, &state.engine);
             next_settings.save(settings_file_path)?;
             state.settings = next_settings;
         }
@@ -809,9 +963,14 @@ impl RuntimeSettings {
 
     pub async fn list_services(&self) -> Result<Vec<ServiceConfigEntry>, RuntimeError> {
         let state = self.runtime.inner.state.read().await;
-        let mut services = Vec::new();
+        // The built-in services lead; everything else is derived from, or
+        // stored for, the providers the user configured.
+        let mut services = builtin_service_entries(&state.engine);
 
         for (provider_id, provider) in &state.settings.providers {
+            if is_builtin_provider(provider_id) {
+                continue;
+            }
             let entry = normalized_provider_entry(provider_id, provider);
             if let Ok(engine_provider) = state.engine.require(provider_id) {
                 if engine_provider.dictionary().is_some() {
@@ -839,7 +998,11 @@ impl RuntimeSettings {
         }
 
         for (service_id, service) in &state.settings.services {
-            if !state.settings.providers.contains_key(&service.provider_id) {
+            if is_builtin_provider(&service.provider_id)
+                || !state.settings.providers.contains_key(&service.provider_id)
+                // A stored entry under a derived id would otherwise list twice.
+                || services.iter().any(|listed| listed.id == *service_id)
+            {
                 continue;
             }
             let mut entry = service.clone();
@@ -847,7 +1010,12 @@ impl RuntimeSettings {
             services.push(entry);
         }
 
-        services.sort_by(|a, b| a.id.cmp(&b.id));
+        // Built-in first, then by id.
+        services.sort_by(|a, b| {
+            is_builtin_service(&b.id)
+                .cmp(&is_builtin_service(&a.id))
+                .then_with(|| a.id.cmp(&b.id))
+        });
         Ok(services)
     }
 
@@ -875,6 +1043,11 @@ impl RuntimeSettings {
     ) -> Result<Option<ServiceConfigEntry>, RuntimeError> {
         let service_id = validate_provider_id(service_id).map_err(RuntimeError::from)?;
         let state = self.runtime.inner.state.read().await;
+        if is_builtin_service(&service_id) {
+            return Ok(builtin_service_entries(&state.engine)
+                .into_iter()
+                .find(|entry| entry.id == service_id));
+        }
         if let Some(service) = state.settings.services.get(&service_id) {
             let mut entry = service.clone();
             entry.id = service_id;
@@ -925,6 +1098,9 @@ impl RuntimeSettings {
             validate_required("provider_type", provider_type).map_err(RuntimeError::from)?;
         let provider_type = crate::domain::settings::parse_provider_type(&provider_type)
             .map_err(RuntimeError::from)?;
+        if is_builtin_provider(&provider_id) || provider_type == ProviderType::System {
+            return Err(RuntimeError::from(builtin_provider_error()));
+        }
         let entry = ProviderConfigEntry {
             id: provider_id.clone(),
             r#type: provider_type,
@@ -966,6 +1142,9 @@ impl RuntimeSettings {
     ) -> Result<ServiceConfigEntry, RuntimeError> {
         let service_id = validate_provider_id(service_id).map_err(RuntimeError::from)?;
         let provider_id = validate_provider_id(provider_id).map_err(RuntimeError::from)?;
+        if is_builtin_provider(&provider_id) || is_builtin_service(&service_id) {
+            return Err(RuntimeError::from(builtin_service_error()));
+        }
         let name = name.trim().to_owned();
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -1005,6 +1184,9 @@ impl RuntimeSettings {
         provider_id: String,
     ) -> Result<Option<ProviderConfigEntry>, RuntimeError> {
         let provider_id = validate_provider_id(provider_id).map_err(RuntimeError::from)?;
+        if is_builtin_provider(&provider_id) {
+            return Err(RuntimeError::from(builtin_provider_error()));
+        }
         self.commit_settings(SettingsChange::Providers, move |settings| {
             let removed = settings
                 .providers
@@ -1024,6 +1206,9 @@ impl RuntimeSettings {
         service_id: String,
     ) -> Result<Option<ServiceConfigEntry>, RuntimeError> {
         let service_id = validate_provider_id(service_id).map_err(RuntimeError::from)?;
+        if is_builtin_service(&service_id) {
+            return Err(RuntimeError::from(builtin_service_error()));
+        }
         self.commit_settings(SettingsChange::Providers, move |settings| {
             Ok(settings.services.remove(&service_id).map(|mut service| {
                 service.id = service_id;
@@ -2165,6 +2350,16 @@ fn capture_screenshot() -> Result<String, String> {
     text_extractor::capture_screen(path_str).map_err(|e| format!("screen capture failed: {e}"))
 }
 
+fn builtin_provider_error() -> String {
+    format!("provider `{SYSTEM_PROVIDER_ID}` is built in and cannot be added, edited or deleted")
+}
+
+fn builtin_service_error() -> String {
+    format!(
+        "services of the built-in `{SYSTEM_PROVIDER_ID}` provider are fixed and cannot be added, edited or deleted"
+    )
+}
+
 fn normalized_provider_entry(
     provider_id: &str,
     provider: &ProviderConfigEntry,
@@ -2430,19 +2625,7 @@ mod tests {
     fn system_dictionary_lookup_returns_structured_definitions() {
         let runtime = create_runtime();
 
-        // Add the system provider explicitly (it is no longer auto-injected).
-        tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .unwrap()
-            .block_on(async {
-                runtime
-                    .clone()
-                    .settings()
-                    .update_provider("system".to_owned(), "system".to_owned(), HashMap::new())
-                    .await
-                    .expect("failed to add system provider");
-            });
+        // The system provider is built in, so nothing needs adding.
 
         let response = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -2704,19 +2887,7 @@ mod tests {
     fn lookup_requires_word() {
         let runtime = create_runtime();
 
-        // Add the system provider explicitly.
-        tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .unwrap()
-            .block_on(async {
-                runtime
-                    .clone()
-                    .settings()
-                    .update_provider("system".to_owned(), "system".to_owned(), HashMap::new())
-                    .await
-                    .expect("failed to add system provider");
-            });
+        // The system provider is built in, so nothing needs adding.
 
         let error = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -2930,5 +3101,249 @@ mod tests {
             render_prompt_template("Translate {{text}}.", "en", "zh", "hello", &[]),
             "Translate hello."
         );
+    }
+
+    fn seeded_runtime(settings_json: &str) -> (Arc<Runtime>, PathBuf) {
+        let data_dir = unique_data_dir();
+        std::fs::create_dir_all(&data_dir).expect("failed to create data dir");
+        let settings_file = data_dir.join("settings.json");
+        std::fs::write(&settings_file, settings_json).expect("failed to seed settings");
+        let runtime =
+            Runtime::new(data_dir.display().to_string()).expect("failed to create runtime");
+        (runtime, settings_file)
+    }
+
+    #[test]
+    fn builtin_provider_is_never_persisted() {
+        let data_dir = unique_data_dir();
+        let settings_file = data_dir.join("settings.json");
+        let runtime =
+            Runtime::new(data_dir.display().to_string()).expect("failed to create runtime");
+
+        block_on(async {
+            let providers = runtime
+                .clone()
+                .settings()
+                .list_providers()
+                .await
+                .expect("failed to list providers");
+            assert!(providers.iter().any(|provider| provider.id == "system"));
+
+            runtime
+                .clone()
+                .settings()
+                .update_general(GeneralSettingsPatch {
+                    show_in_menu_bar: Some(true),
+                    ..Default::default()
+                })
+                .await
+                .expect("failed to update general");
+        });
+
+        let saved = std::fs::read_to_string(settings_file).expect("failed to read settings file");
+        let json =
+            serde_json::from_str::<serde_json::Value>(&saved).expect("invalid settings json");
+        assert_eq!(json.pointer("/providers/system"), None);
+    }
+
+    #[test]
+    fn stale_system_entries_are_dropped_and_defaults_fall_back_to_builtin() {
+        let (runtime, settings_file) = seeded_runtime(
+            r#"{
+  "general": {
+    "defaultOcrService": "system",
+    "defaultTranslationService": "system+translation-2"
+  },
+  "providers": {
+    "system": { "type": "system" }
+  },
+  "services": {
+    "system+ocr-2": {
+      "id": "system+ocr-2",
+      "name": "系统 · OCR",
+      "providerId": "system",
+      "type": "ocr"
+    }
+  }
+}"#,
+        );
+
+        block_on(async {
+            let settings = runtime.clone().settings();
+            let services = settings
+                .list_services()
+                .await
+                .expect("failed to list services");
+            let ocr: Vec<_> = services
+                .iter()
+                .filter(|service| service.r#type == ServiceType::Ocr)
+                .collect();
+            assert_eq!(ocr.len(), 1, "one fixed OCR service, got {ocr:?}");
+            assert_eq!(ocr[0].id, "system+ocr");
+            assert!(services.iter().all(|service| service.id != "system+ocr-2"));
+
+            let general = settings.get_general().await.expect("failed to get general");
+            assert_eq!(general.default_ocr_service, "system+ocr");
+            assert_eq!(general.default_translation_service, "system+translation");
+
+            // A write persists the cleaned state.
+            settings
+                .update_general(GeneralSettingsPatch {
+                    show_in_menu_bar: Some(true),
+                    ..Default::default()
+                })
+                .await
+                .expect("failed to update general");
+        });
+
+        let saved = std::fs::read_to_string(settings_file).expect("failed to read settings file");
+        let json =
+            serde_json::from_str::<serde_json::Value>(&saved).expect("invalid settings json");
+        assert_eq!(json.pointer("/providers/system"), None);
+        assert_eq!(json.pointer("/services/system+ocr-2"), None);
+    }
+
+    #[test]
+    fn builtin_provider_and_services_refuse_writes() {
+        let runtime = create_runtime();
+        block_on(async {
+            let settings = runtime.clone().settings();
+            assert!(settings
+                .update_provider("system".to_owned(), "system".to_owned(), HashMap::new())
+                .await
+                .is_err());
+            assert!(settings
+                .update_provider("system2".to_owned(), "system".to_owned(), HashMap::new())
+                .await
+                .is_err());
+            assert!(settings.delete_provider("system".to_owned()).await.is_err());
+            assert!(settings
+                .update_service(
+                    "system+ocr-2".to_owned(),
+                    "system".to_owned(),
+                    ServiceType::Ocr,
+                    "系统 · OCR".to_owned(),
+                    HashMap::new(),
+                )
+                .await
+                .is_err());
+            assert!(settings
+                .delete_service("system+ocr".to_owned())
+                .await
+                .is_err());
+
+            let providers = settings
+                .list_providers()
+                .await
+                .expect("failed to list providers");
+            assert_eq!(providers.len(), 1);
+            let services = settings
+                .list_services()
+                .await
+                .expect("failed to list services");
+            assert!(services
+                .iter()
+                .all(|service| service.provider_id == "system"));
+            assert!(services
+                .iter()
+                .any(|service| service.id == "system+translation"));
+            assert!(services.iter().any(|service| service.id == "system+ocr"));
+        });
+    }
+
+    #[test]
+    fn builtin_service_ids_resolve_for_translation_and_ocr() {
+        let runtime = create_runtime();
+        block_on(async {
+            let resolved = runtime
+                .resolve_service("system+ocr", ServiceType::Ocr)
+                .await
+                .expect("builtin ocr service should resolve");
+            assert_eq!(resolved.provider_id, "system");
+            let resolved = runtime
+                .resolve_service("system+translation", ServiceType::Translation)
+                .await
+                .expect("builtin translation service should resolve");
+            assert_eq!(resolved.provider_id, "system");
+            let service = runtime
+                .clone()
+                .settings()
+                .get_service("system+ocr".to_owned())
+                .await
+                .expect("failed to get service")
+                .expect("builtin ocr service exists");
+            assert_eq!(service.r#type, ServiceType::Ocr);
+        });
+    }
+
+    #[test]
+    fn deleting_the_default_service_falls_back_to_builtin() {
+        let runtime = create_runtime();
+        block_on(async {
+            let settings = runtime.clone().settings();
+            settings
+                .update_provider(
+                    "deepl".to_owned(),
+                    "deepl".to_owned(),
+                    HashMap::from([("appKey".to_owned(), "key".to_owned())]),
+                )
+                .await
+                .expect("failed to add deepl");
+            settings
+                .update_service(
+                    "deepl+translation-2".to_owned(),
+                    "deepl".to_owned(),
+                    ServiceType::Translation,
+                    "DeepL 2".to_owned(),
+                    HashMap::new(),
+                )
+                .await
+                .expect("failed to add service");
+            settings
+                .update_general(GeneralSettingsPatch {
+                    default_translation_service: Some("deepl+translation-2".to_owned()),
+                    ..Default::default()
+                })
+                .await
+                .expect("failed to set default");
+            assert_eq!(
+                settings
+                    .get_general()
+                    .await
+                    .unwrap()
+                    .default_translation_service,
+                "deepl+translation-2"
+            );
+
+            settings
+                .delete_service("deepl+translation-2".to_owned())
+                .await
+                .expect("failed to delete service");
+            assert_eq!(
+                settings
+                    .get_general()
+                    .await
+                    .unwrap()
+                    .default_translation_service,
+                "system+translation"
+            );
+
+            // A bare provider id is normalised to the derived service id.
+            settings
+                .update_general(GeneralSettingsPatch {
+                    default_translation_service: Some("deepl".to_owned()),
+                    ..Default::default()
+                })
+                .await
+                .expect("failed to set default");
+            assert_eq!(
+                settings
+                    .get_general()
+                    .await
+                    .unwrap()
+                    .default_translation_service,
+                "deepl+translation"
+            );
+        });
     }
 }

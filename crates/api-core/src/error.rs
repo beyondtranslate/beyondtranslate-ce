@@ -112,6 +112,12 @@ impl From<TranslationError> for ApiError {
             TranslationError::SerializationError(message) => {
                 Self::new(502, "PROVIDER_RESPONSE_INVALID", message)
             }
+            TranslationError::LanguageNotInstalled { .. } => {
+                Self::new(422, "LANGUAGE_NOT_INSTALLED", error.to_string())
+            }
+            TranslationError::UnsupportedLanguagePair { .. } => {
+                Self::new(422, "UNSUPPORTED_LANGUAGE_PAIR", error.to_string())
+            }
         }
     }
 }
