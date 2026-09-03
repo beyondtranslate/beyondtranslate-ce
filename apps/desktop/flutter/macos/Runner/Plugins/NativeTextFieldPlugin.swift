@@ -310,7 +310,8 @@ private final class NativeTextFieldView: NSView, NSTextFieldDelegate, NSTextView
     else {
       return true
     }
-    let flattened = replacementString
+    let flattened =
+      replacementString
       .components(separatedBy: .newlines)
       .joined(separator: " ")
     textView.insertText(flattened, replacementRange: affectedCharRange)

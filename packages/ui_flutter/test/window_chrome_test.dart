@@ -50,11 +50,11 @@ void main() {
   ) async {
     await tester.pumpWidget(
       specimen(
-        SizedBox(
+        const SizedBox(
           width: 600,
           child: WindowTitlebar(
             platform: WindowPlatform.windows,
-            title: const Text('翻译'),
+            title: Text('翻译'),
           ),
         ),
       ),
@@ -70,12 +70,12 @@ void main() {
 
     await tester.pumpWidget(
       specimen(
-        SizedBox(
+        const SizedBox(
           width: 600,
           child: WindowTitlebar(
             platform: WindowPlatform.linux,
-            buttons: const [CaptionButton.close],
-            title: const Text('翻译'),
+            buttons: [CaptionButton.close],
+            title: Text('翻译'),
           ),
         ),
       ),
@@ -87,7 +87,7 @@ void main() {
     // macOS keeps the lights and draws no cluster.
     await tester.pumpWidget(
       specimen(
-        SizedBox(width: 600, child: WindowTitlebar(title: const Text('翻译'))),
+        const SizedBox(width: 600, child: WindowTitlebar(title: Text('翻译'))),
       ),
     );
     expect(find.byType(TrafficLights), findsOneWidget);

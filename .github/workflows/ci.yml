@@ -14,7 +14,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "main"
-          flutter-version: "dc2a8703e12bda92ae379f291d757c361f3069a3"
+          flutter-version: "c8c5e3bd7542962ee8b09a12ac469d7d1ff823e0"
           cache: true
       - uses: bluefireteam/melos-action@v2
       - run: melos run analyze
@@ -26,7 +26,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "main"
-          flutter-version: "dc2a8703e12bda92ae379f291d757c361f3069a3"
+          flutter-version: "c8c5e3bd7542962ee8b09a12ac469d7d1ff823e0"
           cache: true
       - uses: bluefireteam/melos-action@v2
       - run: melos run format-check
@@ -38,7 +38,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "main"
-          flutter-version: "dc2a8703e12bda92ae379f291d757c361f3069a3"
+          flutter-version: "c8c5e3bd7542962ee8b09a12ac469d7d1ff823e0"
           cache: true
       - uses: bluefireteam/melos-action@v2
       - run: melos run dependency_validator
