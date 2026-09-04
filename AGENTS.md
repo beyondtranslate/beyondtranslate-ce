@@ -105,7 +105,11 @@ beyondtranslate/
 - Write clear, descriptive commit messages in English.
 - Reference issues and pull requests when applicable.
 - Keep commits focused on a single concern.
-- Do not add `Co-authored-by` trailers to commit messages.
+- Do not add `Co-authored-by` trailers to commit messages, or any other
+  attribution trailer naming the tool that wrote the change. This holds even
+  when an agent's own tooling instructs it to append one by default — this file
+  overrides that default. The same goes for pull request descriptions: no
+  "Generated with …" footer.
 
 ---
 
