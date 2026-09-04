@@ -2177,9 +2177,14 @@ public protocol RuntimeSettingsProtocol: AnyObject, Sendable {
    * * `Always` targets are always included.
    * * `AutoDetect` targets are included only when their source matches
    * the detected language (or when no detected language is available).
+   *
+   * `text` is what the user typed. It is only read when detection came
+   * back empty, where the script the text is written in stands in for the
+   * language it could not name — see [`TranslationTarget::filter_active`].
    */
-  func getActiveTranslationTargets(targets: [TranslationTarget], detectedLanguage: String?) async
-    -> [TranslationTarget]
+  func getActiveTranslationTargets(
+    targets: [TranslationTarget], detectedLanguage: String?, text: String?
+  ) async -> [TranslationTarget]
 
   func getAdvanced() async throws -> AdvancedSettings
 
@@ -2338,17 +2343,21 @@ open class RuntimeSettings: RuntimeSettingsProtocol, @unchecked Sendable {
    * * `Always` targets are always included.
    * * `AutoDetect` targets are included only when their source matches
    * the detected language (or when no detected language is available).
+   *
+   * `text` is what the user typed. It is only read when detection came
+   * back empty, where the script the text is written in stands in for the
+   * language it could not name — see [`TranslationTarget::filter_active`].
    */
-  open func getActiveTranslationTargets(targets: [TranslationTarget], detectedLanguage: String?)
-    async -> [TranslationTarget]
-  {
+  open func getActiveTranslationTargets(
+    targets: [TranslationTarget], detectedLanguage: String?, text: String?
+  ) async -> [TranslationTarget] {
     return
       try! await uniffiRustCallAsync(
         rustFutureFunc: {
           uniffi_beyondtranslate_runtime_fn_method_runtimesettings_get_active_translation_targets(
             self.uniffiCloneHandle(),
             FfiConverterSequenceTypeTranslationTarget.lower(targets),
-            FfiConverterOptionString.lower(detectedLanguage)
+            FfiConverterOptionString.lower(detectedLanguage), FfiConverterOptionString.lower(text)
           )
         },
         pollFunc: ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
@@ -4762,6 +4771,57 @@ public func FfiConverterTypeHistoryEntryInput_lower(_ value: HistoryEntryInput) 
   return FfiConverterTypeHistoryEntryInput.lower(value)
 }
 
+public struct LanguageCandidate: Equatable, Hashable {
+  public var language: String
+  public var confidence: Double
+
+  // Default memberwise initializers are never public by default, so we
+  // declare one manually.
+  public init(language: String, confidence: Double) {
+    self.language = language
+    self.confidence = confidence
+  }
+
+}
+
+#if compiler(>=6)
+  extension LanguageCandidate: Sendable {}
+#endif
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeLanguageCandidate: FfiConverterRustBuffer {
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
+    -> LanguageCandidate
+  {
+    return
+      try LanguageCandidate(
+        language: FfiConverterString.read(from: &buf),
+        confidence: FfiConverterDouble.read(from: &buf)
+      )
+  }
+
+  public static func write(_ value: LanguageCandidate, into buf: inout [UInt8]) {
+    FfiConverterString.write(value.language, into: &buf)
+    FfiConverterDouble.write(value.confidence, into: &buf)
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeLanguageCandidate_lift(_ buf: RustBuffer) throws -> LanguageCandidate {
+  return try FfiConverterTypeLanguageCandidate.lift(buf)
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
+public func FfiConverterTypeLanguageCandidate_lower(_ value: LanguageCandidate) -> RustBuffer {
+  return FfiConverterTypeLanguageCandidate.lower(value)
+}
+
 public struct LanguageInfo: Equatable, Hashable {
   public var code: String
   public var localName: String
@@ -5497,14 +5557,16 @@ public func FfiConverterTypeShortcutSettingsPatch_lower(_ value: ShortcutSetting
 }
 
 public struct TextDetection: Equatable, Hashable {
-  public var detectedLanguage: String
+  public var detectedLanguage: String?
   public var text: String
+  public var candidates: [LanguageCandidate]
 
   // Default memberwise initializers are never public by default, so we
   // declare one manually.
-  public init(detectedLanguage: String, text: String) {
+  public init(detectedLanguage: String?, text: String, candidates: [LanguageCandidate]) {
     self.detectedLanguage = detectedLanguage
     self.text = text
+    self.candidates = candidates
   }
 
 }
@@ -5521,14 +5583,16 @@ public struct FfiConverterTypeTextDetection: FfiConverterRustBuffer {
   {
     return
       try TextDetection(
-        detectedLanguage: FfiConverterString.read(from: &buf),
-        text: FfiConverterString.read(from: &buf)
+        detectedLanguage: FfiConverterOptionString.read(from: &buf),
+        text: FfiConverterString.read(from: &buf),
+        candidates: FfiConverterSequenceTypeLanguageCandidate.read(from: &buf)
       )
   }
 
   public static func write(_ value: TextDetection, into buf: inout [UInt8]) {
-    FfiConverterString.write(value.detectedLanguage, into: &buf)
+    FfiConverterOptionString.write(value.detectedLanguage, into: &buf)
     FfiConverterString.write(value.text, into: &buf)
+    FfiConverterSequenceTypeLanguageCandidate.write(value.candidates, into: &buf)
   }
 }
 
@@ -7967,6 +8031,33 @@ private struct FfiConverterSequenceTypeHistoryEntry: FfiConverterRustBuffer {
 #if swift(>=5.8)
   @_documentation(visibility: private)
 #endif
+private struct FfiConverterSequenceTypeLanguageCandidate: FfiConverterRustBuffer {
+  typealias SwiftType = [LanguageCandidate]
+
+  public static func write(_ value: [LanguageCandidate], into buf: inout [UInt8]) {
+    let len = Int32(value.count)
+    writeInt(&buf, len)
+    for item in value {
+      FfiConverterTypeLanguageCandidate.write(item, into: &buf)
+    }
+  }
+
+  public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
+    -> [LanguageCandidate]
+  {
+    let len: Int32 = try readInt(&buf)
+    var seq = [LanguageCandidate]()
+    seq.reserveCapacity(Int(len))
+    for _ in 0..<len {
+      seq.append(try FfiConverterTypeLanguageCandidate.read(from: &buf))
+    }
+    return seq
+  }
+}
+
+#if swift(>=5.8)
+  @_documentation(visibility: private)
+#endif
 private struct FfiConverterSequenceTypeLanguageInfo: FfiConverterRustBuffer {
   typealias SwiftType = [LanguageInfo]
 
@@ -8894,7 +8985,7 @@ private let initializationResult: InitializationResult = {
     return InitializationResult.apiChecksumMismatch
   }
   if uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_get_active_translation_targets()
-    != 22616
+    != 2086
   {
     return InitializationResult.apiChecksumMismatch
   }

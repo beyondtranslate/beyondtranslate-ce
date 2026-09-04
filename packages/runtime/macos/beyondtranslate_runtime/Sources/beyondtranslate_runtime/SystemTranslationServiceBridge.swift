@@ -192,14 +192,27 @@ final class SystemTranslationServiceBridge {
 
     Task {
       do {
-        // Texts whose language cannot be identified are left out rather than
-        // given a guess. Callers treat a missing detection as "unknown" and
-        // fall back to their configured targets, which is the honest answer;
-        // a fabricated language silently routes the translation elsewhere.
-        var detections: [[String: String]] = []
+        // A text is never given a guess here. It travels with whatever the
+        // framework will stand behind — a committed language, a ranked set of
+        // candidates, or both — and the runtime decides what to call it.
+        var detections: [[String: Any]] = []
         for text in texts {
-          guard let language = await detectLanguage(text) else { continue }
-          detections.append(["detected_language": language, "text": text])
+          let reading = await read(text)
+          // A text the framework would not name still travels, as long as it
+          // left candidates behind: deciding between them is the runtime's
+          // job, and dropping the entry here would throw that away. Only a
+          // reading with nothing at all in it is left out.
+          guard reading.language != nil || !reading.candidates.isEmpty else { continue }
+          var detection: [String: Any] = [
+            "text": text,
+            "candidates": reading.candidates.map {
+              ["language": $0.language, "confidence": $0.confidence]
+            },
+          ]
+          if let language = reading.language {
+            detection["detected_language"] = language
+          }
+          detections.append(detection)
         }
 
         let data = try JSONSerialization.data(withJSONObject: detections)
@@ -280,26 +293,47 @@ final class SystemTranslationServiceBridge {
   /// 1. `LanguageAvailability.status(for:to:)` runs Apple's own
   ///    translation-side identifier and throws
   ///    `Translation.TranslationError.unableToIdentifyLanguage`
-  ///    when it will not commit. That is a calibrated refusal, not a
-  ///    threshold we guessed.
+  ///    when it will not commit. It gets a say, but not a veto: it refuses
+  ///    on input the constrained recognizer below still reads correctly
+  ///    ("Hello world"), so its refusal raises the bar rather than ending
+  ///    the question.
   /// 2. `NLLanguageRecognizer` is then constrained to the languages this
   ///    provider can actually translate, queried from the framework rather
   ///    than hardcoded, so it can never name an unusable language.
   /// 3. Han text is disambiguated deterministically (see `refineHanVariant`)
   ///    rather than left to a statistical coin flip.
+  ///
+  /// What comes out is a `Reading`: a committed language when the framework
+  /// will stand behind one, plus the ranked candidates underneath it either
+  /// way. This layer never reads the user's settings — narrowing the
+  /// recognizer to the languages someone configured renormalizes every
+  /// confidence against that short list and reads "Bonjour" as English at
+  /// 1.00. Choosing among these candidates is the runtime's job.
+  private struct Reading {
+    let language: String?
+    let candidates: [(language: String, confidence: Double)]
+
+    static let unknown = Reading(language: nil, candidates: [])
+  }
+
   private static func detectLanguage(_ text: String) async -> String? {
+    await read(text).language
+  }
+
+  private static func read(_ text: String) async -> Reading {
     let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !trimmed.isEmpty else { return nil }
+    guard !trimmed.isEmpty else { return .unknown }
 
     guard #available(macOS 15, *) else {
-      return legacyDetectLanguage(trimmed)
+      return Reading(language: legacyDetectLanguage(trimmed), candidates: [])
     }
 
-    // 1. Apple's own identifier gets to veto.
+    // 1. Apple's own identifier gets a say.
+    var identifierRefused = false
     do {
       _ = try await LanguageAvailability().status(for: trimmed, to: nil)
     } catch  where Translation.TranslationError.unableToIdentifyLanguage ~= error {
-      return nil
+      identifierRefused = true
     } catch {
       // Any other failure (pairing, availability, internal) says nothing
       // about identification — keep going.
@@ -312,12 +346,45 @@ final class SystemTranslationServiceBridge {
       recognizer.languageConstraints = constraints
     }
     recognizer.processString(trimmed)
-    guard let dominant = recognizer.dominantLanguage else { return nil }
 
     // 3. Han script carries no reliable simplified/traditional signal for
     //    the statistical model; decide it from the characters themselves.
-    return refineHanVariant(dominant.rawValue, in: trimmed)
+    //    Both zh hypotheses can refine to the same code, and the stronger
+    //    of the two is what that language is really worth.
+    var ranked: [(language: String, confidence: Double)] = []
+    for (language, confidence) in recognizer.languageHypotheses(withMaximum: candidateCount) {
+      let refined = refineHanVariant(language.rawValue, in: trimmed)
+      if let existing = ranked.firstIndex(where: { $0.language == refined }) {
+        ranked[existing].confidence = max(ranked[existing].confidence, confidence)
+      } else {
+        ranked.append((language: refined, confidence: confidence))
+      }
+    }
+    ranked.sort { $0.confidence > $1.confidence }
+
+    guard let top = ranked.first else { return .unknown }
+
+    // Where Apple declined, the recognizer only gets to commit when it is
+    // confident. Constrained to the translatable languages it reads
+    // "Hello world" as English at 0.72, while short function words ("hi",
+    // "ok") stay a spread no candidate wins — which is the honest answer.
+    // The candidates go back regardless: they are exactly what the runtime
+    // needs to break that spread with the user's own languages.
+    if identifierRefused && top.confidence < confidenceFloor {
+      return Reading(language: nil, candidates: ranked)
+    }
+
+    return Reading(language: top.language, candidates: ranked)
   }
+
+  /// How sure the constrained recognizer has to be before it may overrule a
+  /// refusal from Apple's identifier.
+  private static let confidenceFloor = 0.5
+
+  /// How many candidates travel back with a detection. Enough for the
+  /// runtime to walk past the languages the user does not work in, few
+  /// enough that the tail of near-zero scores is not noise.
+  private static let candidateCount = 5
 
   /// Detection path for macOS < 15, where `LanguageAvailability` — and with
   /// it Apple's refusal signal and the translatable-language list — does not
@@ -337,7 +404,7 @@ final class SystemTranslationServiceBridge {
     let isLatin = text.unicodeScalars.allSatisfy { $0.value < 0x0250 }
     let tokens = text.split { !$0.isLetter }
     if isLatin && tokens.count < 2 { return nil }
-    guard hypothesis.value >= 0.5 else { return nil }
+    guard hypothesis.value >= confidenceFloor else { return nil }
 
     return refineHanVariant(hypothesis.key.rawValue, in: text)
   }

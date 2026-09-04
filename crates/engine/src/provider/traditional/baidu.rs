@@ -96,7 +96,9 @@ impl TranslationService for BaiduTranslationService {
 
         Ok(DetectLanguageResponse {
             detections: Some(vec![TextDetection {
-                detected_language: detected.to_owned(),
+                detected_language: Some(detected.to_owned()),
+                // Baidu answers with one language and no ranking.
+                candidates: Vec::new(),
                 text,
             }]),
         })

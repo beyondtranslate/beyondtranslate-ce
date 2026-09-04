@@ -62,11 +62,19 @@ pub struct DetectLanguageRequest {
     pub texts: Vec<String>,
 }
 
+type LanguageCandidate = core::LanguageCandidate;
+#[uniffi::remote(Record)]
+pub struct LanguageCandidate {
+    pub language: String,
+    pub confidence: f64,
+}
+
 type TextDetection = core::TextDetection;
 #[uniffi::remote(Record)]
 pub struct TextDetection {
-    pub detected_language: String,
+    pub detected_language: Option<String>,
     pub text: String,
+    pub candidates: Vec<LanguageCandidate>,
 }
 
 type DetectLanguageResponse = core::DetectLanguageResponse;

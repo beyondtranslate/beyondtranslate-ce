@@ -663,6 +663,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       return await settings.getActiveTranslationTargets(
         targets: persistentTargets,
         detectedLanguage: _detectedLanguage,
+        // Detection refuses on short input; the runtime falls back to the
+        // script the query is written in so 自动匹配 still routes away from
+        // the language the text is already in.
+        text: _text,
       );
     }
 

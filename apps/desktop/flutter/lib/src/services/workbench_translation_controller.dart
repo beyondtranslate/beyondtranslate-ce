@@ -35,9 +35,12 @@ abstract interface class WorkbenchTranslationGateway {
 
   /// The subset of [targets] that applies to what detection found — the rule
   /// behind 自动匹配, which the runtime owns so both windows resolve it alike.
+  /// [text] is the query itself: when detection came back empty the runtime
+  /// routes on the script it is written in instead.
   Future<List<TranslationTarget>> activeTranslationTargets(
     List<TranslationTarget> targets,
     String? detectedLanguage,
+    String text,
   );
 }
 
@@ -105,10 +108,12 @@ class RuntimeWorkbenchTranslationGateway
   Future<List<TranslationTarget>> activeTranslationTargets(
     List<TranslationTarget> targets,
     String? detectedLanguage,
+    String text,
   ) {
     return runtime.settings().getActiveTranslationTargets(
           targets: targets,
           detectedLanguage: detectedLanguage,
+          text: text,
         );
   }
 }
@@ -329,7 +334,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
 
     // 自动匹配 can only be settled once detection has spoken, so the targets
     // are resolved here rather than when they were picked.
-    final targets = await _resolveTargets(requestId);
+    final targets = await _resolveTargets(requestId, query);
     if (requestId != _requestId) return;
     if (!listEquals(targets, standing)) {
       for (final result in results) {
@@ -364,7 +369,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
   /// configured, nothing matching, or a runtime that would not answer, the
   /// last concrete targets stand: a target we cannot resolve is no reason to
   /// fail the whole query.
-  Future<List<String>> _resolveTargets(int requestId) async {
+  Future<List<String>> _resolveTargets(int requestId, String query) async {
     final picked = targetLanguage;
     if (picked != null) return [picked];
 
@@ -377,6 +382,7 @@ class WorkbenchTranslationController extends ChangeNotifier {
         // A source the user picked outranks the detector: they have said
         // what the text is, and 自动匹配 routes away from it just the same.
         isAutoSource(sourceLanguage) ? detectedLanguage : sourceLanguage,
+        query,
       );
       if (requestId != _requestId) return _resolvedTargets;
       // Two rules naming the same language are one translation, not two.

@@ -2441,6 +2441,63 @@ class FfiConverterDetectLanguageResponse {
   }
 }
 
+class LanguageCandidate {
+  final String language;
+  final double confidence;
+  LanguageCandidate({
+    required this.language,
+    required this.confidence,
+  });
+}
+
+class FfiConverterLanguageCandidate {
+  static LanguageCandidate lift(RustBuffer buf) {
+    return FfiConverterLanguageCandidate.read(buf.asUint8List()).value;
+  }
+
+  static LiftRetVal<LanguageCandidate> read(Uint8List buf) {
+    int new_offset = buf.offsetInBytes;
+    final language_lifted =
+        FfiConverterString.read(Uint8List.view(buf.buffer, new_offset));
+    final language = language_lifted.value;
+    new_offset += language_lifted.bytesRead;
+    final confidence_lifted =
+        FfiConverterDouble64.read(Uint8List.view(buf.buffer, new_offset));
+    final confidence = confidence_lifted.value;
+    new_offset += confidence_lifted.bytesRead;
+    return LiftRetVal(
+        LanguageCandidate(
+          language: language,
+          confidence: confidence,
+        ),
+        new_offset - buf.offsetInBytes);
+  }
+
+  static RustBuffer lower(LanguageCandidate value) {
+    final total_length = FfiConverterString.allocationSize(value.language) +
+        FfiConverterDouble64.allocationSize(value.confidence) +
+        0;
+    final buf = Uint8List(total_length);
+    write(value, buf);
+    return toRustBuffer(buf);
+  }
+
+  static int write(LanguageCandidate value, Uint8List buf) {
+    int new_offset = buf.offsetInBytes;
+    new_offset += FfiConverterString.write(
+        value.language, Uint8List.view(buf.buffer, new_offset));
+    new_offset += FfiConverterDouble64.write(
+        value.confidence, Uint8List.view(buf.buffer, new_offset));
+    return new_offset - buf.offsetInBytes;
+  }
+
+  static int allocationSize(LanguageCandidate value) {
+    return FfiConverterString.allocationSize(value.language) +
+        FfiConverterDouble64.allocationSize(value.confidence) +
+        0;
+  }
+}
+
 class LanguageInfo {
   final String code;
   final String localName;
@@ -3067,11 +3124,13 @@ class FfiConverterRecognizedRect {
 }
 
 class TextDetection {
-  final String detectedLanguage;
+  final String? detectedLanguage;
   final String text;
+  final List<LanguageCandidate> candidates;
   TextDetection({
-    required this.detectedLanguage,
+    this.detectedLanguage,
     required this.text,
+    required this.candidates,
   });
 }
 
@@ -3083,26 +3142,32 @@ class FfiConverterTextDetection {
   static LiftRetVal<TextDetection> read(Uint8List buf) {
     int new_offset = buf.offsetInBytes;
     final detectedLanguage_lifted =
-        FfiConverterString.read(Uint8List.view(buf.buffer, new_offset));
+        FfiConverterOptionalString.read(Uint8List.view(buf.buffer, new_offset));
     final detectedLanguage = detectedLanguage_lifted.value;
     new_offset += detectedLanguage_lifted.bytesRead;
     final text_lifted =
         FfiConverterString.read(Uint8List.view(buf.buffer, new_offset));
     final text = text_lifted.value;
     new_offset += text_lifted.bytesRead;
+    final candidates_lifted = FfiConverterSequenceLanguageCandidate.read(
+        Uint8List.view(buf.buffer, new_offset));
+    final candidates = candidates_lifted.value;
+    new_offset += candidates_lifted.bytesRead;
     return LiftRetVal(
         TextDetection(
           detectedLanguage: detectedLanguage,
           text: text,
+          candidates: candidates,
         ),
         new_offset - buf.offsetInBytes);
   }
 
   static RustBuffer lower(TextDetection value) {
-    final total_length =
-        FfiConverterString.allocationSize(value.detectedLanguage) +
-            FfiConverterString.allocationSize(value.text) +
-            0;
+    final total_length = FfiConverterOptionalString.allocationSize(
+            value.detectedLanguage) +
+        FfiConverterString.allocationSize(value.text) +
+        FfiConverterSequenceLanguageCandidate.allocationSize(value.candidates) +
+        0;
     final buf = Uint8List(total_length);
     write(value, buf);
     return toRustBuffer(buf);
@@ -3110,16 +3175,19 @@ class FfiConverterTextDetection {
 
   static int write(TextDetection value, Uint8List buf) {
     int new_offset = buf.offsetInBytes;
-    new_offset += FfiConverterString.write(
+    new_offset += FfiConverterOptionalString.write(
         value.detectedLanguage, Uint8List.view(buf.buffer, new_offset));
     new_offset += FfiConverterString.write(
         value.text, Uint8List.view(buf.buffer, new_offset));
+    new_offset += FfiConverterSequenceLanguageCandidate.write(
+        value.candidates, Uint8List.view(buf.buffer, new_offset));
     return new_offset - buf.offsetInBytes;
   }
 
   static int allocationSize(TextDetection value) {
-    return FfiConverterString.allocationSize(value.detectedLanguage) +
+    return FfiConverterOptionalString.allocationSize(value.detectedLanguage) +
         FfiConverterString.allocationSize(value.text) +
+        FfiConverterSequenceLanguageCandidate.allocationSize(value.candidates) +
         0;
   }
 }
@@ -5662,6 +5730,7 @@ abstract class RuntimeSettingsInterface {
   Future<List<TranslationTarget>> getActiveTranslationTargets({
     required List<TranslationTarget> targets,
     required String? detectedLanguage,
+    required String? text,
   });
   Future<AdvancedSettings> getAdvanced();
   Future<AppearanceSettings> getAppearance();
@@ -5805,6 +5874,7 @@ class RuntimeSettings implements RuntimeSettingsInterface {
   Future<List<TranslationTarget>> getActiveTranslationTargets({
     required List<TranslationTarget> targets,
     required String? detectedLanguage,
+    required String? text,
   }) {
     return uniffiRustCallAsync(
       () =>
@@ -5812,6 +5882,7 @@ class RuntimeSettings implements RuntimeSettingsInterface {
         uniffiClonePointer(),
         FfiConverterSequenceTranslationTarget.lower(targets),
         FfiConverterOptionalString.lower(detectedLanguage),
+        FfiConverterOptionalString.lower(text),
       ),
       ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
       ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
@@ -8871,6 +8942,48 @@ class FfiConverterSequenceHistoryEntry {
   }
 }
 
+class FfiConverterSequenceLanguageCandidate {
+  static List<LanguageCandidate> lift(RustBuffer buf) {
+    return FfiConverterSequenceLanguageCandidate.read(buf.asUint8List()).value;
+  }
+
+  static LiftRetVal<List<LanguageCandidate>> read(Uint8List buf) {
+    List<LanguageCandidate> res = [];
+    final length = buf.buffer.asByteData(buf.offsetInBytes).getInt32(0);
+    int offset = buf.offsetInBytes + 4;
+    for (var i = 0; i < length; i++) {
+      final ret = FfiConverterLanguageCandidate.read(
+          Uint8List.view(buf.buffer, offset));
+      offset += ret.bytesRead;
+      res.add(ret.value);
+    }
+    return LiftRetVal(res, offset - buf.offsetInBytes);
+  }
+
+  static int write(List<LanguageCandidate> value, Uint8List buf) {
+    buf.buffer.asByteData(buf.offsetInBytes).setInt32(0, value.length);
+    int offset = buf.offsetInBytes + 4;
+    for (var i = 0; i < value.length; i++) {
+      offset += FfiConverterLanguageCandidate.write(
+          value[i], Uint8List.view(buf.buffer, offset));
+    }
+    return offset - buf.offsetInBytes;
+  }
+
+  static int allocationSize(List<LanguageCandidate> value) {
+    return value
+            .map((l) => FfiConverterLanguageCandidate.allocationSize(l))
+            .fold(0, (a, b) => a + b) +
+        4;
+  }
+
+  static RustBuffer lower(List<LanguageCandidate> value) {
+    final buf = Uint8List(allocationSize(value));
+    write(value, buf);
+    return toRustBuffer(buf);
+  }
+}
+
 class FfiConverterSequenceLanguageInfo {
   static List<LanguageInfo> lift(RustBuffer buf) {
     return FfiConverterSequenceLanguageInfo.read(buf.asUint8List()).value;
@@ -10000,11 +10113,15 @@ external Pointer<Void>
     uniffi_beyondtranslate_runtime_fn_method_runtimesettings_generate_provider_id(
         Pointer<Void> ptr, RustBuffer provider_type);
 
-@Native<Pointer<Void> Function(Pointer<Void>, RustBuffer, RustBuffer)>(
-    assetId: _uniffiAssetId)
+@Native<
+    Pointer<Void> Function(Pointer<Void>, RustBuffer, RustBuffer,
+        RustBuffer)>(assetId: _uniffiAssetId)
 external Pointer<Void>
     uniffi_beyondtranslate_runtime_fn_method_runtimesettings_get_active_translation_targets(
-        Pointer<Void> ptr, RustBuffer targets, RustBuffer detected_language);
+        Pointer<Void> ptr,
+        RustBuffer targets,
+        RustBuffer detected_language,
+        RustBuffer text);
 
 @Native<Pointer<Void> Function(Pointer<Void>)>(assetId: _uniffiAssetId)
 external Pointer<Void>
@@ -11273,7 +11390,7 @@ void _checkApiChecksums() {
     throw UniffiInternalError.panicked("UniFFI API checksum mismatch");
   }
   if (uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_get_active_translation_targets() !=
-      22616) {
+      2086) {
     throw UniffiInternalError.panicked("UniFFI API checksum mismatch");
   }
   if (uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_get_advanced() !=

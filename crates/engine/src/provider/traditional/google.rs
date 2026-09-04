@@ -87,7 +87,10 @@ impl TranslationService for GoogleTranslationService {
             .iter()
             .filter_map(|item| item["language"].as_str())
             .map(|language| TextDetection {
-                detected_language: language.to_owned(),
+                detected_language: Some(language.to_owned()),
+                // The detect endpoint reports a confidence, but only for the
+                // one language it settled on — not a ranking to choose from.
+                candidates: Vec::new(),
                 text: text.clone(),
             })
             .collect();

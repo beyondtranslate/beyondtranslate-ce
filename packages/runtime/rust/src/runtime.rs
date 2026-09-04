@@ -515,6 +515,34 @@ impl Runtime {
 }
 
 impl Runtime {
+    /// The languages the user actually translates between: every enabled
+    /// translation target's language, plus any source they pinned to a
+    /// concrete language.
+    ///
+    /// This is the tiebreak [`TextDetection::resolve_language`] leans on when
+    /// a detector will not commit, so it stays deliberately tight. The
+    /// "common languages" setting is a menu-ordering preference that spans a
+    /// dozen widely-spoken languages — leaning on that would put French and
+    /// German back in the running for "hi" and make the tiebreak meaningless.
+    pub(crate) async fn user_languages(&self) -> Vec<String> {
+        let state = self.inner.state.read().await;
+        let mut languages: Vec<String> = Vec::new();
+        for target in &state.settings.general.translation_targets {
+            if !target.enabled {
+                continue;
+            }
+            for language in [&target.target, &target.source] {
+                if language.is_empty() || language == TranslationTarget::AUTO_SOURCE {
+                    continue;
+                }
+                if !languages.iter().any(|known| known == language) {
+                    languages.push(language.clone());
+                }
+            }
+        }
+        languages
+    }
+
     pub(crate) async fn api_translate(
         &self,
         provider_id: String,
@@ -558,7 +586,14 @@ impl Runtime {
             )
         })?;
 
-        service.detect_language(request).await.map_err(Into::into)
+        let response = service.detect_language(request).await?;
+        // The same decision the app's own path makes, so `detectedLanguage`
+        // means one thing everywhere. The candidates travel along, so a
+        // caller that wants the unfiltered reading still has it.
+        Ok(decide_detected_languages(
+            response,
+            &self.user_languages().await,
+        ))
     }
 
     pub(crate) async fn api_supported_language_pairs(
@@ -850,12 +885,17 @@ impl RuntimeSettings {
     /// * `Always` targets are always included.
     /// * `AutoDetect` targets are included only when their source matches
     ///   the detected language (or when no detected language is available).
+    ///
+    /// `text` is what the user typed. It is only read when detection came
+    /// back empty, where the script the text is written in stands in for the
+    /// language it could not name — see [`TranslationTarget::filter_active`].
     pub async fn get_active_translation_targets(
         &self,
         targets: Vec<TranslationTarget>,
         detected_language: Option<String>,
+        text: Option<String>,
     ) -> Vec<TranslationTarget> {
-        TranslationTarget::filter_active(&targets, detected_language.as_deref())
+        TranslationTarget::filter_active(&targets, detected_language.as_deref(), text.as_deref())
     }
 
     pub async fn get_json(&self) -> Result<String, RuntimeError> {
@@ -1621,7 +1661,7 @@ impl RuntimeTranslation {
                     .map_err(|error| error.to_string())?
                     .clone()
             };
-            if let Some(translation_service) = provider.translation() {
+            let response = if let Some(translation_service) = provider.translation() {
                 translation_service
                     .detect_language(DetectLanguageRequest { texts })
                     .await
@@ -1677,8 +1717,10 @@ impl RuntimeTranslation {
                 let detections: Vec<beyondtranslate_core::TextDetection> = texts
                     .iter()
                     .map(|t| beyondtranslate_core::TextDetection {
-                        detected_language: code.clone(),
+                        detected_language: Some(code.clone()),
                         text: t.clone(),
+                        // The prompt asks for one code, not a ranking.
+                        candidates: Vec::new(),
                     })
                     .collect();
 
@@ -1689,10 +1731,34 @@ impl RuntimeTranslation {
                 Err(format!(
                     "provider `{provider_id}` does not support translation"
                 ))
-            }
+            }?;
+
+            // The provider reads the text; deciding what to call it is this
+            // layer's job, because this is the only layer that knows which
+            // languages the user works in. Detectors that hand back a ranked
+            // reading get resolved against that; detectors that only ever
+            // name one language pass through untouched.
+            Ok(decide_detected_languages(
+                response,
+                &runtime.user_languages().await,
+            ))
         })
         .await
     }
+}
+
+/// Commits every detection in `response` to a language, or to nothing — see
+/// [`TextDetection::resolve_language`].
+fn decide_detected_languages(
+    mut response: DetectLanguageResponse,
+    user_languages: &[String],
+) -> DetectLanguageResponse {
+    if let Some(detections) = response.detections.as_mut() {
+        for detection in detections.iter_mut() {
+            detection.detected_language = detection.resolve_language(user_languages);
+        }
+    }
+    response
 }
 
 impl RuntimeDictionary {
@@ -3345,5 +3411,91 @@ mod tests {
                 "deepl+translation"
             );
         });
+    }
+
+    fn candidate(language: &str, confidence: f64) -> beyondtranslate_core::LanguageCandidate {
+        beyondtranslate_core::LanguageCandidate {
+            language: language.to_owned(),
+            confidence,
+        }
+    }
+
+    #[test]
+    fn user_languages_reads_the_configured_targets() {
+        let runtime = create_runtime();
+
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap()
+            .block_on(async {
+                runtime
+                    .clone()
+                    .settings()
+                    .update_general(GeneralSettingsPatch {
+                        translation_targets: Some(vec![
+                            TranslationTarget {
+                                source: TranslationTarget::AUTO_SOURCE.to_owned(),
+                                target: "zh-Hans".to_owned(),
+                                enabled: true,
+                            },
+                            TranslationTarget {
+                                source: "ja".to_owned(),
+                                target: "en".to_owned(),
+                                enabled: true,
+                            },
+                            // Switched off on 服务, so not a language the
+                            // user works in today.
+                            TranslationTarget {
+                                source: TranslationTarget::AUTO_SOURCE.to_owned(),
+                                target: "ko".to_owned(),
+                                enabled: false,
+                            },
+                        ]),
+                        ..Default::default()
+                    })
+                    .await
+                    .expect("failed to set translation targets");
+
+                let languages = runtime.user_languages().await;
+                assert_eq!(languages, vec!["zh-Hans", "en", "ja"]);
+            });
+    }
+
+    #[test]
+    fn decide_detected_languages_commits_every_detection() {
+        let response = DetectLanguageResponse {
+            detections: Some(vec![
+                // Confident enough to stand on its own, and the user does
+                // not work in it — rule ① still takes it.
+                TextDetection {
+                    detected_language: Some("fr".to_owned()),
+                    text: "Bonjour".to_owned(),
+                    candidates: vec![candidate("fr", 0.85), candidate("en", 0.05)],
+                },
+                // A spread the user's own languages break — the provider's
+                // own top pick is overruled here.
+                TextDetection {
+                    detected_language: Some("de".to_owned()),
+                    text: "hi".to_owned(),
+                    candidates: vec![candidate("de", 0.42), candidate("en", 0.30)],
+                },
+                // Nothing the user works in, nothing confident: unknown, and
+                // the entry survives so the candidates are still readable.
+                TextDetection {
+                    detected_language: None,
+                    text: "Ciao".to_owned(),
+                    candidates: vec![candidate("it", 0.44), candidate("pt", 0.11)],
+                },
+            ]),
+        };
+
+        let decided = decide_detected_languages(response, &["zh-Hans".to_owned(), "en".to_owned()]);
+        let detections = decided.detections.expect("detections should survive");
+
+        assert_eq!(detections[0].detected_language.as_deref(), Some("fr"));
+        assert_eq!(detections[1].detected_language.as_deref(), Some("en"));
+        assert_eq!(detections[2].detected_language, None);
+        assert_eq!(detections[2].candidates.len(), 2);
     }
 }

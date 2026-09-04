@@ -462,7 +462,9 @@ impl TranslationService for YoudaoTranslationService {
 
         Ok(DetectLanguageResponse {
             detections: Some(vec![TextDetection {
-                detected_language,
+                detected_language: Some(detected_language),
+                // Youdao answers with one language and no ranking.
+                candidates: Vec::new(),
                 text,
             }]),
         })

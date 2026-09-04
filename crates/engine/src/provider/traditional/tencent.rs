@@ -84,7 +84,9 @@ impl TranslationService for TencentTranslationService {
 
         Ok(DetectLanguageResponse {
             detections: Some(vec![TextDetection {
-                detected_language: lang.to_owned(),
+                detected_language: Some(lang.to_owned()),
+                // Tencent answers with one language and no ranking.
+                candidates: Vec::new(),
                 text,
             }]),
         })

@@ -54,6 +54,9 @@ void main() {
 
     expect(gateway.activeCalls, 1);
     expect(gateway.detectedPassedToActive, 'ja');
+    // The query goes along too: it is what the runtime routes on when
+    // detection comes back empty.
+    expect(gateway.textPassedToActive, 'こんにちは');
     // The capsule still says 自动匹配…
     expect(controller.targetLanguage, isNull);
     // …while the query went to the language it resolved to.
@@ -285,6 +288,7 @@ class _FakeGateway implements WorkbenchTranslationGateway {
   final List<String?> requestedTargets = [];
   int activeCalls = 0;
   String? detectedPassedToActive;
+  String? textPassedToActive;
 
   @override
   List<TranslationTarget> configuredTranslationTargets() => configured;
@@ -293,9 +297,11 @@ class _FakeGateway implements WorkbenchTranslationGateway {
   Future<List<TranslationTarget>> activeTranslationTargets(
     List<TranslationTarget> targets,
     String? detectedLanguage,
+    String text,
   ) async {
     activeCalls++;
     detectedPassedToActive = detectedLanguage;
+    textPassedToActive = text;
     if (activeThrows) throw StateError('runtime unavailable');
     return active;
   }
