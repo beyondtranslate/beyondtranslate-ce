@@ -138,7 +138,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     if (kIsLinux || kIsMacOS || kIsWindows) {
       ShortcutService.instance.setListener(null);
       _unregisterWindowEvents();
-      _uninit();
     }
     _resizeSettledTimer?.cancel();
     _copiedTimer?.cancel();
@@ -177,8 +176,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       _isAllowedScreenSelectionAccess =
           await runtime.permission().isAccessibilityPermissionGranted();
     }
-
-    ShortcutService.instance.start();
 
     await Future.delayed(const Duration(milliseconds: 100));
     // This page is only built as part of the window's first show, which has
@@ -249,10 +246,6 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       nativeapi.WindowManager.instance.removeListener(_windowMovedListenerId!);
       _windowMovedListenerId = null;
     }
-  }
-
-  void _uninit() {
-    ShortcutService.instance.stop();
   }
 
   Future<void> _windowShow() async {

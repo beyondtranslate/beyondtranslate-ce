@@ -15,6 +15,7 @@ import '../services/app_windows.dart';
 import '../services/dock_icon_controller.dart';
 import '../services/mac_app_presentation.dart';
 import '../services/settings_store.dart';
+import '../services/shortcut_service/shortcut_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/language_util.dart';
 import '../widgets/toast_host.dart';
@@ -208,6 +209,9 @@ class _RootBodyViewState extends State<_RootBodyView> {
     _showInMenuBar = settingsStore.general.showInMenuBar;
     settingsStore.addListener(_handleChanged);
     _setupTrayIcon();
+    // The global keys answer for as long as the app runs, not for as long as
+    // any window is up: 唤起迷你翻译 has to work before that window exists.
+    ShortcutService.instance.start();
     MacAppPresentation.setHandlers(
       // The Dock icon only exists while the app is promoted, and the workbench
       // is the only window worth restoring from it — the mini translator is

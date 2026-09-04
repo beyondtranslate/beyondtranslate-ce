@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:nativeapi/nativeapi.dart' show Shortcut, ShortcutManager;
 
+import '../app_windows.dart' show showMiniTranslatorWindow;
 import '../settings_store.dart';
 
 abstract mixin class ShortcutListener {
@@ -11,6 +14,16 @@ abstract mixin class ShortcutListener {
   void onShortcutKeyDownTranslateInputContent();
 }
 
+/// The actions the global keys fire, named apart from [ShortcutListener] so one
+/// can be held over the gap between the press and the page that carries it out.
+enum _ShortcutAction {
+  toggleMiniTranslator,
+  extractFromScreenSelection,
+  extractFromScreenCapture,
+  extractFromClipboard,
+  translateInputContent,
+}
+
 /// Manages global hotkeys for the mini translator.
 ///
 /// The Rust runtime owns the bindings (`RuntimeSettings.getShortcuts`) as
@@ -18,6 +31,17 @@ abstract mixin class ShortcutListener {
 /// [ShortcutManager] parses — so registration is a straight pass-through.
 /// While started, the service follows [SettingsStore] so an edit on the
 /// 快捷键 page re-registers the keys without a restart.
+///
+/// [start] belongs to the app's lifetime rather than to any one window's. The
+/// mini translator window is created on first use, and a key whose whole job is
+/// to summon it has to work before it exists — registering from the page it
+/// summons would mean the key only ever works after the window has already been
+/// opened by hand.
+///
+/// What a key *does* still belongs to the mini translator page, which owns the
+/// input box and the results ([setListener]). A press that lands before the page
+/// exists therefore brings the window up, and is replayed to the page as soon as
+/// it attaches.
 class ShortcutService {
   ShortcutService._();
 
@@ -25,6 +49,11 @@ class ShortcutService {
   static final ShortcutService instance = ShortcutService._();
 
   ShortcutListener? _listener;
+
+  /// A press that arrived with no listener and is waiting for one. Only ever
+  /// the last such press: keys that queue up behind a window that is still
+  /// coming up are the same request made twice, not two requests.
+  _ShortcutAction? _pendingAction;
 
   bool _started = false;
   final List<Shortcut> _registered = [];
@@ -36,24 +65,31 @@ class ShortcutService {
 
   void setListener(ShortcutListener? listener) {
     _listener = listener;
+    if (listener == null) return;
+    final pending = _pendingAction;
+    _pendingAction = null;
+    if (pending != null) _deliver(pending, listener);
   }
 
-  /// Each action's current accelerator, paired with what pressing it does.
-  /// An empty string is an unbound action and registers nothing.
-  List<(String, VoidCallback)> get _bindings {
+  /// Each action's current accelerator, paired with the action it fires. An
+  /// empty string is an unbound action and registers nothing.
+  List<(String, _ShortcutAction)> get _bindings {
     final shortcuts = settingsStore.shortcuts;
     return [
-      (shortcuts.toggleMiniTranslator, notifyToggleMiniTranslator),
+      (shortcuts.toggleMiniTranslator, _ShortcutAction.toggleMiniTranslator),
       (
         shortcuts.extractTextFromScreenSelection,
-        notifyExtractTextFromScreenSelection,
+        _ShortcutAction.extractFromScreenSelection,
       ),
       (
         shortcuts.extractTextFromScreenCapture,
-        notifyExtractTextFromScreenCapture,
+        _ShortcutAction.extractFromScreenCapture,
       ),
-      (shortcuts.extractTextFromClipboard, notifyExtractTextFromClipboard),
-      (shortcuts.translateInputContent, notifyTranslateInputContent),
+      (
+        shortcuts.extractTextFromClipboard,
+        _ShortcutAction.extractFromClipboard,
+      ),
+      (shortcuts.translateInputContent, _ShortcutAction.translateInputContent),
     ];
   }
 
@@ -85,10 +121,13 @@ class ShortcutService {
     _unregisterAll();
     final bindings = _bindings;
     _applied = [for (final (accelerator, _) in bindings) accelerator];
-    for (final (accelerator, callback) in bindings) {
+    for (final (accelerator, action) in bindings) {
       if (accelerator.trim().isEmpty) continue;
-      final shortcut = ShortcutManager.instance
-          .registerWithAcceleratorAndCallback(accelerator, callback);
+      final shortcut =
+          ShortcutManager.instance.registerWithAcceleratorAndCallback(
+        accelerator,
+        () => _dispatch(action),
+      );
       if (shortcut == null) {
         // Invalid accelerator, or the key is taken — by another app, or by
         // another row on the 快捷键 page (the page shows that conflict).
@@ -107,15 +146,56 @@ class ShortcutService {
     _registered.clear();
   }
 
-  // Hooks for tests / future direct invocation.
+  void _dispatch(_ShortcutAction action) {
+    final listener = _listener;
+    if (listener != null) {
+      _deliver(action, listener);
+      return;
+    }
+
+    switch (action) {
+      // Putting the window up *is* the toggle when there is no window yet, so
+      // this one is answered here rather than replayed — handing it on would
+      // toggle the window straight back off.
+      case _ShortcutAction.toggleMiniTranslator:
+        unawaited(showMiniTranslatorWindow());
+      case _ShortcutAction.extractFromScreenSelection:
+      case _ShortcutAction.extractFromScreenCapture:
+      case _ShortcutAction.extractFromClipboard:
+        _pendingAction = action;
+        unawaited(showMiniTranslatorWindow());
+      // Reads the frontmost app's own input box; the mini translator window
+      // has no part in it, so a press with nobody listening is simply dropped.
+      case _ShortcutAction.translateInputContent:
+        break;
+    }
+  }
+
+  void _deliver(_ShortcutAction action, ShortcutListener listener) {
+    switch (action) {
+      case _ShortcutAction.toggleMiniTranslator:
+        listener.onShortcutKeyDownToggleMiniTranslator();
+      case _ShortcutAction.extractFromScreenSelection:
+        listener.onShortcutKeyDownExtractFromScreenSelection();
+      case _ShortcutAction.extractFromScreenCapture:
+        listener.onShortcutKeyDownExtractFromScreenCapture();
+      case _ShortcutAction.extractFromClipboard:
+        listener.onShortcutKeyDownExtractFromClipboard();
+      case _ShortcutAction.translateInputContent:
+        listener.onShortcutKeyDownTranslateInputContent();
+    }
+  }
+
+  // Hooks for tests / direct invocation; they take the same path a key press
+  // does, pending replay included.
   void notifyToggleMiniTranslator() =>
-      _listener?.onShortcutKeyDownToggleMiniTranslator();
+      _dispatch(_ShortcutAction.toggleMiniTranslator);
   void notifyExtractTextFromScreenSelection() =>
-      _listener?.onShortcutKeyDownExtractFromScreenSelection();
+      _dispatch(_ShortcutAction.extractFromScreenSelection);
   void notifyExtractTextFromScreenCapture() =>
-      _listener?.onShortcutKeyDownExtractFromScreenCapture();
+      _dispatch(_ShortcutAction.extractFromScreenCapture);
   void notifyExtractTextFromClipboard() =>
-      _listener?.onShortcutKeyDownExtractFromClipboard();
+      _dispatch(_ShortcutAction.extractFromClipboard);
   void notifyTranslateInputContent() =>
-      _listener?.onShortcutKeyDownTranslateInputContent();
+      _dispatch(_ShortcutAction.translateInputContent);
 }
