@@ -149,10 +149,10 @@ packages:
     dependency: transitive
     description:
       name: cnativeapi
-      sha256: fb08163e70135ec6c20bb8cb6f9598f8ee6866e9e55285b48ca37ac4e1f30189
+      sha256: df6bce82fd95ec3bb4cd6cab5e57ec05072af496c3e5401be178309887a5210b
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.2.2"
   code_assets:
     dependency: transitive
     description:
@@ -497,10 +497,10 @@ packages:
     dependency: transitive
     description:
       name: nativeapi
-      sha256: d4277c8ad49da3387002db3d664e3d33be031493a573320bba4f147e52bd6a39
+      sha256: "1d2d912d9a655a7d2f72de8f929b18ab2e47b0f7b3f287caf675d3026c832808"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.2.2"
   objective_c:
     dependency: transitive
     description:
@@ -517,22 +517,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
-  package_info_plus:
-    dependency: transitive
-    description:
-      name: package_info_plus
-      sha256: "468c26b4254ab01979fa5e4a98cb343ea3631b9acee6f21028997419a80e1a20"
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.0.1"
-  package_info_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: package_info_plus_platform_interface
-      sha256: "202a487f08836a592a6bd4f901ac69b3a8f146af552bbd14407b6b41e1c3f086"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.1"
   path:
     dependency: transitive
     description:
@@ -850,14 +834,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
-  win32:
-    dependency: transitive
-    description:
-      name: win32
-      sha256: d7cb55e04cd34096cd3a79b3330245f54cb96a370a1c27adb3c84b917de8b08e
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.15.0"
   xdg_directories:
     dependency: transitive
     description:

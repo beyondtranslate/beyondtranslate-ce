@@ -17,7 +17,7 @@ Future<void> _ensureInitialized() async {
   _smokeTestBeyondtranslateRuntime();
   await initRuntime();
 
-  await initEnv();
+  initEnv();
   await settingsStore.init();
   await glossaryStore.init();
   await historyStore.init();

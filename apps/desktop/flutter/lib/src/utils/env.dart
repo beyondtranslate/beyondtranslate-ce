@@ -1,14 +1,17 @@
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:nativeapi/nativeapi.dart';
 
-const kAppBuildNumber = '11';
+void initEnv() {
+  const appInfo = AppInfo.instance;
 
-Future<void> initEnv() async {
-  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  final buildNumber = int.tryParse(appInfo.getBuildNumber() ?? '');
+  if (buildNumber != null) {
+    Env.instance.appBuildNumber = buildNumber;
+  }
 
-  Env.instance.appBuildNumber = int.parse(
-    packageInfo.buildNumber.isEmpty ? kAppBuildNumber : packageInfo.buildNumber,
-  );
-  Env.instance.appVersion = packageInfo.version;
+  final version = appInfo.getVersion();
+  if (version != null && version.isNotEmpty) {
+    Env.instance.appVersion = version;
+  }
 }
 
 class Env {
