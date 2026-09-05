@@ -220,12 +220,10 @@ List<ProviderConfigEntry> configurableProviders(
       .toList(growable: false);
 }
 
-/// What a service is called on screen. The runtime names the built-in ones in
-/// English; here they read 系统/翻译 and 系统/OCR in the app's language.
 /// Whether [service] is the translation service 设置 · 服务 marks 默认. Its
-/// name stays off the attribution rows — 译文 · 简体中文 is enough when the
-/// answer came from the service you would expect; a name appears only once
-/// you promoted another, so you know what you switched to.
+/// name stays off the block headings — 译文 简体中文 is enough when the answer
+/// came from the service you would expect; a name appears only once you
+/// promoted another, so you know what you switched to.
 ///
 /// The default is stored as the service id `list_services` hands out; older
 /// settings carried the bare provider id, which the runtime now rewrites on
@@ -239,6 +237,8 @@ bool isDefaultTranslationService(
       (isImplicitService(service) && current == service.providerId);
 }
 
+/// What a service is called on screen. The runtime names the built-in ones in
+/// English; here they read 系统/翻译 and 系统/OCR in the app's language.
 String serviceDisplayName(ServiceConfigEntry service) {
   if (isBuiltinService(service)) {
     return '${t.common.provider.system}/${serviceTypeLabel(service.type)}';
