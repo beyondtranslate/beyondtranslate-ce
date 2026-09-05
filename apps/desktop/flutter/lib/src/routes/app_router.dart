@@ -214,9 +214,9 @@ class _RootBodyViewState extends State<_RootBodyView> {
     ShortcutService.instance.start();
     MacAppPresentation.setHandlers(
       // The Dock icon only exists while the app is promoted, and the workbench
-      // is the only window worth restoring from it — the mini translator is
-      // tray/shortcut driven and closes on blur. Focus rather than show: a
-      // Dock click brings the window back on whatever page it was on.
+      // is the only window it stands for — the mini translator is
+      // tray/shortcut driven. Focus rather than show: a Dock click brings the
+      // window back on whatever page it was on.
       onReopen: focusWorkbenchWindow,
       onOpenSettings: showSettingsWindow,
     );

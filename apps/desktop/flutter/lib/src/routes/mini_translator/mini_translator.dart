@@ -17,11 +17,11 @@ import '../../routes/settings/provider_meta.dart'
 import '../../routes/settings/services.dart' show ServicesSettingsPage;
 import '../../services/app_windows.dart'
     show
+        handOffToWorkbench,
         hideMiniTranslatorWindow,
         miniTranslatorPositionAtCursorScreenTopRight,
         miniTranslatorWindowController,
         showMiniTranslatorWindow,
-        showWorkbenchWindow,
         showSettingsWindow;
 import '../../services/history_store.dart';
 import '../../services/llm_stream.dart';
@@ -217,7 +217,9 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       if (event is! nativeapi.WindowBlurredEvent) return;
       if (event.windowId == _window.id) {
         _focusNode.unfocus();
-        if (!_window.isAlwaysOnTop) {
+        // The pin state, not the window level: on macOS the window is always
+        // at the floating level (see `app_windows.dart`).
+        if (!_isAlwaysOnTop) {
           hideMiniTranslatorWindow();
         }
       }
@@ -275,7 +277,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
     final isVisible = _window.isVisible;
     if (!isVisible) {
-      // Through the window layer, so the workbench gets out of the way.
+      // Through the window layer, which owns the placement.
       await showMiniTranslatorWindow();
     } else {
       _window.focus();
@@ -1061,11 +1063,13 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                   setState(() {
                     _isAlwaysOnTop = !_isAlwaysOnTop;
                   });
-                  _window.isAlwaysOnTop = _isAlwaysOnTop;
+                  // On macOS the panel lives at the floating level regardless;
+                  // the pin only exempts it from closing on blur.
+                  if (!kIsMacOS) _window.isAlwaysOnTop = _isAlwaysOnTop;
                 },
                 onExtractScreenCapture: _handleExtractTextFromScreenCapture,
                 onExtractClipboard: _handleExtractTextFromClipboard,
-                onOpenWorkbench: () => showWorkbenchWindow(text: _text),
+                onOpenWorkbench: () => handOffToWorkbench(_text),
                 onOpenSettings: showSettingsWindow,
               ),
               _buildBody(context),

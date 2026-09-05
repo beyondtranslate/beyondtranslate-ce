@@ -22,7 +22,7 @@ dependencies:
 
   go_router: ^17.2.1
   intl: ^0.20.2
-  nativeapi: ^0.2.2
+  nativeapi: ^0.2.3
   path: ^1.8.3
   path_provider: ^2.1.1
   slang: ^4.13.0

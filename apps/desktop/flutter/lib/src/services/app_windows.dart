@@ -1,26 +1,38 @@
 // ignore_for_file: implementation_imports, invalid_use_of_internal_member
 
-/// The app's two windows — the workbench and the mini translator — and the one
-/// rule that binds them: **they are mutually exclusive**. At most one of them
-/// is on screen at any time. Every way of putting one up ([showWorkbenchWindow],
-/// [showMiniTranslatorWindow]) ends by hiding the other, and nothing outside
-/// this file shows or hides either window on its own — the mini translator's
-/// close-on-blur, the workbench's close button and the native close request
-/// all come back through [hideMiniTranslatorWindow] / [hideWorkbenchWindow].
+/// The app's two windows — the workbench and the mini translator — each with
+/// its own lifecycle. They play different roles rather than excluding each
+/// other:
 ///
-/// Showing comes *before* hiding on purpose. Hiding the workbench demotes the
-/// process to an accessory app (see `DockIconController`), and the macOS side
-/// only keeps the app active through that transition while one of our windows
-/// is still up — so the mini translator has to be on screen before the
-/// workbench goes away, or it would never receive key focus.
+///   * **the workbench is an ordinary document window.** It comes and goes
+///     only through its own entry points — the tray menu's 显示窗口, the Dock
+///     icon, the settings entries, ⌘W — and nothing the mini translator does
+///     moves it.
+///   * **the mini translator is a floating panel.** The global shortcut and the
+///     tray icon's click toggle it; it closes as soon as it loses focus unless
+///     it is pinned. On macOS it is a *non-activating* panel
+///     (`Window.isNonActivating`): it takes key focus without activating this
+///     app, so summoning it over another app neither brings the workbench
+///     forward nor flashes the Dock icon, and putting it away hands the
+///     keyboard straight back to where the user was. A non-activating panel at
+///     the normal window level would sit behind the active app's windows, so
+///     it lives at the floating level whether pinned or not — the pin only
+///     decides whether blur closes it.
 ///
-/// The pin (always-on-top) on the mini translator only exempts it from closing
-/// on blur; opening the workbench still puts it away. Closing whichever window
-/// is up returns to the tray-only state rather than falling back to the other.
+/// The hand-over between them falls out of focus rather than being wired up:
+/// bringing the workbench front blurs the mini translator, which then closes
+/// itself unless pinned. The one deliberate exception is
+/// [handOffToWorkbench] — the mini translator's 在工作台中打开 is the user asking
+/// to continue in the big window, so the small one is put away regardless.
 ///
-/// The tray icon's click resolves here too ([handleTrayIconClick]): an open
-/// workbench wins and is brought front; only from the tray-only state does the
-/// click pop the mini translator up.
+/// Nothing outside this file shows or hides either window on its own — the
+/// mini translator's close-on-blur, the workbench's close button and the
+/// native close request all come back through [hideMiniTranslatorWindow] /
+/// [hideWorkbenchWindow].
+///
+/// Hiding the workbench demotes the process to an accessory app (see
+/// `DockIconController`); the macOS side keeps the app active through that
+/// transition as long as one of our windows is still up.
 library;
 
 import 'dart:io';
@@ -145,7 +157,9 @@ final workbenchWindowController = flutter_window.WindowController(
     return true;
   });
 
-/// Brings the workbench up on [destination] and puts the mini translator away.
+/// Brings the workbench up on [destination]. The mini translator is left to
+/// its blur rule: an unpinned one closes as the focus moves, a pinned one
+/// stays floating above.
 void showWorkbenchWindow({
   WorkbenchDestination destination = WorkbenchDestination.translate,
   String? text,
@@ -158,8 +172,15 @@ void showWorkbenchWindow({
   focusWorkbenchWindow();
 }
 
-/// Brings the workbench front wherever it was — no navigation — and puts the
-/// mini translator away.
+/// Hands [text] from the mini translator to the workbench's 翻译 page and puts
+/// the mini translator away — the user has asked to carry on in the big
+/// window, so the small one goes even when pinned.
+void handOffToWorkbench(String text) {
+  showWorkbenchWindow(text: text);
+  hideMiniTranslatorWindow();
+}
+
+/// Brings the workbench front wherever it was — no navigation.
 void focusWorkbenchWindow() {
   final window = workbenchWindowController.window;
   if (Platform.isWindows && !_workbenchWindowConfigured) {
@@ -172,25 +193,14 @@ void focusWorkbenchWindow() {
   if (window.isMinimized) window.restore();
   window.show();
   window.focus();
-  hideMiniTranslatorWindow();
 }
 
-/// Whether the workbench is up in any form — on screen or minimized to the
-/// Dock/taskbar. (macOS reports a minimized window as not visible.)
-bool get isWorkbenchWindowOpen {
-  final window = workbenchWindowController.window;
-  return window.isVisible || window.isMinimized;
-}
-
-/// The tray icon's left click: an open workbench is simply brought front,
-/// keeping whatever page it was on; from the tray-only state the mini
-/// translator pops up under the tray icon.
+/// The tray icon's left click pops the mini translator up under the icon, the
+/// way menu bar utilities do, whatever the workbench is doing. The workbench
+/// has its own ways back: the tray menu's 显示窗口, and the Dock icon while it
+/// is open.
 Future<void> handleTrayIconClick({Rect? trayBounds}) async {
-  if (isWorkbenchWindowOpen) {
-    focusWorkbenchWindow();
-  } else {
-    await showMiniTranslatorWindow(trayBounds: trayBounds);
-  }
+  await showMiniTranslatorWindow(trayBounds: trayBounds);
 }
 
 void showSettingsWindow() {
@@ -223,7 +233,7 @@ final miniTranslatorWindowController = flutter_window.WindowController(
     return true;
   });
 
-/// Brings the mini translator up and puts the workbench away.
+/// Brings the mini translator up. The workbench is not touched.
 ///
 /// The window is created on first use. [position] wins over [trayBounds],
 /// which anchors the window under the tray icon; with neither the window stays
@@ -252,10 +262,18 @@ Future<void> showMiniTranslatorWindow({
   }
 
   final window = miniTranslatorWindowController.window;
-  if (Platform.isWindows && !_miniTranslatorWindowConfigured) {
+  if (!_miniTranslatorWindowConfigured) {
     _miniTranslatorWindowConfigured = true;
-    window.titleBarStyle = TitleBarStyle.hidden;
-    window.isWindowControlButtonsVisible = false;
+    if (Platform.isWindows) {
+      window.titleBarStyle = TitleBarStyle.hidden;
+      window.isWindowControlButtonsVisible = false;
+    }
+    if (kIsMacOS) {
+      // See the note at the top of the file: a non-activating panel, kept at
+      // the floating level so it shows in front of the active app.
+      window.isNonActivating = true;
+      window.isAlwaysOnTop = true;
+    }
   }
   var newPosition = position ??
       (trayBounds != null
@@ -271,7 +289,6 @@ Future<void> showMiniTranslatorWindow({
     window.position = newPosition;
   }
   window.show();
-  hideWorkbenchWindow();
 }
 
 /// Hides the mini translator. Safe to call before it was ever shown and when
