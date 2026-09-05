@@ -24,6 +24,8 @@ class Callout extends StatelessWidget {
     this.icon,
     this.child,
     this.action,
+    this.padding,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
   });
 
   final CalloutTone tone;
@@ -34,6 +36,16 @@ class Callout extends StatelessWidget {
 
   /// Right-aligned action — 取消 / 更改位置.
   final Widget? action;
+
+  /// Overrides the default inset, the way a caller passes `px-*`/`py-*` to the
+  /// React component. The mini window's 功能受限 banner tightens it: at 396px
+  /// the default 14/12 is a lot of air around three lines of copy.
+  final EdgeInsetsGeometry? padding;
+
+  /// How the icon and the copy line up. Centre reads right on one line;
+  /// `start` — React's `items-start` — is for a notice that wraps, where a
+  /// centred icon drifts to the middle of the paragraph.
+  final CrossAxisAlignment crossAxisAlignment;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +82,8 @@ class Callout extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: background,
         border: Border.all(color: borderColor, width: hairline),
@@ -79,6 +92,7 @@ class Callout extends StatelessWidget {
       child: DefaultTextStyle(
         style: tokens.typography.sansStyle(fontSize: 12, color: foreground),
         child: Row(
+          crossAxisAlignment: crossAxisAlignment,
           children: [
             if (icon != null) ...[icon!, const SizedBox(width: 10)],
             // `min-w-0` + the action's `ml-auto`: the copy takes the free

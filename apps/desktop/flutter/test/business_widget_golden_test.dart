@@ -15,6 +15,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:beyondtranslate_desktop/src/routes/mini_translator/limited_functionality_banner.dart';
 import 'package:beyondtranslate_desktop/src/widgets/avatar.dart';
 import 'package:beyondtranslate_desktop/src/widgets/block_heading.dart';
 import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
@@ -158,6 +159,29 @@ void main() {
           ],
         );
 
+    testWidgets('limited functionality banner', (tester) async {
+      await expectGolden(
+        tester,
+        'limited_functionality_banner',
+        width: 396,
+        // The mini window's tray colour behind it, so the strip's own gap to
+        // whatever sits below is visible in the image.
+        Builder(
+          builder: (context) => ColoredBox(
+            color: context.colors.tray,
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: LimitedFunctionalityBanner(
+                isAllowedScreenCaptureAccess: false,
+                isAllowedScreenSelectionAccess: false,
+                onTappedRecheckIsAllowedAllAccess: _noop,
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+
     testWidgets('translation blocks', (tester) async {
       await expectGolden(
         tester,
@@ -222,3 +246,5 @@ void main() {
     });
   }, skip: missing.isEmpty ? false : 'host is missing ${missing.join(', ')}');
 }
+
+void _noop() {}

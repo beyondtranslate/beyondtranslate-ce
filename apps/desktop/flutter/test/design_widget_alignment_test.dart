@@ -1,3 +1,4 @@
+import 'package:beyondtranslate_desktop/src/routes/mini_translator/limited_functionality_banner.dart';
 import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
 import 'package:beyondtranslate_desktop/src/widgets/icon_action_button.dart';
 import 'package:beyondtranslate_desktop/src/widgets/language_selector.dart';
@@ -201,4 +202,51 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.getSize(find.byType(SwapPair)).height, 30);
   });
+
+  /// 功能受限 hangs between the mini window's top bar and its panel, and the
+  /// gap to the panel is the strip's own — React carries it as `mb-2` on the
+  /// Callout, so the banner brings its own breathing room wherever it is hung.
+  /// Flutter had no such margin at all and the notice sat flush against the
+  /// panel below it.
+  testWidgets('the 功能受限 banner reserves the deck\'s gap below itself', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      specimen(
+        const Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 396,
+            child: LimitedFunctionalityBanner(
+              isAllowedScreenCaptureAccess: false,
+              isAllowedScreenSelectionAccess: false,
+              onTappedRecheckIsAllowedAllAccess: _noop,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final banner = tester.getRect(find.byType(LimitedFunctionalityBanner));
+    final callout = tester.getRect(find.byType(Callout));
+    // 8px of the banner's height is below the tinted box, and none above it:
+    // the strip pushes the panel down, it does not float away from the bar.
+    expect(banner.bottom - callout.bottom, 8);
+    expect(callout.top - banner.top, 0);
+
+    // The inset React sets on this Callout — tighter than the component's
+    // own 14/12, which is a lot of air at 396px.
+    final box = tester.widget<Container>(
+      find
+          .descendant(
+              of: find.byType(Callout), matching: find.byType(Container))
+          .first,
+    );
+    expect(
+      box.padding,
+      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    );
+  });
 }
+
+void _noop() {}
