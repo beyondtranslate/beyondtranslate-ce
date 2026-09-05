@@ -135,6 +135,8 @@ class MiniTranslatorTopBar extends StatelessWidget {
 
     for (var i = 0; i < persistentTargets.length; i++) {
       final target = persistentTargets[i];
+      // 关掉的目标不进菜单。索引照原列表算，选中的那条才对得上设置里的同一条。
+      if (!target.enabled) continue;
       final label =
           '${getSourceDisplayName(target.source)} -> ${getLanguageName(target.target)}';
       final item = nativeapi.MenuItem.createWithLabelAndType(

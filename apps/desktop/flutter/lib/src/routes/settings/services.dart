@@ -236,6 +236,8 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
   List<Widget> _behaviourSections(ServiceType type) {
     final general = t.settings.general;
     final settings = settingsStore.general;
+    final tokens = context.tokens;
+    final colors = tokens.colors;
 
     switch (type) {
       case ServiceType.ocr:
@@ -306,17 +308,36 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
               child: Text(general.button.add_target),
             ),
             children: [
-              for (final target in settings.translationTargets)
+              for (final (index, target) in settings.translationTargets.indexed)
                 PreferenceRow(
                   title: Text(
                     '${getSourceDisplayName(target.source)}'
                     '  →  ${getLanguageName(target.target)}',
+                    style: tokens.typography.sansStyle(
+                      fontSize: 12,
+                      height: 1.4,
+                      // A target that is switched off still reads, but it
+                      // stops competing with the rules that are in force.
+                      color: target.enabled ? colors.fg : colors.fgFaint,
+                    ),
                   ),
                   trailing: [
                     Button(
                       variant: ButtonVariant.quiet,
                       onPressed: () => showEditTargetDialog(context, target),
                       child: Text(t.common.ui.button.edit),
+                    ),
+                    const SizedBox(width: 10),
+                    Switch(
+                      checked: target.enabled,
+                      enabled: canToggleTranslationTarget(
+                        settings.translationTargets,
+                        index,
+                      ),
+                      semanticsLabel: '${getSourceDisplayName(target.source)}'
+                          ' → ${getLanguageName(target.target)}',
+                      onChanged: (value) =>
+                          setTranslationTargetEnabled(index, value),
                     ),
                   ],
                 ),

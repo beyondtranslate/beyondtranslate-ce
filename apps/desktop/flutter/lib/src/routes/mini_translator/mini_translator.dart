@@ -675,7 +675,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
     if (persistentTargets.isNotEmpty) {
       final settings = runtime.settings();
-      return await settings.getActiveTranslationTargets(
+      final active = await settings.getActiveTranslationTargets(
         targets: persistentTargets,
         detectedLanguage: _detectedLanguage,
         // Detection refuses on short input; the runtime falls back to the
@@ -683,6 +683,9 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         // the language the text is already in.
         text: _text,
       );
+      // 每一条目标都被关掉时它会空手而归。退回默认目标，而不是安静地什么都不
+      // 翻 —— 和 `filter_active` 宁可多翻一种也不翻不出东西的取向一致。
+      if (active.isNotEmpty) return active;
     }
 
     return [

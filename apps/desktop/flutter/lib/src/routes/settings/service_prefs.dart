@@ -217,6 +217,34 @@ Future<void> _showTargetDialog(
   );
 }
 
+/// Whether the switch on the target at [index] can be moved.
+///
+/// 最后一条开着的不给关：一条都不剩时 自动匹配 无处可去，翻译会安静地什么都不
+/// 产出。这与 设置 · 服务 不让关掉默认服务是同一条理由 —— 一个只有一个位置的
+/// 开关不如不给。要停用最后一条，先添一条别的。
+bool canToggleTranslationTarget(List<TranslationTarget> targets, int index) {
+  if (index < 0 || index >= targets.length) return false;
+  if (!targets[index].enabled) return true;
+  return targets.where((target) => target.enabled).length > 1;
+}
+
+/// 开关一条翻译目标。关掉的一条留在列表里 —— 它是一条规则，不是一次输入 ——
+/// 但不再参与 自动匹配，也不出现在小窗的 切换目标 菜单里。
+Future<void> setTranslationTargetEnabled(int index, bool enabled) async {
+  final targets = settingsStore.general.translationTargets;
+  if (index < 0 || index >= targets.length) return;
+  final next = [...targets];
+  final target = next[index];
+  next[index] = TranslationTarget(
+    source: target.source,
+    target: target.target,
+    enabled: enabled,
+  );
+  await settingsStore.updateGeneral(
+    GeneralSettingsPatch(translationTargets: next),
+  );
+}
+
 Future<void> showAddTargetDialog(BuildContext context) =>
     _showTargetDialog(context);
 
