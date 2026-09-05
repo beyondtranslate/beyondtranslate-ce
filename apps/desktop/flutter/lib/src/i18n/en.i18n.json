@@ -108,7 +108,8 @@
       },
       "feedback": {
         "enabled": "Screen text extraction is enabled.",
-        "still_missing": "Required permissions are still missing.\nPlease check your settings and try again."
+        "still_missing": "Required permissions are still missing.\nPlease check your settings and try again.",
+        "still_missing_screen_capture": "Screen Recording is still missing.\nIf you just granted it, restart the app for it to take effect."
       },
       "tooltip": {
         "help": "View help"
@@ -158,7 +159,8 @@
     },
     "result": {
       "translating": "Translating…",
-      "stale_requery": "Source changed · $key retranslate",
+      "stale_notice": "Source changed; the translation below is the earlier one",
+      "stale_retry": "$key retranslate",
       "compare_services": "Compare $count services",
       "collapse_compare": "Collapse",
       "set_preferred": "Set as preferred",
@@ -171,7 +173,6 @@
       "show_reasons": "Why $count services failed",
       "collapse_reasons": "Hide reasons",
       "unknown_error": "The service gave no reason.",
-      "no_result_tag": "no result",
       "language_missing_sentence": "System Translation has not downloaded the language files for “$source → $target”.",
       "language_missing_settings_path": "System Settings › General › Language & Region › Translation Languages",
       "language_missing_body_main": "Download them under “$path”, then retry.",

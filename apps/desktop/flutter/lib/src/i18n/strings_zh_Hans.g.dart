@@ -555,7 +555,9 @@ class _TranslationsMiniTranslatorResultZhHans
   @override
   String get translating => '正在翻译…';
   @override
-  String stale_requery({required Object key}) => '原文已修改 · ${key} 重新翻译';
+  String get stale_notice => '原文已修改，下方仍是修改前的译文';
+  @override
+  String stale_retry({required Object key}) => '${key} 重新翻译';
   @override
   String compare_services({required Object count}) => '对比 ${count} 个服务';
   @override
@@ -580,8 +582,6 @@ class _TranslationsMiniTranslatorResultZhHans
   String get collapse_reasons => '收起原因';
   @override
   String get unknown_error => '服务没有说明原因。';
-  @override
-  String get no_result_tag => '未返回结果';
   @override
   String language_missing_sentence(
           {required Object source, required Object target}) =>
@@ -1321,6 +1321,8 @@ class _TranslationsMiniTranslatorLimitedBannerFeedbackZhHans
   String get enabled => '屏幕取词功能已启用';
   @override
   String get still_missing => '仍缺少所需权限，\n请检查设置后重试。';
+  @override
+  String get still_missing_screen_capture => '仍缺少屏幕录制权限。\n若刚刚授权，需重启应用才会生效。';
 }
 
 // Path: mini_translator.limited_banner.tooltip
@@ -2387,6 +2389,8 @@ extension on TranslationsZhHans {
       'mini_translator.limited_banner.feedback.enabled' => '屏幕取词功能已启用',
       'mini_translator.limited_banner.feedback.still_missing' =>
         '仍缺少所需权限，\n请检查设置后重试。',
+      'mini_translator.limited_banner.feedback.still_missing_screen_capture' =>
+        '仍缺少屏幕录制权限。\n若刚刚授权，需重启应用才会生效。',
       'mini_translator.limited_banner.tooltip.help' => '查看帮助文档',
       'mini_translator.input.hint' => '在此处输入单词或文本',
       'mini_translator.input.extracting_text' => '正在提取文字...',
@@ -2421,8 +2425,9 @@ extension on TranslationsZhHans {
         '未配置默认文字识别服务，请在设置中配置。',
       'mini_translator.message.ocr_recognition_failed' => '文字识别失败',
       'mini_translator.result.translating' => '正在翻译…',
-      'mini_translator.result.stale_requery' => ({required Object key}) =>
-          '原文已修改 · ${key} 重新翻译',
+      'mini_translator.result.stale_notice' => '原文已修改，下方仍是修改前的译文',
+      'mini_translator.result.stale_retry' => ({required Object key}) =>
+          '${key} 重新翻译',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           '对比 ${count} 个服务',
       'mini_translator.result.collapse_compare' => '收起对比',
@@ -2439,7 +2444,6 @@ extension on TranslationsZhHans {
           '查看 ${count} 个服务的原因',
       'mini_translator.result.collapse_reasons' => '收起原因',
       'mini_translator.result.unknown_error' => '服务没有说明原因。',
-      'mini_translator.result.no_result_tag' => '未返回结果',
       'mini_translator.result.language_missing_sentence' => (
               {required Object source, required Object target}) =>
           '系统翻译还没有下载「${source} → ${target}」的语言文件。',

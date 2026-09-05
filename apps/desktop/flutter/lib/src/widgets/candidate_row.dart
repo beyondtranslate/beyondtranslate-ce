@@ -115,7 +115,7 @@ class CandidateRow extends StatelessWidget {
             child: DefaultTextStyle(
               style: tokens.typography.cjkStyle(
                 fontSize: 13,
-                height: 1.75,
+                height: 1.7,
                 color: colors.fgSecondary,
               ),
               child: child,

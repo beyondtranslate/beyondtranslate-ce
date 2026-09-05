@@ -13,7 +13,7 @@ import '../../i18n/i18n.dart';
 import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
 import '../../routes/settings/provider_meta.dart'
-    show isServiceEnabled, serviceDisplayName;
+    show isDefaultTranslationService, isServiceEnabled, serviceDisplayName;
 import '../../routes/settings/services.dart' show ServicesSettingsPage;
 import '../../services/app_windows.dart'
     show
@@ -30,6 +30,7 @@ import '../../services/settings_store.dart';
 import '../../services/shortcut_service/shortcut_service.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
+import '../../widgets/block_heading.dart';
 import '../../widgets/toast_host.dart' show showToast;
 import '../../widgets/ui.dart' show DesignThemeContext, PopoverPanel, ToastTone;
 import 'limited_functionality_banner.dart';
@@ -106,6 +107,10 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   /// so the results view can attribute records without re-fetching settings.
   Map<String, String> _serviceNameById = {};
   Set<String> _translationServiceIds = {};
+
+  /// The translation service 设置 marks 默认, captured per query: its output
+  /// is attributed as plain 译文, a promoted service by name.
+  String? _defaultServiceId;
 
   Timer? _resizeSettledTimer;
   bool _isWindowResizeScheduled = false;
@@ -405,6 +410,14 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       for (final service in queryServices)
         if (service.type == ServiceType.translation) service.id,
     };
+    _defaultServiceId = queryServices
+        .where(
+          (service) =>
+              service.type == ServiceType.translation &&
+              isDefaultTranslationService(service, generalSettings),
+        )
+        .firstOrNull
+        ?.id;
 
     // Detect source language for translation target matching.
     if (_text.isNotEmpty) {
@@ -978,19 +991,32 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
                 targetLanguageName: _selectedTargetLanguage == null
                     ? null
                     : getLanguageName(_selectedTargetLanguage!),
-                sourceLabel: '${t.workbench.translation.source} · '
-                    '${getSourceDisplayName(_detectedLanguage ?? _sourceLanguage)}',
+                sourceHeadingParts: sourceHeading(
+                  _text.isEmpty
+                      ? null
+                      : getSourceDisplayName(
+                          _detectedLanguage ?? _sourceLanguage,
+                        ),
+                  detectedAutomatically: isAutoSource(_sourceLanguage),
+                ),
                 onChanged: (v) => _handleTextChanged(v),
                 onSubmitted: _handleButtonTappedTrans,
               ),
+              // 两块之间的接缝：译文不再回答上面的原文了。
+              if (_resultStale && _querySubmitted)
+                MiniTranslatorStaleNotice(
+                  inputSubmitMode: settingsStore.inputSubmitMode,
+                  onRequery: _handleButtonTappedTrans,
+                ),
               MiniTranslatorTranslation(
                 querySubmitted: _querySubmitted,
                 translationResultList: _translationResultList,
                 translationServiceIds: _translationServiceIds,
                 serviceNameById: _serviceNameById,
+                defaultServiceId: _defaultServiceId,
                 preferredServiceId: _preferredServiceId,
                 inputSubmitMode: settingsStore.inputSubmitMode,
-                stale: _resultStale,
+                matchedAutomatically: _selectedTargetLanguage == null,
                 compareOpenTargets: _compareOpen,
                 copiedTarget: _copiedTarget,
                 onToggleCompare: _handleToggleCompare,
@@ -1011,6 +1037,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           copied: _copiedTarget == _kCopiedAll,
           starred: _starred,
           translateEnabled: _text.isNotEmpty,
+          // 原文译文皆无 —— 开局还没输入 —— 清空无从谈起，整颗收起来。
+          clearVisible: _text.isNotEmpty || _querySubmitted,
           retry: noResult || allMissing,
           onCopy: _handleButtonTappedCopy,
           onBookmark: _toggleHistoryFavorite,

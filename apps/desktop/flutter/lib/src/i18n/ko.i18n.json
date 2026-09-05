@@ -158,7 +158,6 @@
     },
     "result": {
       "translating": "번역 중…",
-      "stale_requery": "원문이 수정됨 · $key 다시 번역",
       "compare_services": "서비스 $count개 비교",
       "collapse_compare": "비교 접기",
       "set_preferred": "기본으로 설정",

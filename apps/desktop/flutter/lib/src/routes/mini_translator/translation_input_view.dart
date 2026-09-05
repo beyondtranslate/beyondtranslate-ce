@@ -2,7 +2,9 @@ import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/material.dart' hide TextField;
 
 import '../../i18n/i18n.dart';
+import '../../theme/product_tokens.dart' show ProductTypographyStyles;
 import '../../utils/shortcut_util.dart';
+import '../../widgets/block_heading.dart';
 import '../../widgets/text_field.dart' show TextField;
 import '../../widgets/ui.dart'
     show
@@ -12,7 +14,9 @@ import '../../widgets/ui.dart'
         DesignThemeContext,
         DesignTypographyStyles,
         Label,
-        LabelTone;
+        LabelTone,
+        Pressable,
+        kTransitionDuration;
 
 class MiniTranslatorInput extends StatelessWidget {
   const MiniTranslatorInput({
@@ -21,7 +25,7 @@ class MiniTranslatorInput extends StatelessWidget {
     required this.controller,
     required this.inputSubmitMode,
     this.targetLanguageName,
-    required this.sourceLabel,
+    required this.sourceHeadingParts,
     required this.onChanged,
     required this.onSubmitted,
   }) : super(key: key);
@@ -33,9 +37,10 @@ class MiniTranslatorInput extends StatelessWidget {
   /// Repeats the chosen target in the placeholder — 输入单词或文本，翻译为X.
   final String? targetLanguageName;
 
-  /// 原文 · English — the detected language rides on the source heading, as in
-  /// the main window's 原文 block, so the capsule can stay on 自动检测.
-  final String sourceLabel;
+  /// On 自动检测 the heading names the detected language, as over the main
+  /// window's source block. A source chosen in the capsule is not repeated,
+  /// and before anything is typed there is nothing to detect: both say 原文.
+  final BlockHeadingParts sourceHeadingParts;
   final ValueChanged<String?> onChanged;
   final VoidCallback onSubmitted;
 
@@ -56,24 +61,27 @@ class MiniTranslatorInput extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Label(tone: LabelTone.faint, child: Text(sourceLabel)),
+          Label(
+            tone: LabelTone.faint,
+            child: BlockHeading(sourceHeadingParts),
+          ),
           const SizedBox(height: 6),
           TextField(
             focusNode: focusNode,
             controller: controller,
             padding: EdgeInsets.zero,
             placeholder: placeholder,
-            placeholderStyle: tokens.typography.sansStyle(
-              fontSize: 12,
-              height: 1.7,
+            // 原文 sits at the pane's 13px/1.7 `type-source`, as in the main
+            // window. The typed source reads as content, so it takes
+            // `fg-secondary`, a clear step above the 11px 原文 · English
+            // caption (`fg-faint`) over it — `fg-muted` sat too close to the
+            // label's grey to tell apart.
+            placeholderStyle: tokens.typography.sourceStyle(
               color: colors.fgFaint,
             ),
-            style: tokens.typography.sansStyle(
-              fontSize: 12,
-              height: 1.7,
-              color: colors.fgMuted,
-            ),
-            maxLines: 4,
+            style: tokens.typography.sourceStyle(color: colors.fgSecondary),
+            // 原文框的最小 / 最大行数 —— 短词一行，长文本长到六行后框内滚动。
+            maxLines: 6,
             minLines: 1,
             // 提交方式 decides which key sends the box; the field takes
             // Enter into its own hands only because it was told which one.
@@ -97,6 +105,7 @@ class MiniTranslatorActionButtons extends StatelessWidget {
     required this.copied,
     required this.starred,
     required this.translateEnabled,
+    this.clearVisible = true,
     required this.retry,
     required this.onCopy,
     required this.onBookmark,
@@ -123,6 +132,11 @@ class MiniTranslatorActionButtons extends StatelessWidget {
 
   /// 翻译 stays disabled until there is something to translate.
   final bool translateEnabled;
+
+  /// 清空 hangs beside 翻译 only while there is something to clear — a
+  /// just-opened pane, with neither 原文 nor 译文, folds it away and leaves
+  /// 翻译 alone on the right.
+  final bool clearVisible;
 
   /// Every service came back empty, so the same button now asks again.
   final bool retry;
@@ -158,13 +172,16 @@ class MiniTranslatorActionButtons extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          Button(
-            variant: ButtonVariant.ghost,
-            enabled: translateEnabled,
-            onPressed: onClear,
-            child: Text(buttons.clear),
-          ),
-          const SizedBox(width: 6),
+          // 清空 + 翻译 hang off the bar's right margin; both act on the query
+          // as a whole (unlike the per-result chips), so they sit together.
+          if (clearVisible) ...[
+            Button(
+              variant: ButtonVariant.ghost,
+              onPressed: onClear,
+              child: Text(buttons.clear),
+            ),
+            const SizedBox(width: 6),
+          ],
           Button(
             variant: ButtonVariant.primary,
             enabled: translateEnabled,
@@ -175,6 +192,75 @@ class MiniTranslatorActionButtons extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 原文已修改 gets a line of its own at the seam between the two blocks: it is
+/// about the relation between them — the translation below no longer answers
+/// the text above — so it belongs to neither. One full-width strip, the whole
+/// of it the retry.
+class MiniTranslatorStaleNotice extends StatelessWidget {
+  const MiniTranslatorStaleNotice({
+    super.key,
+    required this.inputSubmitMode,
+    required this.onRequery,
+  });
+
+  /// Only so the strip names the key that actually re-runs the query.
+  final InputSubmitMode inputSubmitMode;
+  final VoidCallback onRequery;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final result = t.mini_translator.result;
+
+    return Pressable(
+      onPressed: onRequery,
+      semanticsLabel: result.stale_notice,
+      builder: (context, state) => AnimatedContainer(
+        duration: kTransitionDuration,
+        width: double.infinity,
+        // A touch taller than a caption row so it reads as a notice rather
+        // than a seam. No rule above — the tinted surface against the white
+        // source block is the edge; a hairline on top would double the line.
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 9),
+        color: state.hovered
+            ? Color.alphaBlend(
+                colors.fg.withValues(alpha: 0.03),
+                colors.warnSurface,
+              )
+            : colors.warnSurface,
+        child: Row(
+          children: [
+            Flexible(
+              child: Text(
+                result.stale_notice,
+                overflow: TextOverflow.ellipsis,
+                style: tokens.typography.sansStyle(
+                  fontSize: 11,
+                  height: 1,
+                  color: colors.warnFg,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              result.stale_retry(
+                key: inputSubmitShortcutGlyphs(inputSubmitMode),
+              ),
+              style: tokens.typography.sansStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                height: 1,
+                color: colors.warnStrong,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

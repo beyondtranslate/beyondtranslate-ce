@@ -550,9 +550,12 @@ class TranslationsMiniTranslatorResultEn {
   /// en: 'Translating…'
   String get translating => 'Translating…';
 
-  /// en: 'Source changed · $key retranslate'
-  String stale_requery({required Object key}) =>
-      'Source changed · ${key} retranslate';
+  /// en: 'Source changed; the translation below is the earlier one'
+  String get stale_notice =>
+      'Source changed; the translation below is the earlier one';
+
+  /// en: '$key retranslate'
+  String stale_retry({required Object key}) => '${key} retranslate';
 
   /// en: 'Compare $count services'
   String compare_services({required Object count}) =>
@@ -595,9 +598,6 @@ class TranslationsMiniTranslatorResultEn {
 
   /// en: 'The service gave no reason.'
   String get unknown_error => 'The service gave no reason.';
-
-  /// en: 'no result'
-  String get no_result_tag => 'no result';
 
   /// en: 'System Translation has not downloaded the language files for “$source → $target”.'
   String language_missing_sentence(
@@ -1473,6 +1473,10 @@ class TranslationsMiniTranslatorLimitedBannerFeedbackEn {
   /// en: 'Required permissions are still missing. Please check your settings and try again.'
   String get still_missing =>
       'Required permissions are still missing.\nPlease check your settings and try again.';
+
+  /// en: 'Screen Recording is still missing. If you just granted it, restart the app for it to take effect.'
+  String get still_missing_screen_capture =>
+      'Screen Recording is still missing.\nIf you just granted it, restart the app for it to take effect.';
 }
 
 // Path: mini_translator.limited_banner.tooltip
@@ -2571,6 +2575,8 @@ extension on Translations {
         'Screen text extraction is enabled.',
       'mini_translator.limited_banner.feedback.still_missing' =>
         'Required permissions are still missing.\nPlease check your settings and try again.',
+      'mini_translator.limited_banner.feedback.still_missing_screen_capture' =>
+        'Screen Recording is still missing.\nIf you just granted it, restart the app for it to take effect.',
       'mini_translator.limited_banner.tooltip.help' => 'View help',
       'mini_translator.input.hint' => 'Enter the word or text here',
       'mini_translator.input.extracting_text' => 'Extracting text...',
@@ -2612,8 +2618,10 @@ extension on Translations {
       'mini_translator.message.ocr_recognition_failed' =>
         'Text recognition failed',
       'mini_translator.result.translating' => 'Translating…',
-      'mini_translator.result.stale_requery' => ({required Object key}) =>
-          'Source changed · ${key} retranslate',
+      'mini_translator.result.stale_notice' =>
+        'Source changed; the translation below is the earlier one',
+      'mini_translator.result.stale_retry' => ({required Object key}) =>
+          '${key} retranslate',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           'Compare ${count} services',
       'mini_translator.result.collapse_compare' => 'Collapse',
@@ -2632,7 +2640,6 @@ extension on Translations {
           'Why ${count} services failed',
       'mini_translator.result.collapse_reasons' => 'Hide reasons',
       'mini_translator.result.unknown_error' => 'The service gave no reason.',
-      'mini_translator.result.no_result_tag' => 'no result',
       'mini_translator.result.language_missing_sentence' => (
               {required Object source, required Object target}) =>
           'System Translation has not downloaded the language files for “${source} → ${target}”.',

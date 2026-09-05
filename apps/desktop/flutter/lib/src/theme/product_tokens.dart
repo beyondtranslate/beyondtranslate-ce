@@ -31,8 +31,16 @@ class ProductTokens {
 
   /// The preferred translation's type — larger and airier than the source it
   /// answers to.
-  static const double translationSize = 17;
-  static const double translationLeading = 1.75;
+  /// 译文的排版 —— 一套行高，两级字号。1.7 让 CJK 字面透气，又和 13px/1.7 的
+  /// 原文同一节奏；此前主窗口 1.75、迷你窗口 1.9 各走各的，同一段译文在两个
+  /// 窗口里读起来不像同一种东西。字号按阅读面分两级：主窗口的窗格是读稿的
+  /// 地方，比迷你窗口高一级，但 17px 相对 13px 的原文跨了 4px，字号阶梯
+  /// 11 → 13 → 17 在中间断了一档，收到 16px 就接得上。
+  static const double translationLeading = 1.7;
+  static const double translationSize = 16;
+
+  /// 迷你窗口的译文 —— 同一套行高，小一级字号。
+  static const double miniTranslationSize = 15;
 
   /// Provider identity — brand colours, deliberately stable across all four
   /// themes.
@@ -78,6 +86,14 @@ extension ProductTypographyStyles on DesignTypography {
   /// 译文正文：CJK face, larger and airier than the source text.
   TextStyle translationStyle({Color? color}) => cjkStyle(
         fontSize: ProductTokens.translationSize,
+        fontWeight: FontWeight.w400,
+        height: ProductTokens.translationLeading,
+        color: color,
+      );
+
+  /// 迷你窗口的译文正文：same face and leading, one step smaller.
+  TextStyle miniTranslationStyle({Color? color}) => cjkStyle(
+        fontSize: ProductTokens.miniTranslationSize,
         fontWeight: FontWeight.w400,
         height: ProductTokens.translationLeading,
         color: color,

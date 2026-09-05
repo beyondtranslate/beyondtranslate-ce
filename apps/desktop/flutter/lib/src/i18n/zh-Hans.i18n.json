@@ -108,7 +108,8 @@
       },
       "feedback": {
         "enabled": "屏幕取词功能已启用",
-        "still_missing": "仍缺少所需权限，\n请检查设置后重试。"
+        "still_missing": "仍缺少所需权限，\n请检查设置后重试。",
+        "still_missing_screen_capture": "仍缺少屏幕录制权限。\n若刚刚授权，需重启应用才会生效。"
       },
       "tooltip": {
         "help": "查看帮助文档"
@@ -158,7 +159,8 @@
     },
     "result": {
       "translating": "正在翻译…",
-      "stale_requery": "原文已修改 · $key 重新翻译",
+      "stale_notice": "原文已修改，下方仍是修改前的译文",
+      "stale_retry": "$key 重新翻译",
       "compare_services": "对比 $count 个服务",
       "collapse_compare": "收起对比",
       "set_preferred": "设为首选",
@@ -171,7 +173,6 @@
       "show_reasons": "查看 $count 个服务的原因",
       "collapse_reasons": "收起原因",
       "unknown_error": "服务没有说明原因。",
-      "no_result_tag": "未返回结果",
       "language_missing_sentence": "系统翻译还没有下载「$source → $target」的语言文件。",
       "language_missing_settings_path": "系统设置 › 通用 › 语言与地区 › 翻译语言",
       "language_missing_body_main": "到「$path」下载后重试。",

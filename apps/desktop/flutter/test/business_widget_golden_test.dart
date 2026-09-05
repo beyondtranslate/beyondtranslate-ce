@@ -16,6 +16,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:beyondtranslate_desktop/src/widgets/avatar.dart';
+import 'package:beyondtranslate_desktop/src/widgets/block_heading.dart';
 import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
 import 'package:beyondtranslate_desktop/src/widgets/data_display.dart';
 import 'package:beyondtranslate_desktop/src/widgets/list_tile.dart';
@@ -163,16 +164,16 @@ void main() {
         'translation_blocks',
         width: 460,
         column([
-          const TextBlock(
-            label: Text('原文'),
-            meta: Text('⌥⏎ 重译'),
-            child: Text('Attention is all you need.'),
+          TextBlock(
+            label: BlockHeading.of(role: '原文', details: const ['English']),
+            meta: const Text('⌥⏎ 重译'),
+            child: const Text('Attention is all you need.'),
           ),
-          const HighlightBlock(
+          HighlightBlock(
             rule: HighlightRule.top,
-            label: Text('内置模型 · 首选译文'),
-            meta: Text('2 处术语已对齐'),
-            child: Text('注意力就是你所需要的一切。'),
+            label: BlockHeading.of(role: '译文', details: const ['简体中文']),
+            meta: const Text('2 处术语已对齐'),
+            child: const Text('注意力就是你所需要的一切。'),
           ),
         ], gap: 0),
       );

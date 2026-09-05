@@ -1,10 +1,12 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/models/translation_result.dart';
 import 'package:beyondtranslate_desktop/src/models/translation_result_record.dart';
+import 'package:beyondtranslate_desktop/src/routes/mini_translator/translation_input_view.dart';
 import 'package:beyondtranslate_desktop/src/routes/mini_translator/translation_results_view.dart';
 import 'package:beyondtranslate_desktop/src/services/runtime.dart'
     show TranslationError;
 import 'package:beyondtranslate_desktop/src/utils/language_util.dart';
+import 'package:beyondtranslate_desktop/src/utils/shortcut_util.dart';
 import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
 import 'package:beyondtranslate_desktop/src/widgets/candidate_row.dart';
 import 'package:beyondtranslate_desktop/src/widgets/missing_language.dart';
@@ -39,7 +41,7 @@ void main() {
           const HighlightBlock(
             rule: HighlightRule.none,
             hairline: true,
-            label: Text('内置模型 · 首选译文 · 日本語'),
+            label: Text('译文  日本語'),
             child: Text('自己注意機構は…'),
           ),
         ),
@@ -69,7 +71,7 @@ void main() {
           HighlightBlock(
             rule: HighlightRule.top,
             metaControls: true,
-            label: const Text('内置模型 · 首选译文 · 简体中文'),
+            label: const Text('译文  简体中文'),
             meta: IconButton(
               label: '复制译文',
               icon: const Icon(Icons.copy),
@@ -205,7 +207,6 @@ void main() {
           serviceNameById: const {'builtin': '内置模型', 'claude': 'Claude'},
           preferredServiceId: preferredServiceId,
           inputSubmitMode: InputSubmitMode.enter,
-          stale: false,
           compareOpenTargets: open,
           copiedTarget: copiedTarget,
           onToggleCompare: toggled.add,
@@ -235,12 +236,14 @@ void main() {
       );
       expect(tester.takeException(), isNull);
 
-      // One attribution per target, naming the language.
+      // One heading per target. The role word leads on both; the language
+      // is what tells them apart.
       expect(
-        find.text('内置模型 · ${getLanguageName('zh-Hans')}'),
-        findsOneWidget,
+        find.text(t.workbench.translation.target),
+        findsNWidgets(2),
       );
-      expect(find.text('内置模型 · ${getLanguageName('ja')}'), findsOneWidget);
+      expect(find.text(getLanguageName('zh-Hans')), findsOneWidget);
+      expect(find.text(getLanguageName('ja')), findsOneWidget);
 
       // 复制 rides on each block's attribution row and acts on that language.
       final copyLabel = t.mini_translator.button.copy;
@@ -308,11 +311,14 @@ void main() {
       await tester.pumpWidget(view(results: results, open: const {'zh-Hans'}));
       expect(tester.takeException(), isNull);
 
-      // The danger key, with the pair named and the fix as a link.
-      final flag = t.mini_translator.result.language_missing_flag;
+      // The danger key, with the pair named and the fix as a link. The
+      // heading names the target and the service only — the reason is
+      // already said by the body in the translation's slot.
+      expect(find.text(t.workbench.translation.target), findsOneWidget);
+      expect(find.text(getLanguageName('zh-Hans')), findsOneWidget);
       expect(
-        find.text('内置模型 · ${getLanguageName('zh-Hans')} · $flag'),
-        findsOneWidget,
+        find.textContaining(t.mini_translator.result.language_missing_flag),
+        findsNothing,
       );
       expect(find.byType(SystemSettingsLink), findsOneWidget);
       // Nothing to copy; the other service still lists in 对比.
@@ -387,6 +393,50 @@ void main() {
       // No 复制 on a block with nothing to copy yet.
       expect(
           find.bySemanticsLabel(t.mini_translator.button.copy), findsOneWidget);
+    });
+
+    /// 原文已修改 is about the relation between the two blocks — the
+    /// translation below no longer answers the text above — so it belongs to
+    /// neither. It used to be a quiet button nested inside the has-text
+    /// branch of the last target's block, where it vanished whenever that
+    /// block was still in flight or had come back without language files;
+    /// with several targets that is the ordinary case. Now it is one
+    /// full-width strip at the seam, the whole of it the retry.
+    testWidgets('原文已修改 is a strip at the seam, the whole of it the retry', (
+      tester,
+    ) async {
+      var retries = 0;
+      await tester.pumpWidget(
+        specimen(
+          width: 396,
+          MiniTranslatorStaleNotice(
+            inputSubmitMode: InputSubmitMode.enter,
+            onRequery: () => retries++,
+          ),
+        ),
+      );
+
+      final result = t.mini_translator.result;
+      expect(find.text(result.stale_notice), findsOneWidget);
+      expect(
+        find.text(
+          result.stale_retry(
+            key: inputSubmitShortcutGlyphs(InputSubmitMode.enter),
+          ),
+        ),
+        findsOneWidget,
+      );
+
+      // The strip is the button, not a control parked inside it: a tap
+      // anywhere along it retries.
+      await tester.tapAt(tester.getCenter(find.text(result.stale_notice)));
+      await tester.pump();
+      await tester.tapAt(
+        tester.getTopLeft(find.byType(MiniTranslatorStaleNotice)) +
+            const Offset(200, 12),
+      );
+      await tester.pump();
+      expect(retries, 2);
     });
   });
 }

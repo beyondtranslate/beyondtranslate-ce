@@ -158,7 +158,6 @@
     },
     "result": {
       "translating": "正在翻譯…",
-      "stale_requery": "原文已修改 · $key 重新翻譯",
       "compare_services": "對比 $count 個服務",
       "collapse_compare": "收起對比",
       "set_preferred": "設為首選",

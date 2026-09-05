@@ -552,9 +552,6 @@ class _TranslationsMiniTranslatorResultFr
   @override
   String get translating => 'Traduction…';
   @override
-  String stale_requery({required Object key}) =>
-      'Texte modifié · ${key} retraduire';
-  @override
   String compare_services({required Object count}) =>
       'Comparer ${count} services';
   @override
@@ -2355,8 +2352,6 @@ extension on TranslationsFr {
       'mini_translator.message.ocr_recognition_failed' =>
         'La reconnaissance de texte a échoué',
       'mini_translator.result.translating' => 'Traduction…',
-      'mini_translator.result.stale_requery' => ({required Object key}) =>
-          'Texte modifié · ${key} retraduire',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           'Comparer ${count} services',
       'mini_translator.result.collapse_compare' => 'Réduire',

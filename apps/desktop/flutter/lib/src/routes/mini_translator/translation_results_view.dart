@@ -9,9 +9,10 @@ import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
 import '../../services/system_translation.dart';
 import '../../theme/product_tokens.dart'
-    show ProductTokens, ProductTokensContext;
+    show ProductTokens, ProductTokensContext, ProductTypographyStyles;
 import '../../utils/language_util.dart';
 import '../../utils/shortcut_util.dart';
+import '../../widgets/block_heading.dart';
 import '../../widgets/blocks.dart' show CompareTray;
 import '../../widgets/candidate_row.dart'
     show CandidateRow, kProviderAvatarColors;
@@ -173,9 +174,10 @@ class MiniTranslatorTranslation extends StatelessWidget {
     required this.translationResultList,
     required this.translationServiceIds,
     required this.serviceNameById,
+    this.defaultServiceId,
+    this.matchedAutomatically = true,
     required this.preferredServiceId,
     required this.inputSubmitMode,
-    required this.stale,
     required this.compareOpenTargets,
     required this.copiedTarget,
     required this.onToggleCompare,
@@ -191,6 +193,14 @@ class MiniTranslatorTranslation extends StatelessWidget {
   /// block in the translating phase.
   final Set<String> translationServiceIds;
   final Map<String, String> serviceNameById;
+
+  /// The translation service 设置 marks 默认. Its output is attributed as plain
+  /// 译文; only a promoted service is named, so you know what you switched to.
+  final String? defaultServiceId;
+
+  /// Whether the capsule is on 自动匹配. Only then does the heading name the
+  /// target: a language the user picked is already in the capsule.
+  final bool matchedAutomatically;
   final String? preferredServiceId;
 
   /// Only so 原文已修改 names the key that actually re-runs the query —
@@ -198,7 +208,6 @@ class MiniTranslatorTranslation extends StatelessWidget {
   final InputSubmitMode inputSubmitMode;
 
   /// The source was edited after this result came back — offer 重新翻译.
-  final bool stale;
 
   /// Targets whose 对比 list is open — or, with no result, whether the
   /// 失效清单 is (keyed by [kFailureListKey]).
@@ -216,6 +225,19 @@ class MiniTranslatorTranslation extends StatelessWidget {
 
   String _serviceName(String? serviceId) =>
       serviceNameById[serviceId] ?? serviceId ?? '';
+
+  /// The heading over a translation block. The default service is never
+  /// named — the language alone is enough when the answer came from the one
+  /// you would expect; a promoted service trails as a qualifier.
+  BlockHeadingParts _heading(String? serviceId, String target) {
+    return translationHeading(
+      target: target,
+      serviceName: serviceId != null && serviceId == defaultServiceId
+          ? null
+          : _serviceName(serviceId),
+      matched: matchedAutomatically,
+    );
+  }
 
   /// ⌥n hint by the service's position in the configured list — the same index
   /// the page's ⌥1/2/3 shortcuts promote, and the one hint that stays live when
@@ -325,9 +347,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
               children: [
                 Text(
                   t.mini_translator.result.no_result_body,
-                  style: tokens.typography.cjkStyle(
-                    fontSize: 15,
-                    height: 1.9,
+                  style: tokens.typography.miniTranslationStyle(
                     color: colors.fgSubtle,
                   ),
                 ),
@@ -347,9 +367,11 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     Flexible(
                       child: Label(
                         tone: LabelTone.danger,
-                        child: Text(
-                          '${_serviceName(preferredServiceId)} · $targetList'
-                          ' · ${t.mini_translator.result.no_result_tag}',
+                        // A failed query keeps the plain heading — the body
+                        // already says the translation did not arrive, and a
+                        // status on the label would say it twice.
+                        child: BlockHeading(
+                          _heading(preferredServiceId, targetList),
                         ),
                       ),
                     ),
@@ -553,10 +575,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
                             label: t.mini_translator.result
                                 .language_missing_mini_link,
                             bold: false,
-                            style: tokens.typography.cjkStyle(
-                              fontSize: 15,
-                              height: 1.9,
-                            ),
+                            style: tokens.typography.miniTranslationStyle(),
                           ),
                         ),
                         TextSpan(
@@ -567,37 +586,17 @@ class MiniTranslatorTranslation extends StatelessWidget {
                         ),
                       ],
                     ),
-                    style: tokens.typography.cjkStyle(
-                      fontSize: 15,
-                      height: 1.9,
+                    style: tokens.typography.miniTranslationStyle(
                       color: colors.fgSubtle,
                     ),
                   )
-                else ...[
+                else
                   TranslationText(
                     preferred!.text,
-                    style: tokens.typography.cjkStyle(
-                      fontSize: 15,
-                      height: 1.9,
+                    style: tokens.typography.miniTranslationStyle(
                       color: colors.fg,
                     ),
                   ),
-                  if (last && stale) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Button(
-                        variant: ButtonVariant.quiet,
-                        onPressed: onRequery,
-                        child: Text(
-                          t.mini_translator.result.stale_requery(
-                            key: inputSubmitShortcutGlyphs(inputSubmitMode),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
                 SizedBox(height: controls ? 9 : 12),
                 // 服务署名与对比开关 — under the translation, so the text stays
                 // the visual protagonist of the block. 对比按目标各开各的：比的
@@ -623,15 +622,15 @@ class MiniTranslatorTranslation extends StatelessWidget {
                         tone: missing != null
                             ? LabelTone.danger
                             : LabelTone.accent,
-                        child: Text(
-                          translating
-                              ? targetName
-                              : missing != null
-                                  ? '${_serviceName(missingRecord!.translationServiceId)}'
-                                      ' · $targetName'
-                                      ' · ${t.mini_translator.result.language_missing_flag}'
-                                  : '${_serviceName(preferred!.record.translationServiceId)}'
-                                      ' · $targetName',
+                        // 语言文件未下载 is already said by the body in the
+                        // translation's slot; the heading does not repeat it.
+                        child: BlockHeading(
+                          _heading(
+                            missing != null
+                                ? missingRecord!.translationServiceId
+                                : preferred?.record.translationServiceId,
+                            targetName,
+                          ),
                         ),
                       ),
                     ),
@@ -702,7 +701,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
         candidate.text,
         style: tokens.typography.cjkStyle(
           fontSize: 13,
-          height: 1.75,
+          height: 1.7,
           color: colors.fgSecondary,
         ),
       ),
@@ -720,7 +719,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
     final index = _serviceIndex(serviceId);
     final bodyStyle = tokens.typography.cjkStyle(
       fontSize: 13,
-      height: 1.75,
+      height: 1.7,
       color: colors.fgSecondary,
     );
 

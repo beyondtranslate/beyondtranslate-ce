@@ -550,8 +550,6 @@ class _TranslationsMiniTranslatorResultJa
   @override
   String get translating => '翻訳中…';
   @override
-  String stale_requery({required Object key}) => '原文が変更されました · ${key} 再翻訳';
-  @override
   String compare_services({required Object count}) => '${count} 個のサービスを比較';
   @override
   String get collapse_compare => '比較を閉じる';
@@ -2287,8 +2285,6 @@ extension on TranslationsJa {
         'デフォルトのテキスト認識サービスが設定されていません。設定で設定してください。',
       'mini_translator.message.ocr_recognition_failed' => 'テキスト認識に失敗しました',
       'mini_translator.result.translating' => '翻訳中…',
-      'mini_translator.result.stale_requery' => ({required Object key}) =>
-          '原文が変更されました · ${key} 再翻訳',
       'mini_translator.result.compare_services' => ({required Object count}) =>
           '${count} 個のサービスを比較',
       'mini_translator.result.collapse_compare' => '比較を閉じる',

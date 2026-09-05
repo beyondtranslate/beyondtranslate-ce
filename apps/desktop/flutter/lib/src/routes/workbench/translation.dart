@@ -17,6 +17,7 @@ import '../../theme/product_tokens.dart' show ProductTypographyStyles;
 import '../../utils/language_util.dart';
 import '../../utils/shortcut_util.dart';
 import '../../widgets/avatar.dart' show Avatar, AvatarSize;
+import '../../widgets/block_heading.dart';
 import '../../widgets/blocks.dart'
     show HighlightBlock, HighlightRule, HighlightTone;
 import '../../widgets/candidate_row.dart'
@@ -44,7 +45,8 @@ import '../../widgets/ui.dart'
         SidebarCard,
         kTransitionDuration;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
-import '../settings/provider_meta.dart' show serviceDisplayName;
+import '../settings/provider_meta.dart'
+    show isDefaultTranslationService, serviceDisplayName;
 import '../settings/services.dart' show ServicesSettingsPage;
 
 /// 翻译 — the deck's TranslateView: the source block over the preferred
@@ -439,9 +441,21 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               // The detected language rides on the heading, the target on the
               // translation's — the pair reads off the two blocks themselves,
               // and the capsule can stay on 自动检测 ⇄ 自动匹配.
-              Label(
-                child: Text(
-                  '${t.workbench.translation.source} · ${getSourceDisplayName(_detectedLanguage)}',
+              // On 自动检测 the heading names the detected language, the
+              // translation's the matched target — the resolved pair reads off
+              // the blocks while the capsule stays on 自动检测 ⇄ 自动匹配. A
+              // language chosen in the capsule is not repeated here.
+              Flexible(
+                child: Label(
+                  child: BlockHeading(
+                    sourceHeading(
+                      _controller.text.trim().isEmpty
+                          ? null
+                          : getSourceDisplayName(_detectedLanguage),
+                      detectedAutomatically:
+                          isAutoSource(_controller.sourceLanguage),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -460,7 +474,10 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             placeholderStyle: tokens.typography.sourceStyle(
               color: colors.fgFaint,
             ),
-            style: tokens.typography.sourceStyle(color: colors.fgMuted),
+            // 原文 is content you read against the translation: at fgMuted it
+            // sat one step from its own caption, close enough that heading and
+            // paragraph read as one grey.
+            style: tokens.typography.sourceStyle(color: colors.fgSecondary),
             minLines: 3,
             maxLines: 8,
             // 提交方式 decides which key sends the box; the field takes Enter
@@ -501,11 +518,23 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     );
   }
 
-  String _serviceLabel(WorkbenchServiceResult? result) {
-    final translation = t.workbench.translation;
-    return result == null
-        ? translation.main_translation
-        : serviceDisplayName(result.service);
+  /// The heading over a translation block. The default service is never
+  /// named — the language alone is enough when the answer came from the one
+  /// you would expect; a promoted service trails as a qualifier, so you know
+  /// what you switched to.
+  BlockHeadingParts _heading(
+    WorkbenchServiceResult? result,
+    String target,
+  ) {
+    final named = result != null &&
+            !isDefaultTranslationService(result.service, settingsStore.general)
+        ? serviceDisplayName(result.service)
+        : null;
+    return translationHeading(
+      target: target,
+      serviceName: named,
+      matched: _controller.targetLanguage == null,
+    );
   }
 
   /// 服务全部失效 keeps the result view's geometry: the preferred slot stays
@@ -526,9 +555,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       rule: HighlightRule.top,
       tone: HighlightTone.danger,
       stretch: stretch,
-      label: Text(
-        '${_serviceLabel(result)} · ${translation.preferred} · $_targetList',
-      ),
+      label: BlockHeading(_heading(result, _targetList)),
       meta: Text(t.mini_translator.result.no_result_meta(count: count)),
       actions: Row(
         children: [
@@ -593,7 +620,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     final translation = t.workbench.translation;
     final output = result?.output(target);
     final text = output?.text ?? '';
-    final serviceName = _serviceLabel(result);
     final targetName = getLanguageName(target);
 
     final translating = output?.loading == true;
@@ -665,7 +691,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       tone: missing != null ? HighlightTone.danger : HighlightTone.accent,
       stretch: stretch,
       metaControls: stackedMeta,
-      label: Text('$serviceName · ${translation.preferred} · $targetName'),
+      label: BlockHeading(_heading(result, targetName)),
       meta: translating
           ? Text(translation.translating)
           : missing != null
@@ -905,7 +931,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               translation.translating,
               style: tokens.typography.cjkStyle(
                 fontSize: 13,
-                height: 1.75,
+                height: 1.7,
                 color: colors.fgFaint,
               ),
             )
@@ -915,7 +941,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                   output.hasText ? output.text : translation.waiting,
                   style: tokens.typography.cjkStyle(
                     fontSize: 13,
-                    height: 1.75,
+                    height: 1.7,
                     color: colors.fgSecondary,
                   ),
                 ),
@@ -934,7 +960,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       t.workbench.translation.service_unavailable,
       style: tokens.typography.cjkStyle(
         fontSize: 13,
-        height: 1.75,
+        height: 1.7,
         color: colors.dangerFg,
       ),
     );
