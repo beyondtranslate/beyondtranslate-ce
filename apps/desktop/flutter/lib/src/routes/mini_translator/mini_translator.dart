@@ -161,6 +161,43 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     }
   }
 
+  /// Re-reads both system permissions and lets the 功能受限 banner follow.
+  ///
+  /// It used to be asked once, in [initState], and the mini translator's page
+  /// is registered on its first show and then merely hidden and shown — so
+  /// that was once per app run, and the only other way to ask was the banner's
+  /// own 重新检查 button, which does not exist while the banner is hidden.
+  /// Revoking a permission on a running app therefore never surfaced.
+  ///
+  /// macOS answers `AXIsProcessTrusted()` live, but
+  /// `CGPreflightScreenCaptureAccess()` is cached for the life of the process:
+  /// a screen-recording grant or revocation made while the app runs is
+  /// invisible here until it restarts. So this catches up with the
+  /// accessibility half in-session, and the 重新检查 feedback says as much
+  /// when the other half will not move.
+  Future<void> _refreshPermissions() async {
+    if (!kIsMacOS) return;
+    final permission = runtime.permission();
+    final screenCapture = await permission.isScreenRecordingPermissionGranted();
+    final screenSelection = await permission.isAccessibilityPermissionGranted();
+    if (!mounted) return;
+    if (screenCapture == _isAllowedScreenCaptureAccess &&
+        screenSelection == _isAllowedScreenSelectionAccess) {
+      return;
+    }
+    _setStateAndScheduleWindowResize(() {
+      _isAllowedScreenCaptureAccess = screenCapture;
+      _isAllowedScreenSelectionAccess = screenSelection;
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Coming back from System Settings is the moment the answer may have
+    // changed — and the trip there is how it is changed at all.
+    if (state == AppLifecycleState.resumed) _refreshPermissions();
+  }
+
   void _handleChanged() {
     _setStateAndScheduleWindowResize(() {});
   }
@@ -175,12 +212,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
   }
 
   void _init() async {
-    if (kIsMacOS) {
-      _isAllowedScreenCaptureAccess =
-          await runtime.permission().isScreenRecordingPermissionGranted();
-      _isAllowedScreenSelectionAccess =
-          await runtime.permission().isAccessibilityPermissionGranted();
-    }
+    await _refreshPermissions();
 
     await Future.delayed(const Duration(milliseconds: 100));
     // This page is only built as part of the window's first show, which has
@@ -215,6 +247,8 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       if (event is! nativeapi.WindowFocusedEvent) return;
       if (event.windowId == _window.id) {
         _focusNode.requestFocus();
+        // The window comes back to the front after a trip to System Settings.
+        _refreshPermissions();
       }
     });
     _windowBlurredListenerId =
@@ -929,25 +963,21 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         isAllowedScreenCaptureAccess: _isAllowedScreenCaptureAccess,
         isAllowedScreenSelectionAccess: _isAllowedScreenSelectionAccess,
         onTappedRecheckIsAllowedAllAccess: () async {
-          _isAllowedScreenCaptureAccess =
-              await runtime.permission().isScreenRecordingPermissionGranted();
-          _isAllowedScreenSelectionAccess =
-              await runtime.permission().isAccessibilityPermissionGranted();
-
+          await _refreshPermissions();
           if (!context.mounted) return;
-          _setStateAndScheduleWindowResize(() {});
 
+          final feedback = t.mini_translator.limited_banner.feedback;
           if (_isAllowedScreenCaptureAccess &&
               _isAllowedScreenSelectionAccess) {
-            showToast(
-              context,
-              t.mini_translator.limited_banner.feedback.enabled,
-              tone: ToastTone.success,
-            );
+            showToast(context, feedback.enabled, tone: ToastTone.success);
           } else {
             showToast(
               context,
-              t.mini_translator.limited_banner.feedback.still_missing,
+              // Screen recording is the one macOS will not re-answer in this
+              // process, so say what actually has to happen next.
+              _isAllowedScreenCaptureAccess
+                  ? feedback.still_missing
+                  : feedback.still_missing_screen_capture,
               tone: ToastTone.warn,
             );
           }
