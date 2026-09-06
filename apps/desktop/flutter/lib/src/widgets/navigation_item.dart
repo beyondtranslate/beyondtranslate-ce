@@ -21,11 +21,11 @@ class NavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavItem(
-      active: selected,
+      current: selected,
       onPressed: onTap,
-      // The row tints the glyph, so it is passed without a colour.
-      icon: Icon(icon),
-      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      // The row tints the glyph itself, so it is passed without a colour.
+      icon: icon,
+      label: label,
     );
   }
 }

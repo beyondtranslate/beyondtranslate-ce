@@ -1,34 +1,34 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide FormField;
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
+import '../../widgets/app_dialog.dart' show AppDialogHeader, DialogFrame;
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
         ButtonVariant,
         Callout,
-        CalloutTone,
+        CalloutTint,
         Checkbox,
-        DesignThemeContext,
-        DesignTypographyStyles,
         Dialog,
         DialogBody,
         DialogFooter,
         DialogHeader,
         DialogTone,
-        Field,
-        FieldState,
-        Input,
-        Label,
-        LabelTone,
+        FormField,
         Pressable,
+        SectionLabel,
+        SectionLabelTone,
         Spinner,
-        SpinnerSize;
+        TextField,
+        TextFieldState,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 import 'provider_meta.dart';
 
 /// Where the connection test stands.
@@ -227,7 +227,7 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
       await _writeProvider();
       final message = isLlmProviderType(_type)
           // Listing models exercises the key and the endpoint without
-          // spending any tokens.
+          // spending any vars.
           ? formatTranslation(
               t.settings.providers.editor.test.passed_models,
               args: [
@@ -304,76 +304,72 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
     final editor = t.settings.providers.editor;
     final traditional = _traditionalTypes;
 
-    return Dialog(
-      children: [
-        DialogHeader(
-          title: Text(t.settings.providers.button.add),
-          subtitle: Text(editor.type_picker.prompt),
-        ),
-        DialogBody(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final type in _llmTypes)
+    return DialogFrame(
+        child: Dialog(children: [
+      DialogHeader(
+          title: t.settings.providers.button.add,
+          subtitle: editor.type_picker.prompt),
+      DialogBody(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final type in _llmTypes)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _ProviderTypeRow(
+                    type: type,
+                    selected: type == _type,
+                    onSelect: () => setState(() => _type = type),
+                  ),
+                ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: _DisclosureButton(
+                  open: _traditionalOpen,
+                  label: '${editor.type_picker.section_traditional}'
+                      ' · ${traditional.length}',
+                  onPressed: () =>
+                      setState(() => _traditionalOpen = !_traditionalOpen),
+                ),
+              ),
+              if (_traditionalOpen)
+                for (final type in traditional)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(top: 8),
                     child: _ProviderTypeRow(
                       type: type,
                       selected: type == _type,
                       onSelect: () => setState(() => _type = type),
                     ),
                   ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: _DisclosureButton(
-                    open: _traditionalOpen,
-                    label: '${editor.type_picker.section_traditional}'
-                        ' · ${traditional.length}',
-                    onPressed: () =>
-                        setState(() => _traditionalOpen = !_traditionalOpen),
-                  ),
-                ),
-                if (_traditionalOpen)
-                  for (final type in traditional)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: _ProviderTypeRow(
-                        type: type,
-                        selected: type == _type,
-                        onSelect: () => setState(() => _type = type),
-                      ),
-                    ),
-              ],
-            ),
-          ],
-        ),
-        DialogFooter(
-          children: [
-            const Spacer(),
-            Button(
-              variant: ButtonVariant.ghost,
-              size: ButtonSize.md,
+            ],
+          ),
+        ],
+      ),
+      DialogFooter(
+        children: [
+          const Spacer(),
+          Button(
+              variant: ButtonVariant.recessed,
+              size: WidgetSize.medium,
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(t.common.ui.button.cancel),
-            ),
-            Button(
-              variant: ButtonVariant.primary,
-              size: ButtonSize.md,
+              child: Text(t.common.ui.button.cancel)),
+          Button(
+              variant: ButtonVariant.filled,
+              size: WidgetSize.medium,
               onPressed: _enterConfig,
-              child: Text(editor.step.next),
-            ),
-          ],
-        ),
-      ],
-    );
+              child: Text(editor.step.next)),
+        ],
+      ),
+    ]));
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -390,116 +386,102 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
         .where((key) => key != 'baseUrl' && key != 'defaultModel')
         .toList(growable: false);
 
-    return Dialog(
-      tone: failed ? DialogTone.danger : DialogTone.standard,
-      children: [
-        DialogHeader(
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
+    return DialogFrame(
+        child: Dialog(
+            tone: failed ? DialogTone.danger : DialogTone.normal,
             children: [
-              ProviderIcon(providerTypeValue(_type), size: 18),
-              const SizedBox(width: 8),
-              Text(
-                formatTranslation(
-                  editor.add_title,
-                  args: [providerTypeDisplayName(_type)],
-                ),
+          AppDialogHeader(
+              icon: ProviderIcon(providerTypeValue(_type), size: 18),
+              title: formatTranslation(
+                editor.add_title,
+                args: [providerTypeDisplayName(_type)],
               ),
+              subtitle: providerTypeDescription(_type)),
+          DialogBody(
+            children: [
+              FormField(
+                  label: editor.row.id,
+                  child: TextField(
+                      controller: _idController,
+                      placeholder: editor.placeholder.id,
+                      style: context.vars.monoStyle(),
+                      onChanged: (_) => setState(_resetPhase))),
+              if (_fieldKeys.contains('baseUrl'))
+                FormField(
+                    label: 'Base URL',
+                    child: TextField(
+                        // Left blank the engine uses its own endpoint, so the
+                        // default belongs in the placeholder, not the value.
+                        placeholder: defaultBaseUrl(_type),
+                        controller: _fieldControllers['baseUrl'],
+                        style: context.vars.monoStyle(),
+                        onChanged: (_) => setState(_resetPhase))),
+              if (credentialKeys.isNotEmpty || llm)
+                _buildCredentialRow(credentialKeys, llm: llm, failed: failed),
+              _buildCapabilities(),
+              if (testing)
+                Callout(
+                    tint: CalloutTint.primary,
+                    icon: const Spinner(size: WidgetSize.small),
+                    actions: [
+                      Button(
+                          variant: ButtonVariant.plain,
+                          onPressed: _cancelTest,
+                          child: Text(t.common.ui.button.cancel))
+                    ],
+                    message: Text(
+                      formatTranslation(
+                        editor.test.running,
+                        args: [
+                          (_elapsed.inMilliseconds / 1000).toStringAsFixed(1)
+                        ],
+                      ),
+                    )),
+              if (passed)
+                Callout(
+                    tint: CalloutTint.success,
+                    actions: [
+                      Button(
+                          variant: ButtonVariant.plain,
+                          onPressed: _test,
+                          child: Text(editor.test.retest))
+                    ],
+                    message:
+                        Text(_passedMessage ?? editor.test.passed_service)),
+              if (failed) _TipsCard(reason: _failureMessage, llm: llm),
             ],
           ),
-          subtitle: Text(providerTypeDescription(_type)),
-        ),
-        DialogBody(
-          children: [
-            Field(
-              label: Text(editor.row.id),
-              child: Input(
-                controller: _idController,
-                placeholder: editor.placeholder.id,
-                mono: true,
-                onChanged: (_) => setState(_resetPhase),
-              ),
-            ),
-            if (_fieldKeys.contains('baseUrl'))
-              Field(
-                label: const Text('Base URL'),
-                child: Input(
-                  controller: _fieldControllers['baseUrl'],
-                  // Left blank the engine uses its own endpoint, so the
-                  // default belongs in the placeholder, not the value.
-                  placeholder: defaultBaseUrl(_type),
-                  mono: true,
-                  onChanged: (_) => setState(_resetPhase),
-                ),
-              ),
-            if (credentialKeys.isNotEmpty || llm)
-              _buildCredentialRow(credentialKeys, llm: llm, failed: failed),
-            _buildCapabilities(),
-            if (testing)
-              Callout(
-                tone: CalloutTone.accent,
-                icon: const Spinner(size: SpinnerSize.sm),
-                action: Button(
-                  variant: ButtonVariant.plain,
-                  onPressed: _cancelTest,
-                  child: Text(t.common.ui.button.cancel),
-                ),
-                child: Text(
-                  formatTranslation(
-                    editor.test.running,
-                    args: [(_elapsed.inMilliseconds / 1000).toStringAsFixed(1)],
-                  ),
-                ),
-              ),
-            if (passed)
-              Callout(
-                tone: CalloutTone.success,
-                action: Button(
-                  variant: ButtonVariant.plain,
-                  onPressed: _test,
-                  child: Text(editor.test.retest),
-                ),
-                child: Text(_passedMessage ?? editor.test.passed_service),
-              ),
-            if (failed) _TipsCard(reason: _failureMessage, llm: llm),
-          ],
-        ),
-        DialogFooter(
-          children: [
-            if (passed)
-              _PassedNote(text: editor.test.passed_footer)
-            else
+          DialogFooter(
+            children: [
+              if (passed)
+                _PassedNote(text: editor.test.passed_footer)
+              else
+                Button(
+                    variant: ButtonVariant.plain,
+                    onPressed: testing || !_isComplete ? null : _test,
+                    child: Text(editor.test.run)),
+              const Spacer(),
               Button(
-                variant: ButtonVariant.plain,
-                onPressed: testing || !_isComplete ? null : _test,
-                child: Text(editor.test.run),
-              ),
-            const Spacer(),
-            Button(
-              variant: ButtonVariant.ghost,
-              size: ButtonSize.md,
-              onPressed: testing ? null : _back,
-              child: Text(editor.step.back),
-            ),
-            if (failed)
-              Button(
-                variant: ButtonVariant.primary,
-                size: ButtonSize.md,
-                onPressed: _isComplete ? _test : null,
-                child: Text(editor.test.retest),
-              )
-            else
-              // 添加 stays out of reach until the endpoint has answered.
-              Button(
-                variant: ButtonVariant.primary,
-                size: ButtonSize.md,
-                onPressed: passed ? _commit : null,
-                child: Text(t.common.ui.button.add),
-              ),
-          ],
-        ),
-      ],
-    );
+                  variant: ButtonVariant.recessed,
+                  size: WidgetSize.medium,
+                  onPressed: testing ? null : _back,
+                  child: Text(editor.step.back)),
+              if (failed)
+                Button(
+                    variant: ButtonVariant.filled,
+                    size: WidgetSize.medium,
+                    onPressed: _isComplete ? _test : null,
+                    child: Text(editor.test.retest))
+              else
+                // 添加 stays out of reach until the endpoint has answered.
+                Button(
+                    variant: ButtonVariant.filled,
+                    size: WidgetSize.medium,
+                    onPressed: passed ? _commit : null,
+                    child: Text(t.common.ui.button.add)),
+            ],
+          ),
+        ]));
   }
 
   /// The credential fields, with 默认模型 beside the last one when the type has
@@ -510,32 +492,27 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
     required bool failed,
   }) {
     final model = llm && _fieldKeys.contains('defaultModel')
-        ? Field(
-            label: Text(t.settings.providers.editor.row.default_model),
-            child: Input(
-              // Required, not a nicety: every LLM provider refuses to build
-              // without a model, so a blank one fails the test rather than
-              // falling back to anything.
-              controller: _fieldControllers['defaultModel'],
-              mono: true,
-              onChanged: (_) => setState(_resetPhase),
-            ),
-          )
+        ? FormField(
+            label: t.settings.providers.editor.row.default_model,
+            child: TextField(
+                // Required, not a nicety: every LLM provider refuses to build
+                // without a model, so a blank one fails the test rather than
+                // falling back to anything.
+                controller: _fieldControllers['defaultModel'],
+                style: context.vars.monoStyle(),
+                onChanged: (_) => setState(_resetPhase)))
         : null;
 
     final credentials = [
       for (final key in credentialKeys)
-        Field(
-          label: Text(_credentialLabel(key, failed: failed)),
-          state: failed ? FieldState.error : FieldState.standard,
-          child: Input(
-            controller: _fieldControllers[key],
-            state: failed ? FieldState.error : FieldState.standard,
-            obscureText: isSecretField(key),
-            mono: !isSecretField(key),
-            onChanged: (_) => setState(_resetPhase),
-          ),
-        ),
+        FormField(
+            label: _credentialLabel(key, failed: failed),
+            invalid: failed,
+            child: TextField(
+                controller: _fieldControllers[key],
+                state: failed ? TextFieldState.error : TextFieldState.normal,
+                obscureText: isSecretField(key),
+                onChanged: (_) => setState(_resetPhase))),
     ];
 
     if (credentials.length == 1 && model != null) {
@@ -586,17 +563,18 @@ class _AddProviderDialogState extends State<AddProviderDialog> {
       children: [
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: Label(child: Text(t.settings.providers.section.services)),
+          child: SectionLabel(t.settings.providers.section.services),
         ),
         for (final capability in _capabilities)
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Checkbox(
-              checked: true,
-              enabled: false,
-              note: Text(capabilityNote(capability)),
-              child: Text(serviceTypeLabel(capability)),
-            ),
+                value: true,
+                // Every capability a provider declares is offered; the row is
+                // a statement of fact, not a choice.
+                onChanged: null,
+                note: Text(capabilityNote(capability)),
+                label: Text(serviceTypeLabel(capability))),
           ),
       ],
     );
@@ -617,9 +595,8 @@ class _ProviderTypeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.control);
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusMedium);
     final capabilities = visibleProviderCapabilities(type);
 
     return Pressable(
@@ -628,14 +605,16 @@ class _ProviderTypeRow extends StatelessWidget {
       checked: selected,
       isButton: false,
       semanticsLabel: providerTypeDisplayName(type),
-      builder: (context, state) => Container(
+      builder: (context, states) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: selected
-              ? colors.accent.withValues(alpha: 0.08)
-              : (state.hovered ? colors.subtle : colors.card),
+              ? vars.accent.withValues(alpha: 0.08)
+              : (states.contains(WidgetState.hovered)
+                  ? vars.colorSurfaceSubtle
+                  : vars.colorSurfaceMuted),
           border: Border.all(
-            color: selected ? colors.accent : colors.hairline,
+            color: selected ? vars.accent : vars.colorBorder,
             width: context.hairlineWidth,
           ),
           borderRadius: radius,
@@ -649,11 +628,11 @@ class _ProviderTypeRow extends StatelessWidget {
                 providerTypeDisplayName(type),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: tokens.typography.sansStyle(
+                style: vars.sansStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1,
-                  color: selected ? colors.fg : colors.fgTertiary,
+                  color: selected ? vars.colorContent : vars.colorContentMuted,
                 ),
               ),
             ),
@@ -682,13 +661,13 @@ class _DisclosureButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Pressable(
       onPressed: onPressed,
-      borderRadius: BorderRadius.circular(tokens.radii.controlSm),
+      borderRadius: BorderRadius.circular(vars.radiusSmall),
       selected: open,
       semanticsLabel: label,
-      builder: (context, state) => Row(
+      builder: (context, states) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           // A quarter turn, so the triangle points at what it opens.
@@ -697,18 +676,15 @@ class _DisclosureButton extends StatelessWidget {
             duration: const Duration(milliseconds: 120),
             child: Text(
               '▶',
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 9,
                 height: 1,
-                color: tokens.colors.fgFaint,
+                color: vars.colorContentFaint,
               ),
             ),
           ),
           const SizedBox(width: 6),
-          Label(
-            tone: state.hovered ? LabelTone.subtle : LabelTone.faint,
-            child: Text(label),
-          ),
+          SectionLabel(label, tone: SectionLabelTone.faint),
         ],
       ),
     );
@@ -722,20 +698,20 @@ class _Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: tokens.colors.control,
-        borderRadius: BorderRadius.circular(tokens.radii.pill),
+        color: vars.colorSurfaceInset,
+        borderRadius: BorderRadius.circular(vars.radiusFull),
       ),
       child: Text(
         label,
-        style: tokens.typography.sansStyle(
+        style: vars.sansStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,
           height: 1,
-          color: tokens.colors.fgSubtle,
+          color: vars.colorContentSubtle,
         ),
       ),
     );
@@ -750,14 +726,14 @@ class _PassedNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Text(
       text,
-      style: tokens.typography.sansStyle(
+      style: vars.sansStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         height: 1,
-        color: tokens.colors.success,
+        color: vars.success,
       ),
     );
   }
@@ -772,19 +748,18 @@ class _TipsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final test = t.settings.providers.editor.test;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: colors.card,
+        color: vars.colorSurfaceMuted,
         border: Border.all(
-          color: colors.hairline,
+          color: vars.colorBorder,
           width: context.hairlineWidth,
         ),
-        borderRadius: BorderRadius.circular(tokens.radii.box),
+        borderRadius: BorderRadius.circular(vars.radiusLarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -795,22 +770,22 @@ class _TipsCard extends StatelessWidget {
               reason!,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 12,
                 height: 1.5,
-                color: colors.dangerFg,
+                color: vars.dangerFg,
               ),
             ),
             const SizedBox(height: 9),
           ],
-          Label(child: Text(test.tips_title)),
+          SectionLabel(test.tips_title),
           const SizedBox(height: 7),
           Text(
             llm ? test.tips_llm : test.tips_traditional,
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 12,
               height: 1.75,
-              color: colors.fgTertiary,
+              color: vars.colorContentMuted,
             ),
           ),
         ],

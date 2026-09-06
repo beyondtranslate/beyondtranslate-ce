@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart' hide Dialog;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../i18n/i18n.dart';
+import '../theme/product_tokens.dart' show ProductTypography;
 import 'app_dialog.dart';
 import 'custom_alert_dialog/show_dialog.dart';
 import 'ui.dart'
     show
         Button,
-        ButtonSize,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
-        DialogTone;
+        DialogTone,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 
 /// The one-question sheet: a title, a sentence, and a yes/no. Used wherever the
 /// app is about to do something it cannot undo — 重置快捷键, 删除记录, 清空历史 —
@@ -61,7 +61,7 @@ class _ConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
 
     return CallbackShortcuts(
       bindings: {
@@ -73,33 +73,29 @@ class _ConfirmDialog extends StatelessWidget {
       child: Focus(
         autofocus: true,
         child: AppDialog(
-          width: 360,
-          tone: danger ? DialogTone.danger : DialogTone.standard,
-          title: Text(title),
-          content: Text(
-            message,
-            style: tokens.typography.sansStyle(
-              fontSize: 12,
-              height: 1.6,
-              color: tokens.colors.fgSecondary,
+            tone: danger ? DialogTone.danger : DialogTone.normal,
+            title: title,
+            content: Text(
+              message,
+              style: vars.sansStyle(
+                fontSize: 12,
+                height: 1.6,
+                color: vars.colorContentSecondary,
+              ),
             ),
-          ),
-          actions: [
-            Button(
-              variant: ButtonVariant.secondary,
-              size: ButtonSize.md,
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(cancelLabel),
-            ),
-            Button(
-              variant: ButtonVariant.primary,
-              size: ButtonSize.md,
-              shortcut: const Text('⏎'),
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(confirmLabel),
-            ),
-          ],
-        ),
+            actions: [
+              Button(
+                  variant: ButtonVariant.normal,
+                  size: WidgetSize.medium,
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(cancelLabel)),
+              Button(
+                  variant: ButtonVariant.filled,
+                  size: WidgetSize.medium,
+                  shortcut: const Text('⏎'),
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(confirmLabel)),
+            ]),
       ),
     );
   }

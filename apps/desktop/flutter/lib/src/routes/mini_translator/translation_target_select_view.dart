@@ -17,7 +17,7 @@ import '../../widgets/native_menu.dart' show openNativeMenuBelow;
 /// (取词 / 主窗口 / 设置 / 切换目标) and the pin.
 class MiniTranslatorTopBar extends StatelessWidget {
   MiniTranslatorTopBar({
-    Key? key,
+    super.key,
     required this.sourceLanguage,
     required this.selectedTargetLanguage,
     required this.activeConfigIndex,
@@ -35,7 +35,7 @@ class MiniTranslatorTopBar extends StatelessWidget {
     required this.onExtractClipboard,
     required this.onOpenWorkbench,
     required this.onOpenSettings,
-  }) : super(key: key);
+  });
 
   final String sourceLanguage;
   final String? selectedTargetLanguage;

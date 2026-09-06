@@ -31,8 +31,9 @@ import '../../services/shortcut_service/shortcut_service.dart';
 import '../../utils/language_util.dart';
 import '../../utils/platform_util.dart';
 import '../../widgets/block_heading.dart';
+import '../../widgets/popover_panel.dart' show PopoverPanel;
 import '../../widgets/toast_host.dart' show showToast;
-import '../../widgets/ui.dart' show DesignThemeContext, PopoverPanel, ToastTone;
+import '../../widgets/ui.dart' show ThemeDataBuildContextProps, ToastTint;
 import 'limited_functionality_banner.dart';
 import 'translation_input_view.dart';
 import 'translation_results_view.dart';
@@ -46,7 +47,7 @@ const double _kTrayInset = 8;
 const String _kCopiedAll = '*';
 
 class MiniTranslatorPage extends StatefulWidget {
-  const MiniTranslatorPage({Key? key}) : super(key: key);
+  const MiniTranslatorPage({super.key});
 
   @override
   State<StatefulWidget> createState() => _MiniTranslatorPageState();
@@ -861,7 +862,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
       showToast(
         context,
         '${t.mini_translator.message.ocr_recognition_failed}: ${error.toString()}',
-        tone: ToastTone.danger,
+        tone: ToastTint.danger,
       );
     }
   }
@@ -969,7 +970,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
           final feedback = t.mini_translator.limited_banner.feedback;
           if (_isAllowedScreenCaptureAccess &&
               _isAllowedScreenSelectionAccess) {
-            showToast(context, feedback.enabled, tone: ToastTone.success);
+            showToast(context, feedback.enabled, tone: ToastTint.success);
           } else {
             showToast(
               context,
@@ -978,7 +979,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
               _isAllowedScreenCaptureAccess
                   ? feedback.still_missing
                   : feedback.still_missing_screen_capture,
-              tone: ToastTone.warn,
+              tone: ToastTint.warning,
             );
           }
         },
@@ -1087,7 +1088,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     // The window itself is the deck's MiniWindow tray: the top bar and the
     // action bar sit directly on it, the panel card floats between them.
     return Scaffold(
-      backgroundColor: context.colors.tray,
+      backgroundColor: context.vars.colorSurfaceMuted,
       body: CallbackShortcuts(
         bindings: {
           // ⌥1…⌥9 promote the matching service, as hinted on the cards.

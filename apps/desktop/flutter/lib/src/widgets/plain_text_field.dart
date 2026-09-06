@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import '../theme/product_tokens.dart' show ProductPalette;
 import 'native_text_field.dart';
-import 'ui.dart' show DesignThemeContext;
+import 'ui.dart' show TextField, ThemeDataBuildContextProps;
 
 const EdgeInsets _kDefaultPadding = EdgeInsets.symmetric(
   horizontal: 12,
@@ -18,13 +19,17 @@ const Color _kDefaultBackgroundCursorColor = Color(0x33000000);
 /// taking the text with it.
 const double _kSelectionOpacity = 0.2;
 
-/// A lightweight app text field with Cupertino-style defaults.
+/// The app's bare editable field — no box, no chrome.
+///
+/// The kit's [TextField] draws a control; the translation panes want the
+/// glyphs alone on the pane's own surface, and on macOS want the AppKit view
+/// behind them. That is a product widget, so it lives here.
 ///
 /// The widget intentionally exposes the common input parameters used across the
 /// app while keeping the visual defaults opinionated: no Material/Cupertino
 /// text field dependency, compact padding, and a lightweight placeholder layer.
-class TextField extends StatefulWidget {
-  const TextField({
+class PlainTextField extends StatefulWidget {
+  const PlainTextField({
     super.key,
     this.controller,
     this.focusNode,
@@ -74,10 +79,10 @@ class TextField extends StatefulWidget {
   final GestureTapCallback? onTap;
 
   @override
-  State<TextField> createState() => _TextFieldState();
+  State<PlainTextField> createState() => _TextFieldState();
 }
 
-class _TextFieldState extends State<TextField> {
+class _TextFieldState extends State<PlainTextField> {
   TextEditingController? _controller;
   FocusNode? _focusNode;
 
@@ -99,7 +104,7 @@ class _TextFieldState extends State<TextField> {
   }
 
   @override
-  void didUpdateWidget(TextField oldWidget) {
+  void didUpdateWidget(PlainTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller?.removeListener(_handleControllerChanged);
@@ -146,7 +151,7 @@ class _TextFieldState extends State<TextField> {
 
   /// Whether the caller has named the key that submits — 提交方式 in settings.
   /// Only then does the field take Enter into its own hands; every other field
-  /// keeps whatever [TextField.textInputAction] already gave it.
+  /// keeps whatever [PlainTextField.textInputAction] already gave it.
   bool get _hasSubmitMode => widget.submitOnEnter || widget.submitOnMetaEnter;
 
   /// ⇧⏎ always writes a newline, the chosen key submits, and anything else
@@ -175,8 +180,8 @@ class _TextFieldState extends State<TextField> {
   Widget build(BuildContext context) {
     // Neither AppKit nor Flutter reaches for the app's theme on its own: one
     // falls back to the system accent, the other to Material's.
-    final tokens = context.tokens;
-    final cursorColor = tokens.colors.accent;
+    final vars = context.vars;
+    final cursorColor = vars.accent;
     final selectionColor = cursorColor.withValues(alpha: _kSelectionOpacity);
 
     // The same predicate [NativeTextField] guards its own `AppKitView` with —
@@ -205,7 +210,7 @@ class _TextFieldState extends State<TextField> {
         selectionHeightStyle: widget.selectionHeightStyle,
         cursorColor: cursorColor,
         selectionColor: selectionColor,
-        brightness: tokens.brightness,
+        brightness: context.themeData.brightness,
         onChanged: widget.onChanged,
         onSubmitted: widget.onSubmitted,
         onTap: widget.onTap,

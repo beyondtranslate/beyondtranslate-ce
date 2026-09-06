@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../models/ext_translation_engine_config.dart';
 import '../../models/translation_engine_config.dart';
-import '../ui.dart' show DesignThemeContext;
+import '../ui.dart' show ThemeDataBuildContextProps;
 
 class TranslationEngineName extends StatelessWidget {
-  const TranslationEngineName(this.translationEngineConfig, {Key? key})
-      : super(key: key);
+  const TranslationEngineName(this.translationEngineConfig, {super.key});
 
   final TranslationEngineConfig translationEngineConfig;
 
@@ -18,7 +17,8 @@ class TranslationEngineName extends StatelessWidget {
         children: [
           TextSpan(
             text: ' (${translationEngineConfig.identifier})',
-            style: TextStyle(fontSize: 12, color: context.colors.fgSubtle),
+            style:
+                TextStyle(fontSize: 12, color: context.vars.colorContentSubtle),
           ),
         ],
       ),

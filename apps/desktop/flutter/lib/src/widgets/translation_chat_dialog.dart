@@ -1,10 +1,16 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide TextField;
 
 import '../services/runtime.dart';
 import 'app_dialog.dart';
 import 'ui.dart'
-    show Button, ButtonVariant, DesignThemeContext, Input, Spinner, SpinnerSize;
+    show
+        Button,
+        ButtonVariant,
+        Spinner,
+        TextField,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 
 /// A chat dialog for discussing a translation with the LLM.
 ///
@@ -149,97 +155,92 @@ Be concise and helpful. Respond in the same language as the user's question.''';
     final theme = Theme.of(context);
 
     return AppDialog(
-      width: 520,
-      title: const Text('Discuss Translation'),
-      content: SizedBox(
-        height: 430,
-        child: Column(
-          children: [
-            // Context section
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(context.radii.box),
+        title: 'Discuss Translation',
+        content: SizedBox(
+          height: 430,
+          child: Column(
+            children: [
+              // Context section
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(context.vars.radiusLarge),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Source (${widget.sourceLang})',
+                      style: theme.textTheme.labelSmall,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.sourceText,
+                      style: theme.textTheme.bodySmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Translation (${widget.targetLang})',
+                      style: theme.textTheme.labelSmall,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.translatedText,
+                      style: theme.textTheme.bodySmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(height: 8),
+              // Chat messages
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _messages.length + (_isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (_isLoading && index == _messages.length) {
+                      return const _LoadingBubble();
+                    }
+                    final msg = _messages[index];
+                    return _ChatBubble(
+                      content: msg.content,
+                      isUser: msg.role == 'user',
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Input
+              Row(
                 children: [
-                  Text(
-                    'Source (${widget.sourceLang})',
-                    style: theme.textTheme.labelSmall,
+                  Expanded(
+                    child: TextField(
+                        controller: _controller,
+                        placeholder: 'Ask about this translation...',
+                        onSubmitted: (_) => _sendMessage()),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    widget.sourceText,
-                    style: theme.textTheme.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Translation (${widget.targetLang})',
-                    style: theme.textTheme.labelSmall,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    widget.translatedText,
-                    style: theme.textTheme.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  const SizedBox(width: 8),
+                  Button(
+                      variant: ButtonVariant.filled,
+                      onPressed: _isLoading ? null : _sendMessage,
+                      child: const Icon(Icons.send, size: 14)),
                 ],
               ),
-            ),
-            const SizedBox(height: 8),
-            // Chat messages
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: _messages.length + (_isLoading ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (_isLoading && index == _messages.length) {
-                    return const _LoadingBubble();
-                  }
-                  final msg = _messages[index];
-                  return _ChatBubble(
-                    content: msg.content,
-                    isUser: msg.role == 'user',
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Input
-            Row(
-              children: [
-                Expanded(
-                  child: Input(
-                    controller: _controller,
-                    placeholder: 'Ask about this translation...',
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Button(
-                  variant: ButtonVariant.primary,
-                  onPressed: _isLoading ? null : _sendMessage,
-                  child: const Icon(Icons.send, size: 14),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      actions: [
-        Button(
-          variant: ButtonVariant.secondary,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    );
+        actions: [
+          Button(
+              variant: ButtonVariant.normal,
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close')),
+        ]);
   }
 }
 
@@ -292,7 +293,7 @@ class _LoadingBubble extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Spinner(size: SpinnerSize.sm),
+          Spinner(size: WidgetSize.small),
           SizedBox(width: 8),
           Text('Thinking...'),
         ],

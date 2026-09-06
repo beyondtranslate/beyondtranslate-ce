@@ -1,30 +1,30 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
+import 'package:flutter/widgets.dart' hide Table, TableCell, TableRow;
 
 import '../../i18n/i18n.dart';
 import '../../services/glossary_store.dart';
 import '../../services/runtime.dart' show GlossaryBook, GlossaryEntry;
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
+import '../../widgets/nav_columns.dart' show Rail, RailAction, RailItem;
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
+        ButtonTint,
         ButtonVariant,
-        DataTable,
-        DataTableCell,
-        DataTableCellAlign,
-        DataTableHead,
-        DataTableRow,
-        DesignThemeContext,
-        DesignTypographyStyles,
         EmptyState,
-        Input,
-        Label,
-        LabelTone,
-        Rail,
-        RailAction,
-        RailItem,
         SearchField,
-        WindowFooter;
+        SectionLabel,
+        SectionLabelTint,
+        Table,
+        TableCell,
+        TableCellAlign,
+        TableHead,
+        TableRow,
+        TextField,
+        ThemeDataBuildContextProps,
+        WidgetSize;
+import '../../widgets/window_chrome.dart' show WindowFooter;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import 'glossary_dialogs.dart';
 
@@ -58,6 +58,10 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
   final TextEditingController _translationController = TextEditingController();
   final TextEditingController _forbiddenController = TextEditingController();
   final TextEditingController _bookNameController = TextEditingController();
+
+  /// The kit's search field is controller-driven, so the query lives here and
+  /// the store is told about it on change.
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -253,16 +257,13 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
             // Both ways into a new book, as the deck draws them: the quiet one
             // here beside 新增条目, and the accent one at the rail's foot.
             Button(
-              onPressed: _openNewBookDialog,
-              child: Text(t.workbench.glossary_page.new_book),
-            ),
+                onPressed: _openNewBookDialog,
+                child: Text(t.workbench.glossary_page.new_book)),
             const SizedBox(width: 14),
             Button(
-              variant: ButtonVariant.primary,
-              enabled: book != null,
-              onPressed: _openAddTermDialog,
-              child: Text(t.workbench.glossary_page.add_entry),
-            ),
+                variant: ButtonVariant.filled,
+                onPressed: book != null ? _openAddTermDialog : null,
+                child: Text(t.workbench.glossary_page.add_entry)),
           ],
         ),
         Expanded(
@@ -314,45 +315,48 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
   /// 书眉 — the book's name and count, or whichever editing mode has taken
   /// the strip over.
   Widget _buildHeader(BuildContext context, GlossaryBook? book, int count) {
-    final colors = context.tokens.colors;
+    final vars = context.vars;
     final strings = t.workbench.glossary_page;
 
     Widget content;
     switch (_header) {
       case _HeaderMode.searching:
-        content = SearchField(
-          autofocus: true,
-          value: glossaryStore.query,
-          onChanged: glossaryStore.setQuery,
-          placeholder: strings.search_placeholder,
-          onDismiss: () {
-            glossaryStore.setQuery('');
-            _closeHeader();
-          },
-          semanticsLabel: strings.search_label,
+        content = Semantics(
+          label: strings.search_label,
+          child: CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.escape): () {
+                _searchController.clear();
+                glossaryStore.setQuery('');
+                _closeHeader();
+              },
+            },
+            child: SearchField(
+              controller: _searchController,
+              onChanged: glossaryStore.setQuery,
+              placeholder: strings.search_placeholder,
+            ),
+          ),
         );
       case _HeaderMode.renaming:
       case _HeaderMode.creating:
         content = Row(
           children: [
             Expanded(
-              child: Input(
-                controller: _bookNameController,
-                placeholder: strings.new_book_placeholder,
-                onSubmitted: (_) => _submitBookName(),
-              ),
+              child: TextField(
+                  controller: _bookNameController,
+                  placeholder: strings.new_book_placeholder,
+                  onSubmitted: (_) => _submitBookName()),
             ),
             const SizedBox(width: 10),
             Button(
-              variant: ButtonVariant.primary,
-              onPressed: _submitBookName,
-              child: Text(t.common.ui.button.save),
-            ),
+                variant: ButtonVariant.filled,
+                onPressed: _submitBookName,
+                child: Text(t.common.ui.button.save)),
             const SizedBox(width: 10),
             Button(
-              onPressed: _closeHeader,
-              child: Text(t.common.ui.button.cancel),
-            ),
+                onPressed: _closeHeader,
+                child: Text(t.common.ui.button.cancel)),
           ],
         );
       case _HeaderMode.confirmingDelete:
@@ -364,62 +368,54 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                   name: book?.name ?? '',
                   count: book?.entryCount ?? 0,
                 ),
-                style: context.tokens.typography.sansStyle(
+                style: context.vars.sansStyle(
                   fontSize: 12,
                   height: 1.3,
-                  color: colors.fg,
+                  color: vars.colorContent,
                 ),
               ),
             ),
             const SizedBox(width: 10),
             Button(
-              variant: ButtonVariant.warning,
-              onPressed: _deleteSelectedBook,
-              child: Text(t.common.ui.button.delete),
-            ),
+                variant: ButtonVariant.tinted,
+                tint: ButtonTint.warning,
+                onPressed: _deleteSelectedBook,
+                child: Text(t.common.ui.button.delete)),
             const SizedBox(width: 10),
             Button(
-              onPressed: _closeHeader,
-              child: Text(t.common.ui.button.cancel),
-            ),
+                onPressed: _closeHeader,
+                child: Text(t.common.ui.button.cancel)),
           ],
         );
       case _HeaderMode.idle:
         content = Row(
           children: [
-            Label(
-              child: Text(
-                strings.entry_count(name: book?.name ?? '', count: count),
-              ),
-            ),
+            SectionLabel(
+                strings.entry_count(name: book?.name ?? '', count: count)),
             const Spacer(),
             Button(
-              variant: ButtonVariant.plain,
-              onPressed: _toggleSelectedBook,
-              child: Text(
-                (book?.enabled ?? true) ? strings.disable : strings.enable,
-              ),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: _toggleSelectedBook,
+                child: Text(
+                  (book?.enabled ?? true) ? strings.disable : strings.enable,
+                )),
             const SizedBox(width: 12),
             Button(
-              variant: ButtonVariant.plain,
-              onPressed: () =>
-                  _openHeader(_HeaderMode.renaming, bookName: book?.name ?? ''),
-              child: Text(strings.rename_book),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: () => _openHeader(_HeaderMode.renaming,
+                    bookName: book?.name ?? ''),
+                child: Text(strings.rename_book)),
             const SizedBox(width: 12),
             Button(
-              variant: ButtonVariant.plain,
-              onPressed: () => _openHeader(_HeaderMode.confirmingDelete),
-              child: Text(t.common.ui.button.delete),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: () => _openHeader(_HeaderMode.confirmingDelete),
+                child: Text(t.common.ui.button.delete)),
             const SizedBox(width: 12),
             Button(
-              variant: ButtonVariant.plain,
-              shortcut: const Text('⌘F'),
-              onPressed: () => _openHeader(_HeaderMode.searching),
-              child: Text(strings.search),
-            ),
+                variant: ButtonVariant.plain,
+                shortcut: const Text('⌘F'),
+                onPressed: () => _openHeader(_HeaderMode.searching),
+                child: Text(strings.search)),
           ],
         );
     }
@@ -429,7 +425,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.hairline,
+            color: vars.colorBorder,
             width: context.hairlineWidth,
           ),
         ),
@@ -440,16 +436,16 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
 
   /// The inline add/edit row on the accent surface.
   Widget _buildDraft(BuildContext context) {
-    final colors = context.tokens.colors;
+    final vars = context.vars;
     final strings = t.workbench.glossary_page;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       decoration: BoxDecoration(
-        color: colors.accentSurface,
+        color: vars.accentSurface,
         border: Border(
           bottom: BorderSide(
-            color: colors.accentHairline,
+            color: vars.accentHairline,
             width: context.hairlineWidth,
           ),
         ),
@@ -489,24 +485,20 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
           ),
           const SizedBox(width: 10),
           Button(
-            variant: ButtonVariant.primary,
-            enabled: _draftValid,
-            onPressed: _submitDraft,
-            child: Text(t.common.ui.button.save),
-          ),
+              variant: ButtonVariant.filled,
+              onPressed: _draftValid ? _submitDraft : null,
+              child: Text(t.common.ui.button.save)),
           if (_editing != null) ...[
             const SizedBox(width: 10),
             Button(
-              variant: ButtonVariant.warning,
-              onPressed: _deleteEditingEntry,
-              child: Text(t.common.ui.button.delete),
-            ),
+                variant: ButtonVariant.tinted,
+                tint: ButtonTint.warning,
+                onPressed: _deleteEditingEntry,
+                child: Text(t.common.ui.button.delete)),
           ],
           const SizedBox(width: 10),
           Button(
-            onPressed: _closeDraft,
-            child: Text(t.common.ui.button.cancel),
-          ),
+              onPressed: _closeDraft, child: Text(t.common.ui.button.cancel)),
         ],
       ),
     );
@@ -522,53 +514,51 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
         return _CenteredNote(text: strings.loading);
       }
       return EmptyState(
-        title: Text(
-          query.isNotEmpty
+          // The titlebar already carries the filled 新增条目; one accent action
+          // per view, so this one is the quieter twin.
+          actions: [
+            Button(
+                variant: ButtonVariant.normal,
+                size: WidgetSize.medium,
+                onPressed: _openAddTermDialog,
+                child: Text(strings.add_entry))
+          ],
+          title: query.isNotEmpty
               ? strings.no_results_title(query: query)
-              : strings.empty_title,
-        ),
-        // The titlebar already carries the filled 新增条目; one accent action
-        // per view, so this one is the quieter twin.
-        action: Button(
-          variant: ButtonVariant.secondary,
-          size: ButtonSize.md,
-          onPressed: _openAddTermDialog,
-          child: Text(strings.add_entry),
-        ),
-      );
+              : strings.empty_title);
     }
 
     return ListView(
       children: [
-        DataTable(
+        Table(
           children: [
-            DataTableHead(
+            TableHead(
               children: [
-                DataTableCell(head: true, child: Text(strings.term)),
-                DataTableCell(head: true, child: Text(strings.translation)),
-                DataTableCell(
+                TableCell(head: true, child: Text(strings.term)),
+                TableCell(head: true, child: Text(strings.translation)),
+                TableCell(
                   head: true,
                   width: 96,
                   child: Text(strings.forbidden),
                 ),
-                DataTableCell(
+                TableCell(
                   head: true,
                   width: 56,
-                  align: DataTableCellAlign.end,
+                  align: TableCellAlign.end,
                   child: Text(strings.hits),
                 ),
               ],
             ),
             for (final entry in entries)
-              DataTableRow(
+              TableRow(
                 active: entry.id == _editing?.id,
                 onPressed: () => _openDraft(entry),
                 children: [
-                  DataTableCell(child: Text(entry.term, style: styles.term)),
-                  DataTableCell(
+                  TableCell(child: Text(entry.term, style: styles.term)),
+                  TableCell(
                     child: Text(entry.translation, style: styles.translation),
                   ),
-                  DataTableCell(
+                  TableCell(
                     width: 96,
                     child: Text(
                       entry.forbidden.isEmpty
@@ -577,9 +567,9 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                       style: styles.forbidden,
                     ),
                   ),
-                  DataTableCell(
+                  TableCell(
                     width: 56,
-                    align: DataTableCellAlign.end,
+                    align: TableCellAlign.end,
                     child: Text(
                       '${entry.hits}',
                       style: entry.id == _editing?.id
@@ -596,7 +586,7 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
   }
 
   Widget _buildFooter(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     final error = glossaryStore.error;
 
     return WindowFooter(
@@ -606,11 +596,10 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
             error ?? t.workbench.glossary_page.priority_note,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 11,
               height: 1,
-              color:
-                  error == null ? tokens.colors.fgSubtle : tokens.colors.danger,
+              color: error == null ? vars.colorContentSubtle : vars.danger,
             ),
           ),
         ),
@@ -633,38 +622,37 @@ class _TableStyles {
   });
 
   factory _TableStyles.of(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return _TableStyles(
-      term: tokens.typography.displayStyle(
+      term: vars.displayStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         height: 1.4,
-        color: colors.fg,
+        color: vars.colorContent,
       ),
-      translation: tokens.typography.cjkStyle(
+      translation: vars.cjkStyle(
         fontSize: 13,
         fontWeight: FontWeight.w500,
         height: 1.4,
-        color: colors.fg,
+        color: vars.colorContent,
       ),
-      forbidden: tokens.typography.cjkStyle(
+      forbidden: vars.cjkStyle(
         fontSize: 12,
         height: 1.4,
-        color: colors.fgSubtle,
+        color: vars.colorContentSubtle,
       ),
-      hits: tokens.typography.displayStyle(
+      hits: vars.displayStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
         height: 1,
-        color: colors.fgTertiary,
+        color: vars.colorContentMuted,
       ),
-      hitsActive: tokens.typography.displayStyle(
+      hitsActive: vars.displayStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
         height: 1,
-        color: colors.accentText,
+        color: vars.accentText,
       ),
     );
   }
@@ -698,14 +686,13 @@ class _DraftField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Label(tone: LabelTone.accent, child: Text(label)),
+        SectionLabel(label, tint: SectionLabelTint.primary),
         const SizedBox(height: 6),
-        Input(
-          controller: controller,
-          placeholder: placeholder,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-        ),
+        TextField(
+            controller: controller,
+            placeholder: placeholder,
+            onChanged: onChanged,
+            onSubmitted: onSubmitted),
       ],
     );
   }
@@ -720,14 +707,12 @@ class _NoBooks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = t.workbench.glossary_page;
-    return EmptyState(
-      title: Text(strings.no_books_title),
-      action: Button(
-        variant: ButtonVariant.secondary,
-        onPressed: onCreate,
-        child: Text(strings.new_book),
-      ),
-    );
+    return EmptyState(title: strings.no_books_title, actions: [
+      Button(
+          variant: ButtonVariant.normal,
+          onPressed: onCreate,
+          child: Text(strings.new_book))
+    ]);
   }
 }
 
@@ -738,14 +723,14 @@ class _CenteredNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Center(
       child: Text(
         text,
-        style: tokens.typography.sansStyle(
+        style: vars.sansStyle(
           fontSize: 12,
           height: 1,
-          color: tokens.colors.fgSubtle,
+          color: vars.colorContentSubtle,
         ),
       ),
     );

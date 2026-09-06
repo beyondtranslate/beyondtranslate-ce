@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart' hide TextField;
+import 'package:flutter/material.dart';
 
 import '../theme/product_tokens.dart'
-    show ProductTokensContext, ProductTypographyStyles;
-import 'text_field.dart' show TextField;
+    show ProductPalette, ProductTokensContext, ProductTypography;
+import 'plain_text_field.dart' show PlainTextField;
 import 'translation_text.dart';
-import 'ui.dart' show DesignThemeContext, Label, LabelTone;
+import 'ui.dart' show SectionLabel, ThemeDataBuildContextProps;
 
 class TranslationPane extends StatelessWidget {
   const TranslationPane({
@@ -42,12 +42,11 @@ class TranslationPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     return ColoredBox(
       // The preferred pane carries the accent surface, the way a
       // HighlightBlock marks the answer a view is pointing at.
-      color: highlighted ? colors.accentSurface : colors.window,
+      color: highlighted ? vars.accentSurface : vars.colorSurface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,7 +55,7 @@ class TranslationPane extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: highlighted ? colors.accentHairline : colors.hairline,
+                  color: highlighted ? vars.accentHairline : vars.colorBorder,
                   width: context.hairlineWidth,
                 ),
               ),
@@ -68,17 +67,14 @@ class TranslationPane extends StatelessWidget {
                     width: 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: colors.highlight,
+                      color: vars.highlight,
                       shape: BoxShape.circle,
                       boxShadow: context.product.highlightGlow,
                     ),
                   ),
                   const SizedBox(width: 10),
                 ],
-                Label(
-                  tone: highlighted ? LabelTone.accent : LabelTone.subtle,
-                  child: Text('$label · $language'),
-                ),
+                SectionLabel('$label · $language'),
                 const Spacer(),
                 if (trailing != null) trailing!,
               ],
@@ -88,7 +84,7 @@ class TranslationPane extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
               child: editable
-                  ? TextField(
+                  ? PlainTextField(
                       controller: controller,
                       focusNode: focusNode,
                       minLines: null,
@@ -99,20 +95,20 @@ class TranslationPane extends StatelessWidget {
                       onChanged: onChanged,
                       onSubmitted: onSubmitted,
                       placeholder: hintText,
-                      placeholderStyle: tokens.typography.sourceStyle(
-                        color: colors.fgFaint,
+                      placeholderStyle: vars.sourceStyle(
+                        color: vars.colorContentFaint,
                       ),
-                      style: tokens.typography.sourceStyle(color: colors.fg),
+                      style: vars.sourceStyle(color: vars.colorContent),
                       padding: EdgeInsets.zero,
                     )
                   : SingleChildScrollView(
                       child: TranslationText(
                         text,
                         style: highlighted
-                            ? tokens.typography.translationStyle(
-                                color: colors.fg,
+                            ? vars.translationStyle(
+                                color: vars.colorContent,
                               )
-                            : tokens.typography.sourceStyle(color: colors.fg),
+                            : vars.sourceStyle(color: vars.colorContent),
                       ),
                     ),
             ),
@@ -124,8 +120,7 @@ class TranslationPane extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color:
-                        highlighted ? colors.accentHairline : colors.hairline,
+                    color: highlighted ? vars.accentHairline : vars.colorBorder,
                     width: context.hairlineWidth,
                   ),
                 ),

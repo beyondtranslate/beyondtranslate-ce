@@ -8,12 +8,12 @@ const double _kMinInteractiveDimension = 44.0;
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.leading,
     this.automaticallyImplyLeading = true,
     this.title,
     this.actions,
-  }) : super(key: key);
+  });
 
   final Widget? leading;
   final bool automaticallyImplyLeading;

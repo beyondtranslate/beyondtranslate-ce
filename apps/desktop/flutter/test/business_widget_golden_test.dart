@@ -16,13 +16,16 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:beyondtranslate_desktop/src/routes/mini_translator/limited_functionality_banner.dart';
+import 'package:beyondtranslate_desktop/src/theme/app_theme.dart'
+    show AppThemeProvider, AppThemeName;
 import 'package:beyondtranslate_desktop/src/widgets/avatar.dart';
 import 'package:beyondtranslate_desktop/src/widgets/block_heading.dart';
 import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
 import 'package:beyondtranslate_desktop/src/widgets/data_display.dart';
 import 'package:beyondtranslate_desktop/src/widgets/list_tile.dart';
 import 'package:beyondtranslate_desktop/src/widgets/swap_pair.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart';
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
+    show Badge, Switch, ThemeDataBuildContextProps;
 import 'package:flutter/services.dart' show FontLoader;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -51,45 +54,47 @@ Directory _packageRoot(String package) {
   }
 }
 
-/// The host faces the tokens resolve to. `-apple-system` is SF; the CJK
-/// fallback is PingFang SC; ⌕ ⇄ ✕ ✓ sit outside SF's own coverage and macOS
-/// resolves them through Apple Symbols, which the test environment has to be
-/// told about — it goes in as its own family and is reached through the
-/// fallback lists, so it never outranks the CJK face.
-const _hostFaces = {
-  'SF': '/System/Library/Fonts/SFNS.ttf',
-  'PingFang SC': '/System/Library/Fonts/STHeiti Medium.ttc',
-  'SF Mono': '/System/Library/Fonts/Menlo.ttc',
-  'Symbols': '/System/Library/Fonts/Apple Symbols.ttf',
+const _sf = '/System/Library/Fonts/SFNS.ttf';
+const _pingFang = '/System/Library/Fonts/STHeiti Medium.ttc';
+const _menlo = '/System/Library/Fonts/Menlo.ttc';
+const _symbols = '/System/Library/Fonts/Apple Symbols.ttf';
+
+/// The host faces, registered under the names the kit's type recipes name.
+///
+/// `flutter test` resolves nothing on its own: a family the recipes ask for
+/// and the test never registered comes out as tofu. ⌕ ⇄ ✕ ✓ sit outside SF's
+/// own coverage and macOS resolves them through Apple Symbols, so it is loaded
+/// *into* each family rather than beside it — a family's later fonts are its
+/// own fallbacks, which is the only way in when the recipe's
+/// `fontFamilyFallback` is the kit's and not the test's to extend.
+const _hostFaces = <String, List<String>>{
+  'SF Pro Text': [_sf, _symbols],
+  'SF Pro Display': [_sf, _symbols],
+  'PingFang SC': [_pingFang],
+  'SF Mono': [_menlo, _symbols],
 };
 
-/// The type roles bound to those faces. `flutter test` does not resolve
-/// `family: null` to the platform UI font the way the running app does, so the
-/// roles have to name the families that were just registered.
-const _typography = DesignTypography(
-  display: DesignFont(family: 'SF', fallback: ['PingFang SC', 'Symbols']),
-  sans: DesignFont(family: 'SF', fallback: ['PingFang SC', 'Symbols']),
-  label: DesignFont(family: 'SF', fallback: ['PingFang SC', 'Symbols']),
-  cjk: DesignFont(family: 'PingFang SC', fallback: ['SF', 'Symbols']),
-  mono: DesignFont(family: 'SF Mono', fallback: ['PingFang SC', 'Symbols']),
-);
-
-Future<void> _load(String family, Uint8List bytes) async {
-  final loader = FontLoader(family)
-    ..addFont(Future.value(bytes.buffer.asByteData()));
+Future<void> _load(String family, List<Uint8List> faces) async {
+  final loader = FontLoader(family);
+  for (final bytes in faces) {
+    loader.addFont(Future.value(bytes.buffer.asByteData()));
+  }
   await loader.load();
 }
 
 void main() {
   final missing = [
     for (final entry in _hostFaces.entries)
-      if (!File(entry.value).existsSync()) entry.key,
+      for (final path in entry.value)
+        if (!File(path).existsSync()) '${entry.key} ($path)',
   ];
 
   group('goldens', () {
     setUpAll(() async {
       for (final entry in _hostFaces.entries) {
-        await _load(entry.key, File(entry.value).readAsBytesSync());
+        await _load(entry.key, [
+          for (final path in entry.value) File(path).readAsBytesSync(),
+        ]);
       }
       final icons = _packageRoot('fluentui_system_icons');
       for (final font in const ['Regular', 'Filled']) {
@@ -99,7 +104,7 @@ void main() {
         if (!file.existsSync()) fail('missing icon font: ${file.path}');
         await _load(
           'packages/fluentui_system_icons/FluentSystemIcons-$font',
-          file.readAsBytesSync(),
+          [file.readAsBytesSync()],
         );
       }
     });
@@ -111,16 +116,15 @@ void main() {
       String name,
       Widget child, {
       double width = 380,
-      DesignThemeName theme = DesignThemeName.studioLight,
+      AppThemeName theme = AppThemeName.studioLight,
     }) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(1200, 1200);
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(
-        DesignThemeProvider(
+        AppThemeProvider(
           theme: theme,
-          tokens: theme.tokens.copyWith(typography: _typography),
           child: Directionality(
             textDirection: TextDirection.ltr,
             child: Align(
@@ -130,7 +134,7 @@ void main() {
                 child: Builder(
                   builder: (context) => Container(
                     width: width,
-                    color: context.colors.window,
+                    color: context.vars.colorSurface,
                     padding: const EdgeInsets.all(16),
                     child: child,
                   ),
@@ -168,7 +172,7 @@ void main() {
         // whatever sits below is visible in the image.
         Builder(
           builder: (context) => ColoredBox(
-            color: context.colors.tray,
+            color: context.vars.colorSurfaceMuted,
             child: const Padding(
               padding: EdgeInsets.all(8),
               child: LimitedFunctionalityBanner(
@@ -214,7 +218,7 @@ void main() {
             title: const Text('Claude'),
             meta: const Text('claude-sonnet-4-5 · 密钥有效'),
             badge: const Badge(child: Text('默认')),
-            trailing: [Switch(checked: true, onChanged: (_) {})],
+            trailing: [Switch(value: true, onChanged: (_) {})],
           ),
           ListTile(
             variant: ListTileVariant.row,

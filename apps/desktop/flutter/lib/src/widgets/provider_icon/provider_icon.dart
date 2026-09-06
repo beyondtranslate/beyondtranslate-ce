@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import '../../theme/product_tokens.dart' show ProductTokens;
+import '../../theme/product_tokens.dart' show ProductTokens, ProductTypography;
 import '../../utils/r.dart';
-import '../ui.dart' show DesignThemeContext, DesignTypographyStyles;
+import '../ui.dart' show ThemeDataBuildContextProps;
 
 /// The provider's identity mark — the deck's `ProviderAvatar`.
 ///
@@ -58,8 +58,8 @@ class ProviderIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final radius = BorderRadius.circular(tokens.radii.avatar);
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusSmall);
     final asset = _assets[type];
 
     if (asset == null) {
@@ -79,7 +79,7 @@ class ProviderIcon extends StatelessWidget {
         borderRadius: radius,
         border: border ??
             Border.all(
-              color: tokens.colors.hairline,
+              color: vars.colorBorder,
               width: context.hairlineWidth,
             ),
       ),
@@ -102,7 +102,7 @@ class _LetterMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     final background = switch (type) {
       'system' => ProductTokens.providerBuiltin,
       'anthropic' => ProductTokens.providerClaude,
@@ -118,7 +118,7 @@ class _LetterMark extends StatelessWidget {
         decoration: BoxDecoration(color: background, borderRadius: radius),
         child: Text(
           type.isEmpty ? '?' : type.substring(0, 1).toUpperCase(),
-          style: tokens.typography.displayStyle(
+          style: vars.displayStyle(
             // The deck runs the glyph at a little over half the box.
             fontSize: size * 0.55,
             fontWeight: FontWeight.w700,

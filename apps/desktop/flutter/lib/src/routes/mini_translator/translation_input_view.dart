@@ -1,26 +1,22 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
-import 'package:flutter/material.dart' hide TextField;
+import 'package:flutter/material.dart';
 
 import '../../i18n/i18n.dart';
-import '../../theme/product_tokens.dart' show ProductTypographyStyles;
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../utils/shortcut_util.dart';
 import '../../widgets/block_heading.dart';
-import '../../widgets/text_field.dart' show TextField;
+import '../../widgets/plain_text_field.dart' show PlainTextField;
 import '../../widgets/ui.dart'
     show
         ActionBar,
         Button,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Label,
-        LabelTone,
         Pressable,
-        kTransitionDuration;
+        ThemeDataBuildContextProps;
 
 class MiniTranslatorInput extends StatelessWidget {
   const MiniTranslatorInput({
-    Key? key,
+    super.key,
     required this.focusNode,
     required this.controller,
     required this.inputSubmitMode,
@@ -28,7 +24,7 @@ class MiniTranslatorInput extends StatelessWidget {
     required this.sourceHeadingParts,
     required this.onChanged,
     required this.onSubmitted,
-  }) : super(key: key);
+  });
 
   final FocusNode focusNode;
   final TextEditingController controller;
@@ -46,8 +42,7 @@ class MiniTranslatorInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final placeholder = targetLanguageName == null
         ? t.mini_translator.input.hint
         : t.mini_translator.input.hint_translate_to(
@@ -61,12 +56,13 @@ class MiniTranslatorInput extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Label(
-            tone: LabelTone.faint,
+          DefaultTextStyle(
+            style:
+                context.vars.labelStyle(color: context.vars.colorContentFaint),
             child: BlockHeading(sourceHeadingParts),
           ),
           const SizedBox(height: 6),
-          TextField(
+          PlainTextField(
             focusNode: focusNode,
             controller: controller,
             padding: EdgeInsets.zero,
@@ -76,10 +72,10 @@ class MiniTranslatorInput extends StatelessWidget {
             // `fg-secondary`, a clear step above the 11px 原文 · English
             // caption (`fg-faint`) over it — `fg-muted` sat too close to the
             // label's grey to tell apart.
-            placeholderStyle: tokens.typography.sourceStyle(
-              color: colors.fgFaint,
+            placeholderStyle: vars.sourceStyle(
+              color: vars.colorContentFaint,
             ),
-            style: tokens.typography.sourceStyle(color: colors.fgSecondary),
+            style: vars.sourceStyle(color: vars.colorContentSecondary),
             // 原文框的最小 / 最大行数 —— 短词一行，长文本长到六行后框内滚动。
             maxLines: 6,
             minLines: 1,
@@ -98,7 +94,7 @@ class MiniTranslatorInput extends StatelessWidget {
 
 class MiniTranslatorActionButtons extends StatelessWidget {
   const MiniTranslatorActionButtons({
-    Key? key,
+    super.key,
     required this.inputSubmitMode,
     required this.hasContent,
     this.copyVisible = true,
@@ -111,7 +107,7 @@ class MiniTranslatorActionButtons extends StatelessWidget {
     required this.onBookmark,
     required this.onTranslate,
     required this.onClear,
-  }) : super(key: key);
+  });
 
   /// Only so the 翻译 chip names the key that submits — the button is a way
   /// to the same place the key goes.
@@ -158,17 +154,13 @@ class MiniTranslatorActionButtons extends StatelessWidget {
             children: [
               if (copyVisible)
                 Button(
-                  variant: ButtonVariant.ghost,
-                  enabled: hasContent,
-                  onPressed: onCopy,
-                  child: Text(copied ? buttons.copied : buttons.copy),
-                ),
+                    variant: ButtonVariant.recessed,
+                    onPressed: hasContent ? onCopy : null,
+                    child: Text(copied ? buttons.copied : buttons.copy)),
               Button(
-                variant: ButtonVariant.ghost,
-                enabled: hasContent,
-                onPressed: onBookmark,
-                child: Text(starred ? buttons.bookmarked : buttons.bookmark),
-              ),
+                  variant: ButtonVariant.recessed,
+                  onPressed: hasContent ? onBookmark : null,
+                  child: Text(starred ? buttons.bookmarked : buttons.bookmark)),
             ],
           ),
           const Spacer(),
@@ -176,21 +168,18 @@ class MiniTranslatorActionButtons extends StatelessWidget {
           // as a whole (unlike the per-result chips), so they sit together.
           if (clearVisible) ...[
             Button(
-              variant: ButtonVariant.ghost,
-              onPressed: onClear,
-              child: Text(buttons.clear),
-            ),
+                variant: ButtonVariant.recessed,
+                onPressed: onClear,
+                child: Text(buttons.clear)),
             const SizedBox(width: 6),
           ],
           Button(
-            variant: ButtonVariant.primary,
-            enabled: translateEnabled,
-            onPressed: onTranslate,
-            shortcut: Text(inputSubmitShortcutGlyphs(inputSubmitMode)),
-            child: Text(
-              retry ? t.mini_translator.result.retry : buttons.translate,
-            ),
-          ),
+              variant: ButtonVariant.filled,
+              onPressed: translateEnabled ? onTranslate : null,
+              shortcut: Text(inputSubmitShortcutGlyphs(inputSubmitMode)),
+              child: Text(
+                retry ? t.mini_translator.result.retry : buttons.translate,
+              )),
         ],
       ),
     );
@@ -214,36 +203,35 @@ class MiniTranslatorStaleNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final result = t.mini_translator.result;
 
     return Pressable(
       onPressed: onRequery,
       semanticsLabel: result.stale_notice,
-      builder: (context, state) => AnimatedContainer(
-        duration: kTransitionDuration,
+      builder: (context, states) => AnimatedContainer(
+        duration: context.vars.motionDuration,
         width: double.infinity,
         // A touch taller than a caption row so it reads as a notice rather
         // than a seam. No rule above — the tinted surface against the white
         // source block is the edge; a hairline on top would double the line.
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 9),
-        color: state.hovered
+        color: states.contains(WidgetState.hovered)
             ? Color.alphaBlend(
-                colors.fg.withValues(alpha: 0.03),
-                colors.warnSurface,
+                vars.colorContent.withValues(alpha: 0.03),
+                vars.warnSurface,
               )
-            : colors.warnSurface,
+            : vars.warnSurface,
         child: Row(
           children: [
             Flexible(
               child: Text(
                 result.stale_notice,
                 overflow: TextOverflow.ellipsis,
-                style: tokens.typography.sansStyle(
+                style: vars.sansStyle(
                   fontSize: 11,
                   height: 1,
-                  color: colors.warnFg,
+                  color: vars.warnFg,
                 ),
               ),
             ),
@@ -252,11 +240,11 @@ class MiniTranslatorStaleNotice extends StatelessWidget {
               result.stale_retry(
                 key: inputSubmitShortcutGlyphs(inputSubmitMode),
               ),
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 height: 1,
-                color: colors.warnStrong,
+                color: vars.warnStrong,
               ),
             ),
           ],

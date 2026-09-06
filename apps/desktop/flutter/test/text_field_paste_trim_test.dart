@@ -4,9 +4,9 @@
 // macOS runs an AppKit field instead, where the same rule lives in
 // `macos/Runner/Plugins/NativeTextFieldPlugin.swift`; these tests drive the
 // Flutter path, so they pin the platform away from it.
-import 'package:beyondtranslate_desktop/src/widgets/text_field.dart';
+import 'package:beyondtranslate_desktop/src/widgets/plain_text_field.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide TextField;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -46,7 +46,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: TextField(
+          body: PlainTextField(
             controller: controller,
             autofocus: true,
             minLines: 3,

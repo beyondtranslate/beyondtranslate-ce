@@ -19,7 +19,6 @@ import '../services/shortcut_service/shortcut_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/language_util.dart';
 import '../widgets/toast_host.dart';
-import '../widgets/ui.dart' show DesignThemeProvider;
 import '__root.dart';
 import 'debug/runtime.dart' as debug_runtime_route;
 import 'debug/widget_showcase.dart' as widget_showcase_route;
@@ -54,7 +53,7 @@ GoRouter createMiniTranslatorAppRouter() {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const MiniTranslatorPage(),
+        builder: (context, states) => const MiniTranslatorPage(),
       ),
     ],
     debugLogDiagnostics: false,
@@ -99,10 +98,10 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
       debugShowCheckedModeBanner: false,
       title: kWorkbenchWindowTitle,
       theme: appThemeData(
-        tokensFor(Brightness.light, family: settingsStore.themeFamily),
+        settingsStore.themeFamily.themeFor(Brightness.light),
       ),
       darkTheme: appThemeData(
-        tokensFor(Brightness.dark, family: settingsStore.themeFamily),
+        settingsStore.themeFamily.themeFor(Brightness.dark),
       ),
       themeMode: settingsStore.themeMode,
       builder: (context, child) => _withDesignTokens(context, child!),
@@ -114,16 +113,13 @@ class _WorkbenchAppState extends State<WorkbenchApp> {
   }
 }
 
-/// Publishes the token set matching the resolved Material brightness, so every
-/// `ui` widget below reads the same palette [appThemeData] was built from —
-/// and gives the window its own [ToastHost], so each window stacks its own
-/// notifications.
+/// Establishes the design system's root defaults under the resolved Material
+/// brightness, so every kit widget below reads the same palette [appThemeData]
+/// was built from — and gives the window its own [ToastHost], so each window
+/// stacks its own notifications.
 Widget _withDesignTokens(BuildContext context, Widget child) {
-  return DesignThemeProvider(
-    tokens: tokensFor(
-      Theme.of(context).brightness,
-      family: settingsStore.themeFamily,
-    ),
+  return AppThemeProvider(
+    theme: settingsStore.themeFamily.themeFor(Theme.of(context).brightness),
     child: ToastHost(child: child),
   );
 }
@@ -160,10 +156,10 @@ class _MiniTranslatorAppState extends State<MiniTranslatorApp> {
       debugShowCheckedModeBanner: false,
       title: kMiniTranslatorWindowTitle,
       theme: appThemeData(
-        tokensFor(Brightness.light, family: settingsStore.themeFamily),
+        settingsStore.themeFamily.themeFor(Brightness.light),
       ),
       darkTheme: appThemeData(
-        tokensFor(Brightness.dark, family: settingsStore.themeFamily),
+        settingsStore.themeFamily.themeFor(Brightness.dark),
       ),
       themeMode: settingsStore.themeMode,
       builder: (context, child) => _withDesignTokens(context, child!),

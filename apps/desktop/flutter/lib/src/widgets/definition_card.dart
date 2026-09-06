@@ -1,13 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart'
-    show
-        Badge,
-        BadgeTone,
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Surface,
-        SurfacePadding;
+import '../theme/product_tokens.dart' show ProductTypography;
+import 'ui.dart' show Badge, BadgeTint, Card, ThemeDataBuildContextProps;
 
 class DefinitionCard extends StatelessWidget {
   const DefinitionCard({
@@ -27,8 +21,7 @@ class DefinitionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -38,38 +31,38 @@ class DefinitionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 term,
-                style: tokens.typography.displayStyle(
+                style: vars.displayStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   height: 1,
-                  color: colors.fg,
+                  color: vars.colorContent,
                 ),
               ),
             ),
-            Badge(tone: BadgeTone.neutral, child: Text(tag)),
+            Badge(tint: BadgeTint.neutral, child: Text(tag)),
           ],
         ),
         const SizedBox(height: 5),
         Text(
           pronunciation,
-          style: tokens.typography.monoStyle(
+          style: vars.monoStyle(
             fontSize: 11,
             height: 1,
-            color: colors.fgSubtle,
+            color: vars.colorContentSubtle,
           ),
         ),
         const SizedBox(height: 9),
         Text(
           definition,
-          style: tokens.typography.sansStyle(
+          style: vars.sansStyle(
             fontSize: 12,
             height: 1.6,
-            color: colors.fgSecondary,
+            color: vars.colorContentSecondary,
           ),
         ),
       ],
     );
     if (!outlined) return content;
-    return Surface(padding: SurfacePadding.sm, child: content);
+    return Card(child: content);
   }
 }

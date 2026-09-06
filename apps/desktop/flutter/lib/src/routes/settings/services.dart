@@ -6,6 +6,7 @@ import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
+import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../utils/language_util.dart';
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
@@ -14,21 +15,19 @@ import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
     show
         Badge,
-        BadgeSize,
         Button,
-        ButtonSize,
+        ButtonTint,
         ButtonVariant,
         Callout,
-        CalloutTone,
-        DesignThemeContext,
-        DesignTypographyStyles,
+        CalloutTint,
+        DialogTone,
+        HoverRegion,
         PreferenceGroup,
         PreferenceRow,
         PreferenceSection,
-        DialogTone,
-        HoverRegion,
         Switch,
-        kTransitionDuration;
+        ThemeDataBuildContextProps,
+        WidgetSize;
 import 'add_service_dialog.dart';
 import 'index.dart';
 import 'provider_meta.dart';
@@ -138,27 +137,23 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
     final confirmed = await showDialogInCurrentWindow<bool>(
       context: context,
       builder: (ctx) => AppDialog(
-        tone: DialogTone.danger,
-        title: Text(
-          formatTranslation(
+          tone: DialogTone.danger,
+          title: formatTranslation(
             t.settings.services.detail.delete_dialog.title,
             args: [entry.name.isEmpty ? entry.id : entry.name],
           ),
-        ),
-        content: Text(t.settings.services.detail.delete_dialog.message),
-        actions: [
-          Button(
-            variant: ButtonVariant.secondary,
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.common.ui.button.cancel),
-          ),
-          Button(
-            variant: ButtonVariant.warning,
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(t.common.ui.button.delete),
-          ),
-        ],
-      ),
+          content: Text(t.settings.services.detail.delete_dialog.message),
+          actions: [
+            Button(
+                variant: ButtonVariant.normal,
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.common.ui.button.cancel)),
+            Button(
+                variant: ButtonVariant.tinted,
+                tint: ButtonTint.warning,
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(t.common.ui.button.delete)),
+          ]),
     );
     if (confirmed != true) return;
 
@@ -236,115 +231,85 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
   List<Widget> _behaviourSections(ServiceType type) {
     final general = t.settings.general;
     final settings = settingsStore.general;
-    final tokens = context.tokens;
-    final colors = tokens.colors;
 
     switch (type) {
       case ServiceType.ocr:
         return [
-          PreferenceSection(
-            label: Text(general.section.ocr_behaviour),
-            children: [
-              PreferenceRow(
-                title: Text(general.row.auto_copy_detected_text),
-                trailing: [
-                  Switch(
-                    checked: settings.autoCopyDetectedText,
-                    semanticsLabel: general.row.auto_copy_detected_text,
+          PreferenceSection(label: general.section.ocr_behaviour, children: [
+            PreferenceRow(
+                title: general.row.auto_copy_detected_text,
+                trailing: Switch(
+                    value: settings.autoCopyDetectedText,
                     onChanged: (v) => settingsStore.updateGeneral(
-                      GeneralSettingsPatch(autoCopyDetectedText: v),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                          GeneralSettingsPatch(autoCopyDetectedText: v),
+                        ))),
+          ]),
         ];
       case ServiceType.translation:
         return [
           PreferenceSection(
-            label: Text(general.section.translation_behaviour),
-            children: [
-              PreferenceRow(
-                title: Text(general.row.double_click_copy_result),
-                trailing: [
-                  Switch(
-                    checked: settings.doubleClickCopyResult,
-                    semanticsLabel: general.row.double_click_copy_result,
-                    onChanged: (v) => settingsStore.updateGeneral(
-                      GeneralSettingsPatch(doubleClickCopyResult: v),
-                    ),
-                  ),
-                ],
-              ),
-              // The one list-valued row on the page, so it is allowed the
-              // extra line its value needs.
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  PreferenceRow(
-                    title: Text(general.row.common_languages),
-                    subtitle: Text(general.row.common_languages_hint),
-                    trailing: [
-                      Button(
-                        variant: ButtonVariant.quiet,
-                        onPressed: () => showCommonLanguagesDialog(context),
-                        child: Text(t.common.ui.button.edit),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  _CommonLanguageStrip(codes: settings.commonLanguages),
-                ],
-              ),
-            ],
-          ),
-          PreferenceSection(
-            label: Text(general.section.translation_target),
-            action: Button(
-              variant: ButtonVariant.quiet,
-              onPressed: () => showAddTargetDialog(context),
-              child: Text(general.button.add_target),
-            ),
-            children: [
-              for (final (index, target) in settings.translationTargets.indexed)
+              label: general.section.translation_behaviour,
+              children: [
                 PreferenceRow(
-                  title: Text(
-                    '${getSourceDisplayName(target.source)}'
-                    '  →  ${getLanguageName(target.target)}',
-                    style: tokens.typography.sansStyle(
-                      fontSize: 12,
-                      height: 1.4,
-                      // A target that is switched off still reads, but it
-                      // stops competing with the rules that are in force.
-                      color: target.enabled ? colors.fg : colors.fgFaint,
-                    ),
-                  ),
-                  trailing: [
-                    Button(
-                      variant: ButtonVariant.quiet,
-                      onPressed: () => showEditTargetDialog(context, target),
-                      child: Text(t.common.ui.button.edit),
-                    ),
-                    const SizedBox(width: 10),
-                    Switch(
-                      checked: target.enabled,
-                      enabled: canToggleTranslationTarget(
-                        settings.translationTargets,
-                        index,
-                      ),
-                      semanticsLabel: '${getSourceDisplayName(target.source)}'
-                          ' → ${getLanguageName(target.target)}',
-                      onChanged: (value) =>
-                          setTranslationTargetEnabled(index, value),
-                    ),
+                    title: general.row.double_click_copy_result,
+                    trailing: Switch(
+                        value: settings.doubleClickCopyResult,
+                        onChanged: (v) => settingsStore.updateGeneral(
+                              GeneralSettingsPatch(doubleClickCopyResult: v),
+                            ))),
+                // The one list-valued row on the page, so it is allowed the
+                // extra line its value needs.
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PreferenceRow(
+                        title: general.row.common_languages,
+                        subtitle: general.row.common_languages_hint,
+                        trailing: Button(
+                            variant: ButtonVariant.plain,
+                            onPressed: () => showCommonLanguagesDialog(context),
+                            child: Text(t.common.ui.button.edit))),
+                    const SizedBox(height: 8),
+                    _CommonLanguageStrip(codes: settings.commonLanguages),
                   ],
                 ),
-              if (settings.translationTargets.isEmpty)
-                PreferenceRow(title: Text(general.row.no_translation_targets)),
-            ],
-          ),
+              ]),
+          PreferenceSection(
+              label: general.section.translation_target,
+              action: Button(
+                  variant: ButtonVariant.plain,
+                  onPressed: () => showAddTargetDialog(context),
+                  child: Text(general.button.add_target)),
+              children: [
+                for (final (index, target)
+                    in settings.translationTargets.indexed)
+                  PreferenceRow(
+                      // The kit's row prints its own title; a target that is
+                      // switched off is told apart by its switch, which is the
+                      // control that turned it off.
+                      title: '${getSourceDisplayName(target.source)}'
+                          '  →  ${getLanguageName(target.target)}',
+                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Button(
+                            variant: ButtonVariant.plain,
+                            onPressed: () =>
+                                showEditTargetDialog(context, target),
+                            child: Text(t.common.ui.button.edit)),
+                        const SizedBox(width: 10),
+                        Switch(
+                            value: target.enabled,
+                            onChanged: canToggleTranslationTarget(
+                              settings.translationTargets,
+                              index,
+                            )
+                                ? (value) =>
+                                    setTranslationTargetEnabled(index, value)
+                                : null),
+                      ])),
+                if (settings.translationTargets.isEmpty)
+                  PreferenceRow(title: general.row.no_translation_targets),
+              ]),
         ];
       case ServiceType.dictionary:
       case ServiceType.llm:
@@ -385,42 +350,35 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
         // are sections that happen to be about one subject. Making it a group
         // keeps every section heading the same size.
         PreferenceGroup(
-          title: Text(serviceTypeLabel(type)),
+          title: serviceTypeLabel(type),
           children: [
             PreferenceSection(
-              label: Text(t.settings.services.section.available_services),
+              label: t.settings.services.section.available_services,
               // 添加服务 is raised from inside the capability's own group, so
               // the sheet opens with the kind already decided.
               action: Button(
-                variant: ButtonVariant.primary,
-                size: ButtonSize.xs,
-                enabled: providers.isNotEmpty,
-                onPressed: () => _openServiceEditor(type),
-                child: Text(t.settings.services.button.add_service),
-              ),
+                  variant: ButtonVariant.filled,
+                  size: WidgetSize.tiny,
+                  onPressed: providers.isNotEmpty
+                      ? () => _openServiceEditor(type)
+                      : null,
+                  child: Text(t.settings.services.button.add_service)),
               children: [
                 if (rows.isEmpty)
                   PreferenceRow(
-                    title: Text(
-                      t.settings.general.option.no_services_available,
-                    ),
-                    subtitle: Text(
-                      formatTranslation(
+                      title: t.settings.general.option.no_services_available,
+                      subtitle: formatTranslation(
                         t.settings.services.item.none_of_kind,
                         args: [serviceTypeLabel(type)],
                       ),
-                    ),
-                    trailing: [
-                      if (providers.isEmpty)
-                        Button(
-                          variant: ButtonVariant.secondary,
-                          onPressed: () => context.go(
-                            const ProvidersSettingsRoute().location,
-                          ),
-                          child: Text(t.settings.providers.button.add),
-                        ),
-                    ],
-                  )
+                      trailing: providers.isEmpty
+                          ? Button(
+                              variant: ButtonVariant.normal,
+                              onPressed: () => context.go(
+                                    const ProvidersSettingsRoute().location,
+                                  ),
+                              child: Text(t.settings.providers.button.add))
+                          : null)
                 else
                   for (final service in rows)
                     _ServiceRow(
@@ -452,14 +410,14 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
       children: [
         if (_errorMessage != null)
           Callout(
-            tone: CalloutTone.danger,
-            action: Button(
-              variant: ButtonVariant.quiet,
-              onPressed: () => setState(() => _errorMessage = null),
-              child: Text(t.common.ui.button.cancel),
-            ),
-            child: Text(_errorMessage!),
-          ),
+              tint: CalloutTint.danger,
+              actions: [
+                Button(
+                    variant: ButtonVariant.plain,
+                    onPressed: () => setState(() => _errorMessage = null),
+                    child: Text(t.common.ui.button.cancel))
+              ],
+              message: Text(_errorMessage!)),
         ...blocks,
       ],
     );
@@ -497,8 +455,7 @@ class _ServiceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final name = serviceDisplayName(service);
 
     return HoverRegion(
@@ -524,13 +481,15 @@ class _ServiceRow extends StatelessWidget {
                     child: Text(
                       name,
                       overflow: TextOverflow.ellipsis,
-                      style: tokens.typography.sansStyle(
+                      style: vars.sansStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         height: 1,
                         // A service that is switched off still reads, but it
                         // stops competing with the ones that are running.
-                        color: enabled ? colors.fg : colors.fgFaint,
+                        color: enabled
+                            ? vars.colorContent
+                            : vars.colorContentFaint,
                       ),
                     ),
                   ),
@@ -539,10 +498,10 @@ class _ServiceRow extends StatelessWidget {
                     child: Text(
                       service.providerId,
                       overflow: TextOverflow.ellipsis,
-                      style: tokens.typography.monoStyle(
+                      style: vars.monoStyle(
                         fontSize: 11,
                         height: 1,
-                        color: colors.fgSubtle,
+                        color: vars.colorContentSubtle,
                       ),
                     ),
                   ),
@@ -553,7 +512,7 @@ class _ServiceRow extends StatelessWidget {
             // Hidden rather than absent: the row keeps its geometry, so the
             // list does not shuffle as the pointer runs down it.
             AnimatedOpacity(
-              duration: kTransitionDuration,
+              duration: context.vars.motionDuration,
               opacity: hovered ? 1 : 0,
               child: IgnorePointer(
                 ignoring: !hovered,
@@ -563,18 +522,16 @@ class _ServiceRow extends StatelessWidget {
                     // Only a service that is on can be the one that runs.
                     if (!isDefault && enabled) ...[
                       Button(
-                        variant: ButtonVariant.quiet,
-                        onPressed: onMakeDefault,
-                        child: Text(t.settings.services.make_default),
-                      ),
+                          variant: ButtonVariant.plain,
+                          onPressed: onMakeDefault,
+                          child: Text(t.settings.services.make_default)),
                       if (onEdit != null) const SizedBox(width: 10),
                     ],
                     if (onEdit != null)
                       Button(
-                        variant: ButtonVariant.quiet,
-                        onPressed: onEdit,
-                        child: Text(t.common.ui.button.edit),
-                      ),
+                          variant: ButtonVariant.plain,
+                          onPressed: onEdit,
+                          child: Text(t.common.ui.button.edit)),
                   ],
                 ),
               ),
@@ -589,15 +546,10 @@ class _ServiceRow extends StatelessWidget {
             // on or off.
             if (isDefault)
               Badge(
-                size: BadgeSize.xs,
-                child: Text(t.settings.providers.detail.models.default_badge),
-              )
+                  size: WidgetSize.tiny,
+                  child: Text(t.settings.providers.detail.models.default_badge))
             else
-              Switch(
-                checked: enabled,
-                semanticsLabel: name,
-                onChanged: onEnabledChange,
-              ),
+              Switch(value: enabled, onChanged: onEnabledChange),
           ],
         ),
       ),
@@ -618,18 +570,17 @@ class _CommonLanguageStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     if (codes.isEmpty) {
       return Text(
         t.settings.general.row.common_languages_empty(
           count: supportedLanguages.length,
         ),
-        style: tokens.typography.sansStyle(
+        style: vars.sansStyle(
           fontSize: 11,
           height: 1,
-          color: colors.fgFaint,
+          color: vars.colorContentFaint,
         ),
       );
     }
@@ -642,16 +593,16 @@ class _CommonLanguageStrip extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: colors.control,
-              borderRadius: BorderRadius.circular(tokens.radii.chip),
+              color: vars.colorSurfaceInset,
+              borderRadius: BorderRadius.circular(vars.radiusTiny),
             ),
             child: Text(
               getLanguageNativeName(code),
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 height: 1,
                 fontWeight: FontWeight.w500,
-                color: colors.fgTertiary,
+                color: vars.colorContentMuted,
               ),
             ),
           ),

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../i18n/i18n.dart';
-import '../../widgets/ui.dart'
-    show DesignThemeContext, Kbd, Rail, RailGroup, RailItem;
+import '../../widgets/nav_columns.dart' show Rail, RailGroup, RailItem;
+import '../../widgets/ui.dart' show KeyCap, ThemeDataBuildContextProps;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import 'about.dart';
 import 'advanced.dart';
@@ -160,8 +160,7 @@ class SettingsTabsShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final runs = <_SettingsRun>[
       (
         label: null,
@@ -209,13 +208,13 @@ class SettingsTabsShell extends StatelessWidget {
         pages.first.location;
 
     return ColoredBox(
-      color: colors.window,
+      color: vars.colorSurface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           WorkbenchToolbar(
             title: t.settings.layout.title,
-            children: [const Spacer(), Kbd(t.settings.layout.effect_hint)],
+            children: [const Spacer(), KeyCap(t.settings.layout.effect_hint)],
           ),
           Expanded(
             child: Row(

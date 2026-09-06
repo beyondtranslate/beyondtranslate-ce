@@ -2,14 +2,9 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
-import 'ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        FieldState,
-        Pressable,
-        controlDecoration,
-        kTransitionDuration;
+import '../theme/product_tokens.dart' show ProductPalette, ProductTypography;
+import 'control_box.dart' show controlDecoration;
+import 'ui.dart' show Pressable, TextFieldState, ThemeDataBuildContextProps;
 
 /// One option of a [NativeSelect].
 @immutable
@@ -44,7 +39,7 @@ class NativeSelect<T> extends StatefulWidget {
     required this.onChanged,
     this.enabled = true,
     this.mono = false,
-    this.state = FieldState.standard,
+    this.state = TextFieldState.normal,
     this.placeholder,
     this.semanticsLabel,
   });
@@ -56,7 +51,7 @@ class NativeSelect<T> extends StatefulWidget {
 
   /// Model ids and endpoints are set in the mono face, as in the kit's Select.
   final bool mono;
-  final FieldState state;
+  final TextFieldState state;
 
   /// Shown when [value] matches no item — a provider whose model roster has
   /// not loaded yet, for instance.
@@ -163,36 +158,35 @@ class _NativeSelectState<T> extends State<NativeSelect<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final error = widget.state == FieldState.error;
+    final vars = context.vars;
+    final error = widget.state == TextFieldState.error;
 
     final style = (widget.mono
-            ? tokens.typography.monoStyle(fontSize: 12)
-            : tokens.typography.sansStyle(fontSize: 12))
+            ? vars.monoStyle(fontSize: 12)
+            : vars.sansStyle(fontSize: 12))
         .copyWith(
       height: 1,
-      color: error ? colors.dangerDeep : colors.fg,
+      color: error ? vars.dangerDeep : vars.colorContent,
     );
 
     return Pressable(
       enabled: !_disabled,
       onPressed: _disabled ? null : _openMenu,
-      borderRadius: BorderRadius.circular(tokens.radii.control),
+      borderRadius: BorderRadius.circular(vars.radiusMedium),
       semanticsLabel: widget.semanticsLabel,
-      builder: (context, state) => Opacity(
+      builder: (context, states) => Opacity(
         opacity: _disabled ? 0.6 : 1,
         child: AnimatedContainer(
-          duration: kTransitionDuration,
+          duration: context.vars.motionDuration,
           // The same 28px box the kit's Select and Input draw, so a native
           // dropdown can stand in a form row without moving anything.
           height: 28,
           // `pr-7` with the chevron inset at `right-2.5`.
           padding: const EdgeInsets.fromLTRB(12, 7, 10, 7),
           decoration: controlDecoration(
-            tokens,
+            vars,
             state: widget.state,
-            focused: _open || state.focused,
+            focused: _open || states.contains(WidgetState.focused),
             hairline: context.hairlineWidth,
           ),
           child: Row(
@@ -201,7 +195,7 @@ class _NativeSelectState<T> extends State<NativeSelect<T>> {
                 child: Text(
                   _label,
                   style: _label.isEmpty
-                      ? style.copyWith(color: colors.fgFaint)
+                      ? style.copyWith(color: vars.colorContentFaint)
                       : style,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -210,7 +204,7 @@ class _NativeSelectState<T> extends State<NativeSelect<T>> {
               Icon(
                 FluentIcons.chevron_down_20_regular,
                 size: 12,
-                color: colors.fgSubtle,
+                color: vars.colorContentSubtle,
               ),
             ],
           ),

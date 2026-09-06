@@ -2,11 +2,12 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 // An error is worth copying out of, and a selectable run of text is the one
 // thing the design system has no equivalent for.
 import 'package:flutter/material.dart' show SelectableText;
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide FormField;
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/preference_list/preference_list_section.dart';
@@ -15,16 +16,15 @@ import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
     show
         Badge,
-        BadgeSize,
         Button,
+        ButtonTint,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
         DialogTone,
-        Field,
-        Input,
+        FormField,
         Spinner,
-        SpinnerSize;
+        TextField,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 import 'provider_meta.dart';
 
 /// 提供商详情 — the macOS `ProviderDetailView`: the read-only id, the config
@@ -149,27 +149,23 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     final confirmed = await showDialogInCurrentWindow<bool>(
       context: context,
       builder: (ctx) => AppDialog(
-        tone: DialogTone.danger,
-        title: Text(
-          formatTranslation(
+          tone: DialogTone.danger,
+          title: formatTranslation(
             t.settings.providers.delete_dialog.title,
             args: [widget.provider.id],
           ),
-        ),
-        content: Text(t.settings.providers.delete_dialog.message),
-        actions: [
-          Button(
-            variant: ButtonVariant.secondary,
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.common.ui.button.cancel),
-          ),
-          Button(
-            variant: ButtonVariant.warning,
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(t.common.ui.button.delete),
-          ),
-        ],
-      ),
+          content: Text(t.settings.providers.delete_dialog.message),
+          actions: [
+            Button(
+                variant: ButtonVariant.normal,
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.common.ui.button.cancel)),
+            Button(
+                variant: ButtonVariant.tinted,
+                tint: ButtonTint.warning,
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(t.common.ui.button.delete)),
+          ]),
     );
     if (confirmed != true) return;
 
@@ -188,8 +184,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final detail = t.settings.providers.detail;
 
     return SettingsPage(
@@ -211,11 +206,11 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
               const SizedBox(width: 10),
               Text(
                 providerTypeDisplayName(widget.provider.type),
-                style: tokens.typography.displayStyle(
+                style: vars.displayStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   height: 1,
-                  color: colors.fg,
+                  color: vars.colorContent,
                 ),
               ),
             ],
@@ -232,19 +227,19 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
                 children: [
                   Text(
                     widget.provider.id,
-                    style: tokens.typography.monoStyle(
+                    style: vars.monoStyle(
                       fontSize: 12,
                       height: 1,
-                      color: colors.fg,
+                      color: vars.colorContent,
                     ),
                   ),
                   const Spacer(),
                   Text(
                     detail.row.id_hint,
-                    style: tokens.typography.sansStyle(
+                    style: vars.sansStyle(
                       fontSize: 11,
                       height: 1,
-                      color: colors.fgFaint,
+                      color: vars.colorContentFaint,
                     ),
                   ),
                 ],
@@ -264,10 +259,10 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   t.settings.providers.description.fallback,
-                  style: tokens.typography.sansStyle(
+                  style: vars.sansStyle(
                     fontSize: 12,
                     height: 1.4,
-                    color: colors.fgFaint,
+                    color: vars.colorContentFaint,
                   ),
                 ),
               )
@@ -275,15 +270,12 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
               for (final entry in _fieldControllers.entries)
                 Padding(
                   padding: const EdgeInsets.only(left: 8, right: 8, bottom: 12),
-                  child: Field(
-                    label: Text(_fieldLabel(entry.key)),
-                    child: Input(
-                      controller: entry.value,
-                      obscureText: isSecretField(entry.key),
-                      mono: !isSecretField(entry.key),
-                      onChanged: (_) => _markDirty(),
-                    ),
-                  ),
+                  child: FormField(
+                      label: _fieldLabel(entry.key),
+                      child: TextField(
+                          controller: entry.value,
+                          obscureText: isSecretField(entry.key),
+                          onChanged: (_) => _markDirty())),
                 ),
           ],
         ),
@@ -294,10 +286,9 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
             labelInset: 8,
             title: Text(detail.section.models),
             action: Button(
-              variant: ButtonVariant.quiet,
-              onPressed: _isLoadingModels ? null : _loadModels,
-              child: Text(detail.models.refresh),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: _isLoadingModels ? null : _loadModels,
+                child: Text(detail.models.refresh)),
             children: [_buildModels()],
           ),
         ],
@@ -321,10 +312,10 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: SelectableText(
               _errorMessage!,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 height: 1.6,
-                color: colors.dangerFg,
+                color: vars.dangerFg,
               ),
             ),
           ),
@@ -355,7 +346,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     if (_isLoadingModels && _models == null) {
       return _Note(
         text: t.settings.providers.detail.models.loading,
-        leading: const Spinner(size: SpinnerSize.sm),
+        leading: const Spinner(size: WidgetSize.small),
       );
     }
     if (_modelsError != null && _models == null) {
@@ -366,10 +357,9 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
             Flexible(child: _Note(text: _modelsError!, padded: false)),
             const SizedBox(width: 10),
             Button(
-              variant: ButtonVariant.quiet,
-              onPressed: _loadModels,
-              child: Text(t.settings.providers.detail.models.retry),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: _loadModels,
+                child: Text(t.settings.providers.detail.models.retry)),
           ],
         ),
       );
@@ -420,31 +410,29 @@ class _Header extends StatelessWidget {
     return Row(
       children: [
         Button(
-          variant: ButtonVariant.plain,
-          onPressed: onBack,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(FluentIcons.chevron_left_20_regular, size: 12),
-              const SizedBox(width: 4),
-              Text(t.settings.providers.title),
-            ],
-          ),
-        ),
+            variant: ButtonVariant.plain,
+            onPressed: onBack,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(FluentIcons.chevron_left_20_regular, size: 12),
+                const SizedBox(width: 4),
+                Text(t.settings.providers.title),
+              ],
+            )),
         const Spacer(),
         Button(
-          variant: ButtonVariant.warning,
-          onPressed: onDelete,
-          child: Text(t.common.ui.button.delete),
-        ),
+            variant: ButtonVariant.tinted,
+            tint: ButtonTint.warning,
+            onPressed: onDelete,
+            child: Text(t.common.ui.button.delete)),
         const SizedBox(width: 8),
         Button(
-          variant: ButtonVariant.primary,
-          onPressed: onSave,
-          child: isSaving
-              ? const Spinner(size: SpinnerSize.sm, onAccent: true)
-              : Text(t.common.ui.button.save),
-        ),
+            variant: ButtonVariant.filled,
+            onPressed: onSave,
+            child: isSaving
+                ? const Spinner(size: WidgetSize.small, onAccent: true)
+                : Text(t.common.ui.button.save)),
       ],
     );
   }
@@ -465,7 +453,7 @@ class _ModelRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       child: Row(
@@ -475,25 +463,24 @@ class _ModelRow extends StatelessWidget {
               model,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: tokens.typography.monoStyle(
+              style: vars.monoStyle(
                 fontSize: 12,
                 height: 1,
-                color: isDefault ? tokens.colors.fg : tokens.colors.fgSecondary,
+                color:
+                    isDefault ? vars.colorContent : vars.colorContentSecondary,
               ),
             ),
           ),
           const SizedBox(width: 8),
           if (isDefault)
             Badge(
-              size: BadgeSize.xs,
-              child: Text(t.settings.providers.detail.models.default_badge),
-            )
+                size: WidgetSize.tiny,
+                child: Text(t.settings.providers.detail.models.default_badge))
           else
             Button(
-              variant: ButtonVariant.quiet,
-              onPressed: onSetDefault,
-              child: Text(t.settings.providers.detail.models.set_default),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: onSetDefault,
+                child: Text(t.settings.providers.detail.models.set_default)),
           const Spacer(),
         ],
       ),
@@ -510,7 +497,7 @@ class _ServiceLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       child: Row(
@@ -520,11 +507,11 @@ class _ServiceLine extends StatelessWidget {
               service.name.isEmpty ? service.id : service.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 height: 1,
-                color: tokens.colors.fg,
+                color: vars.colorContent,
               ),
             ),
           ),
@@ -532,16 +519,16 @@ class _ServiceLine extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
             decoration: BoxDecoration(
-              color: tokens.colors.control,
-              borderRadius: BorderRadius.circular(tokens.radii.pill),
+              color: vars.colorSurfaceInset,
+              borderRadius: BorderRadius.circular(vars.radiusFull),
             ),
             child: Text(
               serviceTypeLabel(service.type),
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
                 height: 1,
-                color: tokens.colors.fgSubtle,
+                color: vars.colorContentSubtle,
               ),
             ),
           ),
@@ -562,7 +549,7 @@ class _Note extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Padding(
       padding: padded
           ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
@@ -573,10 +560,10 @@ class _Note extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 12,
                 height: 1.4,
-                color: tokens.colors.fgFaint,
+                color: vars.colorContentFaint,
               ),
             ),
           ),

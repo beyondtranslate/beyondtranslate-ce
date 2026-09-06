@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart' hide Badge, IconButton, TextField;
+import 'package:flutter/material.dart' hide Badge, IconButton;
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,7 +13,7 @@ import '../../services/runtime.dart' show HistoryEntryInput, InputSubmitMode;
 import '../../services/settings_store.dart';
 import '../../services/system_translation.dart';
 import '../../services/workbench_translation_controller.dart';
-import '../../theme/product_tokens.dart' show ProductTypographyStyles;
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../utils/language_util.dart';
 import '../../utils/shortcut_util.dart';
 import '../../widgets/avatar.dart' show Avatar, AvatarSize;
@@ -25,25 +25,22 @@ import '../../widgets/candidate_row.dart'
 import '../../widgets/data_display.dart' show DetailBlock;
 import '../../widgets/language_selector.dart' show LanguageSelector;
 import '../../widgets/missing_language.dart';
-import '../../widgets/text_field.dart' show TextField;
+import '../../widgets/plain_text_field.dart' show PlainTextField;
 import '../../widgets/translation_text.dart';
 import '../../widgets/ui.dart'
     show
         Aside,
         Badge,
-        BadgeSize,
         Button,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
         IconButton,
-        Kbd,
-        KbdSize,
-        Label,
-        LabelTone,
+        KeyCap,
         Pressable,
+        SectionLabel,
+        SectionLabelTone,
         SidebarCard,
-        kTransitionDuration;
+        ThemeDataBuildContextProps,
+        WidgetSize;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 import '../settings/provider_meta.dart'
     show isDefaultTranslationService, serviceDisplayName;
@@ -425,8 +422,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   /// 原文 — the editable source block at the top of the pane: the label row,
   /// the input, and the deck's idle footer (⇧⏎ 换行 beside the 翻译 button).
   Widget _buildSourceBlock(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     // Read once: the field, the hint under it and the button's key chip all
     // have to name the same key.
     final submitMode = settingsStore.inputSubmitMode;
@@ -446,7 +442,9 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               // the blocks while the capsule stays on 自动检测 ⇄ 自动匹配. A
               // language chosen in the capsule is not repeated here.
               Flexible(
-                child: Label(
+                child: DefaultTextStyle(
+                  style: context.vars
+                      .labelStyle(color: context.vars.colorContentSubtle),
                   child: BlockHeading(
                     sourceHeading(
                       _controller.text.trim().isEmpty
@@ -461,7 +459,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             ],
           ),
           const SizedBox(height: 10),
-          TextField(
+          PlainTextField(
             focusNode: _focusNode,
             controller: _textController,
             // The block's own 22px inset is the text column; the field adds
@@ -471,13 +469,13 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             placeholder: t.workbench.translation.input_hint_translate_to(
               language: _targetList,
             ),
-            placeholderStyle: tokens.typography.sourceStyle(
-              color: colors.fgFaint,
+            placeholderStyle: vars.sourceStyle(
+              color: vars.colorContentFaint,
             ),
             // 原文 is content you read against the translation: at fgMuted it
             // sat one step from its own caption, close enough that heading and
             // paragraph read as one grey.
-            style: tokens.typography.sourceStyle(color: colors.fgSecondary),
+            style: vars.sourceStyle(color: vars.colorContentSecondary),
             minLines: 3,
             maxLines: 8,
             // 提交方式 decides which key sends the box; the field takes Enter
@@ -496,21 +494,21 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                 t.workbench.translation.newline_hint(
                   key: inputNewlineShortcutGlyphs(submitMode),
                 ),
-                style: tokens.typography.sansStyle(
+                style: vars.sansStyle(
                   fontSize: 11,
                   height: 1,
-                  color: colors.fgFaint,
+                  color: vars.colorContentFaint,
                 ),
               ),
               const Spacer(),
               Button(
-                variant: ButtonVariant.primary,
-                shortcut: Text(inputSubmitShortcutGlyphs(submitMode)),
-                enabled: !_controller.submitting &&
-                    _controller.text.trim().isNotEmpty,
-                onPressed: _submit,
-                child: Text(t.workbench.translation.button),
-              ),
+                  variant: ButtonVariant.filled,
+                  shortcut: Text(inputSubmitShortcutGlyphs(submitMode)),
+                  onPressed: !_controller.submitting &&
+                          _controller.text.trim().isNotEmpty
+                      ? _submit
+                      : null,
+                  child: Text(t.workbench.translation.button)),
             ],
           ),
         ],
@@ -546,8 +544,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     WorkbenchServiceResult result, {
     bool stretch = false,
   }) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final translation = t.workbench.translation;
     final count = _controller.results.length;
 
@@ -560,26 +557,24 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       actions: Row(
         children: [
           Button(
-            variant: ButtonVariant.primary,
-            onPressed: _submit,
-            child: Text(t.mini_translator.result.retry),
-          ),
+              variant: ButtonVariant.filled,
+              onPressed: _submit,
+              child: Text(t.mini_translator.result.retry)),
           const SizedBox(width: 7),
           Button(
-            variant: ButtonVariant.secondary,
-            onPressed: () => context.go('/settings/services'),
-            child: Text(t.mini_translator.result.check_services),
-          ),
+              variant: ButtonVariant.normal,
+              onPressed: () => context.go('/settings/services'),
+              child: Text(t.mini_translator.result.check_services)),
           const Spacer(),
           Flexible(
             child: Text(
               t.mini_translator.result.no_result_note,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 height: 1,
-                color: colors.fgSubtle,
+                color: vars.colorContentSubtle,
               ),
             ),
           ),
@@ -595,7 +590,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       ),
       child: Text(
         translation.failed_body,
-        style: tokens.typography.translationStyle(color: colors.fgSubtle),
+        style: vars.translationStyle(color: vars.colorContentSubtle),
       ),
     );
   }
@@ -615,8 +610,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     required bool stacked,
     bool stretch = false,
   }) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final translation = t.workbench.translation;
     final output = result?.output(target);
     final text = output?.text ?? '';
@@ -652,30 +646,28 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           )
         : Text(
             translation.other_services_disabled,
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 11,
               height: 1,
-              color: colors.fgFaint,
+              color: vars.colorContentFaint,
             ),
           );
 
     final editButton = Button(
-      variant: ButtonVariant.plain,
-      onPressed: () {
-        _draftController.text = shownText;
-        setState(() => _editingTarget = target);
-      },
-      child: Text(t.common.ui.button.edit),
-    );
+        variant: ButtonVariant.plain,
+        onPressed: () {
+          _draftController.text = shownText;
+          setState(() => _editingTarget = target);
+        },
+        child: Text(t.common.ui.button.edit));
     final favoriteButton = Button(
-      variant: ButtonVariant.secondary,
-      onPressed: _toggleFavorite,
-      child: Text(
-        _starred
-            ? t.workbench.history_page.favorite_flag
-            : translation.favorite,
-      ),
-    );
+        variant: ButtonVariant.normal,
+        onPressed: _toggleFavorite,
+        child: Text(
+          _starred
+              ? t.workbench.history_page.favorite_flag
+              : translation.favorite,
+        ));
 
     // With several blocks, 复制 rides on each block's attribution row as an
     // icon rather than repeating the full action row per target.
@@ -705,18 +697,16 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                           const SizedBox(width: 10),
                         ],
                         IconButton(
-                          label: copied
-                              ? translation.copied
-                              : translation.copy_result,
-                          active: copied,
-                          enabled: shownText.isNotEmpty,
-                          icon: Icon(
-                            copied
+                            semanticsLabel: copied
+                                ? translation.copied
+                                : translation.copy_result,
+                            active: copied,
+                            icon: copied
                                 ? FluentIcons.checkmark_20_regular
                                 : FluentIcons.copy_20_regular,
-                          ),
-                          onPressed: () => _copyResult(target, shownText),
-                        ),
+                            onPressed: shownText.isNotEmpty
+                                ? () => _copyResult(target, shownText)
+                                : null),
                       ],
                     )
                   : override != null
@@ -731,29 +721,27 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               ? Row(
                   children: [
                     Button(
-                      variant: ButtonVariant.primary,
-                      onPressed: openTranslationLanguagesSettings,
-                      child: Text(
-                        t.mini_translator.result.open_system_settings,
-                      ),
-                    ),
+                        variant: ButtonVariant.filled,
+                        onPressed: openTranslationLanguagesSettings,
+                        child: Text(
+                          t.mini_translator.result.open_system_settings,
+                        )),
                     const SizedBox(width: 7),
                     Button(
-                      variant: ButtonVariant.secondary,
-                      shortcut: const Text('⌥⏎'),
-                      onPressed: _submit,
-                      child: Text(t.mini_translator.result.retry),
-                    ),
+                        variant: ButtonVariant.normal,
+                        shortcut: const Text('⌥⏎'),
+                        onPressed: _submit,
+                        child: Text(t.mini_translator.result.retry)),
                     const Spacer(),
                     Flexible(
                       child: Text(
                         t.mini_translator.result.language_missing_kept,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: tokens.typography.sansStyle(
+                        style: vars.sansStyle(
                           fontSize: 11,
                           height: 1,
-                          color: colors.fgSubtle,
+                          color: vars.colorContentSubtle,
                         ),
                       ),
                     ),
@@ -767,24 +755,22 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                   ? Row(
                       children: [
                         Button(
-                          variant: ButtonVariant.primary,
-                          onPressed: () => _saveManualEdit(target),
-                          child: Text(t.common.ui.button.save),
-                        ),
+                            variant: ButtonVariant.filled,
+                            onPressed: () => _saveManualEdit(target),
+                            child: Text(t.common.ui.button.save)),
                         const SizedBox(width: 7),
                         Button(
-                          variant: ButtonVariant.secondary,
-                          onPressed: () =>
-                              setState(() => _editingTarget = null),
-                          child: const Text('取消'),
-                        ),
+                            variant: ButtonVariant.normal,
+                            onPressed: () =>
+                                setState(() => _editingTarget = null),
+                            child: const Text('取消')),
                         const Spacer(),
                         Text(
                           t.workbench.history_page.edit_history_hint,
-                          style: tokens.typography.sansStyle(
+                          style: vars.sansStyle(
                             fontSize: 11,
                             height: 1,
-                            color: colors.fgSubtle,
+                            color: vars.colorContentSubtle,
                           ),
                         ),
                       ],
@@ -805,15 +791,15 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                       : Row(
                           children: [
                             Button(
-                              variant: ButtonVariant.primary,
-                              enabled: shownText.isNotEmpty,
-                              onPressed: () => _copyResult(target, shownText),
-                              child: Text(
-                                copied
-                                    ? translation.copied
-                                    : translation.copy_result,
-                              ),
-                            ),
+                                variant: ButtonVariant.filled,
+                                onPressed: shownText.isNotEmpty
+                                    ? () => _copyResult(target, shownText)
+                                    : null,
+                                child: Text(
+                                  copied
+                                      ? translation.copied
+                                      : translation.copy_result,
+                                )),
                             const SizedBox(width: 7),
                             favoriteButton,
                             const Spacer(),
@@ -835,36 +821,36 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       child: idle
           ? Text(
               translation.empty,
-              style: tokens.typography.translationStyle(color: colors.fgFaint),
+              style: vars.translationStyle(color: vars.colorContentFaint),
             )
           : translating
               ? const _TranslationSkeleton()
               : missing != null
                   ? Text(
                       MissingLanguageText.body(missing),
-                      style: tokens.typography
-                          .translationStyle(color: colors.fgSubtle),
+                      style:
+                          vars.translationStyle(color: vars.colorContentSubtle),
                     )
                   : editing
                       ? Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: colors.window,
-                            border: Border.all(color: colors.accent),
+                            color: vars.colorSurface,
+                            border: Border.all(color: vars.accent),
                             borderRadius:
-                                BorderRadius.circular(tokens.radii.box),
+                                BorderRadius.circular(vars.radiusLarge),
                             boxShadow: [
                               BoxShadow(
-                                  color: colors.accentRing, spreadRadius: 3),
+                                  color: vars.accentRing, spreadRadius: 3),
                             ],
                           ),
-                          child: TextField(
+                          child: PlainTextField(
                             controller: _draftController,
                             // The box around it already carries the inset.
                             padding: EdgeInsets.zero,
-                            style: tokens.typography
-                                .translationStyle(color: colors.fg),
+                            style:
+                                vars.translationStyle(color: vars.colorContent),
                             // `rows={3}` in the deck.
                             minLines: 3,
                             maxLines: 8,
@@ -878,21 +864,20 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
                                   WidgetSpan(
                                     alignment: PlaceholderAlignment.middle,
                                     child: Badge(
-                                      size: BadgeSize.xs,
-                                      child: Text(
-                                        t.workbench.history_page.edited_flag,
-                                      ),
-                                    ),
+                                        size: WidgetSize.tiny,
+                                        child: Text(
+                                          t.workbench.history_page.edited_flag,
+                                        )),
                                   ),
                                 ],
                               ),
-                              style: tokens.typography
-                                  .translationStyle(color: colors.fg),
+                              style: vars.translationStyle(
+                                  color: vars.colorContent),
                             )
                           : TranslationText(
                               text,
-                              style: tokens.typography
-                                  .translationStyle(color: colors.fg),
+                              style: vars.translationStyle(
+                                  color: vars.colorContent),
                             ),
     );
   }
@@ -912,8 +897,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     WorkbenchServiceResult result,
     String target,
   ) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final translation = t.workbench.translation;
     final name = _serviceName(result);
     final index = _serviceIndex(result);
@@ -929,20 +913,20 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
       child: output.loading
           ? Text(
               translation.translating,
-              style: tokens.typography.cjkStyle(
+              style: vars.cjkStyle(
                 fontSize: 13,
                 height: 1.7,
-                color: colors.fgFaint,
+                color: vars.colorContentFaint,
               ),
             )
           : output.error != null && !output.hasText
               ? _buildErrorBody(context, output.error)
               : TranslationText(
                   output.hasText ? output.text : translation.waiting,
-                  style: tokens.typography.cjkStyle(
+                  style: vars.cjkStyle(
                     fontSize: 13,
                     height: 1.7,
-                    color: colors.fgSecondary,
+                    color: vars.colorContentSecondary,
                   ),
                 ),
     );
@@ -952,16 +936,15 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   /// missing pair and the fix when the system translator lacks the language
   /// files, otherwise the deck's 服务暂不可用.
   Widget _buildErrorBody(BuildContext context, Object? error) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final missing = SystemLanguageNotInstalled.of(error);
     if (missing != null) return MissingLanguageNote(missing: missing);
     return Text(
       t.workbench.translation.service_unavailable,
-      style: tokens.typography.cjkStyle(
+      style: vars.cjkStyle(
         fontSize: 13,
         height: 1.7,
-        color: colors.dangerFg,
+        color: vars.dangerFg,
       ),
     );
   }
@@ -992,8 +975,7 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 
   Widget _buildFailureCard(
       BuildContext context, WorkbenchServiceResult result) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final name = _serviceName(result);
     final index = _serviceIndex(result);
     final missing = SystemLanguageNotInstalled.of(result.error);
@@ -1001,8 +983,8 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: colors.subtle,
-        borderRadius: BorderRadius.circular(tokens.radii.card),
+        color: vars.colorSurfaceSubtle,
+        borderRadius: BorderRadius.circular(vars.radiusLarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1018,10 +1000,10 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
               ),
               const SizedBox(width: 7),
               Expanded(
-                child: Label(tone: LabelTone.subtle, child: Text(name)),
+                child: SectionLabel(name),
               ),
               if (index >= 0 && index < 9)
-                Kbd('⌥${index + 1}', size: KbdSize.sm),
+                KeyCap('⌥${index + 1}', size: WidgetSize.small),
             ],
           ),
           const SizedBox(height: 5),
@@ -1029,10 +1011,10 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             missing != null
                 ? MissingLanguageText.sentence(missing)
                 : _reasonOf(result),
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 12,
               height: 1.7,
-              color: colors.fgSecondary,
+              color: vars.colorContentSecondary,
             ),
           ),
           const SizedBox(height: 7),
@@ -1040,15 +1022,13 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             alignment: AlignmentDirectional.centerStart,
             child: missing != null
                 ? Button(
-                    variant: ButtonVariant.quiet,
+                    variant: ButtonVariant.plain,
                     onPressed: openTranslationLanguagesSettings,
-                    child: Text(t.mini_translator.result.open_system_settings),
-                  )
+                    child: Text(t.mini_translator.result.open_system_settings))
                 : Button(
-                    variant: ButtonVariant.quiet,
+                    variant: ButtonVariant.plain,
                     onPressed: () => context.go('/settings/services'),
-                    child: Text(t.mini_translator.result.check_services),
-                  ),
+                    child: Text(t.mini_translator.result.check_services)),
           ),
         ],
       ),
@@ -1057,13 +1037,12 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
 
   /// 右栏 — 命中术语 / 质量信号 / 快捷键, mirroring the deck's Aside.
   Widget _buildAside(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final translation = t.workbench.translation;
-    final hint = tokens.typography.sansStyle(
+    final hint = vars.sansStyle(
       fontSize: 12,
       height: 1.7,
-      color: colors.fgFaint,
+      color: vars.colorContentFaint,
     );
 
     return Aside(
@@ -1077,23 +1056,27 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
             Pressable(
               onPressed: () => setState(() => _termsOpen = !_termsOpen),
               isButton: false,
-              builder: (context, state) => Row(
+              builder: (context, states) => Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DefaultTextStyle(
-                    style: tokens.typography.labelStyle(
-                      color: state.hovered ? colors.fgTertiary : colors.fgFaint,
+                    style: vars.labelStyle(
+                      color: states.contains(WidgetState.hovered)
+                          ? vars.colorContentMuted
+                          : vars.colorContentFaint,
                     ),
                     child: Text(translation.terms),
                   ),
                   const SizedBox(width: 4),
                   AnimatedRotation(
                     turns: _termsOpen ? 0 : -0.25,
-                    duration: kTransitionDuration,
+                    duration: context.vars.motionDuration,
                     child: Icon(
                       FluentIcons.chevron_down_20_regular,
                       size: 14,
-                      color: state.hovered ? colors.fgTertiary : colors.fgFaint,
+                      color: states.contains(WidgetState.hovered)
+                          ? vars.colorContentMuted
+                          : vars.colorContentFaint,
                     ),
                   ),
                 ],
@@ -1109,25 +1092,22 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Label(tone: LabelTone.faint, child: Text(translation.quality)),
+            SectionLabel(translation.quality, tone: SectionLabelTone.faint),
             const SizedBox(height: 10),
             Text(translation.quality_hint, style: hint),
           ],
         ),
-        SidebarCard(
-          label: Text(translation.shortcuts),
-          children: [
-            Text(
-              '${t.workbench.status.shortcuts}\n'
-              '⌥1-9 ${t.mini_translator.result.set_preferred}',
-              style: tokens.typography.sansStyle(
-                fontSize: 11,
-                height: 1.8,
-                color: colors.fgTertiary,
-              ),
+        SidebarCard(label: translation.shortcuts, children: [
+          Text(
+            '${t.workbench.status.shortcuts}\n'
+            '⌥1-9 ${t.mini_translator.result.set_preferred}',
+            style: vars.sansStyle(
+              fontSize: 11,
+              height: 1.8,
+              color: vars.colorContentMuted,
             ),
-          ],
-        ),
+          ),
+        ]),
       ],
     );
   }
@@ -1168,20 +1148,20 @@ class _CompareToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.pill);
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusFull);
 
     return Pressable(
       onPressed: onPressed,
       borderRadius: radius,
       semanticsLabel: label,
-      builder: (context, state) => AnimatedContainer(
-        duration: kTransitionDuration,
+      builder: (context, states) => AnimatedContainer(
+        duration: context.vars.motionDuration,
         height: 18,
         padding: const EdgeInsets.symmetric(horizontal: 9),
         decoration: BoxDecoration(
-          color: colors.accent.withValues(alpha: state.hovered ? 0.20 : 0.12),
+          color: vars.accent.withValues(
+              alpha: states.contains(WidgetState.hovered) ? 0.20 : 0.12),
           borderRadius: radius,
         ),
         child: Row(
@@ -1189,21 +1169,21 @@ class _CompareToggle extends StatelessWidget {
           children: [
             Text(
               label,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 height: 1,
-                color: colors.accentText,
+                color: vars.accentText,
               ),
             ),
             const SizedBox(width: 4),
             AnimatedRotation(
               turns: expanded ? 0.5 : 0,
-              duration: kTransitionDuration,
+              duration: context.vars.motionDuration,
               child: Icon(
                 FluentIcons.chevron_down_20_regular,
                 size: 10,
-                color: colors.accentText,
+                color: vars.accentText,
               ),
             ),
           ],
@@ -1238,8 +1218,8 @@ class _TranslationSkeletonState extends State<_TranslationSkeleton>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final line = colors.accent.withValues(alpha: 0.2);
+    final vars = context.vars;
+    final line = vars.accent.withValues(alpha: 0.2);
 
     Widget bar(double widthFactor) => FractionallySizedBox(
           alignment: Alignment.centerLeft,

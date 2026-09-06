@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 import '../i18n/i18n.dart';
-import 'ui.dart' show DesignThemeContext, DesignTypographyStyles;
+import '../theme/product_tokens.dart' show ProductTypography;
+import 'ui.dart' show ThemeDataBuildContextProps;
 
 /// A block heading: the role word, then what qualifies it.
 ///
@@ -102,7 +103,7 @@ class BlockHeading extends StatelessWidget {
             child: Text(
               detail,
               overflow: TextOverflow.ellipsis,
-              style: context.tokens.typography.labelStyle().copyWith(
+              style: context.vars.labelStyle().copyWith(
                     fontWeight: FontWeight.w500,
                     color: color?.withValues(
                       alpha: (color.a) * _kDetailOpacity,

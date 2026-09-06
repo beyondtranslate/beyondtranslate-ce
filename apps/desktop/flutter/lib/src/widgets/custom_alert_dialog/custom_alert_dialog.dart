@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../ui.dart'
-    show Button, ButtonSize, ButtonVariant, Spinner, SpinnerSize;
+import '../ui.dart' show Button, ButtonVariant, Spinner, WidgetSize;
 
 const kDialogActionTypePrimary = 'primary';
 const kDialogActionTypeSecondary = 'secondary';
@@ -11,12 +10,12 @@ const kDialogActionTypeDanger = 'danger';
 // ignore: must_be_immutable
 class CustomDialogAction extends StatelessWidget {
   CustomDialogAction({
-    Key? key,
+    super.key,
     this.type,
     this.processing = false,
     required this.child,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   String? type;
   final bool processing;
@@ -29,23 +28,21 @@ class CustomDialogAction extends StatelessWidget {
       margin: EdgeInsets.zero,
       height: 38,
       child: Button(
-        variant: type == kDialogActionTypeSecondary
-            ? ButtonVariant.secondary
-            : ButtonVariant.primary,
-        size: ButtonSize.lg,
-        fullWidth: true,
-        onPressed: processing ? null : onPressed,
-        child: processing
-            ? const Spinner(size: SpinnerSize.sm, onAccent: true)
-            : child,
-      ),
+          variant: type == kDialogActionTypeSecondary
+              ? ButtonVariant.normal
+              : ButtonVariant.filled,
+          size: WidgetSize.large,
+          expand: true,
+          onPressed: processing ? null : onPressed,
+          child: processing
+              ? const Spinner(size: WidgetSize.small, onAccent: true)
+              : child),
     );
   }
 }
 
 class CustomAlertDialog extends StatelessWidget {
-  const CustomAlertDialog({Key? key, this.title, this.content, this.actions})
-      : super(key: key);
+  const CustomAlertDialog({super.key, this.title, this.content, this.actions});
   final Widget? title;
   final Widget? content;
   final List<Widget>? actions;

@@ -7,7 +7,7 @@
 ///
 /// As more routes are migrated, add imports + entries here and let this
 /// become the single "route graph" reference for the app.
-library route_tree;
+library;
 
 /// Logical route keys (path-like identifiers) used by route modules.
 ///

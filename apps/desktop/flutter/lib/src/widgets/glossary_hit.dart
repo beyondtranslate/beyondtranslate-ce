@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'blocks.dart' show Mark;
-import 'ui.dart' show Callout, CalloutTone;
+import 'ui.dart' show Callout, CalloutTint;
 
 /// A term the glossary matched, shown as an accent aside beside the text.
 class GlossaryHit extends StatelessWidget {
@@ -19,18 +19,17 @@ class GlossaryHit extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Callout(
-      tone: CalloutTone.accent,
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 4,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Mark(text: source),
-          const Text('→'),
-          Text(target),
-          if (collection != null) Text('· $collection'),
-        ],
-      ),
-    );
+        tint: CalloutTint.primary,
+        message: Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Mark(text: source),
+            const Text('→'),
+            Text(target),
+            if (collection != null) Text('· $collection'),
+          ],
+        ));
   }
 }

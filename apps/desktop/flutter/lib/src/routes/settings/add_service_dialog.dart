@@ -1,25 +1,25 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide FormField;
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
+import '../../theme/product_tokens.dart' show ProductTypography;
+import '../../widgets/app_dialog.dart' show AppDialogHeader, DialogFrame;
 import '../../widgets/native_select.dart';
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
+        ButtonTint,
         ButtonVariant,
         Callout,
-        CalloutTone,
-        DesignThemeContext,
-        DesignTypographyStyles,
+        CalloutTint,
         Dialog,
         DialogBody,
         DialogFooter,
-        DialogHeader,
-        Field,
-        Input,
-        TextArea;
+        FormField,
+        TextField,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 import 'provider_meta.dart';
 
 /// What the dialog hands back — the shape `updateService` takes.
@@ -238,35 +238,27 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     final editor = t.settings.services.editor;
     final rows = t.settings.services.detail.row;
 
-    return Center(
-      child: Dialog(
-        children: [
-          DialogHeader(
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ProviderIcon(providerTypeValue(_provider.type), size: 18),
-                const SizedBox(width: 8),
-                Text(_isEditing ? t.common.ui.button.edit : editor.title),
-              ],
-            ),
+    return DialogFrame(
+      child: Dialog(children: [
+        AppDialogHeader(
+            icon: ProviderIcon(providerTypeValue(_provider.type), size: 18),
+            title: _isEditing ? t.common.ui.button.edit : editor.title,
             // Editing already has its subject in the title; the strapline only
             // makes sense while the service is being introduced.
-            subtitle: _isEditing ? null : Text(editor.subtitle),
-          ),
-          DialogBody(
-            children: [
-              // The two choices everything else follows from, side by side.
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Field(
-                      label: Text(rows.provider),
+            subtitle: _isEditing ? null : editor.subtitle),
+        DialogBody(
+          children: [
+            // The two choices everything else follows from, side by side.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: FormField(
+                      label: rows.provider,
                       child: NativeSelect<String>(
                         value: _providerId,
                         enabled: !_isEditing,
@@ -279,13 +271,12 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                             ),
                         ],
                         onChanged: _selectProvider,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Field(
-                      label: Text(rows.type),
+                      )),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FormField(
+                      label: rows.type,
                       child: NativeSelect<ServiceType>(
                         value: _type,
                         enabled: !_isEditing,
@@ -300,102 +291,88 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                             ),
                         ],
                         onChanged: _selectKind,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Field(
-                label: Text(rows.name),
+                      )),
+                ),
+              ],
+            ),
+            FormField(
+                label: rows.name,
                 hint: _isVariant
-                    ? Text(
-                        formatTranslation(
-                          editor.variant_hint,
-                          args: [
-                            providerTypeDisplayName(_provider.type),
-                            serviceTypeLabel(_type),
-                          ],
-                        ),
+                    ? formatTranslation(
+                        editor.variant_hint,
+                        args: [
+                          providerTypeDisplayName(_provider.type),
+                          serviceTypeLabel(_type),
+                        ],
                       )
                     : null,
-                child: Input(
-                  controller: _nameController,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              if (_isLlm) ...[
-                Field(
-                  label: Text(editor.row.model),
-                  child: _buildModelControl(),
-                ),
-                Field(
-                  label: Text(editor.row.system_prompt),
-                  hint: Text(t.settings.services.detail.prompt_variables),
-                  child: TextArea(
-                    controller: _systemPromptController,
-                    placeholder: editor.prompt_placeholder,
-                    minLines: 3,
-                    maxLines: 6,
-                  ),
-                ),
-              ] else
-                Callout(
-                  tone: CalloutTone.neutral,
-                  child: Text(
+                child: TextField(
+                    controller: _nameController,
+                    onChanged: (_) => setState(() {}))),
+            if (_isLlm) ...[
+              FormField(label: editor.row.model, child: _buildModelControl()),
+              FormField(
+                  label: editor.row.system_prompt,
+                  hint: t.settings.services.detail.prompt_variables,
+                  child: TextField(
+                      controller: _systemPromptController,
+                      placeholder: editor.prompt_placeholder,
+                      minLines: 3,
+                      maxLines: 6)),
+            ] else
+              Callout(
+                  tint: CalloutTint.neutral,
+                  message: Text(
                     formatTranslation(
                       editor.traditional_note,
                       args: [providerTypeDisplayName(_provider.type)],
                     ),
-                  ),
-                ),
-            ],
-          ),
-          DialogFooter(
-            children: [
-              if (_isEditing && widget.onDelete != null) ...[
-                Button(
-                  variant: ButtonVariant.warning,
+                  )),
+          ],
+        ),
+        DialogFooter(
+          children: [
+            if (_isEditing && widget.onDelete != null) ...[
+              Button(
+                  variant: ButtonVariant.tinted,
+                  tint: ButtonTint.warning,
                   onPressed: () {
                     Navigator.of(context).pop();
                     widget.onDelete!();
                   },
-                  child: Text(t.common.ui.button.delete),
-                ),
-                const SizedBox(width: 10),
-              ],
-              // The id the pair derives, so the choices above have a visible
-              // consequence before the sheet is committed.
-              Flexible(
-                child: Text(
-                  _serviceId,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: tokens.typography.monoStyle(
-                    fontSize: 11,
-                    height: 1,
-                    color: tokens.colors.fgFaint,
-                  ),
+                  child: Text(t.common.ui.button.delete)),
+              const SizedBox(width: 10),
+            ],
+            // The id the pair derives, so the choices above have a visible
+            // consequence before the sheet is committed.
+            Flexible(
+              child: Text(
+                _serviceId,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: vars.monoStyle(
+                  fontSize: 11,
+                  height: 1,
+                  color: vars.colorContentFaint,
                 ),
               ),
-              const Spacer(),
-              Button(
-                variant: ButtonVariant.ghost,
-                size: ButtonSize.md,
+            ),
+            const Spacer(),
+            Button(
+                variant: ButtonVariant.recessed,
+                size: WidgetSize.medium,
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(t.common.ui.button.cancel),
-              ),
-              Button(
-                variant: ButtonVariant.primary,
-                size: ButtonSize.md,
+                child: Text(t.common.ui.button.cancel)),
+            Button(
+                variant: ButtonVariant.filled,
+                size: WidgetSize.medium,
                 onPressed: _canSubmit ? _submit : null,
                 child: Text(
                   _isEditing ? t.common.ui.button.save : t.common.ui.button.add,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+                )),
+          ],
+        ),
+      ]),
     );
   }
 
@@ -418,11 +395,10 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
     }
 
     if (_modelsFailed || models.isEmpty) {
-      return Input(
-        controller: _modelController,
-        placeholder: t.settings.providers.detail.models.empty,
-        mono: true,
-      );
+      return TextField(
+          controller: _modelController,
+          placeholder: t.settings.providers.detail.models.empty,
+          style: context.vars.monoStyle());
     }
 
     return NativeSelect<String>(

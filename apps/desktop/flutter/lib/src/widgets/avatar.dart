@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart' show DesignThemeContext, DesignTypographyStyles;
+import '../theme/product_tokens.dart' show ProductTypography;
+import 'ui.dart' show ThemeDataBuildContextProps;
 
 /// xs 16px · sm 18px · md 24px · lg 26px, matching the deck.
 enum AvatarSize { xs, sm, md, lg }
@@ -9,7 +10,7 @@ enum AvatarSize { xs, sm, md, lg }
 ///
 /// It carries no product knowledge: the caller supplies the glyph and the
 /// brand colour. The palette ships the shipped providers' brand colours as
-/// `context.colors.providerClaude` and friends.
+/// `context.vars.providerClaude` and friends.
 class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
@@ -27,7 +28,7 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
 
     final (double box, double fontSize) = switch (size) {
       AvatarSize.xs => (16, 10),
@@ -43,11 +44,11 @@ class Avatar extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(tokens.radii.avatar),
+          borderRadius: BorderRadius.circular(vars.radiusSmall),
         ),
         child: Text(
           label,
-          style: tokens.typography.displayStyle(
+          style: vars.displayStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.w700,
             height: 1,

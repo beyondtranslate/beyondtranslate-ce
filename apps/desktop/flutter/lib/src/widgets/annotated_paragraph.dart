@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import '../theme/product_tokens.dart' show ProductTokens;
-import 'ui.dart' show DesignThemeContext, DesignTypographyStyles;
+import '../theme/product_tokens.dart'
+    show ProductPalette, ProductTokens, ProductTypography;
+import 'ui.dart' show ThemeDataBuildContextProps;
 
 enum ParagraphMode {
   /// Keeps the source above the annotation.
@@ -26,8 +27,7 @@ class AnnotatedParagraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -35,10 +35,10 @@ class AnnotatedParagraph extends StatelessWidget {
       children: [
         if (mode == ParagraphMode.insert) ...[
           DefaultTextStyle(
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 13,
               height: 1.8,
-              color: colors.fgSecondary,
+              color: vars.colorContentSecondary,
             ),
             child: source,
           ),
@@ -47,11 +47,11 @@ class AnnotatedParagraph extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           decoration: BoxDecoration(
-            color: colors.accentSurface,
+            color: vars.accentSurface,
             borderRadius: BorderRadius.circular(10),
             border: Border(
               left: BorderSide(
-                color: colors.highlight,
+                color: vars.highlight,
                 // `max(2px, var(--highlight-rule))` in the deck; the token is
                 // 2px in every theme, so it is the floor.
                 width: ProductTokens.highlightRule,
@@ -59,10 +59,10 @@ class AnnotatedParagraph extends StatelessWidget {
             ),
           ),
           child: DefaultTextStyle(
-            style: tokens.typography.cjkStyle(
+            style: vars.cjkStyle(
               fontSize: 15,
               height: 1.85,
-              color: colors.fg,
+              color: vars.colorContent,
             ),
             child: annotation,
           ),

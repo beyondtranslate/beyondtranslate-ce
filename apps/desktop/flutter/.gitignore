@@ -46,3 +46,6 @@ app.*.map.json
 /android/app/release
 
 /dist
+
+# `flutter test` writes the diff of a failed golden here.
+test/failures/

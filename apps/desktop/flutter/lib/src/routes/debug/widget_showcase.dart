@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart' hide Divider;
+import 'package:flutter/material.dart'
+    hide Card, Divider, Switch, VerticalDivider;
 import 'package:go_router/go_router.dart';
 
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../widgets/definition_card.dart';
 import '../../widgets/glossary_hit.dart';
 import '../../widgets/history_row.dart';
 import '../../widgets/icon_action_button.dart';
 import '../../widgets/language_pair.dart';
 import '../../widgets/navigation_item.dart';
-import '../../widgets/section_label.dart';
+import '../../widgets/numbered_section_label.dart';
 import '../../widgets/service_selector.dart';
 import '../../widgets/translation_pane.dart';
 import '../../widgets/translation_text_area.dart';
@@ -15,17 +17,16 @@ import '../../widgets/ui.dart'
     show
         Button,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
+        Card,
         Divider,
-        Kbd,
-        KbdVariant,
+        KeyCap,
+        KeyCapVariant,
         SidebarGroup,
         Spinner,
-        SpinnerSize,
-        Surface,
-        SurfacePadding,
-        SurfaceTone;
+        Switch,
+        ThemeDataBuildContextProps,
+        VerticalDivider,
+        WidgetSize;
 import '../../widgets/workbench.dart';
 
 List<RouteBase> get $appRoutes => <RouteBase>[
@@ -54,123 +55,108 @@ class _WidgetShowcasePageState extends State<WidgetShowcasePage> {
       body: ListView(
         padding: const EdgeInsets.all(32),
         children: [
-          const SectionLabel(index: '01', label: '基础控件'),
+          const NumberedSectionLabel(index: '01', label: '基础控件'),
           const SizedBox(height: 12),
-          Surface(
-            tone: SurfaceTone.raised,
-            padding: SurfacePadding.lg,
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                Button(
-                  variant: ButtonVariant.primary,
+          Card(
+              child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              Button(
+                  variant: ButtonVariant.filled,
                   onPressed: () {},
-                  child: const Text('主操作'),
-                ),
-                Button(
-                  variant: ButtonVariant.secondary,
+                  child: const Text('主操作')),
+              Button(
+                  variant: ButtonVariant.normal,
                   onPressed: () {},
-                  child: const Text('描边操作'),
-                ),
-                const Button(
-                  variant: ButtonVariant.quiet,
+                  child: const Text('描边操作')),
+              const Button(
+                  variant: ButtonVariant.plain,
                   onPressed: null,
-                  child: Text('不可用'),
-                ),
-                const Button(
-                  variant: ButtonVariant.quiet,
+                  child: Text('不可用')),
+              const Button(
+                  variant: ButtonVariant.plain,
                   onPressed: null,
-                  child: Spinner(size: SpinnerSize.sm),
-                ),
-                IconActionButton(
-                  icon: Icons.bookmark_border,
-                  tooltip: '收藏',
-                  onPressed: () {},
-                ),
-                const Kbd('⌥ Space', variant: KbdVariant.key),
-              ],
-            ),
-          ),
+                  child: Spinner(size: WidgetSize.small)),
+              IconActionButton(
+                icon: Icons.bookmark_border,
+                tooltip: '收藏',
+                onPressed: () {},
+              ),
+              const KeyCap('⌥ Space', variant: KeyCapVariant.key),
+            ],
+          )),
           const SizedBox(height: 32),
-          const SectionLabel(index: '02', label: '浮层流 / 1a'),
+          const NumberedSectionLabel(index: '02', label: '浮层流 / 1a'),
           const SizedBox(height: 12),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: Surface(
-              tone: SurfaceTone.raised,
-              padding: SurfacePadding.lg,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const LanguagePair(source: '英语', target: '简体中文'),
-                  const SizedBox(height: 16),
-                  const TranslationTextArea(
-                    hintText: '输入或粘贴需要翻译的文本',
-                    minLines: 3,
-                    maxLines: 5,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Text(
-                        '译文 · 本地服务',
-                        style: context.typography.labelStyle(
-                          color: context.colors.accentText,
-                        ),
+            child: Card(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const LanguagePair(source: '英语', target: '简体中文'),
+                const SizedBox(height: 16),
+                const TranslationTextArea(
+                  hintText: '输入或粘贴需要翻译的文本',
+                  minLines: 3,
+                  maxLines: 5,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Text(
+                      '译文 · 本地服务',
+                      style: context.vars.labelStyle(
+                        color: context.vars.accentText,
                       ),
-                      const Spacer(),
-                      Button(
-                        variant: ButtonVariant.primary,
+                    ),
+                    const Spacer(),
+                    Button(
+                        variant: ButtonVariant.filled,
                         onPressed: () {},
-                        child: const Text('翻译'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    '循环瓶颈通常出现在序列模型的长距离依赖处理中。',
-                    style: TextStyle(fontSize: 14, height: 1.7),
-                  ),
-                  const SizedBox(height: 12),
-                  const DefinitionCard(
-                    term: 'recurrence bottleneck',
-                    pronunciation: '/rɪˈkʌrəns/',
-                    definition: '循环神经网络在序列处理时形成的性能瓶颈。',
-                  ),
-                ],
-              ),
-            ),
+                        child: const Text('翻译')),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  '循环瓶颈通常出现在序列模型的长距离依赖处理中。',
+                  style: TextStyle(fontSize: 14, height: 1.7),
+                ),
+                const SizedBox(height: 12),
+                const DefinitionCard(
+                  term: 'recurrence bottleneck',
+                  pronunciation: '/rɪˈkʌrəns/',
+                  definition: '循环神经网络在序列处理时形成的性能瓶颈。',
+                ),
+              ],
+            )),
           ),
           const SizedBox(height: 32),
-          const SectionLabel(index: '03', label: '工作台 / 1b'),
+          const NumberedSectionLabel(index: '03', label: '工作台 / 1b'),
           const SizedBox(height: 12),
           SizedBox(
             height: 520,
             child: Workbench(
               sidebar: [
-                SidebarGroup(
-                  first: true,
-                  label: const Text('工作区'),
-                  children: [
-                    NavigationItem(
-                      label: '翻译',
-                      icon: Icons.translate,
-                      selected: true,
-                      onTap: () {},
-                    ),
-                    NavigationItem(
-                      label: '术语库',
-                      icon: Icons.menu_book_outlined,
-                      onTap: () {},
-                    ),
-                    NavigationItem(
-                      label: '历史',
-                      icon: Icons.history,
-                      onTap: () {},
-                    ),
-                  ],
-                ),
+                SidebarGroup(label: '工作区', children: [
+                  NavigationItem(
+                    label: '翻译',
+                    icon: Icons.translate,
+                    selected: true,
+                    onTap: () {},
+                  ),
+                  NavigationItem(
+                    label: '术语库',
+                    icon: Icons.menu_book_outlined,
+                    onTap: () {},
+                  ),
+                  NavigationItem(
+                    label: '历史',
+                    icon: Icons.history,
+                    onTap: () {},
+                  ),
+                ]),
               ],
               child: Column(
                 children: [
@@ -182,9 +168,9 @@ class _WidgetShowcasePageState extends State<WidgetShowcasePage> {
                       const LanguagePair(source: '英语', target: '简体中文'),
                       const SizedBox(width: 12),
                       Switch(
-                        value: _enabled,
-                        onChanged: (value) => setState(() => _enabled = value),
-                      ),
+                          value: _enabled,
+                          onChanged: (value) =>
+                              setState(() => _enabled = value)),
                     ],
                   ),
                   const Expanded(
@@ -253,27 +239,26 @@ class _WidgetShowcasePageState extends State<WidgetShowcasePage> {
             ),
           ),
           const SizedBox(height: 32),
-          const SectionLabel(index: '04', label: '历史'),
+          const NumberedSectionLabel(index: '04', label: '历史'),
           const SizedBox(height: 12),
-          Surface(
-            child: Column(
-              children: [
-                HistoryRow(
-                  term: 'teacher forcing',
-                  translation: '教师强制 · 训练时喂入真实词元',
-                  timestamp: '今天 14:20',
-                  onTap: () {},
-                ),
-                const Divider(),
-                HistoryRow(
-                  term: 'ablation study',
-                  translation: '消融实验 · 逐一去掉组件看效果变化',
-                  timestamp: '今天 11:06',
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ),
+          Card(
+              child: Column(
+            children: [
+              HistoryRow(
+                term: 'teacher forcing',
+                translation: '教师强制 · 训练时喂入真实词元',
+                timestamp: '今天 14:20',
+                onTap: () {},
+              ),
+              const Divider(),
+              HistoryRow(
+                term: 'ablation study',
+                translation: '消融实验 · 逐一去掉组件看效果变化',
+                timestamp: '今天 11:06',
+                onTap: () {},
+              ),
+            ],
+          )),
         ],
       ),
     );

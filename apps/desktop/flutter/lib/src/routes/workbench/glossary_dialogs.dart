@@ -1,28 +1,29 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide FormField;
 
 import '../../i18n/i18n.dart';
+import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../utils/language_util.dart';
+import '../../widgets/app_dialog.dart' show DialogFrame;
 import '../../widgets/native_select.dart';
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
         ButtonVariant,
         Callout,
-        CalloutTone,
+        CalloutTint,
         Checkbox,
-        DesignThemeContext,
-        DesignTypographyStyles,
         Dialog,
         DialogBody,
         DialogFooter,
         DialogHeader,
-        Field,
-        FieldState,
-        Input,
-        Label,
-        OptionCard;
+        FormField,
+        OptionCard,
+        SectionLabel,
+        TextField,
+        TextFieldState,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 
 /// Where a new book's first entries come from.
 enum GlossarySeed { blank, csv, tbx }
@@ -111,63 +112,56 @@ class _NewGlossaryDialogState extends State<NewGlossaryDialog> {
       child: Dialog(
         children: [
           DialogHeader(
-            title: Text(strings.new_book),
-            subtitle: Text(strings.new_book_subtitle),
-          ),
+              title: strings.new_book, subtitle: strings.new_book_subtitle),
           DialogBody(
             children: [
-              Field(
-                label: Text(_taken ? strings.name_taken : strings.name),
-                state: _taken ? FieldState.error : FieldState.standard,
-                hint: _taken
-                    ? Text(strings.name_taken_hint(name: _trimmed))
-                    : null,
-                child: Input(
-                  controller: _name,
-                  autofocus: true,
-                  state: _taken ? FieldState.error : FieldState.standard,
-                  placeholder: strings.name_placeholder,
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) => _submit(),
-                ),
-              ),
+              FormField(
+                  label: _taken ? strings.name_taken : strings.name,
+                  hint: _taken ? strings.name_taken_hint(name: _trimmed) : null,
+                  invalid: _taken,
+                  child: TextField(
+                      controller: _name,
+                      autofocus: true,
+                      state:
+                          _taken ? TextFieldState.error : TextFieldState.normal,
+                      placeholder: strings.name_placeholder,
+                      onChanged: (_) => setState(() {}),
+                      onSubmitted: (_) => _submit())),
               // The pair reads as one setting, so the arrow sits on the
               // controls' own line rather than between the two labels.
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                    child: Field(
-                      label: Text(strings.source_language),
-                      child: NativeSelect<String>(
-                        value: _source,
-                        items: languages,
-                        semanticsLabel: strings.source_language,
-                        onChanged: (v) => setState(() => _source = v),
-                      ),
-                    ),
+                    child: FormField(
+                        label: strings.source_language,
+                        child: NativeSelect<String>(
+                          value: _source,
+                          items: languages,
+                          semanticsLabel: strings.source_language,
+                          onChanged: (v) => setState(() => _source = v),
+                        )),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                     child: Text(
                       '→',
-                      style: context.tokens.typography.sansStyle(
+                      style: context.vars.sansStyle(
                         fontSize: 12,
                         height: 1,
-                        color: context.colors.fgFaint,
+                        color: context.vars.colorContentFaint,
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Field(
-                      label: Text(strings.target_language),
-                      child: NativeSelect<String>(
-                        value: _target,
-                        items: languages,
-                        semanticsLabel: strings.target_language,
-                        onChanged: (v) => setState(() => _target = v),
-                      ),
-                    ),
+                    child: FormField(
+                        label: strings.target_language,
+                        child: NativeSelect<String>(
+                          value: _target,
+                          items: languages,
+                          semanticsLabel: strings.target_language,
+                          onChanged: (v) => setState(() => _target = v),
+                        )),
                   ),
                 ],
               ),
@@ -177,7 +171,7 @@ class _NewGlossaryDialogState extends State<NewGlossaryDialog> {
                 children: [
                   Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: Label(child: Text(strings.seed)),
+                    child: SectionLabel(strings.seed),
                   ),
                   const SizedBox(height: 8),
                   // The cards square up to the tallest of them, the way the
@@ -198,11 +192,11 @@ class _NewGlossaryDialogState extends State<NewGlossaryDialog> {
                           if (entry.$2 > 0) const SizedBox(width: 10),
                           Expanded(
                             child: OptionCard(
-                              title: Text(_seedTitle(entry.$1)),
-                              description: Text(_seedHint(entry.$1)),
-                              selected: _seed == entry.$1,
-                              onSelect: () => setState(() => _seed = entry.$1),
-                            ),
+                                title: _seedTitle(entry.$1),
+                                description: _seedHint(entry.$1),
+                                selected: _seed == entry.$1,
+                                onPressed: () =>
+                                    setState(() => _seed = entry.$1)),
                           ),
                         ],
                       ],
@@ -212,44 +206,40 @@ class _NewGlossaryDialogState extends State<NewGlossaryDialog> {
               ),
               if (_sameLanguage)
                 Callout(
-                  tone: CalloutTone.warn,
-                  child: Text(strings.same_language),
-                )
+                    tint: CalloutTint.warning,
+                    message: Text(strings.same_language))
               else if (_seed == GlossarySeed.blank)
-                Callout(child: Text(strings.seed_blank_note))
+                Callout(message: Text(strings.seed_blank_note))
               else
                 Callout(
-                  tone: CalloutTone.accent,
-                  action: Button(
-                    variant: ButtonVariant.quiet,
-                    onPressed: null,
-                    child: Text(strings.choose_file),
-                  ),
-                  child: Text(
-                    strings.seed_file_note(
-                      format: _seedTitle(_seed).toUpperCase(),
-                    ),
-                  ),
-                ),
+                    tint: CalloutTint.primary,
+                    actions: [
+                      Button(
+                          variant: ButtonVariant.plain,
+                          onPressed: null,
+                          child: Text(strings.choose_file))
+                    ],
+                    message: Text(
+                      strings.seed_file_note(
+                        format: _seedTitle(_seed).toUpperCase(),
+                      ),
+                    )),
             ],
           ),
           DialogFooter(
             children: [
               const Spacer(),
               Button(
-                variant: ButtonVariant.ghost,
-                size: ButtonSize.md,
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(t.common.ui.button.cancel),
-              ),
+                  variant: ButtonVariant.recessed,
+                  size: WidgetSize.medium,
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(t.common.ui.button.cancel)),
               Button(
-                variant: ButtonVariant.primary,
-                size: ButtonSize.md,
-                enabled: _valid,
-                onPressed: _submit,
-                shortcut: const Text('⏎'),
-                child: Text(strings.create),
-              ),
+                  variant: ButtonVariant.filled,
+                  size: WidgetSize.medium,
+                  onPressed: _valid ? _submit : null,
+                  shortcut: const Text('⏎'),
+                  child: Text(strings.create)),
             ],
           ),
         ],
@@ -386,21 +376,18 @@ class _AddTermDialogState extends State<AddTermDialog> {
   @override
   Widget build(BuildContext context) {
     final strings = t.workbench.glossary_page;
-    final tokens = context.tokens;
+    final vars = context.vars;
 
-    return Center(
-      child: Dialog(
-        children: [
-          DialogHeader(
-            title: Text(strings.add_entry),
-            subtitle: Text(strings.add_entry_subtitle),
-          ),
-          DialogBody(
-            children: [
-              // One book is not a choice; the sheet only asks when it is.
-              if (widget.books.length > 1)
-                Field(
-                  label: Text(strings.book),
+    return DialogFrame(
+      child: Dialog(children: [
+        DialogHeader(
+            title: strings.add_entry, subtitle: strings.add_entry_subtitle),
+        DialogBody(
+          children: [
+            // One book is not a choice; the sheet only asks when it is.
+            if (widget.books.length > 1)
+              FormField(
+                  label: strings.book,
                   child: NativeSelect<String>(
                     value: _bookId,
                     semanticsLabel: strings.book,
@@ -409,93 +396,80 @@ class _AddTermDialogState extends State<AddTermDialog> {
                         NativeSelectItem(value: book.id, label: book.name),
                     ],
                     onChanged: (v) => setState(() => _bookId = v),
-                  ),
-                ),
-              Field(
-                label: Text(strings.term),
-                child: Input(
-                  controller: _term,
-                  focusNode: _termFocus,
-                  autofocus: true,
-                  placeholder: strings.term_placeholder,
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) => _submit(),
-                ),
-              ),
-              Field(
-                label: Text(strings.translation),
-                child: Input(
-                  controller: _translation,
-                  placeholder: strings.translation_placeholder,
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) => _submit(),
-                ),
-              ),
-              Field(
-                label: Text(strings.forbidden_label),
-                hint: Text(strings.forbidden_hint),
-                child: Input(
-                  controller: _forbidden,
-                  placeholder: strings.forbidden_placeholder_full,
-                  onSubmitted: (_) => _submit(),
-                ),
-              ),
-              if (_duplicate)
-                Callout(
-                  tone: CalloutTone.warn,
-                  child: Text(
+                  )),
+            FormField(
+                label: strings.term,
+                child: TextField(
+                    controller: _term,
+                    focusNode: _termFocus,
+                    autofocus: true,
+                    placeholder: strings.term_placeholder,
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: (_) => _submit())),
+            FormField(
+                label: strings.translation,
+                child: TextField(
+                    controller: _translation,
+                    placeholder: strings.translation_placeholder,
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: (_) => _submit())),
+            FormField(
+                label: strings.forbidden_label,
+                hint: strings.forbidden_hint,
+                child: TextField(
+                    controller: _forbidden,
+                    placeholder: strings.forbidden_placeholder_full,
+                    onSubmitted: (_) => _submit())),
+            if (_duplicate)
+              Callout(
+                  tint: CalloutTint.warning,
+                  message: Text(
                     strings.duplicate(
                       term: _trimmedTerm,
                       book: _bookLabel == null
                           ? strings.duplicate_book_fallback
                           : '「$_bookLabel」',
                     ),
-                  ),
-                ),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Checkbox(
-                  checked: _continuous,
+                  )),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Checkbox(
+                  value: _continuous,
                   onChanged: (v) => setState(() => _continuous = v),
-                  child: Text(strings.keep_adding),
+                  label: Text(strings.keep_adding)),
+            ),
+          ],
+        ),
+        DialogFooter(
+          children: [
+            if (_saved > 0)
+              Text(
+                strings.added_count(count: _saved),
+                style: vars.sansStyle(
+                  fontSize: 12,
+                  height: 1,
+                  color: vars.colorContentSubtle,
                 ),
               ),
-            ],
-          ),
-          DialogFooter(
-            children: [
-              if (_saved > 0)
-                Text(
-                  strings.added_count(count: _saved),
-                  style: tokens.typography.sansStyle(
-                    fontSize: 12,
-                    height: 1,
-                    color: tokens.colors.fgSubtle,
-                  ),
-                ),
-              const Spacer(),
-              Button(
-                variant: ButtonVariant.ghost,
-                size: ButtonSize.md,
+            const Spacer(),
+            Button(
+                variant: ButtonVariant.recessed,
+                size: WidgetSize.medium,
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   _saved > 0 ? strings.done : t.common.ui.button.cancel,
-                ),
-              ),
-              Button(
-                variant: ButtonVariant.primary,
-                size: ButtonSize.md,
-                enabled: _valid,
-                onPressed: _submit,
+                )),
+            Button(
+                variant: ButtonVariant.filled,
+                size: WidgetSize.medium,
+                onPressed: _valid ? _submit : null,
                 shortcut: const Text('⏎'),
                 child: Text(
                   _duplicate ? strings.overwrite : t.common.ui.button.save,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+                )),
+          ],
+        ),
+      ]),
     );
   }
 }

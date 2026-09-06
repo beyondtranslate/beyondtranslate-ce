@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide IconButton;
 
-import 'ui.dart' show IconButton, kTransitionDuration;
+import 'ui.dart' show IconButton, ThemeDataBuildContextProps;
 
 /// The design system's 24pt flat toolbar affordance, taking an [IconData]
 /// instead of a widget, wearing a native tooltip, and adding the optional
@@ -35,15 +35,17 @@ class IconActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final button = IconButton(
-      label: tooltip ?? '',
-      active: selected,
-      iconSize: iconSize,
-      onPressed: onPressed,
-      icon: AnimatedRotation(
-        turns: iconTurns,
-        duration: kTransitionDuration,
-        child: Icon(icon),
+    // The kit's icon slot is the glyph itself, so the turn is applied to the
+    // button rather than to a widget handed in as its icon.
+    final Widget button = AnimatedRotation(
+      turns: iconTurns,
+      duration: context.vars.motionDuration,
+      child: IconButton(
+        semanticsLabel: tooltip ?? '',
+        active: selected,
+        iconSize: iconSize,
+        onPressed: onPressed,
+        icon: icon,
       ),
     );
 

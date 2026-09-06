@@ -1,11 +1,12 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/workbench/library.dart';
 import 'package:beyondtranslate_desktop/src/services/history_store.dart';
+import 'package:beyondtranslate_desktop/src/theme/app_theme.dart'
+    show AppThemeProvider;
 import 'package:beyondtranslate_desktop/src/widgets/native_menu.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart';
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
-import 'package:flutter/material.dart' hide Checkbox;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -126,7 +127,7 @@ void main() {
   });
 }
 
-Widget _specimen(Widget child) => DesignThemeProvider(
+Widget _specimen(Widget child) => AppThemeProvider(
       child: MaterialApp(
         home: Scaffold(
           body: SizedBox(width: 668, height: 560, child: child),

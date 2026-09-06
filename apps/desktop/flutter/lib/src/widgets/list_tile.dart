@@ -1,12 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Pressable,
-        PressableState,
-        kTransitionDuration;
+import '../theme/product_tokens.dart' show ProductPalette, ProductTypography;
+import 'ui.dart' show Pressable, ThemeDataBuildContextProps;
 
 enum ListTileTone {
   standard,
@@ -72,36 +67,36 @@ class ListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final card = variant == ListTileVariant.card;
     final radius = BorderRadius.circular(
-      card ? tokens.radii.control : tokens.radii.controlSm,
+      card ? vars.radiusMedium : vars.radiusSmall,
     );
 
     final (Color background, Color borderColor) = switch (tone) {
-      ListTileTone.standard => (colors.card, colors.hairline),
-      ListTileTone.accent => (colors.accentSurface, colors.accentHairline),
-      ListTileTone.warn => (colors.warnSurface, colors.warnHairline),
+      ListTileTone.standard => (vars.colorSurfaceMuted, vars.colorBorder),
+      ListTileTone.accent => (vars.accentSurface, vars.accentHairline),
+      ListTileTone.warn => (vars.warnSurface, vars.warnHairline),
     };
 
-    Widget row(BuildContext context, PressableState state) {
+    Widget row(BuildContext context, Set<WidgetState> states) {
       return AnimatedContainer(
-        duration: kTransitionDuration,
+        duration: context.vars.motionDuration,
         padding: card
             ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
             : const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           color: card
               ? background
-              : (onPressed != null && state.hovered
-                  ? colors.accent.withValues(alpha: 0.08)
+              : (onPressed != null && states.contains(WidgetState.hovered)
+                  ? vars.accent.withValues(alpha: 0.08)
                   : null),
           border: card
               ? Border.all(
-                  color: onPressed != null && state.hovered
-                      ? colors.accentHairline
-                      : borderColor,
+                  color:
+                      onPressed != null && states.contains(WidgetState.hovered)
+                          ? vars.accentHairline
+                          : borderColor,
                   width: context.hairlineWidth,
                 )
               : null,
@@ -111,11 +106,11 @@ class ListTile extends StatelessWidget {
           children: [
             if (leading != null) ...[leading!, const SizedBox(width: 8)],
             DefaultTextStyle(
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 height: 1,
-                color: colors.fg,
+                color: vars.colorContent,
               ),
               child: title,
             ),
@@ -127,12 +122,12 @@ class ListTile extends StatelessWidget {
                   child: DefaultTextStyle(
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: tokens.typography.sansStyle(
+                    style: vars.sansStyle(
                       fontSize: 11,
                       height: 1,
                       color: tone == ListTileTone.warn
-                          ? colors.warnFg
-                          : colors.fgSubtle,
+                          ? vars.warnFg
+                          : vars.colorContentSubtle,
                     ),
                     child: meta!,
                   ),
@@ -150,7 +145,7 @@ class ListTile extends StatelessWidget {
     }
 
     if (onPressed == null) {
-      return row(context, const PressableState());
+      return row(context, const <WidgetState>{});
     }
 
     return Pressable(

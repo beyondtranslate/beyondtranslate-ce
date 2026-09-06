@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../ui.dart' show DesignThemeContext, Spinner, SpinnerSize;
+import '../../theme/product_tokens.dart' show ProductPalette;
+import '../ui.dart' show Spinner, ThemeDataBuildContextProps, WidgetSize;
 
 class CustomImage extends StatelessWidget {
-  const CustomImage(this.url, {Key? key, this.width, this.height, this.fit})
-      : super(key: key);
+  const CustomImage(this.url, {super.key, this.width, this.height, this.fit});
 
   final String url;
   final double? width;
@@ -21,13 +21,13 @@ class CustomImage extends StatelessWidget {
       loadingBuilder: (context, child, progress) {
         return progress == null
             ? child
-            : const Center(child: Spinner(size: SpinnerSize.sm));
+            : const Center(child: Spinner(size: WidgetSize.small));
       },
       errorBuilder: (ctx, error, stackTrace) {
         return Container(
           width: width,
           height: height,
-          color: context.colors.dangerSurface,
+          color: context.vars.dangerSurface,
         );
       },
     );

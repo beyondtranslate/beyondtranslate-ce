@@ -1,17 +1,15 @@
 import 'package:flutter/widgets.dart';
 
-import '../theme/product_tokens.dart' show ProductTokens;
+import '../theme/product_tokens.dart'
+    show ProductPalette, ProductTokens, ProductTypography;
 import 'avatar.dart' show Avatar, AvatarSize;
 import 'ui.dart'
     show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Kbd,
-        KbdSize,
-        Label,
-        LabelTone,
+        KeyCap,
         Pressable,
-        kTransitionDuration;
+        SectionLabel,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 
 /// The brand colours the deck gives its services, by position in the list —
 /// the same order the ⌥n hints count in.
@@ -60,18 +58,17 @@ class CandidateRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.chip);
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusTiny);
 
     final header = Row(
       children: [
         Avatar(size: AvatarSize.xs, label: avatarLabel, color: avatarColor),
         const SizedBox(width: 7),
         Expanded(
-          child: Label(tone: LabelTone.subtle, child: Text(name)),
+          child: SectionLabel(name),
         ),
-        if (shortcut != null) Kbd(shortcut!, size: KbdSize.sm),
+        if (shortcut != null) KeyCap(shortcut!, size: WidgetSize.small),
       ],
     );
 
@@ -86,15 +83,15 @@ class CandidateRow extends StatelessWidget {
               onPressed: onPrefer,
               borderRadius: radius,
               semanticsLabel: name,
-              builder: (context, state) => AnimatedContainer(
-                duration: kTransitionDuration,
+              builder: (context, states) => AnimatedContainer(
+                duration: context.vars.motionDuration,
                 padding: const EdgeInsets.symmetric(
                   horizontal: chipInset,
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: state.hovered
-                      ? colors.accent.withValues(alpha: 0.12)
+                  color: states.contains(WidgetState.hovered)
+                      ? vars.accent.withValues(alpha: 0.12)
                       : null,
                   borderRadius: radius,
                 ),
@@ -113,10 +110,10 @@ class CandidateRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: chipInset),
             child: DefaultTextStyle(
-              style: tokens.typography.cjkStyle(
+              style: vars.cjkStyle(
                 fontSize: 13,
                 height: 1.7,
-                color: colors.fgSecondary,
+                color: vars.colorContentSecondary,
               ),
               child: child,
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart' show Badge, BadgeTone, OptionCard;
+import 'ui.dart' show OptionCard;
 
 class ServiceSelector extends StatelessWidget {
   const ServiceSelector({
@@ -24,22 +24,14 @@ class ServiceSelector extends StatelessWidget {
           Builder(
             builder: (context) {
               final service = services[index];
+              // The kit's card prints its own title and description, so the
+              // variant tag joins the name rather than riding as a chip.
+              final tag = service.tag;
               return OptionCard(
-                selected: service.id == selectedId,
-                onSelect: () => onSelected(service.id),
-                title: Row(
-                  children: [
-                    Expanded(child: Text(service.name)),
-                    if (service.tag != null)
-                      Badge(tone: BadgeTone.accent, child: Text(service.tag!)),
-                  ],
-                ),
-                description: Text(
-                  service.preview,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              );
+                  selected: service.id == selectedId,
+                  onPressed: () => onSelected(service.id),
+                  title: tag == null ? service.name : '${service.name} · $tag',
+                  description: service.preview);
             },
           ),
         ],

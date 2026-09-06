@@ -3,16 +3,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import '../theme/product_tokens.dart'
-    show ProductTokens, ProductTokensContext, ProductTypographyStyles;
+    show ProductPalette, ProductTokens, ProductTokensContext, ProductTypography;
 import 'ui.dart'
-    show
-        DesignTheme,
-        DesignThemeContext,
-        DesignTokens,
-        DesignTypographyStyles,
-        FocusRing,
-        Label,
-        LabelTone;
+    show FocusRing, Theme, ThemeDataBuildContextProps, ThemeVariables;
 
 enum MarkTone {
   /// The term is under control — a glossary hit that was honoured.
@@ -95,10 +88,10 @@ class _MarkChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final vars = context.vars;
     final (Color background, Color foreground) = switch (tone) {
-      MarkTone.accent => (colors.accentMark, colors.accentMarkFg),
-      MarkTone.warn => (colors.warnMark, colors.warnFg),
+      MarkTone.accent => (vars.accentMark, vars.accentMarkFg),
+      MarkTone.warn => (vars.warnMark, vars.warnFg),
     };
 
     return Container(
@@ -176,19 +169,21 @@ class _InteractiveMarkState extends State<_InteractiveMark> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
+    // The popover is built under the app's overlay, so it needs this subtree's
+    // theme carried across to it.
+    final themeData = context.themeData;
     final (
       Color background,
       Color foreground,
       Color accentColor,
     ) = switch (widget.tone) {
       MarkTone.accent => (
-          colors.accentMark,
-          colors.accentMarkFg,
-          colors.accent,
+          vars.accentMark,
+          vars.accentMarkFg,
+          vars.accent,
         ),
-      MarkTone.warn => (colors.warnMark, colors.warnFg, colors.warn),
+      MarkTone.warn => (vars.warnMark, vars.warnFg, vars.warn),
     };
     const radius = BorderRadius.all(Radius.circular(5));
 
@@ -211,8 +206,8 @@ class _InteractiveMarkState extends State<_InteractiveMark> {
                 onTap: widget.onActivate != null ? _activate : null,
                 // Re-established because the overlay child is built under the
                 // app's overlay, not under this provider's subtree.
-                child: DesignTheme(
-                  tokens: tokens,
+                child: Theme(
+                  data: themeData,
                   child: _MarkPopover(
                     detail: widget.detail,
                     showsActivate: widget.onActivate != null,
@@ -291,20 +286,19 @@ class _MarkPopover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Container(
       width: 224,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(
-        color: colors.window,
+        color: vars.colorSurface,
         border: Border.all(
-          color: colors.hairlineStrong,
+          color: vars.colorBorderStrong,
           width: context.hairlineWidth,
         ),
-        borderRadius: BorderRadius.circular(tokens.radii.box),
-        boxShadow: tokens.shadows.float,
+        borderRadius: BorderRadius.circular(vars.radiusLarge),
+        boxShadow: vars.shadowMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -317,21 +311,21 @@ class _MarkPopover extends StatelessWidget {
               Expanded(
                 child: Text(
                   detail.term,
-                  style: tokens.typography.displayStyle(
+                  style: vars.displayStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     height: 1,
-                    color: colors.fg,
+                    color: vars.colorContent,
                   ),
                 ),
               ),
               if (detail.hits != null)
                 Text(
                   '命中 ${detail.hits}',
-                  style: tokens.typography.sansStyle(
+                  style: vars.sansStyle(
                     fontSize: 10,
                     height: 1,
-                    color: colors.fgFaint,
+                    color: vars.colorContentFaint,
                   ),
                 ),
             ],
@@ -344,24 +338,24 @@ class _MarkPopover extends StatelessWidget {
                 if (detail.forbidden != null)
                   TextSpan(
                     text: ' · 禁用 ${detail.forbidden}',
-                    style: TextStyle(color: colors.fgFaint),
+                    style: TextStyle(color: vars.colorContentFaint),
                   ),
               ],
             ),
-            style: tokens.typography.cjkStyle(
+            style: vars.cjkStyle(
               fontSize: 12,
               height: 1.6,
-              color: colors.fgSecondary,
+              color: vars.colorContentSecondary,
             ),
           ),
           if (detail.book != null) ...[
             const SizedBox(height: 6),
             Text(
               detail.book!,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 height: 1,
-                color: colors.fgTertiary,
+                color: vars.colorContentMuted,
               ),
             ),
           ],
@@ -369,11 +363,11 @@ class _MarkPopover extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '点击查看词条 →',
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 height: 1,
-                color: colors.accentText,
+                color: vars.accentText,
               ),
             ),
           ],
@@ -384,9 +378,9 @@ class _MarkPopover extends StatelessWidget {
 }
 
 /// The span form of [Mark], for placing a mark inside a running
-/// paragraph: `Text.rich(TextSpan(children: [..., markSpan(tokens, '标记')]))`.
+/// paragraph: `Text.rich(TextSpan(children: [..., markSpan(vars, '标记')]))`.
 InlineSpan markSpan(
-  DesignTokens tokens,
+  ThemeVariables vars,
   String text, {
   MarkTone tone = MarkTone.accent,
   MarkDetail? detail,
@@ -411,15 +405,14 @@ class TextBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.hairline,
+            color: vars.colorBorder,
             width: context.hairlineWidth,
           ),
         ),
@@ -436,16 +429,20 @@ class TextBlock extends StatelessWidget {
                       ? const SizedBox.shrink()
                       : Align(
                           alignment: AlignmentDirectional.centerStart,
-                          child: Label(child: label!),
+                          child: DefaultTextStyle(
+                            style: context.vars.labelStyle(
+                                color: context.vars.colorContentSubtle),
+                            child: label!,
+                          ),
                         ),
                 ),
                 if (meta != null)
                   DefaultTextStyle(
-                    style: tokens.typography.displayStyle(
+                    style: vars.displayStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       height: 1,
-                      color: colors.fgFaint,
+                      color: vars.colorContentFaint,
                     ),
                     child: meta!,
                   ),
@@ -454,7 +451,7 @@ class TextBlock extends StatelessWidget {
             const SizedBox(height: 10),
           ],
           DefaultTextStyle(
-            style: tokens.typography.sourceStyle(color: colors.fgMuted),
+            style: vars.sourceStyle(color: vars.colorContentMuted),
             child: child,
           ),
         ],
@@ -537,15 +534,14 @@ class HighlightBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final danger = tone == HighlightTone.danger;
     final side = BorderSide(
-      color: danger ? colors.dangerHairline : colors.accentHairline,
+      color: danger ? vars.dangerHairline : vars.accentHairline,
       width: ProductTokens.highlightRule,
     );
     final hairlineSide = BorderSide(
-      color: colors.hairline,
+      color: vars.colorBorder,
       width: context.hairlineWidth,
     );
     final expansion = this.expansion;
@@ -567,7 +563,7 @@ class HighlightBlock extends StatelessWidget {
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: danger ? colors.danger : colors.accentText,
+                  color: danger ? vars.danger : vars.accentText,
                   shape: BoxShape.circle,
                   // No glow: the glow is the "this is the one" signal, and a
                   // failed slot is not the one.
@@ -578,19 +574,22 @@ class HighlightBlock extends StatelessWidget {
               Expanded(
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Label(
-                    tone: danger ? LabelTone.danger : LabelTone.accent,
+                  child: DefaultTextStyle(
+                    style: context.vars.labelStyle(
+                        color: danger
+                            ? context.vars.dangerFg
+                            : context.vars.accentText),
                     child: label,
                   ),
                 ),
               ),
               if (meta != null)
                 DefaultTextStyle(
-                  style: tokens.typography.displayStyle(
+                  style: vars.displayStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     height: 1,
-                    color: colors.fgSubtle,
+                    color: vars.colorContentSubtle,
                   ),
                   child: meta!,
                 ),
@@ -598,7 +597,7 @@ class HighlightBlock extends StatelessWidget {
           ),
           SizedBox(height: metaControls ? 6 : 12),
           DefaultTextStyle(
-            style: tokens.typography.translationStyle(color: colors.fg),
+            style: vars.translationStyle(color: vars.colorContent),
             child: child,
           ),
           if (actions != null) ...[
@@ -612,7 +611,7 @@ class HighlightBlock extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: danger ? colors.dangerSurface : colors.accentSurface,
+        color: danger ? vars.dangerSurface : vars.accentSurface,
         border: Border(
           top: rule == HighlightRule.top
               ? side
@@ -634,7 +633,7 @@ class HighlightBlock extends StatelessWidget {
               // chip hangs that far past the text column, so the text itself
               // still lands on the column.
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              color: colors.window,
+              color: vars.colorSurface,
               children: expansion,
             ),
         ],
@@ -665,9 +664,9 @@ class CompareTray extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final vars = context.vars;
     final hairline = BorderSide(
-      color: colors.hairline,
+      color: vars.colorBorder,
       width: context.hairlineWidth,
     );
 
@@ -716,18 +715,17 @@ class TitledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: colors.card,
+        color: vars.colorSurfaceMuted,
         border: Border.all(
-          color: colors.hairline,
+          color: vars.colorBorder,
           width: context.hairlineWidth,
         ),
-        borderRadius: BorderRadius.circular(tokens.radii.card),
+        borderRadius: BorderRadius.circular(vars.radiusLarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -738,11 +736,11 @@ class TitledCard extends StatelessWidget {
               if (avatar != null) ...[avatar!, const SizedBox(width: 7)],
               Expanded(
                 child: DefaultTextStyle(
-                  style: tokens.typography.displayStyle(
+                  style: vars.displayStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     height: 1,
-                    color: colors.fg,
+                    color: vars.colorContent,
                   ),
                   child: title,
                 ),
@@ -752,10 +750,10 @@ class TitledCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           DefaultTextStyle(
-            style: tokens.typography.cjkStyle(
+            style: vars.cjkStyle(
               fontSize: 13,
               height: 1.7,
-              color: colors.fgSecondary,
+              color: vars.colorContentSecondary,
             ),
             child: child,
           ),

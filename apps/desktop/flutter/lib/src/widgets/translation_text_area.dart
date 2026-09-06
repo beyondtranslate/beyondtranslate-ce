@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart' show TextArea;
+import 'ui.dart' show TextField;
 
 class TranslationTextArea extends StatelessWidget {
   const TranslationTextArea({
@@ -22,13 +22,12 @@ class TranslationTextArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextArea(
-      controller: controller,
-      placeholder: hintText,
-      enabled: !readOnly,
-      minLines: minLines,
-      maxLines: maxLines,
-      onChanged: onChanged,
-    );
+    return TextField(
+        controller: controller,
+        placeholder: hintText,
+        enabled: !readOnly,
+        minLines: minLines,
+        maxLines: maxLines,
+        onChanged: onChanged);
   }
 }

@@ -9,7 +9,7 @@ import '../../models/translation_result.dart';
 import '../../models/translation_result_record.dart';
 import '../../services/system_translation.dart';
 import '../../theme/product_tokens.dart'
-    show ProductTokens, ProductTokensContext, ProductTypographyStyles;
+    show ProductPalette, ProductTokens, ProductTokensContext, ProductTypography;
 import '../../utils/language_util.dart';
 import '../../utils/shortcut_util.dart';
 import '../../widgets/block_heading.dart';
@@ -23,17 +23,13 @@ import '../../widgets/ui.dart'
     show
         Button,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
         IconButton,
-        Kbd,
-        KbdSize,
-        Label,
-        LabelTone,
+        KeyCap,
         Pressable,
+        SectionLabel,
         Spinner,
-        SpinnerSize,
-        kTransitionDuration;
+        ThemeDataBuildContextProps,
+        WidgetSize;
 
 /// One service's translated text, paired with the target it belongs to.
 typedef ServiceTranslation = ({
@@ -169,7 +165,7 @@ bool allServicesFailed(
 /// list, and 复制 rides on each block's attribution row.
 class MiniTranslatorTranslation extends StatelessWidget {
   const MiniTranslatorTranslation({
-    Key? key,
+    super.key,
     required this.querySubmitted,
     required this.translationResultList,
     required this.translationServiceIds,
@@ -184,7 +180,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
     required this.onCopyTarget,
     required this.onPreferService,
     required this.onRequery,
-  }) : super(key: key);
+  });
 
   final bool querySubmitted;
   final List<TranslationResult> translationResultList;
@@ -274,8 +270,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final results = translationResultList;
 
     if (!querySubmitted || results.isEmpty) {
@@ -333,10 +328,10 @@ class MiniTranslatorTranslation extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(15, 14, 15, 15),
             decoration: BoxDecoration(
-              color: colors.dangerSurface,
+              color: vars.dangerSurface,
               border: Border(
                 top: BorderSide(
-                  color: colors.dangerHairline,
+                  color: vars.dangerHairline,
                   width: ProductTokens.highlightRule,
                 ),
               ),
@@ -347,8 +342,8 @@ class MiniTranslatorTranslation extends StatelessWidget {
               children: [
                 Text(
                   t.mini_translator.result.no_result_body,
-                  style: tokens.typography.miniTranslationStyle(
-                    color: colors.fgSubtle,
+                  style: vars.miniTranslationStyle(
+                    color: vars.colorContentSubtle,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -359,14 +354,14 @@ class MiniTranslatorTranslation extends StatelessWidget {
                       width: 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: colors.danger,
+                        color: vars.danger,
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 7),
                     Flexible(
-                      child: Label(
-                        tone: LabelTone.danger,
+                      child: DefaultTextStyle(
+                        style: vars.labelStyle(color: vars.dangerFg),
                         // A failed query keeps the plain heading — the body
                         // already says the translation did not arrive, and a
                         // status on the label would say it twice.
@@ -399,10 +394,10 @@ class MiniTranslatorTranslation extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
-                color: colors.panel,
+                color: vars.colorSurfaceRaised,
                 border: Border(
                   top: BorderSide(
-                    color: colors.hairlineSoft,
+                    color: vars.colorBorder,
                     width: context.hairlineWidth,
                   ),
                 ),
@@ -449,8 +444,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
     required bool last,
     required bool stacked,
   }) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final targetCode = result.translationTarget?.target ?? '';
     // The resolved target rides on the attribution label, as in the main
     // window's 首选译文 block; the capsule stays on 自动检测 ⇄ 自动匹配.
@@ -498,7 +492,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
       decoration: BoxDecoration(
         // A missing language pair is a failed translation, so the block
         // takes the danger key the way 未返回结果 does.
-        color: missing != null ? colors.dangerSurface : colors.accentSurface,
+        color: missing != null ? vars.dangerSurface : vars.accentSurface,
         // The 2px accent rule marks where the output starts; a further target
         // shares the surface behind a neutral 1px hairline — a second accent
         // line would read as a second output rather than a section of this one.
@@ -506,12 +500,12 @@ class MiniTranslatorTranslation extends StatelessWidget {
           top: first
               ? BorderSide(
                   color: missing != null
-                      ? colors.dangerHairline
-                      : colors.accentHairline,
+                      ? vars.dangerHairline
+                      : vars.accentHairline,
                   width: ProductTokens.highlightRule,
                 )
               : BorderSide(
-                  color: colors.hairline,
+                  color: vars.colorBorder,
                   width: context.hairlineWidth,
                 ),
         ),
@@ -540,15 +534,15 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Row(
                       children: [
-                        const Spinner(size: SpinnerSize.sm),
+                        const Spinner(size: WidgetSize.small),
                         const SizedBox(width: 10),
                         Text(
                           t.mini_translator.result.translating,
-                          style: tokens.typography.sansStyle(
+                          style: vars.sansStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             height: 1,
-                            color: colors.accentText,
+                            color: vars.accentText,
                           ),
                         ),
                       ],
@@ -575,7 +569,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
                             label: t.mini_translator.result
                                 .language_missing_mini_link,
                             bold: false,
-                            style: tokens.typography.miniTranslationStyle(),
+                            style: vars.miniTranslationStyle(),
                           ),
                         ),
                         TextSpan(
@@ -586,15 +580,15 @@ class MiniTranslatorTranslation extends StatelessWidget {
                         ),
                       ],
                     ),
-                    style: tokens.typography.miniTranslationStyle(
-                      color: colors.fgSubtle,
+                    style: vars.miniTranslationStyle(
+                      color: vars.colorContentSubtle,
                     ),
                   )
                 else
                   TranslationText(
                     preferred!.text,
-                    style: tokens.typography.miniTranslationStyle(
-                      color: colors.fg,
+                    style: vars.miniTranslationStyle(
+                      color: vars.colorContent,
                     ),
                   ),
                 SizedBox(height: controls ? 9 : 12),
@@ -607,8 +601,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
                       width: 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color:
-                            missing != null ? colors.danger : colors.accentText,
+                        color: missing != null ? vars.danger : vars.accentText,
                         shape: BoxShape.circle,
                         // No glow: the glow marks the one that answered.
                         boxShadow: missing != null
@@ -618,10 +611,11 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     ),
                     const SizedBox(width: 7),
                     Flexible(
-                      child: Label(
-                        tone: missing != null
-                            ? LabelTone.danger
-                            : LabelTone.accent,
+                      child: DefaultTextStyle(
+                        style: vars.labelStyle(
+                          color:
+                              missing != null ? vars.dangerFg : vars.accentText,
+                        ),
                         // 语言文件未下载 is already said by the body in the
                         // translation's slot; the heading does not repeat it.
                         child: BlockHeading(
@@ -637,17 +631,14 @@ class MiniTranslatorTranslation extends StatelessWidget {
                     const Spacer(),
                     if (controls) ...[
                       IconButton(
-                        label: copied
-                            ? t.mini_translator.button.copied
-                            : t.mini_translator.button.copy,
-                        active: copied,
-                        icon: Icon(
-                          copied
+                          semanticsLabel: copied
+                              ? t.mini_translator.button.copied
+                              : t.mini_translator.button.copy,
+                          active: copied,
+                          icon: copied
                               ? FluentIcons.checkmark_20_regular
                               : FluentIcons.copy_20_regular,
-                        ),
-                        onPressed: () => onCopyTarget(targetCode),
-                      ),
+                          onPressed: () => onCopyTarget(targetCode)),
                       const SizedBox(width: 8),
                     ],
                     if (!translating && rows.isNotEmpty)
@@ -674,7 +665,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
               // 6px short of the block's 15px inset: each row's attribution
               // chip hangs that far past the text column.
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
-              color: colors.panel,
+              color: vars.colorSurfaceRaised,
               children: rows,
             ),
         ],
@@ -684,8 +675,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
 
   Widget _buildCandidateRow(
       BuildContext context, ServiceTranslation candidate) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final serviceId = candidate.record.translationServiceId;
     final name = _serviceName(serviceId);
     final index = _serviceIndex(serviceId);
@@ -699,10 +689,10 @@ class MiniTranslatorTranslation extends StatelessWidget {
       onPrefer: serviceId == null ? null : () => onPreferService(serviceId),
       child: TranslationText(
         candidate.text,
-        style: tokens.typography.cjkStyle(
+        style: vars.cjkStyle(
           fontSize: 13,
           height: 1.7,
-          color: colors.fgSecondary,
+          color: vars.colorContentSecondary,
         ),
       ),
     );
@@ -712,15 +702,14 @@ class MiniTranslatorTranslation extends StatelessWidget {
   /// inert, and where the text would be either the install notice or the
   /// reason the service gave.
   Widget _buildFailedRow(BuildContext context, TranslationResultRecord record) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final failure = _failureOf(record);
     final serviceId = record.translationServiceId;
     final index = _serviceIndex(serviceId);
-    final bodyStyle = tokens.typography.cjkStyle(
+    final bodyStyle = vars.cjkStyle(
       fontSize: 13,
       height: 1.7,
-      color: colors.fgSecondary,
+      color: vars.colorContentSecondary,
     );
 
     return CandidateRow(
@@ -735,7 +724,7 @@ class MiniTranslatorTranslation extends StatelessWidget {
           ? MissingLanguageNote(missing: failure.notInstalled!)
           : Text(
               failure.reason,
-              style: bodyStyle.copyWith(color: colors.dangerFg),
+              style: bodyStyle.copyWith(color: vars.dangerFg),
             ),
     );
   }
@@ -761,19 +750,19 @@ class _CompareToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.pill);
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusFull);
 
     return Pressable(
       onPressed: onPressed,
       borderRadius: radius,
       semanticsLabel: label,
-      builder: (context, state) => AnimatedContainer(
-        duration: kTransitionDuration,
+      builder: (context, states) => AnimatedContainer(
+        duration: context.vars.motionDuration,
         padding: const EdgeInsets.fromLTRB(9, 4, 7, 4),
         decoration: BoxDecoration(
-          color: colors.accent.withValues(alpha: state.hovered ? 0.20 : 0.12),
+          color: vars.accent.withValues(
+              alpha: states.contains(WidgetState.hovered) ? 0.20 : 0.12),
           borderRadius: radius,
         ),
         child: Row(
@@ -781,21 +770,21 @@ class _CompareToggle extends StatelessWidget {
           children: [
             Text(
               label,
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 height: 1,
-                color: colors.accentText,
+                color: vars.accentText,
               ),
             ),
             const SizedBox(width: 4),
             AnimatedRotation(
               turns: expanded ? 0.5 : 0,
-              duration: kTransitionDuration,
+              duration: context.vars.motionDuration,
               child: Icon(
                 FluentIcons.chevron_down_20_regular,
                 size: 10,
-                color: colors.accentText,
+                color: vars.accentText,
               ),
             ),
           ],
@@ -834,14 +823,13 @@ class _FailureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: colors.subtle,
-        borderRadius: BorderRadius.circular(tokens.radii.card),
+        color: vars.colorSurfaceSubtle,
+        borderRadius: BorderRadius.circular(vars.radiusLarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -850,13 +838,10 @@ class _FailureCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Label(
-                  tone: LabelTone.subtle,
-                  child: Text(failure.name),
-                ),
+                child: SectionLabel(failure.name),
               ),
               if (failure.shortcut != null)
-                Kbd(failure.shortcut!, size: KbdSize.sm),
+                KeyCap(failure.shortcut!, size: WidgetSize.small),
             ],
           ),
           const SizedBox(height: 5),
@@ -864,25 +849,23 @@ class _FailureCard extends StatelessWidget {
             failure.notInstalled != null
                 ? MissingLanguageText.sentence(failure.notInstalled!)
                 : failure.reason,
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 12,
               height: 1.7,
-              color: colors.fgSecondary,
+              color: vars.colorContentSecondary,
             ),
           ),
           const SizedBox(height: 7),
           if (failure.notInstalled != null)
             Button(
-              variant: ButtonVariant.quiet,
-              onPressed: openTranslationLanguagesSettings,
-              child: Text(t.mini_translator.result.open_system_settings),
-            )
+                variant: ButtonVariant.plain,
+                onPressed: openTranslationLanguagesSettings,
+                child: Text(t.mini_translator.result.open_system_settings))
           else
             Button(
-              variant: ButtonVariant.quiet,
-              onPressed: onRetry,
-              child: Text(t.mini_translator.result.retry),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: onRetry,
+                child: Text(t.mini_translator.result.retry)),
         ],
       ),
     );
@@ -891,9 +874,9 @@ class _FailureCard extends StatelessWidget {
 
 class MiniTranslatorWordDefinition extends StatelessWidget {
   const MiniTranslatorWordDefinition({
-    Key? key,
+    super.key,
     required this.translationResultList,
-  }) : super(key: key);
+  });
 
   final List<TranslationResult> translationResultList;
 

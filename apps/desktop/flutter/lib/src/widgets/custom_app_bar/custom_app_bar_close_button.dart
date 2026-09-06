@@ -2,10 +2,10 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../ui.dart' show Button, ButtonVariant, DesignThemeContext;
+import '../ui.dart' show Button, ButtonVariant, ThemeDataBuildContextProps;
 
 class CustomAppBarCloseButton extends StatelessWidget {
-  const CustomAppBarCloseButton({Key? key, this.onPressed}) : super(key: key);
+  const CustomAppBarCloseButton({super.key, this.onPressed});
 
   final VoidCallback? onPressed;
 
@@ -14,22 +14,21 @@ class CustomAppBarCloseButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 12),
       child: Button(
-        variant: ButtonVariant.quiet,
-        onPressed: () {
-          if (onPressed != null) {
-            onPressed!();
-            return;
-          }
-          if (context.canPop()) {
-            context.pop();
-          }
-        },
-        child: Icon(
-          FluentIcons.dismiss_20_regular,
-          color: context.colors.fg,
-          size: 22,
-        ),
-      ),
+          variant: ButtonVariant.plain,
+          onPressed: () {
+            if (onPressed != null) {
+              onPressed!();
+              return;
+            }
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
+          child: Icon(
+            FluentIcons.dismiss_20_regular,
+            color: context.vars.colorContent,
+            size: 22,
+          )),
     );
   }
 }

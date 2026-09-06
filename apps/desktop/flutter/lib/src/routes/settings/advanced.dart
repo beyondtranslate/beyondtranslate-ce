@@ -1,14 +1,20 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart' hide Switch;
+import 'package:flutter/material.dart' hide Switch, TextField;
 
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' as runtime_service;
 import '../../services/runtime.dart' show AdvancedSettingsPatch;
 import '../../services/settings_store.dart';
+import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
-    show Input, PreferenceRow, PreferenceSection, Switch;
+    show
+        PreferenceRow,
+        PreferenceSection,
+        Switch,
+        TextField,
+        ThemeDataBuildContextProps;
 
 /// Mirrors macOS `AdvancedView.swift`.
 class AdvancedSettingsPage extends StatefulWidget {
@@ -71,84 +77,43 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
 
     return SettingsPage(
       children: [
-        PreferenceSection(
-          label: Text(t.settings.advanced.api_server),
-          children: [
-            // The state of the thing is the row's second line, not the
-            // section's footnote — the deck reads 运行于 … under the name it
-            // belongs to.
-            PreferenceRow(
-              title: Text(t.settings.advanced.api_server),
+        PreferenceSection(label: t.settings.advanced.api_server, children: [
+          // The state of the thing is the row's second line, not the
+          // section's footnote — the deck reads 运行于 … under the name it
+          // belongs to.
+          PreferenceRow(
+              title: t.settings.advanced.api_server,
+              // The kit's row prints its second line itself, so the address is
+              // the row's own action rather than a link buried in the copy.
               subtitle: advanced.apiServerEnabled
                   ? apiInfo == null
-                      ? Text(t.settings.advanced.disabled)
-                      : _ApiServerLinkText(baseUrl: address)
-                  : Text(t.settings.advanced.api_server_description),
-              trailing: [
-                Switch(
-                  checked: advanced.apiServerEnabled,
-                  semanticsLabel: t.settings.advanced.api_server,
+                      ? t.settings.advanced.disabled
+                      : t.settings.advanced.running_at
+                          .replaceAll('{url}', address)
+                  : t.settings.advanced.api_server_description,
+              onPressed: advanced.apiServerEnabled && apiInfo != null
+                  ? () => _openUrl(address)
+                  : null,
+              trailing: Switch(
+                  value: advanced.apiServerEnabled,
                   onChanged: (value) {
                     settingsStore.updateAdvanced(
                       AdvancedSettingsPatch(apiServerEnabled: value),
                     );
-                  },
-                ),
-              ],
-            ),
-            if (advanced.apiServerEnabled)
-              PreferenceRow(
-                title: Text(t.settings.advanced.port),
-                trailing: [
-                  SizedBox(
-                    width: 96,
-                    child: Input(
-                      mono: true,
+                  })),
+          if (advanced.apiServerEnabled)
+            PreferenceRow(
+                title: t.settings.advanced.port,
+                trailing: SizedBox(
+                  width: 96,
+                  child: TextField(
+                      style: context.vars.monoStyle(),
                       controller: _portController,
                       placeholder: '0',
-                      semanticsLabel: t.settings.advanced.port,
-                      onSubmitted: _updatePort,
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
+                      onSubmitted: _updatePort),
+                )),
+        ]),
       ],
-    );
-  }
-}
-
-class _ApiServerLinkText extends StatelessWidget {
-  const _ApiServerLinkText({required this.baseUrl});
-
-  final String baseUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = t.settings.advanced.running_at;
-    final parts = text.split('{url}');
-    final style = DefaultTextStyle.of(context).style;
-    final linkStyle = style.copyWith(
-      color: Theme.of(context).colorScheme.primary,
-      decoration: TextDecoration.underline,
-    );
-
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(text: parts.first),
-          WidgetSpan(
-            alignment: PlaceholderAlignment.baseline,
-            baseline: TextBaseline.alphabetic,
-            child: InkWell(
-              onTap: () => _openUrl(baseUrl),
-              child: Text(baseUrl, style: linkStyle),
-            ),
-          ),
-          if (parts.length > 1) TextSpan(text: parts.last),
-        ],
-      ),
     );
   }
 }

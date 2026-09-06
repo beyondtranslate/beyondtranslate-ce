@@ -7,21 +7,20 @@ import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
     show
         Badge,
-        BadgeSize,
-        PreferenceRow,
-        PreferenceSection,
         Button,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
+        PreferenceRow,
+        PreferenceSection,
         Spinner,
-        SpinnerSize;
+        ThemeDataBuildContextProps,
+        WidgetSize;
 import 'add_provider_dialog.dart';
 import 'provider_detail.dart';
 import 'provider_meta.dart';
@@ -141,28 +140,27 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
         // service, not the service itself, so the roster of services lives on
         // 服务; this page only opens a provider's detail.
         PreferenceSection(
-          label: Text(t.settings.providers.title),
-          action: Button(
-            variant: ButtonVariant.primary,
-            onPressed: _addProvider,
-            child: Text(t.settings.providers.button.add),
-          ),
-          footer: Text(t.settings.providers.intro.warning),
-          children: [
-            if (_isLoading)
-              const _LoadingRow()
-            else if (providers.isEmpty)
-              _PlaceholderRow(text: t.settings.providers.item.empty)
-            else
-              for (final provider in providers)
-                _ProviderRow(
-                  provider: provider,
-                  capabilities: _capabilitiesOf(services, provider.id),
-                  isDefault: _isDefaultProvider(provider.id),
-                  onOpen: () => setState(() => _detailProviderId = provider.id),
-                ),
-          ],
-        ),
+            label: t.settings.providers.title,
+            action: Button(
+                variant: ButtonVariant.filled,
+                onPressed: _addProvider,
+                child: Text(t.settings.providers.button.add)),
+            footer: t.settings.providers.intro.warning,
+            children: [
+              if (_isLoading)
+                const _LoadingRow()
+              else if (providers.isEmpty)
+                _PlaceholderRow(text: t.settings.providers.item.empty)
+              else
+                for (final provider in providers)
+                  _ProviderRow(
+                    provider: provider,
+                    capabilities: _capabilitiesOf(services, provider.id),
+                    isDefault: _isDefaultProvider(provider.id),
+                    onOpen: () =>
+                        setState(() => _detailProviderId = provider.id),
+                  ),
+            ]),
         if (_errorMessage != null) _ErrorBlock(message: _errorMessage!),
       ],
     );
@@ -220,41 +218,30 @@ class _ProviderRow extends StatelessWidget {
     // already knows how to draw a named thing with a control on the right, and
     // a bespoke row here would only drift from it.
     return PreferenceRow(
-      icon: ProviderIcon(providerTypeValue(provider.type), size: 18),
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Text(
-              providerTypeDisplayName(provider.type),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (isDefault) ...[
-            const SizedBox(width: 8),
-            Badge(
-              size: BadgeSize.xs,
-              child: Text(t.settings.providers.detail.models.default_badge),
-            ),
-          ],
-        ],
-      ),
-      subtitle: Text(_meta()),
-      onOpen: onOpen,
-      // The capability capsules sit tighter to each other than to the chevron:
-      // they are one statement about the provider, not a row of controls.
-      trailing: [
-        Row(
+        // The capability capsules sit tighter to each other than to the chevron:
+        // they are one statement about the provider, not a row of controls.
+        // The default badge joins them: the kit's row prints its title itself,
+        // so a mark on the provider belongs on the right with the rest.
+        trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (isDefault) ...[
+              Badge(
+                  size: WidgetSize.tiny,
+                  child:
+                      Text(t.settings.providers.detail.models.default_badge)),
+              const SizedBox(width: 8),
+            ],
             for (var i = 0; i < capabilities.length; i++) ...[
               if (i > 0) const SizedBox(width: 4),
               _CapabilityTag(label: serviceTypeLabel(capabilities[i])),
             ],
           ],
         ),
-      ],
-    );
+        icon: ProviderIcon(providerTypeValue(provider.type), size: 18),
+        title: providerTypeDisplayName(provider.type),
+        subtitle: _meta(),
+        onPressed: onOpen);
   }
 
   /// The deck prints the model and the key's health here. We can vouch for the
@@ -274,20 +261,20 @@ class _CapabilityTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: tokens.colors.control,
-        borderRadius: BorderRadius.circular(tokens.radii.pill),
+        color: vars.colorSurfaceInset,
+        borderRadius: BorderRadius.circular(vars.radiusFull),
       ),
       child: Text(
         label,
-        style: tokens.typography.sansStyle(
+        style: vars.sansStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,
           height: 1,
-          color: tokens.colors.fgSubtle,
+          color: vars.colorContentSubtle,
         ),
       ),
     );
@@ -299,19 +286,19 @@ class _LoadingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          const Spinner(size: SpinnerSize.sm),
+          const Spinner(size: WidgetSize.small),
           const SizedBox(width: 10),
           Text(
             t.settings.providers.item.loading,
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 12,
               height: 1,
-              color: tokens.colors.fgSubtle,
+              color: vars.colorContentSubtle,
             ),
           ),
         ],
@@ -328,15 +315,15 @@ class _PlaceholderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Text(
         text,
-        style: tokens.typography.sansStyle(
+        style: vars.sansStyle(
           fontSize: 12,
           height: 1.4,
-          color: tokens.colors.fgFaint,
+          color: vars.colorContentFaint,
         ),
       ),
     );
@@ -350,15 +337,15 @@ class _ErrorBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: SelectableText(
         message,
-        style: tokens.typography.sansStyle(
+        style: vars.sansStyle(
           fontSize: 11,
           height: 1.6,
-          color: tokens.colors.dangerFg,
+          color: vars.dangerFg,
         ),
       ),
     );

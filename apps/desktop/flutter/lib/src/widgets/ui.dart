@@ -8,20 +8,24 @@
 /// import '../../widgets/ui.dart' show Button, ButtonVariant;
 /// ```
 ///
-/// The package holds primitives only — the same boundary React draws around
-/// `@beyondtranslate/ui`. The product's own widgets that compose them sit beside
-/// this file (`swap_pair.dart`, `blocks.dart`, `list_tile.dart`, …) and are
+/// The package is vendored from <https://github.com/fastforgedev/ui> by
+/// `scripts/sync_ui.py` and is not edited here. It holds primitives only: no
+/// translation, provider, glossary or language-pair concept reaches it, and it
+/// draws no window. The product's own widgets sit beside this file — the
+/// window chrome (`window_chrome.dart`), the resizable navigation columns
+/// (`nav_columns.dart`), the shortcut recorder, the toast viewport — and are
 /// imported directly, not through here.
 ///
-/// Several of the exported names (`Divider`, `Radio`, `Switch`, `Dialog`,
-/// `Badge`, `Checkbox`) collide with Material's. When a file shows one of those
-/// and also imports Material, hide Material's — for example
+/// Several exported names (`Card`, `Checkbox`, `Dialog`, `Divider`, `Radio`,
+/// `Switch`, `Table`, `TextField`, `Theme`) collide with Flutter's own. A file
+/// that shows one of those and also imports Material or Widgets must hide
+/// Flutter's — for example
 /// `import 'package:flutter/material.dart' hide Divider;`.
 ///
-/// Reaching for `context.colors` / `context.tokens` / `context.typography`
-/// means showing the extension that carries them, `DesignThemeContext`; the
-/// type recipes (`sansStyle`, `labelStyle`, …) come from
-/// `DesignTypographyStyles`.
+/// Reaching for `context.vars` means showing the extension that carries it,
+/// `ThemeDataBuildContextProps`. The product's own colours and type recipes
+/// layer on top of `ThemeVariables` and come from `../theme/product_tokens.dart`
+/// (`ProductPalette`, `ProductTypography`).
 library;
 
 export 'package:beyondtranslate_ui/beyondtranslate_ui.dart';

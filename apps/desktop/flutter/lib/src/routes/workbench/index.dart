@@ -9,17 +9,17 @@ import '../../features.dart';
 import '../../i18n/i18n.dart';
 import '../../services/app_windows.dart'
     show hideWorkbenchWindow, workbenchWindowController;
+import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../utils/platform_util.dart';
 import '../../utils/utils.dart';
 import '../../widgets/navigation_item.dart';
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
-        DesignThemeContext,
-        DesignTypographyStyles,
         SidebarCard,
-        SidebarGroup;
+        SidebarGroup,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 import '../../widgets/workbench.dart';
 import '../settings/about.dart';
 import '../settings/advanced.dart';
@@ -173,37 +173,33 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
         windowActions: _windowActions,
         sidebarFooter: const _SidebarVersion(),
         sidebar: [
-          SidebarGroup(
-            first: true,
-            label: Text(t.workbench.workspace),
-            children: [
+          SidebarGroup(label: t.workbench.workspace, children: [
+            NavigationItem(
+              label: t.workbench.translate,
+              icon: FluentIcons.translate_20_regular,
+              selected: _selected('/translate'),
+              onTap: () => context.go('/translate'),
+            ),
+            if (kGlossaryFeatureEnabled)
               NavigationItem(
-                label: t.workbench.translate,
-                icon: FluentIcons.translate_20_regular,
-                selected: _selected('/translate'),
-                onTap: () => context.go('/translate'),
+                label: t.workbench.glossary,
+                icon: FluentIcons.book_20_regular,
+                selected: _selected('/glossary'),
+                onTap: () => context.go('/glossary'),
               ),
-              if (kGlossaryFeatureEnabled)
-                NavigationItem(
-                  label: t.workbench.glossary,
-                  icon: FluentIcons.book_20_regular,
-                  selected: _selected('/glossary'),
-                  onTap: () => context.go('/glossary'),
-                ),
-              NavigationItem(
-                label: t.workbench.history,
-                icon: FluentIcons.history_20_regular,
-                selected: _selected('/history'),
-                onTap: () => context.go('/history'),
-              ),
-              NavigationItem(
-                label: t.settings.layout.title,
-                icon: FluentIcons.settings_20_regular,
-                selected: _selected('/settings'),
-                onTap: () => context.go('/settings/general'),
-              ),
-            ],
-          ),
+            NavigationItem(
+              label: t.workbench.history,
+              icon: FluentIcons.history_20_regular,
+              selected: _selected('/history'),
+              onTap: () => context.go('/history'),
+            ),
+            NavigationItem(
+              label: t.settings.layout.title,
+              icon: FluentIcons.settings_20_regular,
+              selected: _selected('/settings'),
+              onTap: () => context.go('/settings/general'),
+            ),
+          ]),
         ],
         child: widget.child,
       ),
@@ -242,29 +238,27 @@ class _SidebarVersionState extends State<_SidebarVersion> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     // No 版本 label: the number carries the line on its own, and the three
     // lines are then one fact, one status and one control.
     return SidebarCard(
-      gap: 6,
       children: [
         Text(
           sharedEnv.appVersion,
-          style: tokens.typography.sansStyle(
+          style: vars.sansStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             height: 1,
-            color: colors.fg,
+            color: vars.colorContent,
           ),
         ),
         Text(
           _checking ? t.workbench.version_checking : t.workbench.version_latest,
-          style: tokens.typography.sansStyle(
+          style: vars.sansStyle(
             fontSize: 11,
             height: 1,
-            color: colors.fgSubtle,
+            color: vars.colorContentSubtle,
           ),
           // The ellipsis in 正在检查… comes from a fallback face whose metrics
           // differ from the sans; the strut keeps the line the same height in
@@ -280,12 +274,10 @@ class _SidebarVersionState extends State<_SidebarVersion> {
         Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Button(
-            size: ButtonSize.xs,
-            fullWidth: true,
-            enabled: !_checking,
-            onPressed: _check,
-            child: Text(t.workbench.check_updates),
-          ),
+              size: WidgetSize.tiny,
+              expand: true,
+              onPressed: !_checking ? _check : null,
+              child: Text(t.workbench.check_updates)),
         ),
       ],
     );

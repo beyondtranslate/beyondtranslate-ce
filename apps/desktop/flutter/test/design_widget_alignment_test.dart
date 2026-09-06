@@ -1,18 +1,23 @@
 import 'package:beyondtranslate_desktop/src/routes/mini_translator/limited_functionality_banner.dart';
+import 'package:beyondtranslate_desktop/src/theme/app_theme.dart'
+    show AppThemeProvider;
 import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
 import 'package:beyondtranslate_desktop/src/widgets/icon_action_button.dart';
 import 'package:beyondtranslate_desktop/src/widgets/language_selector.dart';
+import 'package:beyondtranslate_desktop/src/widgets/nav_columns.dart'
+    show Sidebar;
 import 'package:beyondtranslate_desktop/src/widgets/navigation_item.dart';
 import 'package:beyondtranslate_desktop/src/widgets/swap_pair.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart';
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
+    show Aside, Callout, NavItem, SidebarCard;
 import 'package:beyondtranslate_desktop/src/widgets/workbench.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart' hide IconButton;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   Widget specimen(Widget child) {
-    return DesignThemeProvider(
+    return AppThemeProvider(
       child: MaterialApp(
         home: Scaffold(body: SizedBox(width: 840, height: 560, child: child)),
       ),
@@ -107,9 +112,7 @@ void main() {
     expect(find.byIcon(FluentIcons.arrow_swap_20_regular), findsOneWidget);
   });
 
-  testWidgets('aside gives its trailing SidebarCard the remaining space', (
-    tester,
-  ) async {
+  testWidgets('aside stacks its cards from the top', (tester) async {
     await tester.pumpWidget(
       specimen(
         const Align(
@@ -128,7 +131,14 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    expect(tester.getBottomRight(find.byType(SidebarCard)).dy, 282);
+    // The kit's aside is a scrolling column: cards take their own height and
+    // stack from the top, rather than the last one stretching to the foot.
+    // 16 of padding, the 20 spacer, then the column's own 20 gap.
+    expect(tester.getTopLeft(find.byType(SidebarCard)).dy, 56);
+    expect(
+      tester.getBottomRight(find.byType(SidebarCard)).dy,
+      lessThan(300),
+    );
   });
 
   testWidgets('the highlight rule fences the block on the requested edge', (
@@ -234,8 +244,8 @@ void main() {
     expect(banner.bottom - callout.bottom, 8);
     expect(callout.top - banner.top, 0);
 
-    // The inset React sets on this Callout — tighter than the component's
-    // own 14/12, which is a lot of air at 396px.
+    // The kit's small density — tighter than the medium 16/12, which is a lot
+    // of air at 396px.
     final box = tester.widget<Container>(
       find
           .descendant(
@@ -244,7 +254,7 @@ void main() {
     );
     expect(
       box.padding,
-      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   });
 }

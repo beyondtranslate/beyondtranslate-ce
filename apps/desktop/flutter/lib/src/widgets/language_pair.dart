@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'swap_pair.dart' show SwapPair;
-import 'ui.dart' show Badge, BadgeSize, BadgeTone;
+import 'ui.dart' show Badge, BadgeTint, WidgetSize;
 
 /// The language capsule that anchors a translation view, with a badge naming
 /// how the source was chosen.
@@ -24,7 +24,8 @@ class LanguagePair extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Badge(tone: BadgeTone.accent, size: BadgeSize.xs, child: Text(note)),
+        Badge(
+            tint: BadgeTint.primary, size: WidgetSize.tiny, child: Text(note)),
         const SizedBox(width: 12),
         SwapPair(start: source, end: target, onSwap: onSwap),
       ],

@@ -1,18 +1,13 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide RadioGroup;
 
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Input,
-        Pressable,
-        Radio,
-        Switch;
+    show Pressable, Radio, Switch, TextField, ThemeDataBuildContextProps;
 
 class PreferenceListItem extends StatelessWidget {
   const PreferenceListItem({
-    Key? key,
+    super.key,
     this.padding,
     this.icon,
     this.title,
@@ -22,7 +17,7 @@ class PreferenceListItem extends StatelessWidget {
     this.bottomView,
     this.disabled = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   final EdgeInsets? padding;
   final Widget? icon;
@@ -34,7 +29,7 @@ class PreferenceListItem extends StatelessWidget {
   final bool disabled;
   final VoidCallback? onTap;
 
-  _onTap() {
+  void _onTap() {
     onTap?.call();
   }
 
@@ -42,12 +37,12 @@ class PreferenceListItem extends StatelessWidget {
 
   Widget buildDetailText(BuildContext context) {
     if (detailText == null) return const SizedBox.shrink();
-    final tokens = context.tokens;
+    final vars = context.vars;
     return DefaultTextStyle(
-      style: tokens.typography.sansStyle(
+      style: vars.sansStyle(
         fontSize: 12,
         height: 1,
-        color: tokens.colors.fgTertiary,
+        color: vars.colorContentMuted,
       ),
       child: detailText!,
     );
@@ -60,7 +55,7 @@ class PreferenceListItem extends StatelessWidget {
       return Icon(
         FluentIcons.chevron_right_20_regular,
         size: 16,
-        color: context.colors.fgFaint,
+        color: context.vars.colorContentFaint,
       );
     }
     return const SizedBox.shrink();
@@ -72,24 +67,23 @@ class PreferenceListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final enabled = !disabled && isInteractive;
 
     // The deck's flat rows: plain-label rows read like its ShortcutRow
     // (secondary, regular), rows with a summary like its privacy toggles
     // (bold title over a subtle sub-line). No card, no hover wash.
     final titleStyle = summary == null
-        ? tokens.typography.sansStyle(
+        ? vars.sansStyle(
             fontSize: 12,
             height: 1,
-            color: colors.fgSecondary,
+            color: vars.colorContentSecondary,
           )
-        : tokens.typography.sansStyle(
+        : vars.sansStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             height: 1,
-            color: colors.fg,
+            color: vars.colorContent,
           );
 
     return Pressable(
@@ -97,7 +91,7 @@ class PreferenceListItem extends StatelessWidget {
       onPressed: enabled ? _onTap : null,
       isButton: false,
       showFocusRing: false,
-      builder: (context, state) => Column(
+      builder: (context, states) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
@@ -109,7 +103,7 @@ class PreferenceListItem extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 10),
                     child: IconTheme(
-                      data: IconThemeData(color: colors.accent, size: 17),
+                      data: IconThemeData(color: vars.accent, size: 17),
                       child: icon!,
                     ),
                   ),
@@ -126,10 +120,10 @@ class PreferenceListItem extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(top: 4),
                             child: DefaultTextStyle(
-                              style: tokens.typography.sansStyle(
+                              style: vars.sansStyle(
                                 fontSize: 11,
                                 height: 1.4,
-                                color: colors.fgSubtle,
+                                color: vars.colorContentSubtle,
                               ),
                               child: summary!,
                             ),
@@ -152,27 +146,18 @@ class PreferenceListItem extends StatelessWidget {
 
 class PreferenceListRadioItem<T> extends PreferenceListItem {
   const PreferenceListRadioItem({
-    Key? key,
-    EdgeInsets? padding,
-    Widget? icon,
-    Widget? title,
-    Widget? summary,
-    Widget? detailText,
-    Widget? accessoryView,
-    VoidCallback? onTap,
+    super.key,
+    super.padding,
+    super.icon,
+    super.title,
+    super.summary,
+    super.detailText,
+    super.accessoryView,
+    super.onTap,
     required this.value,
     required this.groupValue,
     required this.onChanged,
-  }) : super(
-          key: key,
-          padding: padding,
-          icon: icon,
-          title: title,
-          summary: summary,
-          detailText: detailText,
-          accessoryView: accessoryView,
-          onTap: onTap,
-        );
+  });
   final T value;
   final T groupValue;
   final ValueChanged<T> onChanged;
@@ -193,37 +178,28 @@ class PreferenceListRadioItem<T> extends PreferenceListItem {
   Widget build(BuildContext context) {
     return Padding(
       padding: padding ?? const EdgeInsets.symmetric(vertical: 5),
-      child: Radio(
-        checked: value == groupValue,
-        onSelect: _onTap,
-        child: title ?? const SizedBox.shrink(),
-      ),
+      child: Radio<Object?>(
+          value: value,
+          groupValue: groupValue,
+          onChanged: (_) => _onTap(),
+          label: title ?? const SizedBox.shrink()),
     );
   }
 }
 
 class PreferenceListSwitchItem extends PreferenceListItem {
   const PreferenceListSwitchItem({
-    Key? key,
-    Widget? icon,
-    Widget? title,
-    Widget? summary,
-    Widget? detailText,
-    Widget? accessoryView,
-    bool disabled = false,
-    VoidCallback? onTap,
+    super.key,
+    super.icon,
+    super.title,
+    super.summary,
+    super.detailText,
+    super.accessoryView,
+    super.disabled,
+    super.onTap,
     required this.value,
     required this.onChanged,
-  }) : super(
-          key: key,
-          icon: icon,
-          title: title,
-          summary: summary,
-          detailText: detailText,
-          accessoryView: accessoryView,
-          disabled: disabled,
-          onTap: onTap,
-        );
+  });
   final bool value;
   final ValueChanged<bool> onChanged;
 
@@ -241,34 +217,27 @@ class PreferenceListSwitchItem extends PreferenceListItem {
   @override
   Widget buildAccessoryView(BuildContext context) {
     return Switch(
-      checked: value,
-      enabled: !disabled,
-      onChanged: (next) => onTap == null ? onChanged(next) : _onTap(),
-    );
+        value: value,
+        onChanged: !disabled
+            ? (next) => onTap == null ? onChanged(next) : _onTap()
+            : null);
   }
 }
 
 class PreferenceListTextFieldItem extends PreferenceListItem {
   const PreferenceListTextFieldItem({
-    Key? key,
-    Widget? icon,
-    Widget? title,
-    Widget? summary,
-    Widget? accessoryView,
-    VoidCallback? onTap,
+    super.key,
+    super.icon,
+    super.title,
+    super.summary,
+    super.accessoryView,
+    super.onTap,
     this.controller,
     this.placeholder,
     this.onChanged,
     this.onEditingComplete,
     this.onSubmitted,
-  }) : super(
-          key: key,
-          icon: icon,
-          title: title,
-          summary: summary,
-          accessoryView: accessoryView,
-          onTap: onTap,
-        );
+  });
   final TextEditingController? controller;
   final String? placeholder;
   final ValueChanged<String>? onChanged;
@@ -281,15 +250,14 @@ class PreferenceListTextFieldItem extends PreferenceListItem {
   @override
   Widget buildDetailText(BuildContext context) {
     return Expanded(
-      child: Input(
-        controller: controller,
-        placeholder: placeholder,
-        onChanged: onChanged,
-        onSubmitted: (value) {
-          onEditingComplete?.call();
-          onSubmitted?.call(value);
-        },
-      ),
+      child: TextField(
+          controller: controller,
+          placeholder: placeholder,
+          onChanged: onChanged,
+          onSubmitted: (value) {
+            onEditingComplete?.call();
+            onSubmitted?.call(value);
+          }),
     );
   }
 }

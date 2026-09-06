@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide FormField, TextField;
 import 'package:go_router/go_router.dart';
 
 import '../../services/runtime.dart';
 import '../../utils/platform_util.dart';
 import '../../widgets/custom_app_bar/custom_app_bar.dart';
 import '../../widgets/ui.dart'
-    show Button, ButtonVariant, Field, Input, Spinner, SpinnerSize, TextArea;
+    show Button, ButtonVariant, FormField, Spinner, TextField, WidgetSize;
 
 List<RouteBase> get $appRoutes => <RouteBase>[
       GoRoute(
@@ -249,37 +249,30 @@ class _RuntimeDebugPageState extends State<RuntimeDebugPage> {
           const SizedBox(height: 20),
           Text('Request', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
-          Field(
-            label: const Text('Source language (optional)'),
-            child: Input(controller: _sourceLanguageController),
-          ),
+          FormField(
+              label: 'Source language (optional)',
+              child: TextField(controller: _sourceLanguageController)),
           const SizedBox(height: 14),
-          Field(
-            label: const Text('Target language'),
-            child: Input(controller: _targetLanguageController),
-          ),
+          FormField(
+              label: 'Target language',
+              child: TextField(controller: _targetLanguageController)),
           const SizedBox(height: 14),
-          Field(
-            label: const Text('Text'),
-            child: TextArea(
-              controller: _textController,
-              minLines: 4,
-              maxLines: 8,
-            ),
-          ),
+          FormField(
+              label: 'Text',
+              child: TextField(
+                  controller: _textController, minLines: 4, maxLines: 8)),
           const SizedBox(height: 20),
           Row(
             children: [
               Button(
-                variant: ButtonVariant.primary,
-                onPressed:
-                    _submitting || _loadingProviders || _providerId == null
-                        ? null
-                        : _submit,
-                child: _submitting
-                    ? const Spinner(size: SpinnerSize.sm, onAccent: true)
-                    : const Text('Translate with Rust runtime'),
-              ),
+                  variant: ButtonVariant.filled,
+                  onPressed:
+                      _submitting || _loadingProviders || _providerId == null
+                          ? null
+                          : _submit,
+                  child: _submitting
+                      ? const Spinner(size: WidgetSize.small, onAccent: true)
+                      : const Text('Translate with Rust runtime')),
             ],
           ),
           const SizedBox(height: 24),

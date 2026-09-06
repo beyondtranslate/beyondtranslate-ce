@@ -5,12 +5,15 @@ import 'package:beyondtranslate_desktop/src/routes/mini_translator/translation_i
 import 'package:beyondtranslate_desktop/src/routes/mini_translator/translation_results_view.dart';
 import 'package:beyondtranslate_desktop/src/services/runtime.dart'
     show TranslationError;
+import 'package:beyondtranslate_desktop/src/theme/app_theme.dart'
+    show AppThemeProvider;
 import 'package:beyondtranslate_desktop/src/utils/language_util.dart';
 import 'package:beyondtranslate_desktop/src/utils/shortcut_util.dart';
 import 'package:beyondtranslate_desktop/src/widgets/blocks.dart';
 import 'package:beyondtranslate_desktop/src/widgets/candidate_row.dart';
 import 'package:beyondtranslate_desktop/src/widgets/missing_language.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart';
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
+    show Button, IconButton;
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/material.dart' hide IconButton;
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// a hairline, each with its own 对比 list and its own 复制.
 void main() {
   Widget specimen(Widget child, {double width = 460}) {
-    return DesignThemeProvider(
+    return AppThemeProvider(
       child: MaterialApp(
         home: Scaffold(
           body: Align(
@@ -73,10 +76,7 @@ void main() {
             metaControls: true,
             label: const Text('译文  简体中文'),
             meta: IconButton(
-              label: '复制译文',
-              icon: const Icon(Icons.copy),
-              onPressed: () {},
-            ),
+                semanticsLabel: '复制译文', icon: Icons.copy, onPressed: () {}),
             actions: Row(
               children: [
                 Button(onPressed: () {}, child: const Text('收藏')),

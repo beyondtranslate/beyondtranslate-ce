@@ -5,17 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../i18n/i18n.dart';
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../utils/env.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
     show
         Button,
         ButtonVariant,
-        DesignThemeContext,
-        DesignTypographyStyles,
         PreferenceRow,
         PreferenceSection,
-        Pressable;
+        Pressable,
+        ThemeDataBuildContextProps;
 
 /// 关于 — the one settings page you read rather than change, which is why it
 /// sits in its own run of the rail. Three blocks: what this build is, whether
@@ -69,8 +69,7 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final about = t.settings.about;
     final checking = _state == _UpdateState.checking;
 
@@ -86,83 +85,70 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
             children: [
               Text(
                 'Beyond Translate',
-                style: tokens.typography.displayStyle(
+                style: vars.displayStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   height: 1,
-                  color: colors.fg,
+                  color: vars.colorContent,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
                 _versionLabel,
-                style: tokens.typography.monoStyle(
+                style: vars.monoStyle(
                   fontSize: 11,
                   height: 1,
-                  color: colors.fgSubtle,
+                  color: vars.colorContentSubtle,
                 ),
               ),
               const SizedBox(height: 8),
               Button(
-                variant: ButtonVariant.quiet,
-                onPressed: _copyVersion,
-                child: Text(
-                  _copied
-                      ? t.common.ui.feedback.copied
-                      : about.copy_version_info,
-                ),
-              ),
+                  variant: ButtonVariant.plain,
+                  onPressed: _copyVersion,
+                  child: Text(
+                    _copied
+                        ? t.common.ui.feedback.copied
+                        : about.copy_version_info,
+                  )),
             ],
           ),
         ),
         const SettingsSectionDivider(),
-        PreferenceSection(
-          label: Text(about.title),
-          children: [
-            // The row is named for the thing, the button for the act —
-            // repeating 检查更新 on both sides would read as a label and its
-            // echo.
-            PreferenceRow(
-              title: Text(t.workbench.check_updates),
-              subtitle: Text(
-                checking ? t.workbench.version_checking : about.up_to_date,
-              ),
-              trailing: [
-                Button(
-                  variant: ButtonVariant.secondary,
-                  enabled: !checking,
-                  onPressed: _checkForUpdates,
+        PreferenceSection(label: about.title, children: [
+          // The row is named for the thing, the button for the act —
+          // repeating 检查更新 on both sides would read as a label and its
+          // echo.
+          PreferenceRow(
+              title: t.workbench.check_updates,
+              subtitle:
+                  checking ? t.workbench.version_checking : about.up_to_date,
+              trailing: Button(
+                  variant: ButtonVariant.normal,
+                  onPressed: !checking ? _checkForUpdates : null,
                   child: Text(
                     checking ? t.workbench.version_checking : about.check_again,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                  ))),
+        ]),
         const SettingsSectionDivider(),
-        PreferenceSection(
-          label: Text(about.links),
-          children: [
-            _ExternalRow(
-              title: about.open_changelog,
-              url: '${Env.instance.webUrl}/changelog',
-            ),
-            _ExternalRow(title: about.website, url: Env.instance.webUrl),
-            _ExternalRow(
-              title: about.github,
-              url: 'https://github.com/beyondtranslate/beyondtranslate',
-            ),
-            _ExternalRow(
-              title: about.report_issue,
-              url: 'https://github.com/beyondtranslate/beyondtranslate/issues',
-            ),
-            _ExternalRow(
-              title: about.license,
-              url: '${Env.instance.webUrl}/license',
-            ),
-          ],
-        ),
+        PreferenceSection(label: about.links, children: [
+          _ExternalRow(
+            title: about.open_changelog,
+            url: '${Env.instance.webUrl}/changelog',
+          ),
+          _ExternalRow(title: about.website, url: Env.instance.webUrl),
+          _ExternalRow(
+            title: about.github,
+            url: 'https://github.com/beyondtranslate/beyondtranslate',
+          ),
+          _ExternalRow(
+            title: about.report_issue,
+            url: 'https://github.com/beyondtranslate/beyondtranslate/issues',
+          ),
+          _ExternalRow(
+            title: about.license,
+            url: '${Env.instance.webUrl}/license',
+          ),
+        ]),
       ],
     );
   }
@@ -177,29 +163,31 @@ class _ExternalRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Pressable(
       onPressed: () => openExternalUrl(url),
       semanticsLabel: title,
-      builder: (context, state) => ConstrainedBox(
+      builder: (context, states) => ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 28),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 title,
-                style: tokens.typography.sansStyle(
+                style: vars.sansStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1,
-                  color: state.hovered ? colors.accentText : colors.fg,
+                  color: states.contains(WidgetState.hovered)
+                      ? vars.accentText
+                      : vars.colorContent,
                 ),
               ),
             ),
             const SizedBox(width: 16),
-            Icon(FluentIcons.open_20_regular, size: 13, color: colors.fgFaint),
+            Icon(FluentIcons.open_20_regular,
+                size: 13, color: vars.colorContentFaint),
           ],
         ),
       ),

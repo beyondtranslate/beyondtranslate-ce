@@ -1,12 +1,8 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Pressable,
-        kTransitionDuration;
+import '../theme/product_tokens.dart' show ProductTypography;
+import 'ui.dart' show Pressable, ThemeDataBuildContextProps;
 
 enum SwapPairSize { sm, md }
 
@@ -61,18 +57,17 @@ class SwapPair extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final swapBox = size == SwapPairSize.md ? 20.0 : 18.0;
-    final swapRadius = BorderRadius.circular(tokens.radii.chip);
+    final swapRadius = BorderRadius.circular(vars.radiusTiny);
 
     return Container(
       // The trigger chip carries its own leading inset, so the capsule gives
       // back the difference when the start end is one.
       padding: EdgeInsets.fromLTRB(onStartPressed == null ? 11 : 6, 5, 6, 5),
       decoration: BoxDecoration(
-        color: colors.control,
-        borderRadius: BorderRadius.circular(tokens.radii.control),
+        color: vars.colorSurfaceInset,
+        borderRadius: BorderRadius.circular(vars.radiusMedium),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -88,21 +83,23 @@ class SwapPair extends StatelessWidget {
             onPressed: onSwap,
             borderRadius: swapRadius,
             semanticsLabel: swapSemanticsLabel,
-            builder: (context, state) => AnimatedContainer(
-              duration: kTransitionDuration,
+            builder: (context, states) => AnimatedContainer(
+              duration: context.vars.motionDuration,
               width: swapBox,
               height: swapBox,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: colors.window,
+                color: vars.colorSurface,
                 borderRadius: swapRadius,
               ),
               child: IconTheme(
                 data: IconThemeData(
                   size: 12,
                   color: onSwap == null
-                      ? colors.fgFaint
-                      : (state.hovered ? colors.fg : colors.fgTertiary),
+                      ? vars.colorContentFaint
+                      : (states.contains(WidgetState.hovered)
+                          ? vars.colorContent
+                          : vars.colorContentMuted),
                 ),
                 child: const Icon(FluentIcons.arrow_swap_20_regular),
               ),
@@ -141,21 +138,20 @@ class _SwapPairSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     final style = cjk
-        ? tokens.typography.cjkStyle(
+        ? vars.cjkStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             height: 1,
-            color: colors.fg,
+            color: vars.colorContent,
           )
-        : tokens.typography.sansStyle(
+        : vars.sansStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             height: 1,
-            color: colors.fg,
+            color: vars.colorContent,
           );
 
     if (onPressed == null) {
@@ -167,16 +163,18 @@ class _SwapPairSide extends StatelessWidget {
       );
     }
 
-    final radius = BorderRadius.circular(tokens.radii.chip);
+    final radius = BorderRadius.circular(vars.radiusTiny);
     return Pressable(
       onPressed: onPressed,
       borderRadius: radius,
       semanticsLabel: label,
-      builder: (context, state) => AnimatedContainer(
-        duration: kTransitionDuration,
+      builder: (context, states) => AnimatedContainer(
+        duration: context.vars.motionDuration,
         padding: const EdgeInsets.fromLTRB(6, 4, 4, 4),
         decoration: BoxDecoration(
-          color: open || state.hovered ? colors.window : null,
+          color: open || states.contains(WidgetState.hovered)
+              ? vars.colorSurface
+              : null,
           borderRadius: radius,
         ),
         child: Row(
@@ -185,7 +183,7 @@ class _SwapPairSide extends StatelessWidget {
             Text(label, style: style),
             const SizedBox(width: 4),
             IconTheme(
-              data: IconThemeData(size: 9, color: colors.fgTertiary),
+              data: IconThemeData(size: 9, color: vars.colorContentMuted),
               child: const Icon(FluentIcons.chevron_down_20_regular),
             ),
           ],

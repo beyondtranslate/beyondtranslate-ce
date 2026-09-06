@@ -1,13 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 import '../i18n/i18n.dart';
-import 'ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        HoverRegion,
-        Pressable,
-        kTransitionDuration;
+import '../theme/product_tokens.dart' show ProductPalette, ProductTypography;
+import 'ui.dart' show HoverRegion, Pressable, ThemeDataBuildContextProps;
 
 /// The collapsed row's budget. A record can be a whole abstract, and a list
 /// whose rows are a screen tall has stopped being a list — so at rest the row
@@ -78,7 +73,7 @@ class ListCard extends StatelessWidget {
             top: 9,
             end: 16,
             child: AnimatedOpacity(
-              duration: kTransitionDuration,
+              duration: context.vars.motionDuration,
               opacity: hovered ? 1 : 0,
               child: IgnorePointer(
                 ignoring: !hovered,
@@ -123,34 +118,35 @@ class ListCard extends StatelessWidget {
   }
 
   Widget _buildRow(BuildContext context, {required bool showActions}) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
-    final primaryStyle = tokens.typography.sansStyle(
+    final primaryStyle = vars.sansStyle(
       fontSize: 12,
       height: 1.7,
-      color: colors.fgMuted,
+      color: vars.colorContentMuted,
     );
-    final secondaryStyle = tokens.typography.cjkStyle(
+    final secondaryStyle = vars.cjkStyle(
       fontSize: 15,
       height: 1.85,
-      color: colors.fg,
+      color: vars.colorContent,
     );
 
     return Pressable(
       onPressed: onPressed,
       selected: active,
       isButton: false,
-      builder: (context, state) => AnimatedContainer(
-        duration: kTransitionDuration,
+      builder: (context, states) => AnimatedContainer(
+        duration: context.vars.motionDuration,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         decoration: BoxDecoration(
           color: active
-              ? colors.accentSurface
-              : (state.hovered ? colors.subtle : null),
+              ? vars.accentSurface
+              : (states.contains(WidgetState.hovered)
+                  ? vars.colorSurfaceSubtle
+                  : null),
           border: Border(
             bottom: BorderSide(
-              color: colors.hairlineSoft,
+              color: vars.colorBorder,
               width: context.hairlineWidth,
             ),
           ),
@@ -174,8 +170,9 @@ class ListCard extends StatelessWidget {
                 Row(
                   children: [
                     DefaultTextStyle(
-                      style: tokens.typography.labelStyle(
-                        color: active ? colors.accentText : colors.fgSubtle,
+                      style: vars.labelStyle(
+                        color:
+                            active ? vars.accentText : vars.colorContentSubtle,
                       ),
                       child: eyebrow,
                     ),
@@ -183,9 +180,11 @@ class ListCard extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: DefaultTextStyle(
-                          style: tokens.typography.sansStyle(
+                          style: vars.sansStyle(
                             fontSize: 11,
-                            color: active ? colors.fgSubtle : colors.fgFaint,
+                            color: active
+                                ? vars.colorContentSubtle
+                                : vars.colorContentFaint,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -198,14 +197,14 @@ class ListCard extends StatelessWidget {
                       // The actions land where the flag sits; the flag steps
                       // aside rather than sharing the corner with two buttons.
                       AnimatedOpacity(
-                        duration: kTransitionDuration,
+                        duration: context.vars.motionDuration,
                         opacity: showActions ? 0 : 1,
                         child: DefaultTextStyle(
-                          style: tokens.typography.sansStyle(
+                          style: vars.sansStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             height: 1,
-                            color: colors.accentText,
+                            color: vars.accentText,
                           ),
                           softWrap: false,
                           child: flag!,
@@ -236,8 +235,8 @@ class ListCard extends StatelessWidget {
                     expanded
                         ? t.workbench.history_page.collapse
                         : t.workbench.history_page.expand,
-                    style: tokens.typography.labelStyle(
-                      color: active ? colors.accentText : colors.fgFaint,
+                    style: vars.labelStyle(
+                      color: active ? vars.accentText : vars.colorContentFaint,
                     ),
                   ),
                 ],

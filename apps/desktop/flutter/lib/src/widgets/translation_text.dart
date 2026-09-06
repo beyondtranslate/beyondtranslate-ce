@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart' show SelectableText;
 import 'package:flutter/widgets.dart';
 
+import '../theme/product_tokens.dart' show ProductPalette;
 import 'native_text.dart';
-import 'ui.dart' show DesignThemeContext;
+import 'ui.dart' show ThemeDataBuildContextProps;
 
 /// The selection sits behind the glyphs, so it reads as the accent without
 /// taking the text with it.
@@ -48,8 +49,8 @@ class TranslationText extends StatelessWidget {
   Widget build(BuildContext context) {
     // Neither AppKit nor Flutter reaches for the app's theme on its own: one
     // falls back to the system accent, the other to Material's.
-    final tokens = context.tokens;
-    final selectionColor = tokens.colors.accent.withValues(
+    final vars = context.vars;
+    final selectionColor = vars.accent.withValues(
       alpha: _kSelectionOpacity,
     );
 
@@ -63,7 +64,7 @@ class TranslationText extends StatelessWidget {
         textAlign: textAlign,
         padding: padding,
         selectionColor: selectionColor,
-        brightness: tokens.brightness,
+        brightness: context.themeData.brightness,
         onTap: onTap,
         onDoubleTap: onDoubleTap,
       );

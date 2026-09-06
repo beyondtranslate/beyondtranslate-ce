@@ -2,14 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
+import '../theme/product_tokens.dart'
+    show ProductPalette, ProductTokens, ProductTypography;
 import 'ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Pressable,
-        Spinner,
-        SpinnerSize,
-        kTransitionDuration;
+    show Pressable, Spinner, ThemeDataBuildContextProps, WidgetSize;
 
 enum FloatingBallState {
   /// Outline mark — the page has not been translated yet.
@@ -61,21 +57,20 @@ class FloatingBall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     if (state == FloatingBallState.expanded) {
-      final radius = BorderRadius.circular(tokens.radii.pill);
+      final radius = BorderRadius.circular(vars.radiusFull);
       return Container(
         padding: const EdgeInsets.fromLTRB(3, 3, 8, 3),
         decoration: BoxDecoration(
-          color: colors.window,
+          color: vars.colorSurface,
           borderRadius: radius,
           border: Border.all(
-            color: colors.hairlineStrong,
+            color: vars.colorBorderStrong,
             width: context.hairlineWidth,
           ),
-          boxShadow: tokens.shadows.lift,
+          boxShadow: vars.shadowSm,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -89,16 +84,16 @@ class FloatingBall extends StatelessWidget {
                 height: 32,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: colors.accent,
+                  color: vars.accent,
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   glyph,
-                  style: tokens.typography.displayStyle(
+                  style: vars.displayStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     height: 1,
-                    color: colors.onAccent,
+                    color: vars.colorOnAccent,
                   ),
                 ),
               ),
@@ -124,41 +119,41 @@ class FloatingBall extends StatelessWidget {
           height: 42,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            boxShadow: tokens.shadows.ball,
+            boxShadow: ProductTokens.ballShadow,
           ),
           child: clamped == null
               ? Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: colors.window,
+                    color: vars.colorSurface,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: colors.hairlineStrong,
+                      color: vars.colorBorderStrong,
                       width: context.hairlineWidth,
                     ),
                   ),
-                  child: const Spinner(size: SpinnerSize.lg),
+                  child: const Spinner(size: WidgetSize.large),
                 )
               : CustomPaint(
                   painter: _ProgressRingPainter(
                     progress: clamped / 100,
-                    ring: colors.accent,
-                    track: colors.accentSurface,
+                    ring: vars.accent,
+                    track: vars.accentSurface,
                   ),
                   child: Container(
                     margin: const EdgeInsets.all(3),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: colors.window,
+                      color: vars.colorSurface,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
                       '${clamped.round()}%',
-                      style: tokens.typography.displayStyle(
+                      style: vars.displayStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         height: 1,
-                        color: colors.accentText,
+                        color: vars.accentText,
                       ),
                     ),
                   ),
@@ -175,31 +170,31 @@ class FloatingBall extends StatelessWidget {
       borderRadius: BorderRadius.circular(999),
       semanticsLabel:
           semanticsLabel ?? (solid ? '已翻译 · 点击还原原文' : 'BeyondTranslate'),
-      builder: (context, pressState) => AnimatedOpacity(
-        duration: kTransitionDuration,
-        opacity: resting && !pressState.hovered ? 0.4 : 1,
+      builder: (context, states) => AnimatedOpacity(
+        duration: context.vars.motionDuration,
+        opacity: resting && !states.contains(WidgetState.hovered) ? 0.4 : 1,
         child: Container(
           width: 42,
           height: 42,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: solid ? colors.accent : colors.window,
+            color: solid ? vars.accent : vars.colorSurface,
             shape: BoxShape.circle,
             border: solid
                 ? null
                 : Border.all(
-                    color: colors.hairlineStrong,
+                    color: vars.colorBorderStrong,
                     width: context.hairlineWidth,
                   ),
-            boxShadow: solid ? tokens.shadows.ball : tokens.shadows.lift,
+            boxShadow: solid ? ProductTokens.ballShadow : vars.shadowSm,
           ),
           child: Text(
             glyph,
-            style: tokens.typography.displayStyle(
+            style: vars.displayStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               height: 1,
-              color: solid ? colors.onAccent : colors.accentText,
+              color: solid ? vars.colorOnAccent : vars.accentText,
             ),
           ),
         ),
@@ -216,22 +211,23 @@ class _CapsuleAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.chip);
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusTiny);
 
     return Pressable(
       onPressed: () {},
       borderRadius: radius,
-      builder: (context, state) => Padding(
+      builder: (context, states) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Text(
           label,
-          style: tokens.typography.sansStyle(
+          style: vars.sansStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
             height: 1,
-            color: state.hovered ? colors.accentText : colors.fgNav,
+            color: states.contains(WidgetState.hovered)
+                ? vars.accentText
+                : vars.colorContentNav,
           ),
         ),
       ),

@@ -5,7 +5,7 @@
 // macOS runs an AppKit field instead, where the same rules live in
 // `macos/Runner/Plugins/NativeTextFieldPlugin.swift`; these tests drive the
 // Flutter path, so they pin the platform away from it.
-import 'package:beyondtranslate_desktop/src/widgets/text_field.dart';
+import 'package:beyondtranslate_desktop/src/widgets/plain_text_field.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -39,7 +39,7 @@ void main() {
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.ltr,
-        child: TextField(
+        child: PlainTextField(
           controller: controller,
           autofocus: true,
           minLines: 3,

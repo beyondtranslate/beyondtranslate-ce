@@ -1,12 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Label,
-        LabelTone,
-        Pressable;
+import '../theme/product_tokens.dart' show ProductPalette, ProductTypography;
+import 'ui.dart' show Pressable, ThemeDataBuildContextProps;
 
 /// A compact title/subtitle card for a sidebar column.
 class InfoCard extends StatelessWidget {
@@ -25,38 +20,37 @@ class InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: colors.raised,
+        color: vars.colorSurfaceRaised,
         border: Border.all(
-          color: colors.hairline,
+          color: vars.colorBorder,
           width: context.hairlineWidth,
         ),
-        borderRadius: BorderRadius.circular(tokens.radii.box),
+        borderRadius: BorderRadius.circular(vars.radiusLarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           DefaultTextStyle(
-            style: tokens.typography.displayStyle(
+            style: vars.displayStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               height: 1,
-              color: colors.fg,
+              color: vars.colorContent,
             ),
             child: title,
           ),
           const SizedBox(height: 4),
           DefaultTextStyle(
-            style: tokens.typography.cjkStyle(
+            style: vars.cjkStyle(
               fontSize: 12,
               height: 1.6,
-              color: colors.fgTertiary,
+              color: vars.colorContentMuted,
             ),
             child: note == null
                 ? subtitle
@@ -66,10 +60,10 @@ class InfoCard extends StatelessWidget {
                       Flexible(child: subtitle),
                       const SizedBox(width: 4),
                       DefaultTextStyle(
-                        style: tokens.typography.cjkStyle(
+                        style: vars.cjkStyle(
                           fontSize: 12,
                           height: 1.6,
-                          color: colors.fgFaint,
+                          color: vars.colorContentFaint,
                         ),
                         child: note!,
                       ),
@@ -108,16 +102,15 @@ class DetailBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(15, 13, 15, 14),
       decoration: BoxDecoration(
-        color: colors.inset,
+        color: vars.colorSurfaceInset,
         border: Border(
           top: BorderSide(
-            color: colors.hairlineSoft,
+            color: vars.colorBorder,
             width: context.hairlineWidth,
           ),
         ),
@@ -133,38 +126,41 @@ class DetailBlock extends StatelessWidget {
               if (onTitlePressed != null)
                 Pressable(
                   onPressed: onTitlePressed,
-                  builder: (context, state) => DefaultTextStyle(
-                    style: tokens.typography
+                  builder: (context, states) => DefaultTextStyle(
+                    style: vars
                         .displayStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           height: 1,
-                          color: state.hovered ? colors.accentText : colors.fg,
+                          color: states.contains(WidgetState.hovered)
+                              ? vars.accentText
+                              : vars.colorContent,
                         )
                         .copyWith(
-                          decoration:
-                              state.hovered ? TextDecoration.underline : null,
-                          decorationColor: colors.accentText,
+                          decoration: states.contains(WidgetState.hovered)
+                              ? TextDecoration.underline
+                              : null,
+                          decorationColor: vars.accentText,
                         ),
                     child: title,
                   ),
                 )
               else
                 DefaultTextStyle(
-                  style: tokens.typography.displayStyle(
+                  style: vars.displayStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     height: 1,
-                    color: colors.fg,
+                    color: vars.colorContent,
                   ),
                   child: title,
                 ),
               if (subtitle != null) ...[
                 const SizedBox(width: 10),
                 DefaultTextStyle(
-                  style: tokens.typography.sansStyle(
+                  style: vars.sansStyle(
                     fontSize: 11,
-                    color: colors.fgSubtle,
+                    color: vars.colorContentSubtle,
                   ),
                   child: subtitle!,
                 ),
@@ -175,10 +171,10 @@ class DetailBlock extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           DefaultTextStyle(
-            style: tokens.typography.cjkStyle(
+            style: vars.cjkStyle(
               fontSize: 12,
               height: 1.75,
-              color: colors.fgTertiary,
+              color: vars.colorContentMuted,
             ),
             child: child,
           ),
@@ -198,14 +194,14 @@ class SettingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Row(
       children: [
         Expanded(
           child: DefaultTextStyle(
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 12,
-              color: tokens.colors.fgSecondary,
+              color: vars.colorContentSecondary,
             ),
             child: label,
           ),
@@ -236,8 +232,7 @@ class Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -246,7 +241,11 @@ class Stat extends StatelessWidget {
         if (label != null) ...[
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: Label(tone: LabelTone.faint, child: label!),
+            child: DefaultTextStyle(
+              style: context.vars
+                  .labelStyle(color: context.vars.colorContentFaint),
+              child: label!,
+            ),
           ),
           const SizedBox(height: 7),
         ],
@@ -255,19 +254,19 @@ class Stat extends StatelessWidget {
           textBaseline: TextBaseline.alphabetic,
           children: [
             DefaultTextStyle(
-              style: tokens.typography.numericStyle(
+              style: vars.numericStyle(
                 fontSize: 24,
                 height: 1,
-                color: colors.fg,
+                color: vars.colorContent,
               ),
               child: value,
             ),
             if (unit != null) ...[
               const SizedBox(width: 5),
               DefaultTextStyle(
-                style: tokens.typography.sansStyle(
+                style: vars.sansStyle(
                   fontSize: 11,
-                  color: colors.fgSubtle,
+                  color: vars.colorContentSubtle,
                 ),
                 child: unit!,
               ),
@@ -300,7 +299,7 @@ class SegmentGauge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final vars = context.vars;
 
     return ExcludeSemantics(
       child: Row(
@@ -312,10 +311,10 @@ class SegmentGauge extends StatelessWidget {
                 height: 4,
                 decoration: BoxDecoration(
                   color: index < filled
-                      ? colors.accent
+                      ? vars.accent
                       : (partial && index == filled
-                          ? colors.accent.withValues(alpha: 0.45)
-                          : colors.track),
+                          ? vars.accent.withValues(alpha: 0.45)
+                          : vars.colorSurfaceSunken),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

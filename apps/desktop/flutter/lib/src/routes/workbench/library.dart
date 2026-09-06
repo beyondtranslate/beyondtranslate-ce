@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart' hide Checkbox, IconButton;
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:flutter/services.dart'
+    show Clipboard, ClipboardData, LogicalKeyboardKey;
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -9,28 +10,27 @@ import '../../i18n/i18n.dart';
 import '../../services/glossary_store.dart';
 import '../../services/history_store.dart';
 import '../../services/runtime.dart';
+import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/list_card.dart' show ListCard;
 import '../../widgets/native_menu.dart'
     show NativeMenu, NativeMenuAlign, NativeMenuItem;
+import '../../widgets/nav_columns.dart' show Rail, RailItem;
 import '../../widgets/toast_host.dart' show showToast;
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
         ButtonVariant,
         Checkbox,
-        DesignThemeContext,
-        DesignTypographyStyles,
         EmptyState,
         IconButton,
-        Kbd,
-        Label,
-        Rail,
-        RailItem,
+        KeyCap,
         SearchField,
-        ToastTone,
-        WindowFooter;
+        SectionLabel,
+        ThemeDataBuildContextProps,
+        ToastTint,
+        WidgetSize;
+import '../../widgets/window_chrome.dart' show WindowFooter;
 import '../../widgets/workbench.dart' show WorkbenchToolbar;
 
 class WorkbenchLibraryPage extends StatefulWidget {
@@ -45,6 +45,10 @@ class WorkbenchLibraryPage extends StatefulWidget {
 class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   String? _activeId;
   bool _searching = false;
+
+  /// The kit's search field is controller-driven, so the query lives here and
+  /// the store is told about it on change.
+  final TextEditingController _searchController = TextEditingController();
   bool _selecting = false;
   final Set<String> _selected = {};
 
@@ -123,7 +127,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   Future<void> _copyTranslation(HistoryEntry entry) async {
     await Clipboard.setData(ClipboardData(text: entry.translation));
     if (!mounted) return;
-    showToast(context, t.workbench.translation.copied, tone: ToastTone.success);
+    showToast(context, t.workbench.translation.copied, tone: ToastTint.success);
   }
 
   Future<void> _addToGlossary(List<HistoryEntry> entries) async {
@@ -145,7 +149,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       showToast(
         context,
         t.workbench.history_page.added_to_glossary(count: saved),
-        tone: ToastTone.success,
+        tone: ToastTint.success,
       );
     }
   }
@@ -161,11 +165,10 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
           children: [
             const Spacer(),
             Button(
-              variant: ButtonVariant.ghost,
-              shortcut: const Text('⌘F'),
-              onPressed: () => setState(() => _searching = true),
-              child: Text(strings.search),
-            ),
+                variant: ButtonVariant.recessed,
+                shortcut: const Text('⌘F'),
+                onPressed: () => setState(() => _searching = true),
+                child: Text(strings.search)),
           ],
         ),
         Expanded(
@@ -214,7 +217,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   }
 
   Widget _buildStrip(BuildContext context) {
-    final colors = context.colors;
+    final vars = context.vars;
     final strings = t.workbench.history_page;
     final label = switch (_store.filter) {
       HistoryFilter.all => strings.all,
@@ -226,32 +229,35 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.hairline,
+            color: vars.colorBorder,
             width: context.hairlineWidth,
           ),
         ),
       ),
       child: _searching
-          ? SearchField(
-              autofocus: true,
-              value: _store.query,
-              onChanged: _store.setQuery,
-              placeholder: strings.search_placeholder,
-              onDismiss: () {
-                _store.setQuery('');
-                setState(() => _searching = false);
-              },
-              semanticsLabel: strings.search_label,
+          ? Semantics(
+              label: strings.search_label,
+              child: CallbackShortcuts(
+                bindings: {
+                  const SingleActivator(LogicalKeyboardKey.escape): () {
+                    _searchController.clear();
+                    _store.setQuery('');
+                    setState(() => _searching = false);
+                  },
+                },
+                child: SearchField(
+                  controller: _searchController,
+                  onChanged: _store.setQuery,
+                  placeholder: strings.search_placeholder,
+                ),
+              ),
             )
           : Row(
               children: [
-                Label(
-                  child: Text(
-                    strings.entry_count(label: label, count: _rows.length),
-                  ),
-                ),
+                SectionLabel(
+                    strings.entry_count(label: label, count: _rows.length)),
                 const Spacer(),
-                Kbd(strings.by_time),
+                KeyCap(strings.by_time),
               ],
             ),
     );
@@ -260,34 +266,27 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   Widget _buildFeed(BuildContext context) {
     final strings = t.workbench.history_page;
     if (_store.isLoading && _rows.isEmpty) {
-      return EmptyState(title: Text(strings.loading));
+      return EmptyState(title: strings.loading);
     }
     if (_store.error != null && _rows.isEmpty) {
-      return EmptyState(
-        title: Text(strings.load_failed),
-        action: Button(
-          onPressed: _store.reload,
-          child: Text(strings.retry),
-        ),
-      );
+      return EmptyState(title: strings.load_failed, actions: [
+        Button(onPressed: _store.reload, child: Text(strings.retry))
+      ]);
     }
     if (_rows.isEmpty) {
       final hasQuery = _store.query.trim().isNotEmpty;
       return EmptyState(
-        title: Text(
-          hasQuery
+          title: hasQuery
               ? strings.no_results(query: _store.query.trim())
               : strings.empty_title,
-        ),
-        action: hasQuery
-            ? Button(
-                onPressed: () => _store.setQuery(''),
-                child: Text(strings.clear_search),
-              )
-            : null,
-      );
+          actions: [
+            if (hasQuery)
+              Button(
+                  onPressed: () => _store.setQuery(''),
+                  child: Text(strings.clear_search))
+          ]);
     }
-    final colors = context.colors;
+    final vars = context.vars;
     return ListView(
       children: [
         for (final entry in _rows)
@@ -301,7 +300,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: colors.hairlineSoft,
+                              color: vars.colorBorder,
                               width: context.hairlineWidth,
                             ),
                           ),
@@ -309,10 +308,9 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
                         child: Align(
                           alignment: Alignment.topLeft,
                           child: Checkbox(
-                            checked: _selected.contains(entry.id),
-                            onChanged: (_) => _toggle(entry.id),
-                            child: const SizedBox.shrink(),
-                          ),
+                              value: _selected.contains(entry.id),
+                              onChanged: (_) => _toggle(entry.id),
+                              label: const SizedBox.shrink()),
                         ),
                       ),
                       Expanded(child: _buildRow(entry)),
@@ -329,7 +327,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   /// footer with it.
   Widget _buildFooter(BuildContext context) {
     final strings = t.workbench.history_page;
-    final tokens = context.tokens;
+    final vars = context.vars;
 
     if (_selecting) {
       final entries = _selectedEntries;
@@ -337,7 +335,7 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
         children: [
           Text(
             strings.selected_count(count: _selected.length),
-            style: tokens.typography.sansStyle(
+            style: vars.sansStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               height: 1,
@@ -345,23 +343,20 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
           ),
           if (kGlossaryFeatureEnabled)
             Button(
-              variant: ButtonVariant.quiet,
-              enabled: entries.isNotEmpty,
-              onPressed: () => _addToGlossary(entries),
-              child: Text(strings.add_to_glossary),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed:
+                    entries.isNotEmpty ? () => _addToGlossary(entries) : null,
+                child: Text(strings.add_to_glossary)),
           Button(
-            variant: ButtonVariant.quiet,
-            enabled: entries.isNotEmpty,
-            onPressed: () => _deleteEntries(entries),
-            child: Text(t.common.ui.button.delete),
-          ),
+              variant: ButtonVariant.plain,
+              onPressed:
+                  entries.isNotEmpty ? () => _deleteEntries(entries) : null,
+              child: Text(t.common.ui.button.delete)),
           const Spacer(),
           Button(
-            variant: ButtonVariant.plain,
-            onPressed: _leaveSelection,
-            child: Text(strings.exit_select),
-          ),
+              variant: ButtonVariant.plain,
+              onPressed: _leaveSelection,
+              child: Text(strings.exit_select)),
         ],
       );
     }
@@ -369,11 +364,11 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
     return WindowFooter(
       children: [
         Button(
-          variant: ButtonVariant.plain,
-          enabled: _rows.isNotEmpty,
-          onPressed: () => setState(() => _selecting = true),
-          child: Text(strings.select),
-        ),
+            variant: ButtonVariant.plain,
+            onPressed: _rows.isNotEmpty
+                ? () => setState(() => _selecting = true)
+                : null,
+            child: Text(strings.select)),
       ],
     );
   }
@@ -414,13 +409,12 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
           ? const []
           : [
               Button(
-                variant: ButtonVariant.quiet,
-                size: ButtonSize.xs,
-                onPressed: () => _toggleFavorite(entry),
-                child: Text(
-                  entry.favorite ? strings.unfavorite : strings.favorite,
-                ),
-              ),
+                  variant: ButtonVariant.plain,
+                  size: WidgetSize.tiny,
+                  onPressed: () => _toggleFavorite(entry),
+                  child: Text(
+                    entry.favorite ? strings.unfavorite : strings.favorite,
+                  )),
               const SizedBox(width: 2),
               NativeMenu(
                 align: NativeMenuAlign.end,
@@ -442,13 +436,13 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
                   ),
                 ],
                 trigger: (context, open, toggle) => IconButton(
-                  label: strings.more_actions,
+                  semanticsLabel: strings.more_actions,
                   active: open,
                   // The 16-grid glyph at 16, as in the mini window's toolbar: a
                   // Fluent icon is drawn for one size, and the 20-grid one at
                   // 16 puts each of the three dots on a different subpixel
                   // phase — they come out visibly unequal.
-                  icon: const Icon(FluentIcons.more_horizontal_16_regular),
+                  icon: FluentIcons.more_horizontal_16_regular,
                   iconSize: 16,
                   onPressed: toggle,
                 ),

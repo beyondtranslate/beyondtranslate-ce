@@ -1,19 +1,14 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import '../theme/product_tokens.dart' show ProductTypography;
 import '../utils/platform_util.dart';
+import 'brand_logo.dart' show BrandLogo;
 import 'icon_action_button.dart';
-import 'ui.dart'
-    show
-        BrandLogo,
-        CaptionButton,
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Sidebar,
-        WindowBody,
-        WindowMain,
-        WindowPlatform,
-        WindowTitlebar;
+import 'nav_columns.dart' show Sidebar;
+import 'ui.dart' show ThemeDataBuildContextProps;
+import 'window_chrome.dart'
+    show CaptionButton, WindowBody, WindowMain, WindowPlatform, WindowTitlebar;
 
 /// Which chrome the shell draws, derived from the real OS. macOS maps to null
 /// so [WindowTitlebar] keeps its default — the same convention as the React
@@ -56,7 +51,7 @@ class _BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -69,11 +64,11 @@ class _BrandMark extends StatelessWidget {
               'BeyondTranslate',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: tokens.typography.displayStyle(
+              style: vars.displayStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 height: 1,
-                color: tokens.colors.fg,
+                color: vars.colorContent,
               ),
             ),
           ),

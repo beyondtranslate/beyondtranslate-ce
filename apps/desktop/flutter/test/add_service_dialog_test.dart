@@ -2,8 +2,8 @@ import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/add_service_dialog.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/provider_meta.dart';
 import 'package:beyondtranslate_desktop/src/services/runtime.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
-    show DesignThemeProvider;
+import 'package:beyondtranslate_desktop/src/theme/app_theme.dart'
+    show AppThemeProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,7 +27,7 @@ ServiceConfigEntry _derivedTranslation(String providerId) {
 
 void main() {
   Widget specimen({List<ServiceConfigEntry> existing = const []}) {
-    return DesignThemeProvider(
+    return AppThemeProvider(
       child: MaterialApp(
         home: Scaffold(
           body: SizedBox(

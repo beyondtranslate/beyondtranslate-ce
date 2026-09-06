@@ -2,13 +2,9 @@ import 'package:flutter/widgets.dart';
 
 import '../i18n/i18n.dart';
 import '../services/system_translation.dart';
+import '../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../utils/language_util.dart';
-import 'ui.dart'
-    show
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Pressable,
-        kTransitionDuration;
+import 'ui.dart' show Pressable, ThemeDataBuildContextProps;
 
 /// 系统翻译 without a pair's language files — the deck's wording for it.
 ///
@@ -55,18 +51,19 @@ class SystemSettingsLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final vars = context.vars;
     return Pressable(
       onPressed: openTranslationLanguagesSettings,
       semanticsLabel: label,
-      builder: (context, state) => AnimatedDefaultTextStyle(
-        duration: kTransitionDuration,
+      builder: (context, states) => AnimatedDefaultTextStyle(
+        duration: context.vars.motionDuration,
         style: style.copyWith(
-          color: colors.accentText,
+          color: vars.accentText,
           fontWeight: bold ? FontWeight.w600 : null,
-          decoration:
-              state.hovered ? TextDecoration.underline : TextDecoration.none,
-          decorationColor: colors.accentText,
+          decoration: states.contains(WidgetState.hovered)
+              ? TextDecoration.underline
+              : TextDecoration.none,
+          decorationColor: vars.accentText,
         ),
         child: Text(label),
       ),
@@ -83,9 +80,8 @@ class MissingLanguageNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final style = tokens.typography.sansStyle(fontSize: 12, height: 1.7);
+    final vars = context.vars;
+    final style = vars.sansStyle(fontSize: 12, height: 1.7);
 
     return Wrap(
       spacing: 8,
@@ -93,7 +89,7 @@ class MissingLanguageNote extends StatelessWidget {
       children: [
         Text(
           MissingLanguageText.note(missing),
-          style: style.copyWith(color: colors.warnFg),
+          style: style.copyWith(color: vars.warnFg),
         ),
         SystemSettingsLink(
           label: t.mini_translator.result.open_system_settings,

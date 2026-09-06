@@ -1,7 +1,8 @@
 import 'dart:ui';
 
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
-import 'package:flutter/material.dart';
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart' show TextField;
+import 'package:flutter/material.dart' hide TextField;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 

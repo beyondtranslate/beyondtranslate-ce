@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'ui.dart'
-    show DesignThemeContext, DesignTypographyStyles, Label, LabelTone;
+import '../theme/product_tokens.dart' show ProductTypography;
+import 'ui.dart' show ThemeDataBuildContextProps;
 
 /// A floating card with up to four bands: a body, a labelled secondary band,
 /// an action row and a hint strip. The pop-up over a text selection is built
@@ -48,21 +48,20 @@ class PopoverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final hairline = context.hairlineWidth;
     final topBorder = Border(
-      top: BorderSide(color: colors.hairline, width: hairline),
+      top: BorderSide(color: vars.colorBorder, width: hairline),
     );
 
     return Container(
       width: width,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: colors.window,
-        border: Border.all(color: colors.hairlineStrong, width: hairline),
-        borderRadius: BorderRadius.circular(tokens.radii.card),
-        boxShadow: tokens.shadows.float,
+        color: vars.colorSurface,
+        border: Border.all(color: vars.colorBorderStrong, width: hairline),
+        borderRadius: BorderRadius.circular(vars.radiusLarge),
+        boxShadow: vars.shadowMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -80,11 +79,11 @@ class PopoverCard extends StatelessWidget {
                   children: [
                     Flexible(
                       child: DefaultTextStyle(
-                        style: tokens.typography.displayStyle(
+                        style: vars.displayStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           height: 1.3,
-                          color: colors.fg,
+                          color: vars.colorContent,
                         ),
                         child: title,
                       ),
@@ -92,26 +91,30 @@ class PopoverCard extends StatelessWidget {
                     const Spacer(),
                     if (trailing != null) ...[
                       const SizedBox(width: 12),
-                      Label(tone: LabelTone.faint, child: trailing!),
+                      DefaultTextStyle(
+                        style: context.vars
+                            .labelStyle(color: context.vars.colorContentFaint),
+                        child: trailing!,
+                      ),
                     ],
                   ],
                 ),
                 const SizedBox(height: 8),
                 DefaultTextStyle(
-                  style: tokens.typography.cjkStyle(
+                  style: vars.cjkStyle(
                     fontSize: 15,
                     height: 1.85,
-                    color: colors.fg,
+                    color: vars.colorContent,
                   ),
                   child: body,
                 ),
                 if (note != null) ...[
                   const SizedBox(height: 8),
                   DefaultTextStyle(
-                    style: tokens.typography.cjkStyle(
+                    style: vars.cjkStyle(
                       fontSize: 12,
                       height: 1.7,
-                      color: colors.fgTertiary,
+                      color: vars.colorContentMuted,
                     ),
                     child: note!,
                   ),
@@ -129,7 +132,8 @@ class PopoverCard extends StatelessWidget {
           if (secondary != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-              decoration: BoxDecoration(color: colors.card, border: topBorder),
+              decoration: BoxDecoration(
+                  color: vars.colorSurfaceMuted, border: topBorder),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -137,18 +141,19 @@ class PopoverCard extends StatelessWidget {
                   if (secondaryLabel != null) ...[
                     Align(
                       alignment: AlignmentDirectional.centerStart,
-                      child: Label(
-                        tone: LabelTone.faint,
+                      child: DefaultTextStyle(
+                        style: context.vars
+                            .labelStyle(color: context.vars.colorContentFaint),
                         child: secondaryLabel!,
                       ),
                     ),
                     const SizedBox(height: 6),
                   ],
                   DefaultTextStyle(
-                    style: tokens.typography.cjkStyle(
+                    style: vars.cjkStyle(
                       fontSize: 12,
                       height: 1.75,
-                      color: colors.fgTertiary,
+                      color: vars.colorContentMuted,
                     ),
                     child: secondary!,
                   ),
@@ -164,7 +169,8 @@ class PopoverCard extends StatelessWidget {
           if (hint != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(color: colors.inset, border: topBorder),
+              decoration: BoxDecoration(
+                  color: vars.colorSurfaceInset, border: topBorder),
               child: hint,
             ),
         ],

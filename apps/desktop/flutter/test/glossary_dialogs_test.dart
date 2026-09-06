@@ -1,7 +1,9 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/workbench/glossary_dialogs.dart';
+import 'package:beyondtranslate_desktop/src/theme/app_theme.dart'
+    show AppThemeProvider;
 import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
-    show DesignThemeProvider, OptionCard;
+    show DialogBody, OptionCard;
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +17,7 @@ void main() {
     LocaleSettings.setLocaleRaw('zh-Hans');
   });
 
-  Widget specimen(Widget child) => DesignThemeProvider(
+  Widget specimen(Widget child) => AppThemeProvider(
         child: TranslationProvider(
           child: Directionality(
             textDirection: TextDirection.ltr,

@@ -52,106 +52,83 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
 
     return SettingsPage(
       children: [
-        PreferenceSection(
-          label: Text(general.section.startup),
-          children: [
-            PreferenceRow(
-              title: Text(general.row.launch_at_login),
-              trailing: [
-                Switch(
-                  checked: _general.launchAtLogin,
-                  semanticsLabel: general.row.launch_at_login,
+        PreferenceSection(label: general.section.startup, children: [
+          PreferenceRow(
+              title: general.row.launch_at_login,
+              trailing: Switch(
+                  value: _general.launchAtLogin,
                   onChanged: (v) => settingsStore.updateGeneral(
-                    GeneralSettingsPatch(launchAtLogin: v),
-                  ),
-                ),
-              ],
-            ),
-            PreferenceRow(
-              title: Text(general.row.show_in_menu_bar),
-              trailing: [
-                Switch(
-                  checked: _general.showInMenuBar,
-                  semanticsLabel: general.row.show_in_menu_bar,
+                        GeneralSettingsPatch(launchAtLogin: v),
+                      ))),
+          PreferenceRow(
+              title: general.row.show_in_menu_bar,
+              trailing: Switch(
+                  value: _general.showInMenuBar,
                   onChanged: (v) => settingsStore.updateGeneral(
-                    GeneralSettingsPatch(showInMenuBar: v),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                        GeneralSettingsPatch(showInMenuBar: v),
+                      ))),
+        ]),
         const SettingsSectionDivider(),
         // 外观 was its own page until it held two rows; a display language and
         // a theme mode are preferences like any other, and a rail entry each
         // was more navigation than they earn. The language is a menu rather
         // than a radio stack — the list grows with every locale we ship.
         PreferenceSection(
-          label: Text(appearance.title),
-          footer: Text(appearance.footer),
-          children: [
-            PreferenceRow(
-              title: Text(appearance.section.app_language),
-              trailing: [
-                _AppearanceSelect(
-                  value: settingsStore.appearance.language,
-                  items: [
-                    for (final code in appLanguages)
+            label: appearance.title,
+            footer: appearance.footer,
+            children: [
+              PreferenceRow(
+                  title: appearance.section.app_language,
+                  trailing: _AppearanceSelect(
+                    value: settingsStore.appearance.language,
+                    items: [
+                      for (final code in appLanguages)
+                        NativeSelectItem(
+                            value: code, label: getLanguageName(code)),
+                    ],
+                    onChanged: (v) => settingsStore.updateAppearance(
+                      AppearanceSettingsPatch(language: v),
+                    ),
+                  )),
+              PreferenceRow(
+                  title: appearance.section.theme_mode,
+                  trailing: _AppearanceSelect(
+                    value: settingsStore.appearance.themeMode,
+                    items: [
                       NativeSelectItem(
-                          value: code, label: getLanguageName(code)),
-                  ],
-                  onChanged: (v) => settingsStore.updateAppearance(
-                    AppearanceSettingsPatch(language: v),
-                  ),
-                ),
-              ],
-            ),
-            PreferenceRow(
-              title: Text(appearance.section.theme_mode),
-              trailing: [
-                _AppearanceSelect(
-                  value: settingsStore.appearance.themeMode,
-                  items: [
-                    NativeSelectItem(
-                      value: 'light',
-                      label: t.common.theme_mode.light,
+                        value: 'light',
+                        label: t.common.theme_mode.light,
+                      ),
+                      NativeSelectItem(
+                          value: 'dark', label: t.common.theme_mode.dark),
+                      NativeSelectItem(
+                        value: 'system',
+                        label: t.common.theme_mode.system,
+                      ),
+                    ],
+                    onChanged: (v) => settingsStore.updateAppearance(
+                      AppearanceSettingsPatch(themeMode: v),
                     ),
-                    NativeSelectItem(
-                        value: 'dark', label: t.common.theme_mode.dark),
-                    NativeSelectItem(
-                      value: 'system',
-                      label: t.common.theme_mode.system,
-                    ),
-                  ],
-                  onChanged: (v) => settingsStore.updateAppearance(
-                    AppearanceSettingsPatch(themeMode: v),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                  )),
+            ]),
         if (kIsMacOS) ...[
           const SettingsSectionDivider(),
           // 系统权限 — these are what the OS lets the app do, not an advanced
           // option, and every shortcut that reads the screen stops working
           // without them. They sit last because they are granted once and then
           // never touched again.
-          PreferenceSection(
-            label: Text(general.section.permissions),
-            children: [
-              _PermissionAccessRow(
-                title: general.row.screen_capture_access,
-                subtitle: general.row.screen_capture_access_hint,
-                accessibility: false,
-              ),
-              _PermissionAccessRow(
-                title: general.row.screen_selection_access,
-                subtitle: general.row.screen_selection_access_hint,
-                accessibility: true,
-              ),
-            ],
-          ),
+          PreferenceSection(label: general.section.permissions, children: [
+            _PermissionAccessRow(
+              title: general.row.screen_capture_access,
+              subtitle: general.row.screen_capture_access_hint,
+              accessibility: false,
+            ),
+            _PermissionAccessRow(
+              title: general.row.screen_selection_access,
+              subtitle: general.row.screen_selection_access_hint,
+              accessibility: true,
+            ),
+          ]),
         ],
       ],
     );
@@ -210,20 +187,16 @@ class _PermissionAccessRowState extends State<_PermissionAccessRow> {
   @override
   Widget build(BuildContext context) {
     return PreferenceRow(
-      title: Text(widget.title),
-      subtitle: Text(widget.subtitle),
-      trailing: [
-        Button(
-          variant: ButtonVariant.secondary,
-          onPressed: _granted == true ? _refresh : _request,
-          child: Text(
-            _granted == true
-                ? t.settings.general.option.granted
-                : t.settings.general.button.grant,
-          ),
-        ),
-      ],
-    );
+        title: widget.title,
+        subtitle: widget.subtitle,
+        trailing: Button(
+            variant: ButtonVariant.normal,
+            onPressed: _granted == true ? _refresh : _request,
+            child: Text(
+              _granted == true
+                  ? t.settings.general.option.granted
+                  : t.settings.general.button.grant,
+            )));
   }
 }
 

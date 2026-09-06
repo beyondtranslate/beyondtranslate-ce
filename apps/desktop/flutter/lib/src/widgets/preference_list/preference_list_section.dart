@@ -1,20 +1,21 @@
 import 'package:flutter/widgets.dart';
 
-import '../ui.dart' show DesignThemeContext, DesignTypographyStyles, Label;
+import '../../theme/product_tokens.dart' show ProductTypography;
+import '../ui.dart' show ThemeDataBuildContextProps;
 
 /// A titled group of preference rows in the deck's flat shape: a section
 /// label over the rows themselves — no card, no per-row rules. Sections are
 /// separated by the page, not by their own chrome.
 class PreferenceListSection extends StatelessWidget {
   const PreferenceListSection({
-    Key? key,
+    super.key,
     this.leading,
     this.title,
     this.action,
     this.description,
     this.labelInset = 0,
     required this.children,
-  }) : super(key: key);
+  });
 
   final Widget? leading;
   final Widget? title;
@@ -38,7 +39,7 @@ class PreferenceListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     final proseInset = EdgeInsets.symmetric(horizontal: labelInset);
 
     final rows = Column(
@@ -54,7 +55,11 @@ class PreferenceListSection extends StatelessWidget {
           Padding(
             padding: proseInset,
             child: action == null
-                ? Label(child: title!)
+                ? DefaultTextStyle(
+                    style: context.vars
+                        .labelStyle(color: context.vars.colorContentSubtle),
+                    child: title!,
+                  )
                 // Baseline, not centre: the action is taller than the heading,
                 // and centring it would lift the heading off the line its rows
                 // sit on.
@@ -63,7 +68,11 @@ class PreferenceListSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
-                      Label(child: title ?? const Text('')),
+                      DefaultTextStyle(
+                        style: context.vars
+                            .labelStyle(color: context.vars.colorContentSubtle),
+                        child: title ?? const Text(''),
+                      ),
                       action!,
                     ],
                   ),
@@ -86,10 +95,10 @@ class PreferenceListSection extends StatelessWidget {
           Padding(
             padding: proseInset,
             child: DefaultTextStyle(
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 11,
                 height: 1.6,
-                color: tokens.colors.fgSubtle,
+                color: vars.colorContentSubtle,
               ),
               child: description!,
             ),

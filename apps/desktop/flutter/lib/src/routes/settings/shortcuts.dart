@@ -1,23 +1,22 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide RadioGroup;
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/settings_page.dart';
+import '../../widgets/shortcut_recorder.dart'
+    show ShortcutRecorder, ShortcutRecorderState;
 import '../../widgets/ui.dart'
     show
         Button,
         ButtonVariant,
-        DesignThemeContext,
         PreferenceGroup,
         PreferenceRow,
         PreferenceSection,
-        RadioItem,
-        RadioList,
-        ShortcutRecorder,
-        ShortcutRecorderState;
+        RadioGroup,
+        RadioItem;
 
 /// The bindings the page edits, in the order it lists them. A row is its
 /// section label, the patch that writes it, and the field that reads it —
@@ -218,21 +217,18 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
     final confirmed = await showDialogInCurrentWindow<bool>(
       context: context,
       builder: (ctx) => AppDialog(
-        title: Text(t.settings.shortcuts.reset_dialog.title),
-        content: Text(t.settings.shortcuts.reset_dialog.message),
-        actions: [
-          Button(
-            variant: ButtonVariant.secondary,
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.settings.shortcuts.reset_dialog.cancel),
-          ),
-          Button(
-            variant: ButtonVariant.primary,
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(t.settings.shortcuts.reset_dialog.confirm),
-          ),
-        ],
-      ),
+          title: t.settings.shortcuts.reset_dialog.title,
+          content: Text(t.settings.shortcuts.reset_dialog.message),
+          actions: [
+            Button(
+                variant: ButtonVariant.normal,
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.settings.shortcuts.reset_dialog.cancel)),
+            Button(
+                variant: ButtonVariant.filled,
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(t.settings.shortcuts.reset_dialog.confirm)),
+          ]),
     );
     if (confirmed == true) {
       await settingsStore.resetShortcuts();
@@ -257,41 +253,30 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
     return SettingsPage(
       children: [
         PreferenceGroup(
-          title: Text(text.group.global.title),
-          description: Text(text.group.global.description),
-          children: [
-            // The first run goes unlabelled — a single key that shows the
-            // window is not a category.
-            PreferenceSection(
-              children: [
+            title: text.group.global.title,
+            description: text.group.global.description,
+            children: [
+              // The first run goes unlabelled — a single key that shows the
+              // window is not a category.
+              PreferenceSection(children: [
                 _buildRow(_Binding.toggleMiniTranslator, shortcuts),
-              ],
-            ),
-            PreferenceSection(
-              label: Text(text.section.text_extraction),
-              children: [
+              ]),
+              PreferenceSection(label: text.section.text_extraction, children: [
                 _buildRow(_Binding.extractTextFromScreenSelection, shortcuts),
                 _buildRow(_Binding.extractTextFromScreenCapture, shortcuts),
                 _buildRow(_Binding.extractTextFromClipboard, shortcuts),
-              ],
-            ),
-            PreferenceSection(
-              label: Text(text.section.input_assist),
-              children: [
+              ]),
+              PreferenceSection(label: text.section.input_assist, children: [
                 _buildRow(_Binding.translateInputContent, shortcuts),
-              ],
-            ),
-          ],
-        ),
+              ]),
+            ]),
         const SettingsSectionDivider(),
         PreferenceGroup(
-          title: Text(text.group.in_app.title),
-          description: Text(text.group.in_app.description),
-          children: [
-            PreferenceSection(
-              label: Text(text.section.submit_mode),
-              children: [
-                RadioList<InputSubmitMode>(
+            title: text.group.in_app.title,
+            description: text.group.in_app.description,
+            children: [
+              PreferenceSection(label: text.section.submit_mode, children: [
+                RadioGroup<InputSubmitMode>(
                   value: settingsStore.general.inputSubmitMode,
                   semanticsLabel: text.section.submit_mode,
                   options: [
@@ -305,47 +290,34 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
                     GeneralSettingsPatch(inputSubmitMode: mode),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ]),
+            ]),
         const SettingsSectionDivider(),
         Align(
           alignment: AlignmentDirectional.centerStart,
           // Inert while nothing has moved: the button is a way back, and there
           // is nowhere to go back to.
           child: Button(
-            variant: ButtonVariant.plain,
-            enabled: !atDefault,
-            onPressed: _resetToDefaults,
-            child: Text(text.reset),
-          ),
+              variant: ButtonVariant.plain,
+              onPressed: !atDefault ? _resetToDefaults : null,
+              child: Text(text.reset)),
         ),
       ],
     );
   }
 
   /// A shortcut row is a preference row whose control is a recorder. The
-  /// compact `Kbd` chip stays for the status-bar hints and the sidebar, where
+  /// compact `KeyCap` chip stays for the status-bar hints and the sidebar, where
   /// the keys are shown, not changed.
   Widget _buildRow(_Binding binding, ShortcutSettings shortcuts) {
     final conflict = _conflictOf(binding, shortcuts);
     final text = t.settings.shortcuts;
 
     return PreferenceRow(
-      title: Text(binding.label),
-      subtitle: conflict == null
-          ? null
-          : Builder(
-              builder: (context) => Text(
-                text.conflict(label: conflict.label),
-                style: DefaultTextStyle.of(context)
-                    .style
-                    .copyWith(color: context.colors.dangerFg),
-              ),
-            ),
-      trailing: [
-        ShortcutRecorder(
+        title: binding.label,
+        subtitle:
+            conflict == null ? null : text.conflict(label: conflict.label),
+        trailing: ShortcutRecorder(
           value: shortcutGlyphs(binding.read(shortcuts)),
           onValueChanged: (glyphs) => _bind(binding, glyphs),
           state: conflict == null
@@ -355,9 +327,7 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
           recordingLabel: text.recording,
           clearLabel: text.clear,
           semanticsLabel: binding.label,
-        ),
-      ],
-    );
+        ));
   }
 
   String _inputSubmitModeTitle(InputSubmitMode mode) {

@@ -1,33 +1,35 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart' hide Checkbox, Dialog;
+import 'package:flutter/material.dart' hide Dialog, FormField;
 import 'package:flutter/services.dart' show KeyDownEvent, LogicalKeyboardKey;
 import 'package:nativeapi/nativeapi.dart' as nativeapi;
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
+import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../utils/language_util.dart';
+import '../../widgets/app_dialog.dart' show DialogFrame;
+import '../../widgets/control_box.dart' show controlDecoration;
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/ui.dart'
     show
         Button,
-        ButtonSize,
+        ButtonTint,
         ButtonVariant,
         Callout,
-        CalloutTone,
+        CalloutTint,
         Dialog,
         DialogBody,
         DialogFooter,
         DialogHeader,
-        DesignThemeContext,
-        DesignTypographyStyles,
-        Field,
-        FieldState,
+        FormField,
         HoverRegion,
-        Label,
         Pressable,
         SearchField,
-        controlDecoration;
+        SectionLabel,
+        TextFieldState,
+        ThemeDataBuildContextProps,
+        WidgetSize;
 
 /// The sheets and pickers a capability's own settings open — 常用语言,
 /// 翻译目标, and the service pickers behind them.
@@ -55,8 +57,7 @@ Future<void> _showTargetDialog(
     context: context,
     builder: (context) => StatefulBuilder(
       builder: (context, setDialogState) {
-        final tokens = context.tokens;
-        final colors = tokens.colors;
+        final vars = context.vars;
         final editor = t.settings.general.editor;
 
         final sameLanguage = source == targetLang;
@@ -69,98 +70,92 @@ Future<void> _showTargetDialog(
         final canSave = !sameLanguage && !duplicate;
 
         return Center(
-          child: Dialog(
-            width: 400,
-            children: [
-              DialogHeader(
-                title: Text(
-                  editing
-                      ? editor.title_edit
-                      : t.settings.general.button.add_target,
-                ),
-                subtitle: Text(editor.subtitle),
-              ),
-              DialogBody(
-                children: [
-                  // The pair reads left to right, with the arrow on the
-                  // controls' line rather than the labels'.
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: _LanguageField(
-                          value: source,
-                          label: editor.row.source_language,
-                          commonLanguageCodes:
-                              settingsStore.general.commonLanguages,
-                          showAutoDetect: true,
-                          showNative: true,
-                          onChanged: (v) => setDialogState(() => source = v),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 28,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Icon(
-                            FluentIcons.arrow_right_20_regular,
-                            size: 14,
-                            color: colors.fgFaint,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: _LanguageField(
-                          value: targetLang,
-                          label: editor.row.target_language,
-                          commonLanguageCodes:
-                              settingsStore.general.commonLanguages,
-                          showNative: true,
-                          onChanged: (v) =>
-                              setDialogState(() => targetLang = v),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (sameLanguage)
-                    Callout(
-                      tone: CalloutTone.warn,
-                      child: Text(editor.same_language),
-                    )
-                  else if (duplicate)
-                    Callout(
-                      tone: CalloutTone.warn,
-                      child: Text(editor.duplicate),
-                    )
-                  else
-                    // Not a warning — what the pair will actually do, said
-                    // plainly, so the sheet is readable before it is committed.
-                    Text(
-                      source == kAutoSource
-                          ? formatTranslation(
-                              editor.hint_auto,
-                              args: [getLanguageName(targetLang)],
-                            )
-                          : formatTranslation(
-                              editor.hint_source,
-                              args: [
-                                getSourceDisplayName(source),
-                                getLanguageName(targetLang),
-                              ],
-                            ),
-                      style: tokens.typography.sansStyle(
-                        fontSize: 11,
-                        height: 1.7,
-                        color: colors.fgSubtle,
+          child: DialogFrame(
+              child: Dialog(children: [
+            DialogHeader(
+                title: editing
+                    ? editor.title_edit
+                    : t.settings.general.button.add_target,
+                subtitle: editor.subtitle),
+            DialogBody(
+              children: [
+                // The pair reads left to right, with the arrow on the
+                // controls' line rather than the labels'.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: _LanguageField(
+                        value: source,
+                        label: editor.row.source_language,
+                        commonLanguageCodes:
+                            settingsStore.general.commonLanguages,
+                        showAutoDetect: true,
+                        showNative: true,
+                        onChanged: (v) => setDialogState(() => source = v),
                       ),
                     ),
-                ],
-              ),
-              DialogFooter(
-                children: [
-                  if (editing)
-                    Button(
-                      variant: ButtonVariant.warning,
+                    SizedBox(
+                      height: 28,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(
+                          FluentIcons.arrow_right_20_regular,
+                          size: 14,
+                          color: vars.colorContentFaint,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: _LanguageField(
+                        value: targetLang,
+                        label: editor.row.target_language,
+                        commonLanguageCodes:
+                            settingsStore.general.commonLanguages,
+                        showNative: true,
+                        onChanged: (v) => setDialogState(() => targetLang = v),
+                      ),
+                    ),
+                  ],
+                ),
+                if (sameLanguage)
+                  Callout(
+                      tint: CalloutTint.warning,
+                      message: Text(editor.same_language))
+                else if (duplicate)
+                  Callout(
+                      tint: CalloutTint.warning,
+                      message: Text(editor.duplicate))
+                else
+                  // Not a warning — what the pair will actually do, said
+                  // plainly, so the sheet is readable before it is committed.
+                  Text(
+                    source == kAutoSource
+                        ? formatTranslation(
+                            editor.hint_auto,
+                            args: [getLanguageName(targetLang)],
+                          )
+                        : formatTranslation(
+                            editor.hint_source,
+                            args: [
+                              getSourceDisplayName(source),
+                              getLanguageName(targetLang),
+                            ],
+                          ),
+                    style: vars.sansStyle(
+                      fontSize: 11,
+                      height: 1.7,
+                      color: vars.colorContentSubtle,
+                    ),
+                  ),
+              ],
+            ),
+            DialogFooter(
+              children: [
+                if (editing)
+                  Button(
+                      variant: ButtonVariant.tinted,
+                      tint: ButtonTint.warning,
                       onPressed: () async {
                         final next = [
                           ...settingsStore.general.translationTargets
@@ -170,30 +165,26 @@ Future<void> _showTargetDialog(
                         );
                         if (context.mounted) Navigator.pop(context, false);
                       },
-                      child: Text(t.common.ui.button.delete),
-                    ),
-                  const Spacer(),
-                  Button(
-                    variant: ButtonVariant.ghost,
-                    size: ButtonSize.md,
+                      child: Text(t.common.ui.button.delete)),
+                const Spacer(),
+                Button(
+                    variant: ButtonVariant.recessed,
+                    size: WidgetSize.medium,
                     onPressed: () => Navigator.pop(context, false),
-                    child: Text(t.common.ui.button.cancel),
-                  ),
-                  Button(
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.md,
-                    enabled: canSave,
-                    onPressed: () => Navigator.pop(context, true),
+                    child: Text(t.common.ui.button.cancel)),
+                Button(
+                    variant: ButtonVariant.filled,
+                    size: WidgetSize.medium,
+                    onPressed:
+                        canSave ? () => Navigator.pop(context, true) : null,
                     child: Text(
                       editing
                           ? t.common.ui.button.save
                           : t.common.ui.button.add,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    )),
+              ],
+            ),
+          ])),
         );
       },
     ),
@@ -288,6 +279,7 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
   late final List<String> _selected =
       List<String>.from(settingsStore.general.commonLanguages);
   String _query = '';
+  final TextEditingController _searchController = TextEditingController();
 
   /// Where each code sits in the full roster — what 排序 restores.
   late final Map<String, int> _rosterIndex = {
@@ -351,17 +343,14 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final strings = t.settings.general.languages_editor;
 
     return Dialog(
-      width: 620,
       children: [
         DialogHeader(
-          title: Text(t.settings.general.row.common_languages),
-          subtitle: Text(strings.subtitle),
-        ),
+            title: t.settings.general.row.common_languages,
+            subtitle: strings.subtitle),
         DialogBody(
           children: [
             Column(
@@ -372,9 +361,9 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
                   height: 296,
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(tokens.radii.box),
+                    borderRadius: BorderRadius.circular(vars.radiusLarge),
                     border: Border.all(
-                      color: colors.hairline,
+                      color: vars.colorBorder,
                       width: context.hairlineWidth,
                     ),
                   ),
@@ -384,7 +373,7 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
                       Expanded(child: _buildChosenPane(context)),
                       Container(
                         width: context.hairlineWidth,
-                        color: colors.hairline,
+                        color: vars.colorBorder,
                       ),
                       Expanded(child: _buildRosterPane(context)),
                     ],
@@ -394,10 +383,10 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
                   const SizedBox(height: 8),
                   Text(
                     strings.reorder_hint,
-                    style: tokens.typography.sansStyle(
+                    style: vars.sansStyle(
                       fontSize: 11,
                       height: 1.7,
-                      color: colors.fgSubtle,
+                      color: vars.colorContentSubtle,
                     ),
                   ),
                 ],
@@ -410,29 +399,27 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
             // Scoped to the whole sheet, so it sits in the footer rather than
             // in either pane's header.
             Button(
-              variant: ButtonVariant.plain,
-              enabled: !_isDefault,
-              onPressed: () => setState(
-                () => _selected
-                  ..clear()
-                  ..addAll(defaultCommonLanguages()),
-              ),
-              child: Text(strings.reset),
-            ),
+                variant: ButtonVariant.plain,
+                onPressed: !_isDefault
+                    ? () => setState(
+                          () => _selected
+                            ..clear()
+                            ..addAll(defaultCommonLanguages()),
+                        )
+                    : null,
+                child: Text(strings.reset)),
             const Spacer(),
             Button(
-              variant: ButtonVariant.ghost,
-              size: ButtonSize.md,
-              onPressed: () => Navigator.pop(context),
-              child: Text(t.common.ui.button.cancel),
-            ),
+                variant: ButtonVariant.recessed,
+                size: WidgetSize.medium,
+                onPressed: () => Navigator.pop(context),
+                child: Text(t.common.ui.button.cancel)),
             Button(
-              variant: ButtonVariant.primary,
-              size: ButtonSize.md,
-              onPressed: () =>
-                  Navigator.pop(context, List<String>.from(_selected)),
-              child: Text(t.common.ui.button.save),
-            ),
+                variant: ButtonVariant.filled,
+                size: WidgetSize.medium,
+                onPressed: () =>
+                    Navigator.pop(context, List<String>.from(_selected)),
+                child: Text(t.common.ui.button.save)),
           ],
         ),
       ],
@@ -448,23 +435,20 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
       children: [
         _PaneHeader(
           children: [
-            Label(
-              child: Text(strings.common_pane(count: _selected.length)),
-            ),
+            SectionLabel(strings.common_pane(count: _selected.length)),
             const Spacer(),
             Button(
-              variant: ButtonVariant.plain,
-              size: ButtonSize.xs,
-              enabled: _selected.length >= 2 && !_isRosterOrder,
-              semanticsLabel: strings.sort_help,
-              onPressed: () => setState(
-                () => _selected.sort(
-                  (a, b) =>
-                      (_rosterIndex[a] ?? 0).compareTo(_rosterIndex[b] ?? 0),
-                ),
-              ),
-              child: Text(strings.sort),
-            ),
+                variant: ButtonVariant.plain,
+                size: WidgetSize.tiny,
+                onPressed: _selected.length >= 2 && !_isRosterOrder
+                    ? () => setState(
+                          () => _selected.sort(
+                            (a, b) => (_rosterIndex[a] ?? 0)
+                                .compareTo(_rosterIndex[b] ?? 0),
+                          ),
+                        )
+                    : null,
+                child: Text(strings.sort)),
           ],
         ),
         Expanded(
@@ -492,11 +476,10 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
 
   Widget _buildChosenRow(BuildContext context, int index,
       {bool lifted = false}) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final strings = t.settings.general.languages_editor;
     final code = _selected[index];
-    final radius = BorderRadius.circular(tokens.radii.controlSm);
+    final radius = BorderRadius.circular(vars.radiusSmall);
 
     return HoverRegion(
       builder: (context, hovered) => Container(
@@ -505,9 +488,9 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
         decoration: BoxDecoration(
           borderRadius: radius,
           color: lifted
-              ? colors.accent.withValues(alpha: 0.12)
+              ? vars.accent.withValues(alpha: 0.12)
               : hovered
-                  ? colors.subtle
+                  ? vars.colorSurfaceSubtle
                   : null,
         ),
         child: Row(
@@ -537,7 +520,7 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
                       child: Icon(
                         FluentIcons.re_order_dots_vertical_20_regular,
                         size: 14,
-                        color: colors.fgFaint,
+                        color: vars.colorContentFaint,
                       ),
                     ),
                   ),
@@ -558,18 +541,21 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
               semanticsLabel: strings.remove_language(
                 name: getLanguageNativeName(code),
               ),
-              builder: (context, state) => Container(
+              builder: (context, states) => Container(
                 width: 20,
                 height: 20,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: radius,
-                  color: state.hovered ? colors.control : null,
+                  color: states.contains(WidgetState.hovered)
+                      ? vars.colorSurfaceInset
+                      : null,
                 ),
                 child: Icon(
                   FluentIcons.dismiss_12_regular,
                   size: 12,
-                  color: hovered ? colors.fgTertiary : colors.fgFaint,
+                  color:
+                      hovered ? vars.colorContentMuted : vars.colorContentFaint,
                 ),
               ),
             ),
@@ -603,18 +589,19 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
       children: [
         _PaneHeader(
           children: [
-            Label(child: Text(strings.more_pane(count: rest.length))),
+            SectionLabel(strings.more_pane(count: rest.length)),
             const Spacer(),
             // Kept open rather than folded behind a magnifier — over a roster
             // this long, search is the way in, not an extra.
             SizedBox(
               width: 132,
-              child: SearchField(
-                value: _query,
-                onChanged: (value) => setState(() => _query = value),
-                placeholder: strings.search,
-                shortcut: '',
-                semanticsLabel: strings.search,
+              child: Semantics(
+                label: strings.search,
+                child: SearchField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _query = value),
+                  placeholder: strings.search,
+                ),
               ),
             ),
           ],
@@ -640,22 +627,23 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
   }
 
   Widget _buildRosterRow(BuildContext context, String code) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final strings = t.settings.general.languages_editor;
 
     return Pressable(
       onPressed: () => _add(code),
-      borderRadius: BorderRadius.circular(tokens.radii.controlSm),
+      borderRadius: BorderRadius.circular(vars.radiusSmall),
       semanticsLabel: strings.add_language(
         name: getLanguageNativeName(code),
       ),
-      builder: (context, state) => Container(
+      builder: (context, states) => Container(
         constraints: const BoxConstraints(minHeight: 28),
         padding: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(tokens.radii.controlSm),
-          color: state.hovered ? colors.subtle : null,
+          borderRadius: BorderRadius.circular(vars.radiusSmall),
+          color: states.contains(WidgetState.hovered)
+              ? vars.colorSurfaceSubtle
+              : null,
         ),
         child: Row(
           children: [
@@ -668,7 +656,9 @@ class _CommonLanguagesSheetState extends State<_CommonLanguagesSheet> {
               child: Icon(
                 FluentIcons.add_16_regular,
                 size: 13,
-                color: state.hovered ? colors.accentText : colors.fgFaint,
+                color: states.contains(WidgetState.hovered)
+                    ? vars.accentText
+                    : vars.colorContentFaint,
               ),
             ),
           ],
@@ -686,7 +676,7 @@ class _PaneHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final vars = context.vars;
     return Container(
       // 36 rather than the React 32: the compact SearchField keeps the shared
       // 28px control box, and 32 would leave it 2px of air.
@@ -695,7 +685,7 @@ class _PaneHeader extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.hairline,
+            color: vars.colorBorder,
             width: context.hairlineWidth,
           ),
         ),
@@ -713,17 +703,17 @@ class _PaneEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: tokens.typography.sansStyle(
+          style: vars.sansStyle(
             fontSize: 11,
             height: 1.7,
-            color: tokens.colors.fgSubtle,
+            color: vars.colorContentSubtle,
           ),
         ),
       ),
@@ -739,28 +729,27 @@ class _LanguageNameText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final vars = context.vars;
     final native = getLanguageNativeName(code);
     final label = getLanguageName(code);
 
     return Text.rich(
       TextSpan(
         text: native,
-        style: tokens.typography.sansStyle(
+        style: vars.sansStyle(
           fontSize: 12,
           height: 1,
           fontWeight: FontWeight.w500,
-          color: colors.fg,
+          color: vars.colorContent,
         ),
         children: [
           if (label != native)
             TextSpan(
               text: ' $label',
-              style: tokens.typography.sansStyle(
+              style: vars.sansStyle(
                 fontSize: 12,
                 height: 1,
-                color: colors.fgSubtle,
+                color: vars.colorContentSubtle,
               ),
             ),
         ],
@@ -779,13 +768,13 @@ class _LanguageCodeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final vars = context.vars;
     return Text(
       code,
-      style: tokens.typography.monoStyle(
+      style: vars.monoStyle(
         fontSize: 11,
         height: 1,
-        color: tokens.colors.fgFaint,
+        color: vars.colorContentFaint,
       ),
     );
   }
@@ -829,47 +818,45 @@ class _LanguageField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.control);
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusMedium);
 
-    return Field(
-      label: Text(label),
-      child: Pressable(
-        onPressed: () => _openLanguageMenu(context),
-        borderRadius: radius,
-        semanticsLabel: label,
-        builder: (context, state) => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: controlDecoration(
-            tokens,
-            state: FieldState.standard,
-            focused: state.focused,
-            hairline: context.hairlineWidth,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _selectedLabel(),
-                  overflow: TextOverflow.ellipsis,
-                  style: tokens.typography.sansStyle(
-                    fontSize: 12,
-                    height: 1,
-                    color: colors.fg,
+    return FormField(
+        label: label,
+        child: Pressable(
+          onPressed: () => _openLanguageMenu(context),
+          borderRadius: radius,
+          semanticsLabel: label,
+          builder: (context, states) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: controlDecoration(
+              vars,
+              state: TextFieldState.normal,
+              focused: states.contains(WidgetState.focused),
+              hairline: context.hairlineWidth,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _selectedLabel(),
+                    overflow: TextOverflow.ellipsis,
+                    style: vars.sansStyle(
+                      fontSize: 12,
+                      height: 1,
+                      color: vars.colorContent,
+                    ),
                   ),
                 ),
-              ),
-              Icon(
-                FluentIcons.chevron_down_20_regular,
-                size: 13,
-                color: colors.fgSubtle,
-              ),
-            ],
+                Icon(
+                  FluentIcons.chevron_down_20_regular,
+                  size: 13,
+                  color: vars.colorContentSubtle,
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   String _selectedLabel() {

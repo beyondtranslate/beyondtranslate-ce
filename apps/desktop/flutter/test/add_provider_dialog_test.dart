@@ -1,10 +1,9 @@
 import 'package:beyondtranslate_desktop/src/i18n/i18n.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/add_provider_dialog.dart';
 import 'package:beyondtranslate_desktop/src/routes/settings/provider_meta.dart';
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart' as ui
-    show Dialog, DialogFooter, DialogHeader;
-import 'package:beyondtranslate_desktop/src/widgets/ui.dart'
-    show DesignThemeProvider;
+import 'package:beyondtranslate_desktop/src/theme/app_theme.dart'
+    show AppThemeProvider;
+import 'package:beyondtranslate_desktop/src/widgets/ui.dart' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Rust runtime and is exercised in the app.
 void main() {
   Widget specimen() {
-    return const DesignThemeProvider(
+    return const AppThemeProvider(
       child: MaterialApp(
         home: Scaffold(
           body: SizedBox(width: 840, height: 620, child: AddProviderDialog()),
