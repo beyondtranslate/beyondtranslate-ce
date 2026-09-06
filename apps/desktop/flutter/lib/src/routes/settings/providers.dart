@@ -9,6 +9,7 @@ import '../../services/runtime.dart';
 import '../../services/settings_store.dart';
 import '../../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
+import '../../widgets/preference_heading.dart' show PreferenceSectionWithAction;
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
@@ -17,7 +18,6 @@ import '../../widgets/ui.dart'
         Button,
         ButtonVariant,
         PreferenceRow,
-        PreferenceSection,
         Spinner,
         ThemeDataBuildContextProps,
         WidgetSize;
@@ -139,7 +139,7 @@ class _ProvidersSettingsPageState extends State<ProvidersSettingsPage> {
         // 提供商 — credentials and endpoints only. A provider is how to reach a
         // service, not the service itself, so the roster of services lives on
         // 服务; this page only opens a provider's detail.
-        PreferenceSection(
+        PreferenceSectionWithAction(
             label: t.settings.providers.title,
             action: Button(
                 variant: ButtonVariant.filled,

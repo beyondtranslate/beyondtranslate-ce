@@ -10,6 +10,7 @@ import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../utils/language_util.dart';
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
+import '../../widgets/preference_heading.dart' show PreferenceSectionWithAction;
 import '../../widgets/provider_icon/provider_icon.dart';
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
@@ -275,7 +276,7 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                   ],
                 ),
               ]),
-          PreferenceSection(
+          PreferenceSectionWithAction(
               label: general.section.translation_target,
               action: Button(
                   variant: ButtonVariant.plain,
@@ -352,7 +353,7 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
         PreferenceGroup(
           title: serviceTypeLabel(type),
           children: [
-            PreferenceSection(
+            PreferenceSectionWithAction(
               label: t.settings.services.section.available_services,
               // 添加服务 is raised from inside the capability's own group, so
               // the sheet opens with the kind already decided.
