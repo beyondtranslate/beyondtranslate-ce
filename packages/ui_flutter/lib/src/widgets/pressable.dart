@@ -1,33 +1,24 @@
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/focus_ring.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Tailwind's `transition-colors` default.
-const Duration kTransitionDuration = Duration(milliseconds: 150);
-
-/// The interaction state a [Pressable] hands to its builder.
-@immutable
-class PressableState {
-  const PressableState({
-    this.hovered = false,
-    this.focused = false,
-    this.pressed = false,
-    this.enabled = true,
-  });
-
-  final bool hovered;
-  final bool focused;
-  final bool pressed;
-  final bool enabled;
-}
+import '../generated/theme_variables.dart';
+import '../theme/theme.dart';
+import 'focus_ring.dart';
 
 /// The one interactive primitive every clickable atom is built on.
 ///
-/// It reproduces what the browser gives a `<button>` for free: pointer cursor,
-/// hover state, keyboard focus and activation with Space/Enter, and the
-/// focus-visible ring — which is drawn only for keyboard focus, matching
-/// `:focus-visible`.
+/// It reproduces what the browser gives a `<button>` for free: the pointer
+/// cursor, hover and press tracking, keyboard focus with Space/Enter
+/// activation, the focus-visible ring, and the semantics an assistive
+/// technology reads. A component that rolled its own would drift on one of
+/// those the moment it was written.
+///
+/// The state arrives as the [WidgetState] set the recipes already resolve
+/// against, so a component's colours stay one `resolveWith` call rather than a
+/// ladder of conditionals. It is also resolved *before* the subtree is built,
+/// which is what lets a recipe move its content colour as well as its surface:
+/// a refinement applied after a text run's colour is baked would move the
+/// surface and leave the label behind.
 class Pressable extends StatefulWidget {
   const Pressable({
     super.key,
@@ -39,31 +30,48 @@ class Pressable extends StatefulWidget {
     this.checked,
     this.selected,
     this.isButton = true,
-    this.isLink = false,
     this.cursor,
     this.behavior = HitTestBehavior.opaque,
+    this.onHover,
+    this.focusNode,
+    this.autofocus = false,
+    this.onFocusChange,
     required this.builder,
   });
 
   final VoidCallback? onPressed;
+
   final bool enabled;
 
-  /// Corner radius the focus ring should follow.
+  /// The corner the focus ring follows.
   final BorderRadius borderRadius;
+
   final bool showFocusRing;
+
   final String? semanticsLabel;
 
-  /// Set for switches, radios and checkboxes so assistive tech announces the
-  /// `aria-checked` equivalent.
+  /// Set for switches, radios and checkboxes, so assistive technology
+  /// announces the `aria-checked` equivalent.
   final bool? checked;
 
   /// The `aria-selected` equivalent, for tabs and list rows.
   final bool? selected;
+
   final bool isButton;
-  final bool isLink;
+
   final MouseCursor? cursor;
+
   final HitTestBehavior behavior;
-  final Widget Function(BuildContext context, PressableState state) builder;
+
+  final ValueChanged<bool>? onHover;
+
+  final FocusNode? focusNode;
+
+  final bool autofocus;
+
+  final ValueChanged<bool>? onFocusChange;
+
+  final Widget Function(BuildContext context, Set<WidgetState> states) builder;
 
   @override
   State<Pressable> createState() => _PressableState();
@@ -76,40 +84,53 @@ class _PressableState extends State<Pressable> {
 
   bool get _interactive => widget.enabled && widget.onPressed != null;
 
-  void _handleActivate() {
-    if (!_interactive) return;
-    widget.onPressed!.call();
+  void _activate() {
+    if (_interactive) widget.onPressed!.call();
   }
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final state = PressableState(
-      hovered: _hovered && _interactive,
-      focused: _focused,
-      pressed: _pressed && _interactive,
-      enabled: widget.enabled,
-    );
+    final ThemeVariables vars = Theme.of(context).vars;
 
-    Widget result = widget.builder(context, state);
+    final Set<WidgetState> states = <WidgetState>{
+      if (_hovered && _interactive) WidgetState.hovered,
+      if (_focused) WidgetState.focused,
+      if (_pressed && _interactive) WidgetState.pressed,
+      if (widget.selected ?? false) WidgetState.selected,
+      if (!_interactive) WidgetState.disabled,
+    };
+
+    Widget result = widget.builder(context, states);
 
     if (widget.showFocusRing) {
+      // The ring is the system accent on every control, macOS-style — a
+      // danger button focuses in the same halo as everything else.
       result = FocusRing(
         visible: _focused,
-        color: tokens.colors.focusRing,
+        color: vars.colorPrimary[vars.focusRingShade]!.withValues(
+          alpha: vars.focusRingAlpha,
+        ),
         borderRadius: widget.borderRadius,
+        width: vars.focusWidth,
+        offset: vars.focusOffset,
         child: result,
       );
     }
 
     result = FocusableActionDetector(
       enabled: _interactive,
-      mouseCursor: widget.cursor ??
-          (widget.enabled
+      focusNode: widget.focusNode,
+      autofocus: widget.autofocus,
+      onFocusChange: widget.onFocusChange,
+      mouseCursor:
+          widget.cursor ??
+          (_interactive
               ? SystemMouseCursors.click
               : SystemMouseCursors.forbidden),
       onShowHoverHighlight: (value) {
-        if (value != _hovered) setState(() => _hovered = value);
+        if (value == _hovered) return;
+        setState(() => _hovered = value);
+        widget.onHover?.call(value);
       },
       onShowFocusHighlight: (value) {
         if (value != _focused) setState(() => _focused = value);
@@ -117,7 +138,7 @@ class _PressableState extends State<Pressable> {
       actions: <Type, Action<Intent>>{
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
-            _handleActivate();
+            _activate();
             return null;
           },
         ),
@@ -138,7 +159,7 @@ class _PressableState extends State<Pressable> {
         },
         child: GestureDetector(
           behavior: widget.behavior,
-          onTap: _interactive ? _handleActivate : null,
+          onTap: _interactive ? _activate : null,
           child: result,
         ),
       ),
@@ -148,7 +169,6 @@ class _PressableState extends State<Pressable> {
       container: true,
       enabled: widget.enabled,
       button: widget.isButton && widget.checked == null,
-      link: widget.isLink,
       checked: widget.checked,
       selected: widget.selected,
       label: widget.semanticsLabel,
@@ -173,11 +193,15 @@ class _HoverRegionState extends State<HoverRegion> {
   bool _hovered = false;
 
   @override
-  Widget build(BuildContext context) => MouseRegion(
-        onEnter: (_) {
-          if (widget.enabled) setState(() => _hovered = true);
-        },
-        onExit: (_) => setState(() => _hovered = false),
-        child: widget.builder(context, _hovered && widget.enabled),
-      );
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        if (widget.enabled) setState(() => _hovered = true);
+      },
+      onExit: (_) {
+        if (_hovered) setState(() => _hovered = false);
+      },
+      child: widget.builder(context, _hovered && widget.enabled),
+    );
+  }
 }

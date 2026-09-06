@@ -31,6 +31,7 @@ beyondtranslate/
 │       ├── src/                  # Rust source
 │       └── Cargo.toml
 ├── packages/
+│   ├── ui_flutter/               # Flutter design system — VENDORED, do not edit
 │   └── runtime/                  # Flutter package: Rust FFI bridge (Dart)
 │       ├── lib/                  # Dart FFI bindings
 │       ├── rust/                 # Rust source for the runtime bridge
@@ -45,7 +46,9 @@ beyondtranslate/
 ├── scripts/
 │   ├── generate/                 # Code generation scripts
 │   ├── codegen.py                # Code generation entry
-│   └── format.py                 # Formatting helper
+│   ├── format.py                 # Formatting helper
+│   ├── sync_ui.py                # Vendors packages/ui_flutter from upstream
+│   └── sync_ui.lock.json         # The upstream commit that tree came from
 ├── screenshots/                  # App screenshots
 ├── Cargo.toml                    # Rust workspace root
 └── pubspec.yaml                  # Pub Workspaces + Melos config (root)
@@ -55,10 +58,51 @@ beyondtranslate/
 
 | Directory | Language | Role |
 |-----------|----------|------|
-| `apps/desktop` | Dart (Flutter) | Main desktop application |
+| `apps/desktop/flutter` | Dart (Flutter) | Main desktop application |
+| `packages/ui_flutter` | Dart (Flutter) | Design system, vendored from [fastforgedev/ui](https://github.com/fastforgedev/ui) |
 | `crates/core` | Rust | Shared core logic (models, utilities) |
 | `crates/engine` | Rust | Translation engine interface/logic |
 | `packages/runtime` | Dart + Rust + Swift | FFI bridge between Flutter and Rust; generates **Dart** bindings for Flutter and **Swift** bindings for the macOS SPM package |
+
+---
+
+## The design system (`packages/ui_flutter`)
+
+`packages/ui_flutter` is **not maintained here**. It is a verbatim copy of
+`packages/ui_flutter` from <https://github.com/fastforgedev/ui>, renamed into
+BeyondTranslate's namespace (`fastforge_ui` → `beyondtranslate_ui`). Hand edits
+are drift; `scripts/sync_ui.py --check` exists to catch them.
+
+```bash
+python3 scripts/sync_ui.py                  # sync to upstream main
+python3 scripts/sync_ui.py --ref <sha>      # sync to a branch, tag, or commit
+python3 scripts/sync_ui.py --check          # fails if the vendored tree drifted
+python3 scripts/sync_ui.py --diff           # show the drift
+python3 scripts/sync_ui.py --locked --force # discard local edits, restore upstream
+```
+
+The synced commit is pinned in `scripts/sync_ui.lock.json`. `scripts/format.py`
+and the `analyze` melos script both skip the package: upstream owns its
+formatting and its lints. Upstream's `example/` storybook is not vendored —
+read it upstream.
+
+### Where the line falls
+
+The kit ships **primitives only** and draws no window. Anything that encodes a
+product concept, and all window chrome, lives in the app:
+
+| Concern | Lives in |
+| --- | --- |
+| Buttons, fields, dialogs, tables, callouts, toasts, preferences | `packages/ui_flutter` |
+| Palette, tokens, type scale (`context.vars`) | `packages/ui_flutter` |
+| Named product colours and type recipes | `apps/desktop/flutter/lib/src/theme/product_tokens.dart` |
+| Theme selection and the Material bridge | `apps/desktop/flutter/lib/src/theme/app_theme.dart` |
+| Window chrome, traffic lights, caption buttons | `lib/src/widgets/window_chrome.dart` |
+| Resizable sidebar / rail | `lib/src/widgets/nav_columns.dart` |
+| Shortcut recorder, toast viewport, popover panel, brand mark | `lib/src/widgets/` |
+
+Pages import the kit through `lib/src/widgets/ui.dart`, never
+`package:beyondtranslate_ui/…` directly.
 
 ---
 
@@ -431,6 +475,8 @@ The `packages/runtime` package uses **uniffi** to generate Dart FFI bindings for
 | `cargo test --workspace` | Run all Rust tests |
 | `python scripts/format.py` | Format Dart, Rust, and Swift source files |
 | `python scripts/format.py --check` | Check Dart, Rust, and Swift formatting without modifying files |
+| `python3 scripts/sync_ui.py` | Re-vendor `packages/ui_flutter` from github.com/fastforgedev/ui |
+| `python3 scripts/sync_ui.py --check` | Fail if the vendored design system has drifted |
 
 ---
 

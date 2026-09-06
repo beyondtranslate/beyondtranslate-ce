@@ -1,87 +1,167 @@
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:flutter/widgets.dart';
 
-/// The flat 24px chrome button the mini-window toolbars use — pin, capture,
-/// clipboard, settings. AppKit style: no box by default, an accent read when
-/// [active], and a soft hover wash so the row still feels tappable.
+import '../foundation/widget_size.dart';
+import '../foundation/widget_tint.dart';
+import '../foundation/widget_variant.dart';
+import '../generated/theme_variables.dart';
+import '../painting/widget_property.dart';
+import '../theme/theme.dart';
+import 'pressable.dart';
+
+/// The tint of an icon button.
+enum IconButtonTint with WidgetTint {
+  primary,
+  neutral,
+  info,
+  success,
+  warning,
+  danger,
+}
+
+/// The variant of an icon button.
+enum IconButtonVariant with WidgetVariant {
+  normal,
+  recessed,
+  filled,
+  tinted,
+  outlined,
+  plain,
+}
+
+/// A square button.
 ///
-/// The glyph is a plain [Icon] (usually a `FluentIcons.*_20_regular`, the same
-/// set the React kit draws via `@fluentui/react-icons`); its colour is fed
-/// through [IconTheme], so pass it without an explicit colour.
-class IconButton extends StatelessWidget {
+/// Colour comes from the shared control recipes, but the default posture —
+/// the plain variant on the neutral tint — carries its own quiet chrome: a
+/// subtle-ink glyph that washes grey and darkens to full ink under the
+/// pointer, and turns accent when held on. A toolbar row of these has to read
+/// as chrome until touched, and the recipes' neutral ramp is too flat a grey
+/// for that.
+class IconButton extends StatefulWidget {
   const IconButton({
     super.key,
-    required this.label,
     required this.icon,
+    this.tint,
+    this.variant,
     this.active = false,
-    this.iconSize = 14,
-    this.enabled = true,
-    this.onPressed,
+    this.size = WidgetSize.tiny,
+    this.iconSize,
+    this.focusNode,
+    this.autofocus = false,
+    this.onFocusChange,
+    this.onHover,
+    this.semanticsLabel,
+    required this.onPressed,
   });
 
-  /// Accessible name — the `aria-label` of the React component.
-  final String label;
+  final IconData icon;
 
-  /// Persistent on-state — the pin button, for instance.
+  final IconButtonTint? tint;
+
+  final IconButtonVariant? variant;
+
+  /// A persistent on-state — a pin held down, a panel kept open. The glyph
+  /// takes the accent's text grade and the fill goes: "this is on" is a
+  /// colour statement, not a chip.
   final bool active;
 
-  /// Mirrors the `disabled` attribute React passes straight to the `<button>`.
-  /// Kept separate from a null [onPressed] so a caller can grey the affordance
-  /// out without having to drop the handler it already has.
-  final bool enabled;
-  final Widget icon;
+  final WidgetSize size;
 
-  /// Glyph size, fed through [IconTheme]. The React kit sets it per call site
-  /// on the `<Icon>` child — 18 in the mini-window toolbar, 16 in the sidebar
-  /// header, 13 on the document zoom stepper.
-  final double iconSize;
+  /// The glyph is smaller than the square it sits in.
+  final double? iconSize;
+
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final ValueChanged<bool>? onFocusChange;
+  final ValueChanged<bool>? onHover;
+  final String? semanticsLabel;
 
   final VoidCallback? onPressed;
 
+  bool get enabled => onPressed != null;
+
+  @override
+  State<IconButton> createState() => _IconButtonState();
+}
+
+class _IconButtonState extends State<IconButton> {
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.controlSm);
-    final disabled = !enabled || onPressed == null;
+    final ThemeVariables vars = Theme.of(context).vars;
+    final IconButtonVariant variant = widget.variant ?? IconButtonVariant.plain;
+    final IconButtonTint tint = widget.tint ?? IconButtonTint.neutral;
+
+    // The default posture keeps its own quiet chrome; anything else resolves
+    // against the recipes like every other control.
+    final bool quietChrome =
+        variant == IconButtonVariant.plain && tint == IconButtonTint.neutral;
+
+    final (double box, double radius) = switch (widget.size.namedSize) {
+      NamedSize.small => (vars.controlSmallSize, vars.controlSmallRadius),
+      NamedSize.medium => (vars.controlMediumSize, vars.controlMediumRadius),
+      NamedSize.large => (vars.controlLargeSize, vars.controlLargeRadius),
+      _ => (vars.controlTinySize, vars.controlTinyRadius),
+    };
+    final BorderRadius corner = BorderRadius.circular(radius);
 
     return Pressable(
-      onPressed: enabled ? onPressed : null,
-      enabled: !disabled,
-      borderRadius: radius,
-      semanticsLabel: label,
-      builder: (context, state) {
-        final foreground = active
-            ? colors.accentText
-            : (state.hovered ? colors.fg : colors.fgMuted);
+      onPressed: widget.onPressed,
+      enabled: widget.enabled,
+      borderRadius: corner,
+      focusNode: widget.focusNode,
+      autofocus: widget.autofocus,
+      onFocusChange: widget.onFocusChange,
+      onHover: widget.onHover,
+      semanticsLabel: widget.semanticsLabel,
+      builder: (context, states) {
+        final bool hovered = states.contains(WidgetState.hovered);
 
-        return Opacity(
-          // React leaves a disabled icon button to the browser's own `:disabled`
-          // rendering; on a `<button>` carrying no box that reads as no change
-          // at all, so both native ports dim the glyph instead and withhold the
-          // hover wash.
-          opacity: disabled ? 0.35 : 1,
-          child: AnimatedContainer(
-            duration: kTransitionDuration,
-            width: 24,
-            height: 24,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: !active && state.hovered ? colors.subtle : null,
-              borderRadius: radius,
-            ),
-            // `transition-colors` covers the glyph as well as the wash behind
-            // it, and an [IconTheme] does not animate on its own.
-            child: TweenAnimationBuilder<Color?>(
-              duration: kTransitionDuration,
-              tween: ColorTween(end: foreground),
-              builder: (context, color, child) => IconTheme(
-                data: IconThemeData(color: color, size: iconSize),
-                child: child!,
-              ),
-              child: icon,
-            ),
+        Color surface;
+        Color content;
+        Color border;
+
+        if (widget.active) {
+          surface = const Color(0x00000000);
+          content = vars.colorPrimary[700]!;
+          border = const Color(0x00000000);
+        } else if (quietChrome) {
+          // A toolbar glyph washes neutral, not accent.
+          surface = hovered && widget.enabled
+              ? vars.colorSurfaceSubtle
+              : const Color(0x00000000);
+          content = widget.enabled
+              ? (hovered ? vars.colorContent : vars.colorContentSubtle)
+              : vars.controlColorNormalContent.disabledColor!;
+          border = const Color(0x00000000);
+        } else {
+          final ColorSwatch<int> ramp = vars.controlColor.tinted(tint);
+          Color resolve(WidgetProperty<Color> Function() get) =>
+              get().resolveWith(
+                states,
+                variant: variant,
+                extra: {
+                  'seedColor': ramp,
+                },
+              );
+          surface = resolve(() => vars.controlColorSurface);
+          content = resolve(() => vars.controlColorContent);
+          border = resolve(() => vars.controlColorBorder);
+        }
+
+        return AnimatedContainer(
+          duration: vars.motionDuration,
+          curve: vars.motionEasing,
+          width: box,
+          height: box,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: surface, borderRadius: corner),
+          foregroundDecoration: BoxDecoration(
+            border: Border.all(color: border, width: context.hairlineWidth),
+            borderRadius: corner,
+          ),
+          child: Icon(
+            widget.icon,
+            size: widget.iconSize ?? vars.spacing35,
+            color: content,
           ),
         );
       },

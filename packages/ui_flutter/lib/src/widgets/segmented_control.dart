@@ -1,19 +1,22 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
 import 'package:flutter/widgets.dart';
 
-enum SegmentedSize { sm, md }
+import '../foundation/widget_size.dart';
+import '../generated/theme_variables.dart';
+import '../theme/theme.dart';
+import 'pressable.dart';
 
+/// How the chosen segment is picked out.
 enum SegmentedActiveStyle {
-  /// Fills the active segment with the accent colour — louder, and worth
-  /// reserving for places the choice needs to shout.
-  accent,
-
-  /// Lifts the active segment off the track, the way AppKit draws it.
+  /// Lifts a lighter capsule off the track, which is what a desktop
+  /// segmented control does. The default.
   raised,
+
+  /// Paints it with the tint — louder, and worth keeping for a choice that
+  /// has to shout.
+  filled,
 }
 
+/// One segment.
 @immutable
 class SegmentedItem<T> {
   const SegmentedItem({
@@ -23,123 +26,185 @@ class SegmentedItem<T> {
   });
 
   final T value;
-  final Widget label;
+  final String label;
   final bool enabled;
 }
 
-/// The 正式 / 口语 / 技术 style switch — also used for reading modes, provider
-/// protocol tabs and the browser popup's alignment picker.
+/// A recessed track with one segment picked out.
+///
+/// The nesting is derived, not restated: the track takes the control corner,
+/// the capsule sits `segmented-control.inset` inside it, and its corner is the
+/// track's minus the inset — the only relationship that keeps the two curves
+/// concentric. The segment's height is likewise the control height minus the
+/// inset on both sides, so a segmented control lines up with the buttons
+/// beside it.
 class SegmentedControl<T> extends StatelessWidget {
   const SegmentedControl({
     super.key,
     required this.items,
     required this.value,
-    this.onChanged,
+    required this.onChanged,
+    this.size = WidgetSize.small,
     this.activeStyle = SegmentedActiveStyle.raised,
-    this.size = SegmentedSize.md,
     this.stretch = false,
-    this.semanticsLabel,
   });
 
   final List<SegmentedItem<T>> items;
-  final T value;
+  final T? value;
   final ValueChanged<T>? onChanged;
+  final WidgetSize size;
   final SegmentedActiveStyle activeStyle;
-  final SegmentedSize size;
-
-  /// Fill the available width, splitting it evenly between the segments.
   final bool stretch;
-  final String? semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final ThemeVariables vars = Theme.of(context).vars;
+    final double inset = vars.segmentedControlInset;
 
-    final trackRadius = BorderRadius.circular(
-      size == SegmentedSize.sm ? tokens.radii.controlSm : tokens.radii.control,
-    );
-    final segmentRadius = BorderRadius.circular(tokens.radii.chip);
-    // Both sizes draw a fixed 22px segment; only the inset and the type size
-    // change, so a sm track and an md track stack to the same rhythm.
-    final segmentPadding = switch (size) {
-      SegmentedSize.sm => const EdgeInsets.symmetric(horizontal: 11),
-      SegmentedSize.md => const EdgeInsets.symmetric(horizontal: 12),
+    final (
+      double controlSize,
+      double trackRadius,
+      TextStyle face,
+    ) = switch (size.namedSize) {
+      NamedSize.tiny => (
+        vars.controlTinySize,
+        vars.controlTinyRadius,
+        vars.labelSmall,
+      ),
+      // The medium track takes the regular control corner — one step above
+      // the button beside it, because the track is a container for
+      // capsules rather than a control face itself.
+      NamedSize.medium => (
+        vars.controlMediumSize,
+        vars.radiusMedium,
+        vars.labelMedium,
+      ),
+      NamedSize.large => (
+        vars.controlLargeSize,
+        vars.radiusMedium,
+        vars.labelMedium,
+      ),
+      _ => (
+        vars.controlSmallSize,
+        vars.controlSmallRadius,
+        vars.labelMedium,
+      ),
     };
-    final fontSize = size == SegmentedSize.sm ? 11.0 : 12.0;
 
-    Widget buildSegment(SegmentedItem<T> item) {
-      final active = item.value == value;
-      return Pressable(
-        enabled: item.enabled,
-        onPressed: onChanged == null || !item.enabled
-            ? null
-            : () => onChanged!(item.value),
-        borderRadius: segmentRadius,
-        checked: active,
-        isButton: false,
-        builder: (context, state) {
-          final activeAccent =
-              active && activeStyle == SegmentedActiveStyle.accent;
-          final activeRaised =
-              active && activeStyle == SegmentedActiveStyle.raised;
+    final List<Widget> segments = [
+      for (final SegmentedItem<T> item in items)
+        _Segment<T>(
+          item: item,
+          selected: item.value == value,
+          activeStyle: activeStyle,
+          height: controlSize - 2 * inset,
+          radius: trackRadius - inset,
+          face: face,
+          onPressed: onChanged == null || !item.enabled
+              ? null
+              : () => onChanged!(item.value),
+        ),
+    ];
 
-          return Opacity(
-            opacity: item.enabled ? 1 : 0.5,
+    return Container(
+      padding: EdgeInsets.all(inset),
+      decoration: BoxDecoration(
+        color: vars.colorSurfaceInset,
+        borderRadius: BorderRadius.circular(trackRadius),
+      ),
+      child: Row(
+        mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          for (final Widget segment in segments)
+            if (stretch) Expanded(child: segment) else segment,
+        ],
+      ),
+    );
+  }
+}
+
+class _Segment<T> extends StatelessWidget {
+  const _Segment({
+    required this.item,
+    required this.selected,
+    required this.activeStyle,
+    required this.height,
+    required this.radius,
+    required this.face,
+    required this.onPressed,
+  });
+
+  final SegmentedItem<T> item;
+  final bool selected;
+  final SegmentedActiveStyle activeStyle;
+  final double height;
+  final double radius;
+  final TextStyle face;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeVariables vars = Theme.of(context).vars;
+    final BorderRadius corner = BorderRadius.circular(radius);
+
+    return Pressable(
+      onPressed: onPressed,
+      enabled: item.enabled,
+      selected: selected,
+      borderRadius: corner,
+      builder: (context, states) {
+        final bool hovered = states.contains(WidgetState.hovered);
+
+        Color? surface;
+        Color content = hovered
+            ? vars.colorContent
+            : vars.colorContentSecondary;
+        if (selected) {
+          switch (activeStyle) {
+            case SegmentedActiveStyle.raised:
+              surface = vars.colorSurfaceRaised;
+              content = vars.colorContent;
+            case SegmentedActiveStyle.filled:
+              surface = vars
+                  .colorPrimary[vars.controlColorFilledSurface.normalShade!]!;
+              content = vars.colorOnAccent;
+          }
+        }
+
+        return Opacity(
+          opacity: item.enabled ? 1 : 0.5,
+          child: SizedBox(
+            height: height,
             child: AnimatedContainer(
-              duration: kTransitionDuration,
-              height: 22,
-              padding: segmentPadding,
+              duration: vars.motionDuration,
+              curve: vars.motionEasing,
+              padding: EdgeInsets.symmetric(horizontal: vars.spacing3),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: activeAccent
-                    ? colors.accent
-                    : (activeRaised ? colors.controlRaised : null),
-                borderRadius: segmentRadius,
-                boxShadow: active ? tokens.shadows.accent : null,
+                color: surface,
+                borderRadius: corner,
+                // Both active styles lift with the hairline shadow.
+                boxShadow: selected ? vars.shadow2xs : const <BoxShadow>[],
               ),
-              child: DefaultTextStyle(
-                textAlign: TextAlign.center,
+              child: Text(
+                item.label,
+                maxLines: 1,
                 softWrap: false,
-                style: tokens.typography.sansStyle(
-                  fontSize: fontSize,
-                  fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                textAlign: TextAlign.center,
+                style: vars.labelQuiet.copyWith(
+                  fontSize: face.fontSize,
                   height: 1,
-                  color: activeAccent
-                      ? colors.onAccent
-                      : active
-                          ? colors.fg
-                          : (state.hovered ? colors.fg : colors.fgSecondary),
+                  // Selection is a weight shift as much as a fill.
+                  fontWeight: selected
+                      ? vars.labelMedium.fontWeight
+                      : vars.labelQuiet.fontWeight,
+                  color: content,
                 ),
-                child: item.label,
               ),
             ),
-          );
-        },
-      );
-    }
-
-    return Semantics(
-      label: semanticsLabel,
-      container: semanticsLabel != null,
-      child: Container(
-        width: stretch ? double.infinity : null,
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: colors.inset,
-          borderRadius: trackRadius,
-        ),
-        child: Row(
-          mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
-          children: [
-            for (final item in items)
-              if (stretch)
-                Expanded(child: buildSegment(item))
-              else
-                buildSegment(item),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

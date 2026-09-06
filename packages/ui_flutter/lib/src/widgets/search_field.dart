@@ -1,176 +1,120 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
-import 'package:beyondtranslate_ui/src/widgets/kbd.dart';
-import 'package:beyondtranslate_ui/src/widgets/pressable.dart';
-import 'package:flutter/cupertino.dart' show CupertinoTextField;
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Inline search used by 收藏与历史 and 术语库; opened with ⌘F.
+import '../foundation/widget_size.dart';
+import '../generated/theme_variables.dart';
+import '../theme/theme.dart';
+import 'text_field.dart';
+
+/// A search box.
+///
+/// The box belongs to the wrapper, not the field, because the glyph and the
+/// trailing slot sit inside it — so the focus treatment comes from the row
+/// rather than from the field itself.
 class SearchField extends StatefulWidget {
   const SearchField({
     super.key,
-    required this.value,
-    required this.onChanged,
-    this.placeholder = '搜索',
-    this.shortcut = '⌘F',
-    this.autofocus = false,
-    this.onDismiss,
-    this.clearLabel = '清除',
-    this.semanticsLabel,
+    this.controller,
+    this.placeholder,
+    this.size = WidgetSize.medium,
+    this.hint,
+    this.onChanged,
+    this.onSubmitted,
+    this.enabled = true,
   });
 
-  final String value;
-  final ValueChanged<String> onChanged;
-  final String placeholder;
+  final TextEditingController? controller;
+  final String? placeholder;
+  final WidgetSize size;
 
-  /// Shortcut glyph shown while the field is empty.
-  final String shortcut;
+  /// The trailing hint — a `KeyCap` naming the shortcut that focuses the field.
+  final Widget? hint;
 
-  /// Focus on mount — the field is normally opened by ⌘F.
-  final bool autofocus;
-
-  /// Called on Escape; the caller usually closes the field.
-  final VoidCallback? onDismiss;
-
-  /// Accessible name of the ✕ button. Relabel it to localise.
-  final String clearLabel;
-  final String? semanticsLabel;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final bool enabled;
 
   @override
   State<SearchField> createState() => _SearchFieldState();
 }
 
 class _SearchFieldState extends State<SearchField> {
-  late final TextEditingController _controller = TextEditingController(
-    text: widget.value,
-  );
-  late final FocusNode _node = FocusNode();
-  bool _focused = false;
+  late final FocusNode _focusNode = FocusNode()..addListener(_onFocusChanged);
+  late final TextEditingController _controller =
+      widget.controller ?? TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _node.addListener(() {
-      if (_node.hasFocus != _focused) setState(() => _focused = _node.hasFocus);
-    });
-  }
-
-  @override
-  void didUpdateWidget(SearchField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.value != _controller.text) {
-      _controller.value = TextEditingValue(
-        text: widget.value,
-        selection: TextSelection.collapsed(offset: widget.value.length),
-      );
-    }
-  }
+  void _onFocusChanged() => setState(() {});
 
   @override
   void dispose() {
-    _controller.dispose();
-    _node.dispose();
+    _focusNode
+      ..removeListener(_onFocusChanged)
+      ..dispose();
+    if (widget.controller == null) _controller.dispose();
     super.dispose();
-  }
-
-  KeyEventResult _handleKey(FocusNode node, KeyEvent event) {
-    if (event is! KeyDownEvent) return KeyEventResult.ignored;
-    if (event.logicalKey != LogicalKeyboardKey.escape) {
-      return KeyEventResult.ignored;
-    }
-    if (widget.value.isNotEmpty) {
-      widget.onChanged('');
-    } else {
-      widget.onDismiss?.call();
-    }
-    return KeyEventResult.handled;
   }
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final radius = BorderRadius.circular(tokens.radii.control);
+    final ThemeVariables vars = Theme.of(context).vars;
+    final bool focused = _focusNode.hasFocus;
+    final Color accent = vars.colorPrimary[vars.focusRingShade]!;
 
-    final style = tokens.typography.sansStyle(
-      fontSize: 12,
-      height: 1,
-      color: colors.fg,
-    );
+    final double height = switch (widget.size.namedSize) {
+      NamedSize.tiny => vars.controlTinySize,
+      NamedSize.small => vars.controlSmallSize,
+      NamedSize.large => vars.controlLargeSize,
+      _ => vars.controlMediumSize,
+    };
 
     return AnimatedContainer(
-      duration: kTransitionDuration,
-      // `h-7 px-3`: the same 28px box as an Input, so a search field can take
-      // an input's place in a toolbar without moving anything.
-      height: 28,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      duration: vars.motionDuration,
+      curve: vars.motionEasing,
+      height: height,
+      padding: EdgeInsets.symmetric(horizontal: vars.spacing3),
       decoration: BoxDecoration(
-        color: _focused ? colors.window : colors.card,
-        // `focus-within:border-accent` recolours the hairline without
-        // rewidening it — the ring below carries the focus, not the border.
+        // Focus lifts the card to the paper behind a soft accent wash — the
+        // same move every text control makes.
+        color: focused ? vars.colorSurface : vars.colorSurfaceMuted,
         border: Border.all(
-          color: _focused ? colors.accent : colors.hairlineStrong,
+          color: focused ? accent : vars.colorBorderStrong,
           width: context.hairlineWidth,
         ),
-        borderRadius: radius,
-        boxShadow: _focused
-            ? [BoxShadow(color: colors.accentRing, spreadRadius: 3)]
+        borderRadius: BorderRadius.circular(vars.radiusMedium),
+        boxShadow: focused
+            ? [
+                BoxShadow(
+                  color: accent.withValues(alpha: vars.focusGlowAlpha),
+                  spreadRadius: vars.focusWidth,
+                ),
+              ]
             : null,
       ),
       child: Row(
+        spacing: vars.spacing2,
         children: [
-          ExcludeSemantics(
-            child: Text(
-              '⌕',
-              style: tokens.typography.sansStyle(
-                fontSize: 12,
-                height: 1,
-                color: colors.fgFaint,
-              ),
-            ),
+          Icon(
+            _kSearch,
+            size: vars.spacing4,
+            color: vars.colorContentFaint,
           ),
-          const SizedBox(width: 8),
           Expanded(
-            child: Focus(
-              onKeyEvent: _handleKey,
-              child: Semantics(
-                textField: true,
-                label: widget.semanticsLabel ?? widget.placeholder,
-                child: CupertinoTextField.borderless(
-                  controller: _controller,
-                  focusNode: _node,
-                  autofocus: widget.autofocus,
-                  padding: EdgeInsets.zero,
-                  placeholder: widget.placeholder,
-                  placeholderStyle: style.copyWith(color: colors.fgFaint),
-                  style: style,
-                  cursorColor: colors.accent,
-                  cursorWidth: 1,
-                  onChanged: widget.onChanged,
-                ),
-              ),
+            child: TextField.borderless(
+              controller: _controller,
+              focusNode: _focusNode,
+              placeholder: widget.placeholder,
+              size: widget.size,
+              enabled: widget.enabled,
+              padding: EdgeInsets.zero,
+              onChanged: widget.onChanged,
+              onSubmitted: widget.onSubmitted,
             ),
           ),
-          const SizedBox(width: 8),
-          if (widget.value.isNotEmpty)
-            Pressable(
-              onPressed: () => widget.onChanged(''),
-              semanticsLabel: widget.clearLabel,
-              borderRadius: BorderRadius.circular(999),
-              builder: (context, state) => Text(
-                '✕',
-                style: tokens.typography.sansStyle(
-                  fontSize: 12,
-                  height: 1,
-                  color: state.hovered ? colors.fg : colors.fgFaint,
-                ),
-              ),
-            )
-          else
-            Kbd(widget.shortcut),
+          if (widget.hint != null && _controller.text.isEmpty) widget.hint!,
         ],
       ),
     );
   }
 }
+
+/// The search glyph, from the icon library the package already ships.
+const IconData _kSearch = IconData(0xe8b6, fontFamily: 'MaterialIcons');

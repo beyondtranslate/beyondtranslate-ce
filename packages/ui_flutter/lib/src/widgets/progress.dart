@@ -1,72 +1,119 @@
-import 'dart:math' as math;
-
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
-enum ProgressTone { accent, success, warn, gradient }
+import '../foundation/widget_size.dart';
+import '../foundation/widget_tint.dart';
+import '../generated/theme_variables.dart';
+import '../theme/theme.dart';
 
-enum ProgressThickness {
-  /// 4px, for quality meters.
-  thin,
-
-  /// 6px, for document progress.
-  thick,
+/// The tint a [Progress] bar fills with.
+enum ProgressTint with WidgetTint {
+  primary,
+  neutral,
+  info,
+  success,
+  warning,
+  danger,
 }
 
-class ProgressBar extends StatelessWidget {
-  const ProgressBar({
+/// A rule cut into the surface, not a capsule.
+///
+/// The corner is a soft square and the fill's leading edge is a hard clip
+/// against it — a pill's rounded head would read as a thumb.
+class Progress extends StatefulWidget {
+  const Progress({
     super.key,
-    required this.value,
-    this.tone = ProgressTone.accent,
-    this.thickness = ProgressThickness.thin,
-  });
+    this.value,
+    this.size = WidgetSize.small,
+    this.tint = ProgressTint.primary,
+    this.gradient = false,
+    this.semanticsLabel,
+  }) : assert(value == null || (value >= 0 && value <= 1));
 
-  /// 0–100.
-  final double value;
-  final ProgressTone tone;
-  final ProgressThickness thickness;
+  /// How far along, from 0 to 1. A null value is the indeterminate sweep.
+  final double? value;
+
+  final WidgetSize size;
+
+  final ProgressTint tint;
+
+  /// The document-progress fill: the theme's two-stop accent ramp.
+  final bool gradient;
+
+  final String? semanticsLabel;
+
+  @override
+  State<Progress> createState() => _ProgressState();
+}
+
+class _ProgressState extends State<Progress>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _sweep = AnimationController(
+    duration: const Duration(milliseconds: 1200),
+    vsync: this,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.value == null) _sweep.repeat();
+  }
+
+  @override
+  void didUpdateWidget(Progress oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final bool indeterminate = widget.value == null;
+    if (indeterminate && !_sweep.isAnimating) {
+      _sweep.repeat();
+    } else if (!indeterminate && _sweep.isAnimating) {
+      _sweep.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _sweep.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final clamped = value.clamp(0.0, 100.0);
+    final ThemeVariables vars = Theme.of(context).vars;
 
-    final height = thickness == ProgressThickness.thin ? 4.0 : 6.0;
-    final radius = BorderRadius.circular(
-      thickness == ProgressThickness.thin ? 2 : 3,
-    );
-
-    final fill = switch (tone) {
-      ProgressTone.accent => colors.accent,
-      ProgressTone.success => colors.success,
-      ProgressTone.warn => colors.warn,
-      ProgressTone.gradient => null,
+    final double thickness = switch (widget.size.namedSize) {
+      NamedSize.large => vars.spacing2,
+      NamedSize.medium => vars.spacing15,
+      _ => vars.spacing1,
+    };
+    final ColorSwatch<int> ramp = switch (widget.tint) {
+      ProgressTint.primary => vars.colorPrimary,
+      ProgressTint.neutral => vars.colorNeutral,
+      ProgressTint.info => vars.colorInfo,
+      ProgressTint.success => vars.colorSuccess,
+      ProgressTint.warning => vars.colorWarning,
+      ProgressTint.danger => vars.colorDanger,
     };
 
-    return Semantics(
-      value: '${clamped.round()}%',
-      child: ClipRRect(
-        borderRadius: radius,
-        child: Container(
-          height: height,
-          width: double.infinity,
-          color: colors.track,
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: FractionallySizedBox(
-              widthFactor: clamped / 100,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                decoration: BoxDecoration(
-                  color: fill,
-                  gradient: tone == ProgressTone.gradient
-                      ? tokens.progressGradient
-                      : null,
-                ),
-              ),
+    final Decoration fill = widget.gradient
+        ? BoxDecoration(
+            gradient: LinearGradient(
+              colors: [vars.progressGradientFrom, vars.progressGradientTo],
             ),
+          )
+        : BoxDecoration(color: ramp[600]);
+
+    return Semantics(
+      label: widget.semanticsLabel,
+      value: widget.value == null ? null : '${(widget.value! * 100).round()}%',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(thickness / 2),
+        child: SizedBox(
+          height: thickness,
+          width: double.infinity,
+          child: ColoredBox(
+            color: vars.colorSurfaceSunken,
+            child: widget.value == null
+                ? _Sweep(animation: _sweep, decoration: fill)
+                : _Fill(value: widget.value!, decoration: fill, vars: vars),
           ),
         ),
       ),
@@ -74,165 +121,63 @@ class ProgressBar extends StatelessWidget {
   }
 }
 
-/// Label / value / bar triplet used by the 质量信号 panel.
-class Meter extends StatelessWidget {
-  const Meter({
-    super.key,
-    required this.label,
+/// The travel is twice the system's crossfade — a bar that jumped to its new
+/// value would read as a redraw rather than as progress.
+class _Fill extends StatelessWidget {
+  const _Fill({
     required this.value,
-    this.display,
-    this.tone = ProgressTone.success,
-  }) : assert(
-          tone != ProgressTone.gradient,
-          'A meter reads a single value, so it takes a solid tone.',
-        );
+    required this.decoration,
+    required this.vars,
+  });
 
-  final Widget label;
   final double value;
-
-  /// Defaults to `value%`.
-  final Widget? display;
-  final ProgressTone tone;
+  final Decoration decoration;
+  final ThemeVariables vars;
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-
-    final valueColor = switch (tone) {
-      ProgressTone.success => colors.success,
-      ProgressTone.warn => colors.warnStrong,
-      ProgressTone.accent => colors.accentText,
-      ProgressTone.gradient => colors.accentText,
-    };
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: DefaultTextStyle(
-                style: tokens.typography.sansStyle(
-                  fontSize: 12,
-                  color: colors.fgTertiary,
-                ),
-                child: label,
-              ),
-            ),
-            const SizedBox(width: 12),
-            DefaultTextStyle(
-              style: tokens.typography.displayStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                height: 1,
-                color: valueColor,
-              ),
-              child: display ?? Text('${value.round()}%'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 7),
-        ProgressBar(value: value, tone: tone),
-      ],
-    );
-  }
-}
-
-enum SpinnerSize { sm, md, lg }
-
-/// The ring spinner: a two-tone ring with the top quarter in the accent.
-class Spinner extends StatefulWidget {
-  const Spinner({super.key, this.size = SpinnerSize.md, this.onAccent = false});
-
-  final SpinnerSize size;
-
-  /// Use on accent fills, where the ring must be white.
-  final bool onAccent;
-
-  @override
-  State<Spinner> createState() => _SpinnerState();
-}
-
-class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 1),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    final (double diameter, double stroke) = switch (widget.size) {
-      SpinnerSize.sm => (14, 2),
-      SpinnerSize.md => (16, 2),
-      SpinnerSize.lg => (18, 2.5),
-    };
-
-    final track = widget.onAccent
-        ? const Color(0xFFFFFFFF).withValues(alpha: 0.35)
-        : colors.accent.withValues(alpha: 0.25);
-    final head = widget.onAccent ? const Color(0xFFFFFFFF) : colors.accent;
-
-    return Semantics(
-      label: '加载中',
-      child: RotationTransition(
-        turns: _controller,
-        child: CustomPaint(
-          size: Size.square(diameter),
-          painter: _RingPainter(track: track, head: head, strokeWidth: stroke),
-        ),
+    return LayoutBuilder(
+      builder: (context, constraints) => AnimatedContainer(
+        duration: vars.motionDuration * 2,
+        curve: vars.motionEasing,
+        alignment: AlignmentDirectional.centerStart,
+        width: constraints.maxWidth * value,
+        decoration: decoration,
       ),
     );
   }
 }
 
-class _RingPainter extends CustomPainter {
-  const _RingPainter({
-    required this.track,
-    required this.head,
-    required this.strokeWidth,
-  });
+/// An indeterminate bar has no width to animate, so it sweeps instead.
+class _Sweep extends StatelessWidget {
+  const _Sweep({required this.animation, required this.decoration});
 
-  final Color track;
-  final Color head;
-  final double strokeWidth;
+  final Animation<double> animation;
+  final Decoration decoration;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(
-      0,
-      0,
-      size.width,
-      size.height,
-    ).deflate(strokeWidth / 2);
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..color = track;
-    canvas.drawOval(rect, paint);
-    // `border-t-accent` colours the top edge only, which on a circle is the
-    // quarter arc between the two corner miters.
-    canvas.drawArc(
-      rect,
-      -3 * math.pi / 4,
-      math.pi / 2,
-      false,
-      paint..color = head,
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth * 0.4;
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            final double t = Curves.easeInOut.transform(animation.value);
+            return Transform.translate(
+              offset: Offset(
+                -width + (constraints.maxWidth + width * 2) * t,
+                0,
+              ),
+              child: child,
+            );
+          },
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Container(width: width, decoration: decoration),
+          ),
+        );
+      },
     );
   }
-
-  @override
-  bool shouldRepaint(_RingPainter oldDelegate) =>
-      oldDelegate.track != track ||
-      oldDelegate.head != head ||
-      oldDelegate.strokeWidth != strokeWidth;
 }

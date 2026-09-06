@@ -1,178 +1,143 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
-enum DialogTone {
-  standard,
+import '../generated/theme_variables.dart';
+import '../theme/theme.dart';
 
-  /// Draws the danger border used by the failed-key state.
-  danger,
-}
+/// What a dialog is about to do.
+enum DialogTone { normal, danger }
 
-/// Sheet shell for 添加提供商 and 导出译文.
+/// The sheet a modal form or a confirmation is built in.
 ///
-/// It never grows past the viewport: the header and the footer keep their
-/// height and [DialogBody] absorbs whatever is left, scrolling inside itself
-/// when the content is taller than that. A short dialog still sizes to its
-/// content — the cap only bites once there is more than the screen can hold.
+/// It never grows past its scrim, and when the content still does not fit,
+/// the body scrolls while the header and footer stay put.
 class Dialog extends StatelessWidget {
   const Dialog({
     super.key,
-    this.width = 440,
-    this.tone = DialogTone.standard,
+    this.tone = DialogTone.normal,
     required this.children,
   });
 
-  final double width;
   final DialogTone tone;
   final List<Widget> children;
 
-  /// Air left between the sheet and the edges of the screen.
-  static const _kViewportMargin = 48.0;
-
-  /// Used when nothing upstream knows how big the window is. The sheet has to
-  /// be given *some* finite height or [DialogBody] cannot flex inside it.
-  static const _kFallbackMaxHeight = 720.0;
-
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final viewport = MediaQuery.maybeSizeOf(context)?.height;
-    final maxHeight = viewport == null
-        ? _kFallbackMaxHeight
-        : (viewport - _kViewportMargin).clamp(0.0, double.infinity);
+    final ThemeVariables vars = Theme.of(context).vars;
 
-    return Semantics(
-      scopesRoute: true,
-      explicitChildNodes: true,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight),
-        child: Container(
-          width: width,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: colors.window,
-            borderRadius: BorderRadius.circular(tokens.radii.window),
-            border: Border.all(
-              color: tone == DialogTone.standard
-                  ? colors.hairlineStrong
-                  : colors.dangerHairline,
-              width: context.hairlineWidth,
-            ),
-            boxShadow: tokens.shadows.popover,
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: vars.dialogWidth),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: vars.colorSurface,
+          border: Border.all(
+            color: tone == DialogTone.danger
+                // A dangerous sheet is edged in its own hue.
+                ? vars.colorDanger[600]!.withValues(alpha: 0.34)
+                : vars.colorBorderStrong,
+            width: context.hairlineWidth,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: children,
-          ),
+          // The window corner and the popover shadow: a dialog is a window
+          // that floats, not a panel that hovers at the window's own
+          // elevation.
+          borderRadius: BorderRadius.circular(vars.frameWindowRadius),
+          boxShadow: vars.shadowLg,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
         ),
       ),
     );
   }
 }
 
+/// The title band.
 class DialogHeader extends StatelessWidget {
-  const DialogHeader({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.child,
-  });
+  const DialogHeader({super.key, required this.title, this.subtitle});
 
-  final Widget title;
-  final Widget? subtitle;
-  final Widget? child;
+  final String title;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final ThemeVariables vars = Theme.of(context).vars;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      // `min-h-11`: the band is content-driven, which collapses it to 37
-      // without a subtitle — too short over a 52px footer. 44 is the floor the
-      // content centres in.
-      constraints: const BoxConstraints(minHeight: 44),
+      // Floored so a subtitle-less header still balances the footer.
+      constraints: BoxConstraints(minHeight: vars.spacing11),
+      padding: EdgeInsets.symmetric(
+        vertical: vars.spacing3,
+        horizontal: vars.spacing5,
+      ),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: colors.hairline,
+            color: vars.colorBorder,
             width: context.hairlineWidth,
           ),
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
+        spacing: vars.spacing1,
         children: [
-          // Same scale as the window titlebar — a sheet's title should not
-          // outrank the window it sits over.
-          DefaultTextStyle(
-            style: tokens.typography.displayStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+          Text(
+            title,
+            style: vars.labelStrong.copyWith(
+              fontSize: vars.titleSmall.fontSize,
               height: 1,
-              letterSpacing: -0.13,
-              color: colors.fg,
+              letterSpacing: -0.01 * vars.titleSmall.fontSize!,
+              color: vars.colorContent,
             ),
-            child: title,
           ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 3),
-            DefaultTextStyle(
-              // A flat 15px line box, not 1.4: 11 × 1.4 = 15.4 leaves the band
-              // on a fractional height and its hairline between device pixels.
-              style: tokens.typography.sansStyle(
-                fontSize: 11,
-                height: 15 / 11,
-                color: colors.fgSubtle,
+          if (subtitle != null)
+            Text(
+              subtitle!,
+              style: vars.captionSmall.copyWith(
+                color: vars.colorContentSubtle,
               ),
-              child: subtitle!,
             ),
-          ],
-          if (child != null) ...[const SizedBox(height: 3), child!],
         ],
       ),
     );
   }
 }
 
-/// The sheet's content, and the only part of it that scrolls.
-///
-/// It takes whatever height the header and the footer leave and scrolls inside
-/// that, so those two never move. The padding belongs to the scroll view
-/// rather than sitting around it: the scrollable region reaches all the way to
-/// both bands, and content slides under them instead of stopping short.
-///
-/// Being a [Flexible] makes it the [Dialog] column's stretchy child, so it must
-/// be used inside one.
+/// The only part that scrolls, so the only part that may shrink.
 class DialogBody extends StatelessWidget {
   const DialogBody({super.key, required this.children});
 
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => Flexible(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0) const SizedBox(height: 16),
-                children[i],
-              ],
-            ],
-          ),
+  Widget build(BuildContext context) {
+    final ThemeVariables vars = Theme.of(context).vars;
+
+    return Flexible(
+      child: SingleChildScrollView(
+        // A step and a half: the body pads deeper than the chrome above and
+        // below it, so the content sits clear of both rules rather than level
+        // with their text.
+        padding: EdgeInsets.symmetric(
+          vertical: vars.spacing4 + vars.spacing05,
+          horizontal: vars.spacing5,
         ),
-      );
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          spacing: vars.spacing4,
+          children: children,
+        ),
+      ),
+    );
+  }
 }
 
+/// The action band.
 class DialogFooter extends StatelessWidget {
   const DialogFooter({super.key, required this.children});
 
@@ -180,25 +145,95 @@ class DialogFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final ThemeVariables vars = Theme.of(context).vars;
+
     return Container(
-      // 12 puts an md Button's band on 52, matching the titlebar metric — a
-      // sheet should not out-measure the window it sits over. Chrome pads 12,
-      // content pads 18.
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        vertical: vars.spacing3,
+        horizontal: vars.spacing5,
+      ),
       decoration: BoxDecoration(
-        color: colors.chrome,
+        color: vars.colorSurfaceChrome,
         border: Border(
-          top: BorderSide(color: colors.hairline, width: context.hairlineWidth),
+          top: BorderSide(
+            color: vars.colorBorder,
+            width: context.hairlineWidth,
+          ),
         ),
       ),
-      child: Row(
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) const SizedBox(width: 8),
-            children[i],
-          ],
-        ],
+      child: Row(spacing: vars.spacing2, children: children),
+    );
+  }
+}
+
+/// Puts a dialog over the window.
+///
+/// The stylesheet's scrim is `position: fixed`, which has no counterpart in
+/// Flutter's layout — a widget placed in the tree is bounded by whatever
+/// holds it. A modal has to reach the [Navigator] to cover the window, so
+/// this is what makes the scrim mean what the stylesheet says it means.
+///
+/// Returns whatever the dialog pops with.
+Future<T?> showDialog<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool dismissible = true,
+}) {
+  final ThemeData theme = Theme.of(context);
+
+  return Navigator.of(context, rootNavigator: true).push<T>(
+    RawDialogRoute<T>(
+      barrierDismissible: dismissible,
+      barrierLabel: 'Dismiss',
+      // The scrim paints itself, so the barrier stays out of the way.
+      barrierColor: const Color(0x00000000),
+      transitionDuration: theme.vars.motionDuration,
+      pageBuilder: (context, animation, secondaryAnimation) => Theme(
+        data: theme,
+        child: Builder(
+          builder: (context) => DialogScrim(
+            onDismiss: dismissible ? () => Navigator.of(context).pop() : null,
+            child: builder(context),
+          ),
+        ),
+      ),
+      transitionBuilder: (context, animation, secondary, child) =>
+          FadeTransition(
+            opacity: CurvedAnimation(
+              parent: animation,
+              curve: theme.vars.motionEasing,
+            ),
+            child: child,
+          ),
+    ),
+  );
+}
+
+/// The dim behind a modal.
+class DialogScrim extends StatelessWidget {
+  const DialogScrim({super.key, this.onDismiss, required this.child});
+
+  final VoidCallback? onDismiss;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeVariables vars = Theme.of(context).vars;
+
+    return GestureDetector(
+      onTap: onDismiss,
+      behavior: HitTestBehavior.opaque,
+      child: ColoredBox(
+        // The ink at quarter strength — a wash of the theme's own foreground,
+        // so a dark theme dims with its pale ink rather than with more black
+        // on black.
+        color: vars.colorContent.withValues(alpha: vars.dialogScrimAlpha),
+        child: Padding(
+          padding: EdgeInsets.all(vars.spacing6),
+          child: Center(
+            child: GestureDetector(onTap: () {}, child: child),
+          ),
+        ),
       ),
     );
   }

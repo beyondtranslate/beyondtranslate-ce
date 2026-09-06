@@ -1,40 +1,47 @@
-import 'package:beyondtranslate_ui/src/theme/text_styles.dart';
-import 'package:beyondtranslate_ui/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
+import '../generated/theme_variables.dart';
+import '../theme/theme.dart';
+
 /// What a pane shows before it has content: one muted line and at most one
-/// action. The surrounding chrome already names the pane, so no label, no
-/// explainer copy, no illustration.
+/// action.
+///
+/// The surrounding chrome already names the pane, so there is no heading, no
+/// explainer copy, and no illustration.
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.title, this.action});
+  const EmptyState({super.key, required this.title, this.actions = const []});
 
-  final Widget title;
+  final String title;
 
-  /// Primary affordance out of the empty state.
-  final Widget? action;
+  /// A row of controls, so it takes the control gap rather than the block gap.
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final ThemeVariables vars = Theme.of(context).vars;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 56),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DefaultTextStyle(
-              textAlign: TextAlign.center,
-              style: tokens.typography.sansStyle(
-                fontSize: 13,
-                color: tokens.colors.fgSubtle,
-              ),
-              child: title,
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: vars.spacing14,
+        horizontal: vars.spacing8,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: vars.spacing3,
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: vars.bodyMedium.copyWith(color: vars.colorContentSubtle),
+          ),
+          if (actions.isNotEmpty)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: vars.controlMediumGap,
+              children: actions,
             ),
-            if (action != null) ...[const SizedBox(height: 12), action!],
-          ],
-        ),
+        ],
       ),
     );
   }
