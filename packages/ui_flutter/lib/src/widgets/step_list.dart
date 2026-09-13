@@ -1,11 +1,22 @@
 import 'package:flutter/widgets.dart';
 
 import '../generated/theme_variables.dart';
+import '../foundation/widget_tint.dart';
 import '../theme/theme.dart';
 import 'spinner.dart';
 
 /// Where a [Step] has got to.
 enum StepStatus { done, active, idle }
+
+/// Accent for the active step; completed markers keep their success meaning.
+enum StepTint with WidgetTint {
+  primary,
+  neutral,
+  info,
+  success,
+  warning,
+  danger,
+}
 
 /// An ordered list, because the steps are one: the markers carry the status.
 ///
@@ -36,10 +47,12 @@ class Step extends StatelessWidget {
     required this.status,
     required this.label,
     this.meta,
+    this.tint = StepTint.primary,
   });
 
   final StepStatus status;
   final String label;
+  final StepTint tint;
 
   /// The trailing detail. It runs a step under the label and two ink steps
   /// back; only the active row's meta takes the accent — in its text grade,
@@ -55,8 +68,16 @@ class Step extends StatelessWidget {
       StepStatus.active => vars.colorContent,
       StepStatus.idle => vars.colorContentSubtle,
     };
+    final ramp = switch (tint) {
+      StepTint.primary => vars.colorPrimary,
+      StepTint.neutral => vars.colorNeutral,
+      StepTint.info => vars.colorInfo,
+      StepTint.success => vars.colorSuccess,
+      StepTint.warning => vars.colorWarning,
+      StepTint.danger => vars.colorDanger,
+    };
     final Color metaColor = status == StepStatus.active
-        ? vars.colorPrimary[vars.controlColorPlainContent.normalShade!]!
+        ? ramp[vars.controlColorPlainContent.normalShade!]!
         : vars.colorContentFaint;
 
     return Opacity(
@@ -66,7 +87,7 @@ class Step extends StatelessWidget {
       child: Row(
         spacing: vars.spacing25,
         children: [
-          _Marker(status: status),
+          _Marker(status: status, tint: tint),
           Flexible(
             child: Text(
               label,
@@ -96,7 +117,8 @@ class Step extends StatelessWidget {
 }
 
 class _Marker extends StatelessWidget {
-  const _Marker({required this.status});
+  final StepTint tint;
+  const _Marker({required this.status, required this.tint});
 
   final StepStatus status;
 
@@ -109,7 +131,7 @@ class _Marker extends StatelessWidget {
       return SizedBox(
         width: box,
         height: box,
-        child: const Spinner(),
+        child: Spinner(tint: SpinnerTint.values.byName(tint.name)),
       );
     }
 

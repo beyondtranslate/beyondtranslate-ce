@@ -191,6 +191,7 @@ class ThemeVariables {
       disabledColor: Colors.transparent,
     ),
     this.controlPressedAlpha = 0.9,
+    this.controlContainerRadius = 10,
     this.controlTinySize = 24,
     this.controlSmallSize = 26,
     this.controlMediumSize = 28,
@@ -598,6 +599,7 @@ class ThemeVariables {
   );
   final ColorDescriptor controlColorPlainBorder;
   final double controlPressedAlpha;
+  final double controlContainerRadius;
   double get controlTinyGap => spacing1;
   double get controlTinyPaddingBlock => spacing1;
   double get controlTinyPaddingInline => spacing25;
@@ -648,6 +650,13 @@ class ThemeVariables {
 
   // Preferences
   final double preferencesWidth;
+  double get preferencesRowPadding => spacing15;
+  double get preferencesRowGap => spacing1;
+  double get preferencesHeadingGap => spacing2;
+  double get preferencesFooterGap => spacing1;
+  double get preferencesTitleGap => spacing4;
+  double get preferencesSectionGap => spacing6;
+  double get preferencesGroupGap => spacing10;
 
   // Preview Card
   final double previewCardWidth;
@@ -818,6 +827,7 @@ class ThemeVariables {
     int? controlColorPlainContentPressedShade,
     ColorDescriptor? controlColorPlainBorder,
     double? controlPressedAlpha,
+    double? controlContainerRadius,
     double? controlTinySize,
     double? controlSmallSize,
     double? controlMediumSize,
@@ -975,6 +985,8 @@ class ThemeVariables {
       controlColorPlainBorder:
           controlColorPlainBorder ?? this.controlColorPlainBorder,
       controlPressedAlpha: controlPressedAlpha ?? this.controlPressedAlpha,
+      controlContainerRadius:
+          controlContainerRadius ?? this.controlContainerRadius,
       controlTinySize: controlTinySize ?? this.controlTinySize,
       controlSmallSize: controlSmallSize ?? this.controlSmallSize,
       controlMediumSize: controlMediumSize ?? this.controlMediumSize,
@@ -1033,6 +1045,7 @@ const themeVariablesBrightLight = ThemeVariables(
   colorBorderStrong: Color(0x17111C2E),
   colorBorderMuted: Color(0x40111C2E),
   colorOnAccent: Color(0xFFD6FF3F),
+  controlContainerRadius: 14,
   shadow2xs: [
     BoxShadow(
       offset: Offset(0, 1),
@@ -1125,6 +1138,7 @@ const themeVariablesBrightDark = ThemeVariables(
   colorBorderStrong: Color(0x17F2F4EF),
   colorBorderMuted: Color(0xFF35414F),
   colorOnAccent: Color(0xFF111C2E),
+  controlContainerRadius: 14,
   shadow2xs: [
     BoxShadow(
       offset: Offset(0, 1),
@@ -1383,6 +1397,7 @@ const themeVariablesGraphiteLight = ThemeVariables(
   colorBorderStrong: Color(0x2B17171B),
   colorBorderMuted: Color(0xFF57575F),
   colorOnAccent: Color(0xFFFAFAFA),
+  controlContainerRadius: 8,
   frameWindowRadius: 16,
   framePopoverRadius: 12,
   radiusSmall: 7,
@@ -1420,6 +1435,7 @@ const themeVariablesGraphiteDark = ThemeVariables(
   colorBorderStrong: Color(0x33FFFFFF),
   colorBorderMuted: Color(0xFF38383F),
   colorOnAccent: Color(0xFF131316),
+  controlContainerRadius: 8,
   shadow2xs: [
     BoxShadow(
       offset: Offset(0, 1),
@@ -1679,6 +1695,7 @@ const themeVariablesNocturneLight = ThemeVariables(
   colorBorderStrong: Color(0x2B23242E),
   colorBorderMuted: Color(0xFFD8D9E4),
   colorOnAccent: Color(0xFFFFFFFF),
+  controlContainerRadius: 8,
   frameWindowRadius: 16,
   framePopoverRadius: 12,
   radiusSmall: 7,
@@ -1716,6 +1733,7 @@ const themeVariablesNocturneDark = ThemeVariables(
   colorBorderStrong: Color(0x33E9E9ED),
   colorBorderMuted: Color(0xFF3F424D),
   colorOnAccent: Color(0xFF161826),
+  controlContainerRadius: 8,
   shadow2xs: [
     BoxShadow(
       offset: Offset(0, 1),

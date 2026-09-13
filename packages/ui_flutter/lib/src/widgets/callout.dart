@@ -241,7 +241,7 @@ class _CalloutDefaults extends CalloutThemeData {
   @override
   WidgetProperty<BorderRadius>? get borderRadius {
     return SizedWidgetProperty<BorderRadius>(
-      small: BorderRadius.circular(_vars.radiusMedium),
+      small: BorderRadius.circular(_vars.controlContainerRadius),
       medium: BorderRadius.circular(_vars.radiusLarge),
       large: BorderRadius.circular(_vars.radiusLarge),
     );

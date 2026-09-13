@@ -18,8 +18,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../foundation/widget_size.dart';
+import '../foundation/widget_tint.dart';
+
 import '../theme/theme.dart';
 import 'switch_thumb_painter.dart';
+
+enum SwitchTint with WidgetTint {
+  primary,
+  neutral,
+  info,
+  success,
+  warning,
+  danger,
+}
 
 /// An iOS-style switch.
 ///
@@ -49,6 +60,7 @@ class Switch extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.size = WidgetSize.medium,
+    this.tint = SwitchTint.primary,
     this.focusNode,
     this.onFocusChange,
     this.autofocus = false,
@@ -56,6 +68,8 @@ class Switch extends StatefulWidget {
   });
 
   /// Whether this switch is on or off.
+  final SwitchTint tint;
+
   final bool value;
 
   /// Called when the user toggles with switch on or off.
@@ -321,9 +335,16 @@ class _SwitchState extends State<Switch> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final Color activeColor = theme
-        .vars
-        .colorPrimary[theme.vars.controlColorFilledSurface.normalShade!]!;
+    final ramp = switch (widget.tint) {
+      SwitchTint.primary => theme.vars.colorPrimary,
+      SwitchTint.neutral => theme.vars.colorNeutral,
+      SwitchTint.info => theme.vars.colorInfo,
+      SwitchTint.success => theme.vars.colorSuccess,
+      SwitchTint.warning => theme.vars.colorWarning,
+      SwitchTint.danger => theme.vars.colorDanger,
+    };
+    final Color activeColor =
+        ramp[theme.vars.controlColorFilledSurface.normalShade!]!;
     final (Color onLabelColor, Color offLabelColor)? onOffLabelColors =
         MediaQuery.onOffSwitchLabelsOf(context)
         ? (
@@ -410,7 +431,13 @@ class _SwitchState extends State<Switch> with TickerProviderStateMixin {
             // color pickers on the switches in the macOS settings.
             focusColor: CupertinoDynamicColor.resolve(
               HSLColor.fromColor(
-                activeColor.withValues(alpha: 0.80),
+                theme
+                    .vars
+                    .colorPrimary[theme
+                        .vars
+                        .controlColorFilledSurface
+                        .normalShade!]!
+                    .withValues(alpha: 0.80),
               ).withLightness(0.69).withSaturation(0.835).toColor(),
               context,
             ),

@@ -1,8 +1,11 @@
 import 'package:flutter/widgets.dart';
 
 import '../foundation/widget_size.dart';
+import '../foundation/widget_tint.dart';
 import '../generated/theme_variables.dart';
+import '../painting/widget_property.dart';
 import '../theme/theme.dart';
+import 'button.dart' show ButtonVariant;
 import 'pressable.dart';
 
 /// How the chosen segment is picked out.
@@ -14,6 +17,17 @@ enum SegmentedActiveStyle {
   /// Paints it with the tint — louder, and worth keeping for a choice that
   /// has to shout.
   filled,
+}
+
+/// The accent a `filled` active segment is painted with. A `raised` segment
+/// keeps the neutral ink, so the tint only reaches the filled style.
+enum SegmentedTint with WidgetTint {
+  primary,
+  neutral,
+  info,
+  success,
+  warning,
+  danger,
 }
 
 /// One segment.
@@ -47,6 +61,7 @@ class SegmentedControl<T> extends StatelessWidget {
     this.size = WidgetSize.small,
     this.activeStyle = SegmentedActiveStyle.raised,
     this.stretch = false,
+    this.tint = SegmentedTint.primary,
   });
 
   final List<SegmentedItem<T>> items;
@@ -55,6 +70,7 @@ class SegmentedControl<T> extends StatelessWidget {
   final WidgetSize size;
   final SegmentedActiveStyle activeStyle;
   final bool stretch;
+  final SegmentedTint tint;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +113,7 @@ class SegmentedControl<T> extends StatelessWidget {
           item: item,
           selected: item.value == value,
           activeStyle: activeStyle,
+          tint: tint,
           height: controlSize - 2 * inset,
           radius: trackRadius - inset,
           face: face,
@@ -128,6 +145,7 @@ class _Segment<T> extends StatelessWidget {
     required this.item,
     required this.selected,
     required this.activeStyle,
+    required this.tint,
     required this.height,
     required this.radius,
     required this.face,
@@ -137,6 +155,7 @@ class _Segment<T> extends StatelessWidget {
   final SegmentedItem<T> item;
   final bool selected;
   final SegmentedActiveStyle activeStyle;
+  final SegmentedTint tint;
   final double height;
   final double radius;
   final TextStyle face;
@@ -165,9 +184,17 @@ class _Segment<T> extends StatelessWidget {
               surface = vars.colorSurfaceRaised;
               content = vars.colorContent;
             case SegmentedActiveStyle.filled:
-              surface = vars
-                  .colorPrimary[vars.controlColorFilledSurface.normalShade!]!;
-              content = vars.colorOnAccent;
+              final seed = vars.controlColor.tinted<ColorSwatch<int>>(tint);
+              surface = vars.controlColorSurface.varianted<Color>(
+                ButtonVariant.filled,
+                const {},
+                seed,
+              );
+              content = vars.controlColorContent.varianted<Color>(
+                ButtonVariant.filled,
+                const {},
+                seed,
+              );
           }
         }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../foundation/widget_tint.dart';
 import '../generated/theme_variables.dart';
 import '../theme/theme.dart';
 import 'pressable.dart';
@@ -33,29 +34,43 @@ class PillTabItem<T> {
 /// One size, drawn tight: the tiny control height on the caption face. The
 /// active pill jumps two weight steps as well as filling, because at this size
 /// the fill alone can vanish under a thumb.
+/// The ramp the active pill is filled from.
+enum PillTabsTint with WidgetTint {
+  primary,
+  neutral,
+  info,
+  success,
+  warning,
+  danger,
+}
+
 class PillTabs<T> extends StatelessWidget {
   const PillTabs({
     super.key,
     required this.items,
     required this.value,
     required this.onChanged,
+    this.tint = PillTabsTint.primary,
   });
 
   final List<PillTabItem<T>> items;
   final T? value;
   final ValueChanged<T>? onChanged;
+  final PillTabsTint tint;
 
   @override
   Widget build(BuildContext context) {
     final ThemeVariables vars = Theme.of(context).vars;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    // Pills run onto a second line rather than past their container.
+    return Wrap(
       spacing: vars.spacing2,
+      runSpacing: vars.spacing2,
       children: [
         for (final PillTabItem<T> item in items)
           _Pill<T>(
             item: item,
+            tint: tint,
             selected: item.value == value,
             onPressed: onChanged == null || !item.enabled
                 ? null
@@ -69,11 +84,13 @@ class PillTabs<T> extends StatelessWidget {
 class _Pill<T> extends StatelessWidget {
   const _Pill({
     required this.item,
+    required this.tint,
     required this.selected,
     required this.onPressed,
   });
 
   final PillTabItem<T> item;
+  final PillTabsTint tint;
   final bool selected;
   final VoidCallback? onPressed;
 
@@ -91,7 +108,10 @@ class _Pill<T> extends StatelessWidget {
         final bool hovered = states.contains(WidgetState.hovered);
 
         final Color surface = selected
-            ? vars.colorPrimary[vars.controlColorFilledSurface.normalShade!]!
+            ? _ramp(
+                vars,
+                tint.namedTint,
+              )[vars.controlColorFilledSurface.normalShade!]!
             : (hovered ? vars.colorSurfaceSunken : vars.colorSurfaceInset);
         final Color content = selected
             ? vars.colorOnAccent
@@ -145,3 +165,12 @@ class _Pill<T> extends StatelessWidget {
     );
   }
 }
+
+ColorSwatch<int> _ramp(ThemeVariables vars, NamedTint tint) => switch (tint) {
+  NamedTint.primary => vars.colorPrimary,
+  NamedTint.neutral => vars.colorNeutral,
+  NamedTint.info => vars.colorInfo,
+  NamedTint.success => vars.colorSuccess,
+  NamedTint.warning => vars.colorWarning,
+  NamedTint.danger => vars.colorDanger,
+};

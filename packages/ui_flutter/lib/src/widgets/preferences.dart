@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import '../generated/theme_variables.dart';
 import '../theme/theme.dart';
+import 'divider.dart';
 import 'pressable.dart';
 import 'section_label.dart';
 
@@ -12,7 +13,28 @@ import 'section_label.dart';
 /// sits further from the section above it than from its own rows, a group
 /// title stands further still, and one group stands furthest from the next —
 /// so a heading always reads as belonging to what follows it rather than
-/// floating between two blocks.
+/// floating between two blocks. The ladder is decided in ds — one
+/// `preferences*Gap` per level, and the pad a row's text wears — and nothing
+/// here restates a step.
+
+/// A run of children at one step, with a rule drawn in the run rather than
+/// added to it.
+///
+/// A `Column`'s own `spacing` would put the whole step on each side of a
+/// [Divider], and two sections with a rule between them would then stand
+/// further apart than two groups. So the run is laid by hand: half the step
+/// on either side of a rule, the whole step everywhere else.
+List<Widget> _run(List<Widget> children, double step) {
+  final List<Widget> out = [];
+  for (int i = 0; i < children.length; i++) {
+    if (i > 0) {
+      final bool rule = children[i - 1] is Divider || children[i] is Divider;
+      out.add(SizedBox(height: rule ? step / 2 : step));
+    }
+    out.add(children[i]);
+  }
+  return out;
+}
 
 /// The settings column, and the root the rest of this file sits in.
 ///
@@ -41,8 +63,7 @@ class Preferences extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          spacing: vars.spacing8,
-          children: children,
+          children: _run(children, vars.preferencesGroupGap),
         ),
       ),
     );
@@ -73,7 +94,7 @@ class PreferenceGroup extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: vars.spacing3),
+          padding: EdgeInsets.only(bottom: vars.preferencesTitleGap),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: vars.spacing4,
@@ -82,14 +103,20 @@ class PreferenceGroup extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  spacing: vars.spacing15,
+                  // Half a step: the title's leading and the description's
+                  // already open the pair.
+                  spacing: vars.spacing05,
                   children: [
-                    // The group outranks its sections typographically: the
-                    // display cut at the strong weight, where a section
-                    // heading is a SectionLabel.
+                    // The group outranks its sections typographically, and
+                    // it has to outrank the rows by more than a weight: a
+                    // row's title is the same 12px, so a title one grade
+                    // heavier read as one more row. `titleMedium` — two
+                    // sizes up, at the label weight — is the first face that
+                    // stands over a row. A section heading stays a
+                    // SectionLabel.
                     Text(
                       title,
-                      style: vars.labelStrong.copyWith(
+                      style: vars.titleMedium.copyWith(
                         color: vars.colorContent,
                       ),
                     ),
@@ -111,8 +138,7 @@ class PreferenceGroup extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          spacing: vars.spacing4 + vars.spacing05,
-          children: children,
+          children: _run(children, vars.preferencesSectionGap),
         ),
       ],
     );
@@ -144,7 +170,7 @@ class PreferenceSection extends StatelessWidget {
       children: [
         if (label != null || action != null)
           Padding(
-            padding: EdgeInsets.only(bottom: vars.spacing3),
+            padding: EdgeInsets.only(bottom: vars.preferencesHeadingGap),
             child: Row(
               spacing: vars.spacing4,
               children: [
@@ -160,12 +186,12 @@ class PreferenceSection extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          spacing: vars.spacing1,
+          spacing: vars.preferencesRowGap,
           children: children,
         ),
         if (footer != null)
           Padding(
-            padding: EdgeInsets.only(top: vars.spacing2),
+            padding: EdgeInsets.only(top: vars.preferencesFooterGap),
             child: Text(
               footer!,
               style: vars.captionSmall.copyWith(
@@ -302,17 +328,26 @@ class PreferenceRow extends StatelessWidget {
           ?icon,
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: vars.spacing1),
+              // The pad rides on the text, so a row that grows a subtitle
+              // keeps air above the title and below it. A single line padded
+              // this way is shorter than the control height, and the row's
+              // minimum still centres it.
+              padding: EdgeInsets.symmetric(
+                vertical: vars.preferencesRowPadding,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 spacing: vars.spacing1,
                 children: [
+                  // A row rests at `labelQuiet`, the way a list row does:
+                  // every title at the label weight was a column of bold
+                  // with nothing left to outrank it.
                   Text(
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: vars.labelMedium.copyWith(
+                    style: vars.labelQuiet.copyWith(
                       color: vars.colorContent,
                     ),
                   ),
@@ -368,7 +403,9 @@ class PreferenceRow extends StatelessWidget {
                                   vars.controlColorPlainSurface.hoveredOpacity,
                             )
                       : null,
-                  borderRadius: BorderRadius.circular(vars.radiusSmall),
+                  borderRadius: BorderRadius.circular(
+                    vars.controlContainerRadius,
+                  ),
                 ),
               ),
             ),
@@ -382,7 +419,7 @@ class PreferenceRow extends StatelessWidget {
 
     return Pressable(
       onPressed: onPressed,
-      borderRadius: BorderRadius.circular(vars.radiusSmall),
+      borderRadius: BorderRadius.circular(vars.controlContainerRadius),
       builder: (context, states) => content(states),
     );
   }

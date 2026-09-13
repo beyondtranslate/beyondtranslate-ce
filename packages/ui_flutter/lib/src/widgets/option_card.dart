@@ -32,9 +32,13 @@ class OptionCard extends StatelessWidget {
     required this.onPressed,
     this.tint = OptionCardTint.primary,
     this.semanticsLabel,
+    this.titleContent,
   });
 
   final String title;
+
+  /// Rich content in place of the title text — a label with a badge beside it.
+  final Widget? titleContent;
   final String? description;
   final bool selected;
 
@@ -107,13 +111,13 @@ class OptionCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             spacing: vars.spacing15,
             children: [
-              Text(
-                title,
+              DefaultTextStyle.merge(
                 style: vars.labelStrong.copyWith(
                   color: _enabled
                       ? vars.colorContent
                       : vars.controlColorNormalContent.disabledColor,
                 ),
+                child: titleContent ?? Text(title),
               ),
               if (description != null)
                 Text(

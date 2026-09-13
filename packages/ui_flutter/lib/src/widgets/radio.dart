@@ -170,9 +170,17 @@ class RadioGroup<T> extends StatelessWidget {
     this.tint = RadioTint.primary,
     this.size = WidgetSize.medium,
     this.semanticsLabel,
+    this.direction = Axis.vertical,
+    this.spacing,
   });
 
   final List<RadioItem<T>> options;
+
+  /// A horizontal group lays its options out in a row, as a pair does.
+  final Axis direction;
+
+  /// The gap between options; the design's own run when null.
+  final double? spacing;
   final T? value;
   final ValueChanged<T?>? onChanged;
   final RadioTint tint;
@@ -186,10 +194,11 @@ class RadioGroup<T> extends StatelessWidget {
     return Semantics(
       label: semanticsLabel,
       container: semanticsLabel != null,
-      child: Column(
+      child: Flex(
+        direction: direction,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
-        spacing: vars.spacing25,
+        spacing: spacing ?? vars.spacing25,
         children: [
           for (final RadioItem<T> option in options)
             Radio<T>(

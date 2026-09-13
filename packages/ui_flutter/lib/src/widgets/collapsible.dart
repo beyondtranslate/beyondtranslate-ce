@@ -45,7 +45,11 @@ class DisclosureHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeVariables vars = Theme.of(context).vars;
-    final BorderRadius radius = BorderRadius.circular(vars.radiusMedium);
+    // A header row grows with what it holds — a badge, a wrapped title — so it
+    // takes the shared corner for a box that grows rather than Bright's pill.
+    final BorderRadius radius = BorderRadius.circular(
+      vars.controlContainerRadius,
+    );
     final bool interactive = enabled && onPressed != null;
 
     return Pressable(

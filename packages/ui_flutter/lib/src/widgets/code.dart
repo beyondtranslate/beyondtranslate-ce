@@ -164,7 +164,9 @@ class _CodeBlockState extends State<CodeBlock> {
           color: vars.colorBorder,
           width: vars.strokeHairline,
         ),
-        borderRadius: BorderRadius.circular(vars.radiusMedium),
+        // A panel that grows with its listing, so it takes the shared corner
+        // for a box that grows rather than Bright's control pill.
+        borderRadius: BorderRadius.circular(vars.controlContainerRadius),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

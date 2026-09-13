@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../foundation/widget_size.dart';
+import '../foundation/widget_tint.dart';
 import '../generated/theme_variables.dart';
 import '../theme/theme.dart';
 import 'pressable.dart';
@@ -27,6 +28,7 @@ class SearchField extends StatefulWidget {
     this.onDismiss,
     this.clearLabel = 'Clear search',
     this.enabled = true,
+    this.tint = TextFieldTint.primary,
   }) : assert(
          value == null || controller == null,
          'A search field is driven by a value or by a controller, not both.',
@@ -41,6 +43,9 @@ class SearchField extends StatefulWidget {
 
   final TextEditingController? controller;
   final String? placeholder;
+
+  /// The ramp the focused border and glow are drawn from.
+  final TextFieldTint tint;
   final WidgetSize size;
 
   /// The trailing hint — a `KeyCap` naming the shortcut that focuses the
@@ -122,7 +127,14 @@ class _SearchFieldState extends State<SearchField> {
   Widget build(BuildContext context) {
     final ThemeVariables vars = Theme.of(context).vars;
     final bool focused = _focusNode.hasFocus;
-    final Color accent = vars.colorPrimary[vars.focusRingShade]!;
+    final Color accent = switch (widget.tint.namedTint) {
+      NamedTint.primary => vars.colorPrimary,
+      NamedTint.neutral => vars.colorNeutral,
+      NamedTint.info => vars.colorInfo,
+      NamedTint.success => vars.colorSuccess,
+      NamedTint.warning => vars.colorWarning,
+      NamedTint.danger => vars.colorDanger,
+    }[vars.focusRingShade]!;
     final bool hasQuery = _controller.text.isNotEmpty;
 
     final double height = switch (widget.size.namedSize) {
