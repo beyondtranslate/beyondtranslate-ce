@@ -202,7 +202,7 @@ class _TranslationsSettingsZhHant extends TranslationsSettingsEn {
 
   // Translations
   @override
-  String get version => 'v{} (Build {})';
+  String get version => '{} (Build {})';
   @override
   late final _TranslationsSettingsGeneralZhHant general =
       _TranslationsSettingsGeneralZhHant._(_root);
@@ -1011,6 +1011,17 @@ class _TranslationsSettingsServicesZhHant
   @override
   late final _TranslationsSettingsServicesItemZhHant item =
       _TranslationsSettingsServicesItemZhHant._(_root);
+  @override
+  String get go_to_providers => '前往提供者';
+  @override
+  String get go_to_providers_hint => '服務從提供者衍生，先在提供者頁設定好一家。';
+  @override
+  late final _TranslationsSettingsServicesCapabilityZhHant capability =
+      _TranslationsSettingsServicesCapabilityZhHant._(_root);
+  @override
+  late final _TranslationsSettingsServicesPermissionsMissingZhHant
+      permissions_missing =
+      _TranslationsSettingsServicesPermissionsMissingZhHant._(_root);
 }
 
 // Path: settings.providers
@@ -1053,8 +1064,23 @@ class _TranslationsSettingsProvidersZhHant
   late final _TranslationsSettingsProvidersDescriptionZhHant description =
       _TranslationsSettingsProvidersDescriptionZhHant._(_root);
   @override
-  late final _TranslationsSettingsProvidersDeleteDialogZhHant delete_dialog =
-      _TranslationsSettingsProvidersDeleteDialogZhHant._(_root);
+  late final _TranslationsSettingsProvidersNeedZhHant need =
+      _TranslationsSettingsProvidersNeedZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersStatusZhHant status =
+      _TranslationsSettingsProvidersStatusZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersMetaZhHant meta =
+      _TranslationsSettingsProvidersMetaZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersSearchZhHant search =
+      _TranslationsSettingsProvidersSearchZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDiscardDialogZhHant discard_dialog =
+      _TranslationsSettingsProvidersDiscardDialogZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersClearDialogZhHant clear_dialog =
+      _TranslationsSettingsProvidersClearDialogZhHant._(_root);
 }
 
 // Path: settings.layout
@@ -1093,9 +1119,7 @@ class _TranslationsSettingsAboutZhHant extends TranslationsSettingsAboutEn {
   @override
   String get copy_version_info => '複製版本資訊';
   @override
-  String get up_to_date => '已是最新版本。';
-  @override
-  String get check_again => '重新檢查';
+  String get up_to_date => '已是最新版本';
   @override
   String get links => '連結';
   @override
@@ -1106,6 +1130,8 @@ class _TranslationsSettingsAboutZhHant extends TranslationsSettingsAboutEn {
   String get open_changelog => '更新日誌';
   @override
   String get update => '更新';
+  @override
+  String get software_update => '軟體更新';
 }
 
 // Path: common.ui.button
@@ -1571,7 +1597,7 @@ class _TranslationsSettingsShortcutsResetDialogZhHant
   @override
   String get title => '重設快捷鍵';
   @override
-  String get message => '確定要重設所有快捷鍵為預設值嗎？';
+  String get message => '確定要將所有快捷鍵恢復為預設值嗎？你改過的綁定會被覆蓋。';
   @override
   String get confirm => '重設';
   @override
@@ -1685,6 +1711,43 @@ class _TranslationsSettingsServicesItemZhHant
   String get none_of_kind => '還沒有可用的{}服務。';
 }
 
+// Path: settings.services.capability
+class _TranslationsSettingsServicesCapabilityZhHant
+    extends TranslationsSettingsServicesCapabilityEn {
+  _TranslationsSettingsServicesCapabilityZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => '翻譯';
+  @override
+  String get dictionary => '查詞';
+  @override
+  String get ocr => '文字辨識';
+}
+
+// Path: settings.services.permissions_missing
+class _TranslationsSettingsServicesPermissionsMissingZhHant
+    extends TranslationsSettingsServicesPermissionsMissingEn {
+  _TranslationsSettingsServicesPermissionsMissingZhHant._(
+      TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '尚未授予系統權限';
+  @override
+  String get hint => '截圖取詞與劃詞取詞需要螢幕錄製和輔助使用權限。';
+  @override
+  String get open_general => '前往一般';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionZhHant
     extends TranslationsSettingsProvidersSectionEn {
@@ -1699,6 +1762,8 @@ class _TranslationsSettingsProvidersSectionZhHant
   String get services => '可用服務';
   @override
   String get services_description => '查看已設定提供商的可用服務，並依服務類型切換。';
+  @override
+  String get count => '提供者 · {} 家';
 }
 
 // Path: settings.providers.item
@@ -1712,11 +1777,7 @@ class _TranslationsSettingsProvidersItemZhHant
 
   // Translations
   @override
-  String get empty => '尚未設定任何提供者。新增一個提供者以啟用翻譯服務。';
-  @override
   String get loading => '正在載入提供者…';
-  @override
-  String get no_services => '暫無可用服務。';
 }
 
 // Path: settings.providers.button
@@ -1813,14 +1874,29 @@ class _TranslationsSettingsProvidersDetailZhHant
   late final _TranslationsSettingsProvidersDetailTooltipZhHant tooltip =
       _TranslationsSettingsProvidersDetailTooltipZhHant._(_root);
   @override
-  late final _TranslationsSettingsProvidersDetailRowZhHant row =
-      _TranslationsSettingsProvidersDetailRowZhHant._(_root);
-  @override
   late final _TranslationsSettingsProvidersDetailSectionZhHant section =
       _TranslationsSettingsProvidersDetailSectionZhHant._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailModelsZhHant models =
       _TranslationsSettingsProvidersDetailModelsZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailButtonZhHant button =
+      _TranslationsSettingsProvidersDetailButtonZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailReceiptZhHant receipt =
+      _TranslationsSettingsProvidersDetailReceiptZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailProblemZhHant problem =
+      _TranslationsSettingsProvidersDetailProblemZhHant._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailFieldZhHant field =
+      _TranslationsSettingsProvidersDetailFieldZhHant._(_root);
+  @override
+  String get no_fields => '這家沒有要填的東西 —— 裝上就能用，上面那幾行只是說明。';
+  @override
+  String get services_empty => '暫無可用服務';
+  @override
+  String get services_locked => '填入金鑰並儲存後，可以從這家衍生服務。';
 }
 
 // Path: settings.providers.capability
@@ -1863,10 +1939,10 @@ class _TranslationsSettingsProvidersDescriptionZhHant
   String get fallback => '提供翻譯服務';
 }
 
-// Path: settings.providers.delete_dialog
-class _TranslationsSettingsProvidersDeleteDialogZhHant
-    extends TranslationsSettingsProvidersDeleteDialogEn {
-  _TranslationsSettingsProvidersDeleteDialogZhHant._(TranslationsZhHant root)
+// Path: settings.providers.need
+class _TranslationsSettingsProvidersNeedZhHant
+    extends TranslationsSettingsProvidersNeedEn {
+  _TranslationsSettingsProvidersNeedZhHant._(TranslationsZhHant root)
       : this._root = root,
         super.internal(root);
 
@@ -1874,9 +1950,127 @@ class _TranslationsSettingsProvidersDeleteDialogZhHant
 
   // Translations
   @override
-  String get title => '刪除「{}」？';
+  String get anthropic => '需要 API Key';
   @override
-  String get message => '此操作無法復原。';
+  String get openai => '需要 API Key';
+  @override
+  String get gemini => '需要 API Key';
+  @override
+  String get deepseek => '需要 API Key';
+  @override
+  String get qwen => '需要百煉 API Key';
+  @override
+  String get moonshot => '需要 Moonshot API Key';
+  @override
+  String get doubao => '需要火山方舟 API Key';
+  @override
+  String get zhipu => '需要智譜開放平台 API Key';
+  @override
+  String get xai => '需要 xAI API Key';
+  @override
+  String get groq => '需要 Groq API Key';
+  @override
+  String get ollama => '本機推理 · 無需 API Key';
+  @override
+  String get openai_compatible => '自建或聚合端點 · 自己填 Base URL';
+}
+
+// Path: settings.providers.status
+class _TranslationsSettingsProvidersStatusZhHant
+    extends TranslationsSettingsProvidersStatusEn {
+  _TranslationsSettingsProvidersStatusZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get unconfigured => '未設定';
+  @override
+  String get unverified => '待驗證';
+  @override
+  String get invalid => '需重新驗證';
+}
+
+// Path: settings.providers.meta
+class _TranslationsSettingsProvidersMetaZhHant
+    extends TranslationsSettingsProvidersMetaEn {
+  _TranslationsSettingsProvidersMetaZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get key_valid => '金鑰有效';
+  @override
+  String get reachable => '連線可用';
+  @override
+  String get invalid => '金鑰已失效 · 需重新驗證';
+}
+
+// Path: settings.providers.search
+class _TranslationsSettingsProvidersSearchZhHant
+    extends TranslationsSettingsProvidersSearchEn {
+  _TranslationsSettingsProvidersSearchZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get button => '搜尋';
+  @override
+  String get placeholder => '搜尋提供者名稱或 id';
+  @override
+  String get label => '搜尋提供者';
+  @override
+  String get clear => '清除搜尋';
+  @override
+  String get no_match_title => '沒有相符的提供者';
+  @override
+  String get no_match_body => '沒有找到「{}」。';
+}
+
+// Path: settings.providers.discard_dialog
+class _TranslationsSettingsProvidersDiscardDialogZhHant
+    extends TranslationsSettingsProvidersDiscardDialogEn {
+  _TranslationsSettingsProvidersDiscardDialogZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '放棄未儲存的變更？';
+  @override
+  String get message => '這一頁填的東西還沒有儲存，離開就會遺失。';
+  @override
+  String get confirm => '放棄';
+  @override
+  String get cancel => '繼續編輯';
+}
+
+// Path: settings.providers.clear_dialog
+class _TranslationsSettingsProvidersClearDialogZhHant
+    extends TranslationsSettingsProvidersClearDialogEn {
+  _TranslationsSettingsProvidersClearDialogZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '清除金鑰';
+  @override
+  String get message => '{} 會回到「未設定」，由它衍生的服務也會一起停用。填過的金鑰會被清空。';
+  @override
+  String get confirm => '清除';
 }
 
 // Path: settings.layout.empty
@@ -2162,20 +2356,6 @@ class _TranslationsSettingsProvidersDetailTooltipZhHant
   String get edit => '編輯提供者';
 }
 
-// Path: settings.providers.detail.row
-class _TranslationsSettingsProvidersDetailRowZhHant
-    extends TranslationsSettingsProvidersDetailRowEn {
-  _TranslationsSettingsProvidersDetailRowZhHant._(TranslationsZhHant root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsZhHant _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get id_hint => '建立後不可變更';
-}
-
 // Path: settings.providers.detail.section
 class _TranslationsSettingsProvidersDetailSectionZhHant
     extends TranslationsSettingsProvidersDetailSectionEn {
@@ -2190,6 +2370,8 @@ class _TranslationsSettingsProvidersDetailSectionZhHant
   String get configuration => '配置';
   @override
   String get models => '模型';
+  @override
+  String get services => '由此提供者衍生的服務';
 }
 
 // Path: settings.providers.detail.models
@@ -2215,7 +2397,117 @@ class _TranslationsSettingsProvidersDetailModelsZhHant
   @override
   String get set_default => '設為預設';
   @override
-  String get fetch_error => '無法從提供者 API 取得模型。';
+  String get fetching => '正在向端點要模型列表…';
+  @override
+  String get fetch_failed_title => '拉取失敗';
+  @override
+  String get fetch_failed_body => '端點沒有回應，或者不接受這枚金鑰。位址和金鑰填對了就能再試一次。';
+  @override
+  String get empty_answer => '端點答上話了，但沒有給出任何模型 —— 手動填一個模型名也能用。';
+  @override
+  String get test_draft => '用新設定測試';
+  @override
+  String get draft_note => '這些模型是用還沒儲存的值拉到的 —— 按「儲存」之後才算數。';
+  @override
+  String get locked => '填入金鑰並儲存後，「重新整理清單」會拉取這家可用的模型。';
+  @override
+  String get manual_placeholder => '手動填一個模型名稱';
+}
+
+// Path: settings.providers.detail.button
+class _TranslationsSettingsProvidersDetailButtonZhHant
+    extends TranslationsSettingsProvidersDetailButtonEn {
+  _TranslationsSettingsProvidersDetailButtonZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get saving => '儲存中';
+  @override
+  String get add_service => '新增服務...';
+  @override
+  String get clear_key => '清除金鑰';
+}
+
+// Path: settings.providers.detail.receipt
+class _TranslationsSettingsProvidersDetailReceiptZhHant
+    extends TranslationsSettingsProvidersDetailReceiptEn {
+  _TranslationsSettingsProvidersDetailReceiptZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get problems_title => '這份配置還不能儲存';
+  @override
+  String get saved_title => '已儲存';
+  @override
+  String get saved_body => '這家提供者的配置已寫入。';
+  @override
+  String get save_failed_title => '儲存失敗';
+  @override
+  String get delete_failed_title => '刪除失敗';
+  @override
+  String get add_service_failed_title => '新增服務失敗';
+  @override
+  String get saved_rejected_title => '已儲存，但端點沒有接受它';
+  @override
+  String get saved_rejected_body => '設定寫進去了，可拿它去要模型清單時失敗了 —— 換一枚金鑰再儲存一次。';
+  @override
+  String get saved_verifying => '設定已寫入，正在確認連線…';
+}
+
+// Path: settings.providers.detail.problem
+class _TranslationsSettingsProvidersDetailProblemZhHant
+    extends TranslationsSettingsProvidersDetailProblemEn {
+  _TranslationsSettingsProvidersDetailProblemZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get item => '{} {}';
+  @override
+  String get separator => '、';
+  @override
+  String get required => '必填';
+  @override
+  String get url_scheme => '要帶上 http:// 或 https://';
+  @override
+  String get url_protocol => '只認 http:// 與 https://';
+  @override
+  String get url_host => '缺少主機名稱';
+  @override
+  String get no_model => '還沒有可用的模型 —— 先拉一次清單，或手動填一個模型名稱。';
+}
+
+// Path: settings.providers.detail.field
+class _TranslationsSettingsProvidersDetailFieldZhHant
+    extends TranslationsSettingsProvidersDetailFieldEn {
+  _TranslationsSettingsProvidersDetailFieldZhHant._(TranslationsZhHant root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsZhHant _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get fallback_hint => '留空則用 {}';
+  @override
+  String get show_secret => '顯示{}';
+  @override
+  String get hide_secret => '隱藏{}';
+  @override
+  String get secret_stored => '已儲存 · 留空表示不修改';
+  @override
+  String get secret_empty => '填入金鑰';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -2483,7 +2775,7 @@ extension on TranslationsZhHant {
       'workbench.version_latest' => '已是最新',
       'workbench.version_checking' => '正在檢查…',
       'workbench.check_updates' => '檢查更新',
-      'settings.version' => 'v{} (Build {})',
+      'settings.version' => '{} (Build {})',
       'settings.general.title' => '一般',
       'settings.general.section.permissions' => '系統權限',
       'settings.general.section.ocr' => '文字辨識',
@@ -2577,7 +2869,8 @@ extension on TranslationsZhHant {
       'settings.shortcuts.row.extract_text_from_screen_capture' => '從螢幕截圖擷取文字',
       'settings.shortcuts.row.extract_text_from_clipboard' => '從剪貼簿擷取文字',
       'settings.shortcuts.reset_dialog.title' => '重設快捷鍵',
-      'settings.shortcuts.reset_dialog.message' => '確定要重設所有快捷鍵為預設值嗎？',
+      'settings.shortcuts.reset_dialog.message' =>
+        '確定要將所有快捷鍵恢復為預設值嗎？你改過的綁定會被覆蓋。',
       'settings.shortcuts.reset_dialog.confirm' => '重設',
       'settings.shortcuts.reset_dialog.cancel' => '取消',
       'settings.shortcuts.group.global.title' => '全域快速鍵',
@@ -2614,13 +2907,20 @@ extension on TranslationsZhHant {
         '可用變數：{{sourceLanguage}}、{{targetLanguage}}、{{text}}',
       'settings.services.make_default' => '設為預設',
       'settings.services.item.none_of_kind' => '還沒有可用的{}服務。',
+      'settings.services.go_to_providers' => '前往提供者',
+      'settings.services.go_to_providers_hint' => '服務從提供者衍生，先在提供者頁設定好一家。',
+      'settings.services.capability.translation' => '翻譯',
+      'settings.services.capability.dictionary' => '查詞',
+      'settings.services.capability.ocr' => '文字辨識',
+      'settings.services.permissions_missing.title' => '尚未授予系統權限',
+      'settings.services.permissions_missing.hint' => '截圖取詞與劃詞取詞需要螢幕錄製和輔助使用權限。',
+      'settings.services.permissions_missing.open_general' => '前往一般',
       'settings.providers.title' => '提供者',
       'settings.providers.section.services' => '可用服務',
       'settings.providers.section.services_description' =>
         '查看已設定提供商的可用服務，並依服務類型切換。',
-      'settings.providers.item.empty' => '尚未設定任何提供者。新增一個提供者以啟用翻譯服務。',
+      'settings.providers.section.count' => '提供者 · {} 家',
       'settings.providers.item.loading' => '正在載入提供者…',
-      'settings.providers.item.no_services' => '暫無可用服務。',
       'settings.providers.button.add' => '新增提供者…',
       'settings.providers.alert.error' => '錯誤',
       'settings.providers.intro.body' => '管理應用程式使用的服務提供商。',
@@ -2653,16 +2953,59 @@ extension on TranslationsZhHant {
       'settings.providers.editor.test.failed_suffix' => '驗證失敗',
       'settings.providers.editor.test.passed_suffix' => '已驗證',
       'settings.providers.detail.tooltip.edit' => '編輯提供者',
-      'settings.providers.detail.row.id_hint' => '建立後不可變更',
       'settings.providers.detail.section.configuration' => '配置',
       'settings.providers.detail.section.models' => '模型',
+      'settings.providers.detail.section.services' => '由此提供者衍生的服務',
       'settings.providers.detail.models.loading' => '正在載入模型...',
       'settings.providers.detail.models.empty' => '找不到模型。',
       'settings.providers.detail.models.retry' => '重試',
       'settings.providers.detail.models.refresh' => '重新整理清單',
       'settings.providers.detail.models.default_badge' => '預設',
       'settings.providers.detail.models.set_default' => '設為預設',
-      'settings.providers.detail.models.fetch_error' => '無法從提供者 API 取得模型。',
+      'settings.providers.detail.models.fetching' => '正在向端點要模型列表…',
+      'settings.providers.detail.models.fetch_failed_title' => '拉取失敗',
+      'settings.providers.detail.models.fetch_failed_body' =>
+        '端點沒有回應，或者不接受這枚金鑰。位址和金鑰填對了就能再試一次。',
+      'settings.providers.detail.models.empty_answer' =>
+        '端點答上話了，但沒有給出任何模型 —— 手動填一個模型名也能用。',
+      'settings.providers.detail.models.test_draft' => '用新設定測試',
+      'settings.providers.detail.models.draft_note' =>
+        '這些模型是用還沒儲存的值拉到的 —— 按「儲存」之後才算數。',
+      'settings.providers.detail.models.locked' =>
+        '填入金鑰並儲存後，「重新整理清單」會拉取這家可用的模型。',
+      'settings.providers.detail.models.manual_placeholder' => '手動填一個模型名稱',
+      'settings.providers.detail.button.saving' => '儲存中',
+      'settings.providers.detail.button.add_service' => '新增服務...',
+      'settings.providers.detail.button.clear_key' => '清除金鑰',
+      'settings.providers.detail.receipt.problems_title' => '這份配置還不能儲存',
+      'settings.providers.detail.receipt.saved_title' => '已儲存',
+      'settings.providers.detail.receipt.saved_body' => '這家提供者的配置已寫入。',
+      'settings.providers.detail.receipt.save_failed_title' => '儲存失敗',
+      'settings.providers.detail.receipt.delete_failed_title' => '刪除失敗',
+      'settings.providers.detail.receipt.add_service_failed_title' => '新增服務失敗',
+      'settings.providers.detail.receipt.saved_rejected_title' =>
+        '已儲存，但端點沒有接受它',
+      'settings.providers.detail.receipt.saved_rejected_body' =>
+        '設定寫進去了，可拿它去要模型清單時失敗了 —— 換一枚金鑰再儲存一次。',
+      'settings.providers.detail.receipt.saved_verifying' => '設定已寫入，正在確認連線…',
+      'settings.providers.detail.problem.item' => '{} {}',
+      'settings.providers.detail.problem.separator' => '、',
+      'settings.providers.detail.problem.required' => '必填',
+      'settings.providers.detail.problem.url_scheme' =>
+        '要帶上 http:// 或 https://',
+      'settings.providers.detail.problem.url_protocol' =>
+        '只認 http:// 與 https://',
+      'settings.providers.detail.problem.url_host' => '缺少主機名稱',
+      'settings.providers.detail.problem.no_model' =>
+        '還沒有可用的模型 —— 先拉一次清單，或手動填一個模型名稱。',
+      'settings.providers.detail.field.fallback_hint' => '留空則用 {}',
+      'settings.providers.detail.field.show_secret' => '顯示{}',
+      'settings.providers.detail.field.hide_secret' => '隱藏{}',
+      'settings.providers.detail.field.secret_stored' => '已儲存 · 留空表示不修改',
+      'settings.providers.detail.field.secret_empty' => '填入金鑰',
+      'settings.providers.detail.no_fields' => '這家沒有要填的東西 —— 裝上就能用，上面那幾行只是說明。',
+      'settings.providers.detail.services_empty' => '暫無可用服務',
+      'settings.providers.detail.services_locked' => '填入金鑰並儲存後，可以從這家衍生服務。',
       'settings.providers.capability.translation' => '翻譯',
       'settings.providers.capability.dictionary' => '辭典',
       'settings.providers.capability.ocr' => 'OCR',
@@ -2671,8 +3014,38 @@ extension on TranslationsZhHant {
       'settings.providers.description.translation' => '提供語言間文字翻譯',
       'settings.providers.description.dictionary' => '提供辭典查詢和單字釋義',
       'settings.providers.description.fallback' => '提供翻譯服務',
-      'settings.providers.delete_dialog.title' => '刪除「{}」？',
-      'settings.providers.delete_dialog.message' => '此操作無法復原。',
+      'settings.providers.need.anthropic' => '需要 API Key',
+      'settings.providers.need.openai' => '需要 API Key',
+      'settings.providers.need.gemini' => '需要 API Key',
+      'settings.providers.need.deepseek' => '需要 API Key',
+      'settings.providers.need.qwen' => '需要百煉 API Key',
+      'settings.providers.need.moonshot' => '需要 Moonshot API Key',
+      'settings.providers.need.doubao' => '需要火山方舟 API Key',
+      'settings.providers.need.zhipu' => '需要智譜開放平台 API Key',
+      'settings.providers.need.xai' => '需要 xAI API Key',
+      'settings.providers.need.groq' => '需要 Groq API Key',
+      'settings.providers.need.ollama' => '本機推理 · 無需 API Key',
+      'settings.providers.need.openai_compatible' => '自建或聚合端點 · 自己填 Base URL',
+      'settings.providers.status.unconfigured' => '未設定',
+      'settings.providers.status.unverified' => '待驗證',
+      'settings.providers.status.invalid' => '需重新驗證',
+      'settings.providers.meta.key_valid' => '金鑰有效',
+      'settings.providers.meta.reachable' => '連線可用',
+      'settings.providers.meta.invalid' => '金鑰已失效 · 需重新驗證',
+      'settings.providers.search.button' => '搜尋',
+      'settings.providers.search.placeholder' => '搜尋提供者名稱或 id',
+      'settings.providers.search.label' => '搜尋提供者',
+      'settings.providers.search.clear' => '清除搜尋',
+      'settings.providers.search.no_match_title' => '沒有相符的提供者',
+      'settings.providers.search.no_match_body' => '沒有找到「{}」。',
+      'settings.providers.discard_dialog.title' => '放棄未儲存的變更？',
+      'settings.providers.discard_dialog.message' => '這一頁填的東西還沒有儲存，離開就會遺失。',
+      'settings.providers.discard_dialog.confirm' => '放棄',
+      'settings.providers.discard_dialog.cancel' => '繼續編輯',
+      'settings.providers.clear_dialog.title' => '清除金鑰',
+      'settings.providers.clear_dialog.message' =>
+        '{} 會回到「未設定」，由它衍生的服務也會一起停用。填過的金鑰會被清空。',
+      'settings.providers.clear_dialog.confirm' => '清除',
       'settings.layout.title' => '設定',
       'settings.layout.empty.title' => '選擇一個分類',
       'settings.layout.empty.message' => '從側邊欄選擇一個設定分類。',
@@ -2681,13 +3054,13 @@ extension on TranslationsZhHant {
       'settings.layout.support' => '支援',
       'settings.about.title' => '關於',
       'settings.about.copy_version_info' => '複製版本資訊',
-      'settings.about.up_to_date' => '已是最新版本。',
-      'settings.about.check_again' => '重新檢查',
+      'settings.about.up_to_date' => '已是最新版本',
       'settings.about.links' => '連結',
       'settings.about.website' => '網站',
       'settings.about.help_center' => '說明中心',
       'settings.about.open_changelog' => '更新日誌',
       'settings.about.update' => '更新',
+      'settings.about.software_update' => '軟體更新',
       _ => null,
     };
   }

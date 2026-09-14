@@ -21,12 +21,14 @@ import 'runtime.dart' as runtime_service;
 /// It intentionally does **not** hold any data that does not exist in the
 /// runtime. Anything UI-only (e.g. window sizing) should live elsewhere.
 class SettingsStore extends ChangeNotifier {
-  SettingsStore._() {
-    _launchAtLogin = LaunchAtLogin.create()!;
-  }
+  SettingsStore._();
 
   static final SettingsStore instance = SettingsStore._();
-  late final LaunchAtLogin _launchAtLogin;
+
+  /// Made on first use rather than with the store: only a change to 登录时启动
+  /// needs the OS, and a store that reaches for it on construction cannot be
+  /// read anywhere the native library is not loaded — a widget test, say.
+  late final LaunchAtLogin _launchAtLogin = LaunchAtLogin.create()!;
 
   /// Active subscription to runtime [SettingsChange] events. Started by
   /// [init] and stopped by [dispose]; while alive, every change made

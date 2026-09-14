@@ -199,7 +199,7 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 
   // Translations
   @override
-  String get version => 'v{} (Build {})';
+  String get version => '{} (Build {})';
   @override
   late final _TranslationsSettingsGeneralKo general =
       _TranslationsSettingsGeneralKo._(_root);
@@ -1005,6 +1005,18 @@ class _TranslationsSettingsServicesKo extends TranslationsSettingsServicesEn {
   @override
   late final _TranslationsSettingsServicesItemKo item =
       _TranslationsSettingsServicesItemKo._(_root);
+  @override
+  String get go_to_providers => '제공자로 이동';
+  @override
+  String get go_to_providers_hint =>
+      '서비스는 제공자에서 만들어집니다. 먼저 제공자 페이지에서 하나를 설정하세요.';
+  @override
+  late final _TranslationsSettingsServicesCapabilityKo capability =
+      _TranslationsSettingsServicesCapabilityKo._(_root);
+  @override
+  late final _TranslationsSettingsServicesPermissionsMissingKo
+      permissions_missing =
+      _TranslationsSettingsServicesPermissionsMissingKo._(_root);
 }
 
 // Path: settings.providers
@@ -1046,8 +1058,23 @@ class _TranslationsSettingsProvidersKo extends TranslationsSettingsProvidersEn {
   late final _TranslationsSettingsProvidersDescriptionKo description =
       _TranslationsSettingsProvidersDescriptionKo._(_root);
   @override
-  late final _TranslationsSettingsProvidersDeleteDialogKo delete_dialog =
-      _TranslationsSettingsProvidersDeleteDialogKo._(_root);
+  late final _TranslationsSettingsProvidersNeedKo need =
+      _TranslationsSettingsProvidersNeedKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersStatusKo status =
+      _TranslationsSettingsProvidersStatusKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersMetaKo meta =
+      _TranslationsSettingsProvidersMetaKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersSearchKo search =
+      _TranslationsSettingsProvidersSearchKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDiscardDialogKo discard_dialog =
+      _TranslationsSettingsProvidersDiscardDialogKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersClearDialogKo clear_dialog =
+      _TranslationsSettingsProvidersClearDialogKo._(_root);
 }
 
 // Path: settings.layout
@@ -1086,9 +1113,7 @@ class _TranslationsSettingsAboutKo extends TranslationsSettingsAboutEn {
   @override
   String get copy_version_info => '버전 정보 복사';
   @override
-  String get up_to_date => '최신 버전입니다.';
-  @override
-  String get check_again => '다시 확인';
+  String get up_to_date => '최신 버전입니다';
   @override
   String get links => '링크';
   @override
@@ -1099,6 +1124,8 @@ class _TranslationsSettingsAboutKo extends TranslationsSettingsAboutEn {
   String get open_changelog => '변경 내역';
   @override
   String get update => '업데이트';
+  @override
+  String get software_update => '소프트웨어 업데이트';
 }
 
 // Path: common.ui.button
@@ -1562,7 +1589,7 @@ class _TranslationsSettingsShortcutsResetDialogKo
   @override
   String get title => '단축키 초기화';
   @override
-  String get message => '모든 단축키를 기본값으로 초기화하시겠습니까?';
+  String get message => '모든 단축키를 기본값으로 되돌릴까요? 변경한 단축키는 덮어쓰여집니다.';
   @override
   String get confirm => '초기화';
   @override
@@ -1676,6 +1703,42 @@ class _TranslationsSettingsServicesItemKo
   String get none_of_kind => '사용할 수 있는 {} 서비스가 아직 없습니다.';
 }
 
+// Path: settings.services.capability
+class _TranslationsSettingsServicesCapabilityKo
+    extends TranslationsSettingsServicesCapabilityEn {
+  _TranslationsSettingsServicesCapabilityKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => '번역';
+  @override
+  String get dictionary => '사전';
+  @override
+  String get ocr => '텍스트 인식';
+}
+
+// Path: settings.services.permissions_missing
+class _TranslationsSettingsServicesPermissionsMissingKo
+    extends TranslationsSettingsServicesPermissionsMissingEn {
+  _TranslationsSettingsServicesPermissionsMissingKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '시스템 권한이 허용되지 않음';
+  @override
+  String get hint => '스크린샷 및 선택 텍스트 가져오기에는 화면 기록과 손쉬운 사용 권한이 필요합니다.';
+  @override
+  String get open_general => '일반 열기';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionKo
     extends TranslationsSettingsProvidersSectionEn {
@@ -1691,6 +1754,8 @@ class _TranslationsSettingsProvidersSectionKo
   @override
   String get services_description =>
       '구성된 제공업체의 사용 가능한 서비스를 확인하고 서비스 유형별로 전환합니다.';
+  @override
+  String get count => '제공자 · {}개';
 }
 
 // Path: settings.providers.item
@@ -1704,11 +1769,7 @@ class _TranslationsSettingsProvidersItemKo
 
   // Translations
   @override
-  String get empty => '구성된 제공자가 없습니다. 추가하여 번역 서비스를 활성화하세요.';
-  @override
   String get loading => '제공자 로딩 중...';
-  @override
-  String get no_services => '사용 가능한 서비스가 없습니다.';
 }
 
 // Path: settings.providers.button
@@ -1806,14 +1867,29 @@ class _TranslationsSettingsProvidersDetailKo
   late final _TranslationsSettingsProvidersDetailTooltipKo tooltip =
       _TranslationsSettingsProvidersDetailTooltipKo._(_root);
   @override
-  late final _TranslationsSettingsProvidersDetailRowKo row =
-      _TranslationsSettingsProvidersDetailRowKo._(_root);
-  @override
   late final _TranslationsSettingsProvidersDetailSectionKo section =
       _TranslationsSettingsProvidersDetailSectionKo._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailModelsKo models =
       _TranslationsSettingsProvidersDetailModelsKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailButtonKo button =
+      _TranslationsSettingsProvidersDetailButtonKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailReceiptKo receipt =
+      _TranslationsSettingsProvidersDetailReceiptKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailProblemKo problem =
+      _TranslationsSettingsProvidersDetailProblemKo._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailFieldKo field =
+      _TranslationsSettingsProvidersDetailFieldKo._(_root);
+  @override
+  String get no_fields => '입력할 항목이 없습니다 — 설치하면 바로 쓸 수 있으며, 위의 줄은 설명일 뿐입니다.';
+  @override
+  String get services_empty => '사용 가능한 서비스 없음';
+  @override
+  String get services_locked => '키를 입력하고 저장하면 이 제공자에서 서비스를 추가할 수 있습니다.';
 }
 
 // Path: settings.providers.capability
@@ -1856,10 +1932,10 @@ class _TranslationsSettingsProvidersDescriptionKo
   String get fallback => '번역 서비스를 제공합니다';
 }
 
-// Path: settings.providers.delete_dialog
-class _TranslationsSettingsProvidersDeleteDialogKo
-    extends TranslationsSettingsProvidersDeleteDialogEn {
-  _TranslationsSettingsProvidersDeleteDialogKo._(TranslationsKo root)
+// Path: settings.providers.need
+class _TranslationsSettingsProvidersNeedKo
+    extends TranslationsSettingsProvidersNeedEn {
+  _TranslationsSettingsProvidersNeedKo._(TranslationsKo root)
       : this._root = root,
         super.internal(root);
 
@@ -1867,9 +1943,128 @@ class _TranslationsSettingsProvidersDeleteDialogKo
 
   // Translations
   @override
-  String get title => '"{}"을(를) 삭제하시겠습니까?';
+  String get anthropic => 'API 키 필요';
   @override
-  String get message => '이 작업은 되돌릴 수 없습니다.';
+  String get openai => 'API 키 필요';
+  @override
+  String get gemini => 'API 키 필요';
+  @override
+  String get deepseek => 'API 키 필요';
+  @override
+  String get qwen => 'Model Studio API 키 필요';
+  @override
+  String get moonshot => 'Moonshot API 키 필요';
+  @override
+  String get doubao => 'Volcano Ark API 키 필요';
+  @override
+  String get zhipu => 'Zhipu Open Platform API 키 필요';
+  @override
+  String get xai => 'xAI API 키 필요';
+  @override
+  String get groq => 'Groq API 키 필요';
+  @override
+  String get ollama => '이 기기에서 추론 · API 키 불필요';
+  @override
+  String get openai_compatible => '자체 호스팅 또는 집계 엔드포인트 · Base URL 직접 입력';
+}
+
+// Path: settings.providers.status
+class _TranslationsSettingsProvidersStatusKo
+    extends TranslationsSettingsProvidersStatusEn {
+  _TranslationsSettingsProvidersStatusKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get unconfigured => '설정 안 됨';
+  @override
+  String get unverified => '확인 대기';
+  @override
+  String get invalid => '재확인 필요';
+}
+
+// Path: settings.providers.meta
+class _TranslationsSettingsProvidersMetaKo
+    extends TranslationsSettingsProvidersMetaEn {
+  _TranslationsSettingsProvidersMetaKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get key_valid => '키 유효';
+  @override
+  String get reachable => '연결 가능';
+  @override
+  String get invalid => '키가 거부됨 · 재확인 필요';
+}
+
+// Path: settings.providers.search
+class _TranslationsSettingsProvidersSearchKo
+    extends TranslationsSettingsProvidersSearchEn {
+  _TranslationsSettingsProvidersSearchKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get button => '검색';
+  @override
+  String get placeholder => '제공자 이름 또는 ID 검색';
+  @override
+  String get label => '제공자 검색';
+  @override
+  String get clear => '검색 지우기';
+  @override
+  String get no_match_title => '일치하는 제공자 없음';
+  @override
+  String get no_match_body => '“{}”에 대한 결과가 없습니다.';
+}
+
+// Path: settings.providers.discard_dialog
+class _TranslationsSettingsProvidersDiscardDialogKo
+    extends TranslationsSettingsProvidersDiscardDialogEn {
+  _TranslationsSettingsProvidersDiscardDialogKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '저장하지 않은 변경 사항을 버릴까요?';
+  @override
+  String get message => '이 페이지에 입력한 내용은 아직 저장되지 않았으며, 나가면 사라집니다.';
+  @override
+  String get confirm => '버리기';
+  @override
+  String get cancel => '계속 편집';
+}
+
+// Path: settings.providers.clear_dialog
+class _TranslationsSettingsProvidersClearDialogKo
+    extends TranslationsSettingsProvidersClearDialogEn {
+  _TranslationsSettingsProvidersClearDialogKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '키 지우기';
+  @override
+  String get message =>
+      '{}은(는) “설정 안 됨”으로 돌아가며, 여기서 만들어진 서비스도 함께 중지됩니다. 입력한 키는 지워집니다.';
+  @override
+  String get confirm => '지우기';
 }
 
 // Path: settings.layout.empty
@@ -2152,20 +2347,6 @@ class _TranslationsSettingsProvidersDetailTooltipKo
   String get edit => '제공자 편집';
 }
 
-// Path: settings.providers.detail.row
-class _TranslationsSettingsProvidersDetailRowKo
-    extends TranslationsSettingsProvidersDetailRowEn {
-  _TranslationsSettingsProvidersDetailRowKo._(TranslationsKo root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsKo _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get id_hint => '생성 후에는 변경할 수 없습니다';
-}
-
 // Path: settings.providers.detail.section
 class _TranslationsSettingsProvidersDetailSectionKo
     extends TranslationsSettingsProvidersDetailSectionEn {
@@ -2180,6 +2361,8 @@ class _TranslationsSettingsProvidersDetailSectionKo
   String get configuration => '구성';
   @override
   String get models => '모델';
+  @override
+  String get services => '이 제공자에서 파생된 서비스';
 }
 
 // Path: settings.providers.detail.models
@@ -2205,7 +2388,120 @@ class _TranslationsSettingsProvidersDetailModelsKo
   @override
   String get set_default => '기본값으로 설정';
   @override
-  String get fetch_error => '제공자 API에서 모델을 가져올 수 없습니다.';
+  String get fetching => '엔드포인트에 모델 목록을 요청하는 중…';
+  @override
+  String get fetch_failed_title => '가져오지 못했습니다';
+  @override
+  String get fetch_failed_body =>
+      '엔드포인트가 응답하지 않거나 이 키를 받아들이지 않습니다. 주소와 키가 올바르면 다시 시도할 수 있습니다.';
+  @override
+  String get empty_answer =>
+      '엔드포인트가 응답했지만 모델을 알려 주지 않았습니다 — 모델 이름을 직접 입력해도 됩니다.';
+  @override
+  String get test_draft => '새 설정으로 테스트';
+  @override
+  String get draft_note => '이 모델들은 저장되지 않은 값으로 가져온 것입니다. “저장”을 눌러야 반영됩니다.';
+  @override
+  String get locked => '키를 입력하고 저장하면 “목록 새로 고침”으로 이 제공자의 모델을 가져옵니다.';
+  @override
+  String get manual_placeholder => '모델 이름 입력';
+}
+
+// Path: settings.providers.detail.button
+class _TranslationsSettingsProvidersDetailButtonKo
+    extends TranslationsSettingsProvidersDetailButtonEn {
+  _TranslationsSettingsProvidersDetailButtonKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get saving => '저장 중';
+  @override
+  String get add_service => '서비스 추가...';
+  @override
+  String get clear_key => '키 지우기';
+}
+
+// Path: settings.providers.detail.receipt
+class _TranslationsSettingsProvidersDetailReceiptKo
+    extends TranslationsSettingsProvidersDetailReceiptEn {
+  _TranslationsSettingsProvidersDetailReceiptKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get problems_title => '이 구성은 아직 저장할 수 없습니다';
+  @override
+  String get saved_title => '저장됨';
+  @override
+  String get saved_body => '이 제공자의 구성이 저장되었습니다.';
+  @override
+  String get save_failed_title => '저장하지 못했습니다';
+  @override
+  String get delete_failed_title => '삭제하지 못했습니다';
+  @override
+  String get add_service_failed_title => '서비스를 추가하지 못했습니다';
+  @override
+  String get saved_rejected_title => '저장했지만 엔드포인트가 받아들이지 않았습니다';
+  @override
+  String get saved_rejected_body =>
+      '설정은 저장되었지만 이 설정으로 모델 목록을 가져오지 못했습니다. 다른 키로 다시 저장하세요.';
+  @override
+  String get saved_verifying => '저장했습니다. 연결을 확인하는 중…';
+}
+
+// Path: settings.providers.detail.problem
+class _TranslationsSettingsProvidersDetailProblemKo
+    extends TranslationsSettingsProvidersDetailProblemEn {
+  _TranslationsSettingsProvidersDetailProblemKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get item => '{}: {}';
+  @override
+  String get separator => ', ';
+  @override
+  String get required => '필수';
+  @override
+  String get url_scheme => 'http:// 또는 https://로 시작해야 합니다';
+  @override
+  String get url_protocol => 'http://와 https://만 사용할 수 있습니다';
+  @override
+  String get url_host => '호스트 이름이 없습니다';
+  @override
+  String get no_model => '아직 모델이 없습니다. 먼저 목록을 가져오거나 모델 이름을 입력하세요.';
+}
+
+// Path: settings.providers.detail.field
+class _TranslationsSettingsProvidersDetailFieldKo
+    extends TranslationsSettingsProvidersDetailFieldEn {
+  _TranslationsSettingsProvidersDetailFieldKo._(TranslationsKo root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsKo _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get fallback_hint => '비워 두면 {}을(를) 사용합니다';
+  @override
+  String get show_secret => '{} 표시';
+  @override
+  String get hide_secret => '{} 숨기기';
+  @override
+  String get secret_stored => '저장됨 · 비워 두면 그대로 유지';
+  @override
+  String get secret_empty => '키 입력';
 }
 
 /// The flat map containing all translations for locale <ko>.
@@ -2481,7 +2777,7 @@ extension on TranslationsKo {
       'workbench.version_latest' => '최신 버전입니다',
       'workbench.version_checking' => '확인 중…',
       'workbench.check_updates' => '업데이트 확인',
-      'settings.version' => 'v{} (Build {})',
+      'settings.version' => '{} (Build {})',
       'settings.general.title' => '일반',
       'settings.general.section.permissions' => '시스템 권한',
       'settings.general.section.ocr' => '텍스트 인식',
@@ -2581,7 +2877,8 @@ extension on TranslationsKo {
         '화면 캡처에서 텍스트 추출',
       'settings.shortcuts.row.extract_text_from_clipboard' => '클립보드에서 텍스트 추출',
       'settings.shortcuts.reset_dialog.title' => '단축키 초기화',
-      'settings.shortcuts.reset_dialog.message' => '모든 단축키를 기본값으로 초기화하시겠습니까?',
+      'settings.shortcuts.reset_dialog.message' =>
+        '모든 단축키를 기본값으로 되돌릴까요? 변경한 단축키는 덮어쓰여집니다.',
       'settings.shortcuts.reset_dialog.confirm' => '초기화',
       'settings.shortcuts.reset_dialog.cancel' => '취소',
       'settings.shortcuts.group.global.title' => '전역 단축키',
@@ -2620,13 +2917,22 @@ extension on TranslationsKo {
         '사용 가능한 변수: {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
       'settings.services.make_default' => '기본으로 설정',
       'settings.services.item.none_of_kind' => '사용할 수 있는 {} 서비스가 아직 없습니다.',
+      'settings.services.go_to_providers' => '제공자로 이동',
+      'settings.services.go_to_providers_hint' =>
+        '서비스는 제공자에서 만들어집니다. 먼저 제공자 페이지에서 하나를 설정하세요.',
+      'settings.services.capability.translation' => '번역',
+      'settings.services.capability.dictionary' => '사전',
+      'settings.services.capability.ocr' => '텍스트 인식',
+      'settings.services.permissions_missing.title' => '시스템 권한이 허용되지 않음',
+      'settings.services.permissions_missing.hint' =>
+        '스크린샷 및 선택 텍스트 가져오기에는 화면 기록과 손쉬운 사용 권한이 필요합니다.',
+      'settings.services.permissions_missing.open_general' => '일반 열기',
       'settings.providers.title' => '제공자',
       'settings.providers.section.services' => '사용 가능한 서비스',
       'settings.providers.section.services_description' =>
         '구성된 제공업체의 사용 가능한 서비스를 확인하고 서비스 유형별로 전환합니다.',
-      'settings.providers.item.empty' => '구성된 제공자가 없습니다. 추가하여 번역 서비스를 활성화하세요.',
+      'settings.providers.section.count' => '제공자 · {}개',
       'settings.providers.item.loading' => '제공자 로딩 중...',
-      'settings.providers.item.no_services' => '사용 가능한 서비스가 없습니다.',
       'settings.providers.button.add' => '제공자 추가...',
       'settings.providers.alert.error' => '오류',
       'settings.providers.intro.body' => '앱에서 사용하는 서비스 제공업체를 관리합니다.',
@@ -2660,17 +2966,64 @@ extension on TranslationsKo {
       'settings.providers.editor.test.failed_suffix' => '검증 실패',
       'settings.providers.editor.test.passed_suffix' => '검증됨',
       'settings.providers.detail.tooltip.edit' => '제공자 편집',
-      'settings.providers.detail.row.id_hint' => '생성 후에는 변경할 수 없습니다',
       'settings.providers.detail.section.configuration' => '구성',
       'settings.providers.detail.section.models' => '모델',
+      'settings.providers.detail.section.services' => '이 제공자에서 파생된 서비스',
       'settings.providers.detail.models.loading' => '모델 로딩 중...',
       'settings.providers.detail.models.empty' => '모델을 찾을 수 없습니다.',
       'settings.providers.detail.models.retry' => '재시도',
       'settings.providers.detail.models.refresh' => '목록 새로 고침',
       'settings.providers.detail.models.default_badge' => '기본값',
       'settings.providers.detail.models.set_default' => '기본값으로 설정',
-      'settings.providers.detail.models.fetch_error' =>
-        '제공자 API에서 모델을 가져올 수 없습니다.',
+      'settings.providers.detail.models.fetching' => '엔드포인트에 모델 목록을 요청하는 중…',
+      'settings.providers.detail.models.fetch_failed_title' => '가져오지 못했습니다',
+      'settings.providers.detail.models.fetch_failed_body' =>
+        '엔드포인트가 응답하지 않거나 이 키를 받아들이지 않습니다. 주소와 키가 올바르면 다시 시도할 수 있습니다.',
+      'settings.providers.detail.models.empty_answer' =>
+        '엔드포인트가 응답했지만 모델을 알려 주지 않았습니다 — 모델 이름을 직접 입력해도 됩니다.',
+      'settings.providers.detail.models.test_draft' => '새 설정으로 테스트',
+      'settings.providers.detail.models.draft_note' =>
+        '이 모델들은 저장되지 않은 값으로 가져온 것입니다. “저장”을 눌러야 반영됩니다.',
+      'settings.providers.detail.models.locked' =>
+        '키를 입력하고 저장하면 “목록 새로 고침”으로 이 제공자의 모델을 가져옵니다.',
+      'settings.providers.detail.models.manual_placeholder' => '모델 이름 입력',
+      'settings.providers.detail.button.saving' => '저장 중',
+      'settings.providers.detail.button.add_service' => '서비스 추가...',
+      'settings.providers.detail.button.clear_key' => '키 지우기',
+      'settings.providers.detail.receipt.problems_title' =>
+        '이 구성은 아직 저장할 수 없습니다',
+      'settings.providers.detail.receipt.saved_title' => '저장됨',
+      'settings.providers.detail.receipt.saved_body' => '이 제공자의 구성이 저장되었습니다.',
+      'settings.providers.detail.receipt.save_failed_title' => '저장하지 못했습니다',
+      'settings.providers.detail.receipt.delete_failed_title' => '삭제하지 못했습니다',
+      'settings.providers.detail.receipt.add_service_failed_title' =>
+        '서비스를 추가하지 못했습니다',
+      'settings.providers.detail.receipt.saved_rejected_title' =>
+        '저장했지만 엔드포인트가 받아들이지 않았습니다',
+      'settings.providers.detail.receipt.saved_rejected_body' =>
+        '설정은 저장되었지만 이 설정으로 모델 목록을 가져오지 못했습니다. 다른 키로 다시 저장하세요.',
+      'settings.providers.detail.receipt.saved_verifying' =>
+        '저장했습니다. 연결을 확인하는 중…',
+      'settings.providers.detail.problem.item' => '{}: {}',
+      'settings.providers.detail.problem.separator' => ', ',
+      'settings.providers.detail.problem.required' => '필수',
+      'settings.providers.detail.problem.url_scheme' =>
+        'http:// 또는 https://로 시작해야 합니다',
+      'settings.providers.detail.problem.url_protocol' =>
+        'http://와 https://만 사용할 수 있습니다',
+      'settings.providers.detail.problem.url_host' => '호스트 이름이 없습니다',
+      'settings.providers.detail.problem.no_model' =>
+        '아직 모델이 없습니다. 먼저 목록을 가져오거나 모델 이름을 입력하세요.',
+      'settings.providers.detail.field.fallback_hint' => '비워 두면 {}을(를) 사용합니다',
+      'settings.providers.detail.field.show_secret' => '{} 표시',
+      'settings.providers.detail.field.hide_secret' => '{} 숨기기',
+      'settings.providers.detail.field.secret_stored' => '저장됨 · 비워 두면 그대로 유지',
+      'settings.providers.detail.field.secret_empty' => '키 입력',
+      'settings.providers.detail.no_fields' =>
+        '입력할 항목이 없습니다 — 설치하면 바로 쓸 수 있으며, 위의 줄은 설명일 뿐입니다.',
+      'settings.providers.detail.services_empty' => '사용 가능한 서비스 없음',
+      'settings.providers.detail.services_locked' =>
+        '키를 입력하고 저장하면 이 제공자에서 서비스를 추가할 수 있습니다.',
       'settings.providers.capability.translation' => '번역',
       'settings.providers.capability.dictionary' => '사전',
       'settings.providers.capability.ocr' => 'OCR',
@@ -2679,8 +3032,40 @@ extension on TranslationsKo {
       'settings.providers.description.dictionary' => '사전 검색 및 단어 정의를 제공합니다',
       'settings.providers.description.translation' => '언어 간 텍스트 번역을 제공합니다',
       'settings.providers.description.fallback' => '번역 서비스를 제공합니다',
-      'settings.providers.delete_dialog.title' => '"{}"을(를) 삭제하시겠습니까?',
-      'settings.providers.delete_dialog.message' => '이 작업은 되돌릴 수 없습니다.',
+      'settings.providers.need.anthropic' => 'API 키 필요',
+      'settings.providers.need.openai' => 'API 키 필요',
+      'settings.providers.need.gemini' => 'API 키 필요',
+      'settings.providers.need.deepseek' => 'API 키 필요',
+      'settings.providers.need.qwen' => 'Model Studio API 키 필요',
+      'settings.providers.need.moonshot' => 'Moonshot API 키 필요',
+      'settings.providers.need.doubao' => 'Volcano Ark API 키 필요',
+      'settings.providers.need.zhipu' => 'Zhipu Open Platform API 키 필요',
+      'settings.providers.need.xai' => 'xAI API 키 필요',
+      'settings.providers.need.groq' => 'Groq API 키 필요',
+      'settings.providers.need.ollama' => '이 기기에서 추론 · API 키 불필요',
+      'settings.providers.need.openai_compatible' =>
+        '자체 호스팅 또는 집계 엔드포인트 · Base URL 직접 입력',
+      'settings.providers.status.unconfigured' => '설정 안 됨',
+      'settings.providers.status.unverified' => '확인 대기',
+      'settings.providers.status.invalid' => '재확인 필요',
+      'settings.providers.meta.key_valid' => '키 유효',
+      'settings.providers.meta.reachable' => '연결 가능',
+      'settings.providers.meta.invalid' => '키가 거부됨 · 재확인 필요',
+      'settings.providers.search.button' => '검색',
+      'settings.providers.search.placeholder' => '제공자 이름 또는 ID 검색',
+      'settings.providers.search.label' => '제공자 검색',
+      'settings.providers.search.clear' => '검색 지우기',
+      'settings.providers.search.no_match_title' => '일치하는 제공자 없음',
+      'settings.providers.search.no_match_body' => '“{}”에 대한 결과가 없습니다.',
+      'settings.providers.discard_dialog.title' => '저장하지 않은 변경 사항을 버릴까요?',
+      'settings.providers.discard_dialog.message' =>
+        '이 페이지에 입력한 내용은 아직 저장되지 않았으며, 나가면 사라집니다.',
+      'settings.providers.discard_dialog.confirm' => '버리기',
+      'settings.providers.discard_dialog.cancel' => '계속 편집',
+      'settings.providers.clear_dialog.title' => '키 지우기',
+      'settings.providers.clear_dialog.message' =>
+        '{}은(는) “설정 안 됨”으로 돌아가며, 여기서 만들어진 서비스도 함께 중지됩니다. 입력한 키는 지워집니다.',
+      'settings.providers.clear_dialog.confirm' => '지우기',
       'settings.layout.title' => '설정',
       'settings.layout.empty.title' => '카테고리 선택',
       'settings.layout.empty.message' => '사이드바에서 설정 섹션을 선택하세요.',
@@ -2689,13 +3074,13 @@ extension on TranslationsKo {
       'settings.layout.support' => '지원',
       'settings.about.title' => '정보',
       'settings.about.copy_version_info' => '버전 정보 복사',
-      'settings.about.up_to_date' => '최신 버전입니다.',
-      'settings.about.check_again' => '다시 확인',
+      'settings.about.up_to_date' => '최신 버전입니다',
       'settings.about.links' => '링크',
       'settings.about.website' => '웹사이트',
       'settings.about.help_center' => '고객 지원',
       'settings.about.open_changelog' => '변경 내역',
       'settings.about.update' => '업데이트',
+      'settings.about.software_update' => '소프트웨어 업데이트',
       _ => null,
     };
   }

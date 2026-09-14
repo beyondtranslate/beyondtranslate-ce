@@ -1,4 +1,5 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +9,7 @@ import '../../services/runtime.dart' show runtime;
 import '../../services/settings_store.dart';
 import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../utils/language_util.dart';
+import '../../utils/platform_util.dart';
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/provider_icon/provider_icon.dart';
@@ -30,6 +32,7 @@ import '../../widgets/ui.dart'
         WidgetSize;
 import 'add_service_dialog.dart';
 import 'index.dart';
+import 'provider_catalog.dart';
 import 'provider_meta.dart';
 import 'service_prefs.dart';
 
@@ -165,65 +168,14 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
     }
   }
 
-  /// Switching a service off stores the flag on the service itself, so it
-  /// survives a restart and the translation flows can skip it.
+  /// A switch that fails to write says so on the page rather than snapping
+  /// back without a word.
   Future<void> _setEnabled(ServiceConfigEntry service, bool enabled) async {
-    final fields = Map<String, String>.from(service.fields);
-    if (enabled) {
-      fields.remove(kServiceEnabledField);
-    } else {
-      fields[kServiceEnabledField] = 'false';
-    }
     try {
-      await runtime.settings().updateService(
-            serviceId: service.id,
-            providerId: service.providerId,
-            serviceType: service.type,
-            name: service.name,
-            fields: fields,
-          );
-      await settingsStore.reloadServices();
+      await setServiceEnabled(service, enabled);
     } catch (error) {
       if (mounted) setState(() => _errorMessage = error.toString());
     }
-  }
-
-  /// Which service currently runs for a capability. The default is marked on
-  /// the roster rather than chosen from a picker above it: a dropdown would
-  /// restate the list it draws from, and "which one runs" is a property of a
-  /// service, not a separate setting.
-  String _defaultOf(ServiceType type) {
-    final general = settingsStore.general;
-    return switch (type) {
-      ServiceType.translation => general.defaultTranslationService,
-      ServiceType.dictionary => general.defaultDirectoryService,
-      ServiceType.ocr => general.defaultOcrService,
-      ServiceType.llm => '',
-    };
-  }
-
-  /// The default is stored as the service id `list_services` hands out;
-  /// older settings carried the bare provider id, which the runtime now
-  /// rewrites on load, but a row still answers to it in the meantime.
-  bool _isDefault(ServiceType type, ServiceConfigEntry service) {
-    final current = _defaultOf(type);
-    return current == service.id ||
-        (isImplicitService(service) && current == service.providerId);
-  }
-
-  Future<void> _setDefault(ServiceType type, String serviceId) async {
-    final id = serviceId;
-    final patch = switch (type) {
-      ServiceType.translation => GeneralSettingsPatch(
-          defaultTranslationService: id,
-        ),
-      ServiceType.dictionary => GeneralSettingsPatch(
-          defaultDirectoryService: id,
-        ),
-      ServiceType.ocr => GeneralSettingsPatch(defaultOcrService: id),
-      ServiceType.llm => null,
-    };
-    if (patch != null) await settingsStore.updateGeneral(patch);
   }
 
   /// The capability's own options — what 常规 used to carry under 文字识别 and
@@ -243,44 +195,27 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                     onChanged: (v) => settingsStore.updateGeneral(
                           GeneralSettingsPatch(autoCopyDetectedText: v),
                         ))),
+            // Capture is what the grants on 常规 are for, so a missing one is
+            // said where the feature is configured, with the way there.
+            if (kIsMacOS) const _PermissionsMissingRow(),
           ]),
         ];
       case ServiceType.translation:
         return [
+          // 常用语言 is a section of its own: it is an ordered list, not a
+          // switch — under 翻译行为 its 编辑 would read as one more behaviour.
           PreferenceSection(
-              label: general.section.translation_behaviour,
+              label: general.row.common_languages,
+              action: Button(
+                  variant: ButtonVariant.plain,
+                  onPressed: () => showCommonLanguagesDialog(context),
+                  child: Text(t.common.ui.button.edit)),
+              footer: general.row.common_languages_hint,
               children: [
-                PreferenceRow(
-                    title: general.row.double_click_copy_result,
-                    trailing: Switch(
-                        value: settings.doubleClickCopyResult,
-                        onChanged: (v) => settingsStore.updateGeneral(
-                              GeneralSettingsPatch(doubleClickCopyResult: v),
-                            ))),
-                // The one list-valued row on the page, so it is allowed the
-                // extra line its value needs.
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    PreferenceRow(
-                        title: general.row.common_languages,
-                        subtitle: general.row.common_languages_hint,
-                        trailing: Button(
-                            variant: ButtonVariant.plain,
-                            onPressed: () => showCommonLanguagesDialog(context),
-                            child: Text(t.common.ui.button.edit))),
-                    const SizedBox(height: 8),
-                    _CommonLanguageStrip(codes: settings.commonLanguages),
-                  ],
-                ),
+                _CommonLanguageStrip(codes: settings.commonLanguages),
               ]),
           PreferenceSection(
               label: general.section.translation_target,
-              action: Button(
-                  variant: ButtonVariant.plain,
-                  onPressed: () => showAddTargetDialog(context),
-                  child: Text(general.button.add_target)),
               children: [
                 for (final (index, target)
                     in settings.translationTargets.indexed)
@@ -289,7 +224,7 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                       // switched off is told apart by its switch, which is the
                       // control that turned it off.
                       title: '${getSourceDisplayName(target.source)}'
-                          '  →  ${getLanguageName(target.target)}',
+                          ' → ${getLanguageName(target.target)}',
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                         Button(
                             variant: ButtonVariant.plain,
@@ -308,13 +243,50 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                                 : null),
                       ])),
                 if (settings.translationTargets.isEmpty)
-                  PreferenceRow(title: general.row.no_translation_targets),
+                  Text(
+                    general.row.no_translation_targets,
+                    style: context.vars.sansStyle(
+                      fontSize: 12,
+                      height: 1,
+                      color: context.vars.colorContentFaint,
+                    ),
+                  ),
+                _AddRow(
+                  title: general.button.add_target,
+                  onOpen: () => showAddTargetDialog(context),
+                ),
+              ]),
+          // 翻译行为 comes after the targets: what is left is what happens once
+          // a translation is in hand, which reads better after the rules.
+          PreferenceSection(
+              label: general.section.translation_behaviour,
+              children: [
+                PreferenceRow(
+                    title: general.row.double_click_copy_result,
+                    trailing: Switch(
+                        value: settings.doubleClickCopyResult,
+                        onChanged: (v) => settingsStore.updateGeneral(
+                              GeneralSettingsPatch(doubleClickCopyResult: v),
+                            ))),
               ]),
         ];
       case ServiceType.dictionary:
       case ServiceType.llm:
         return const [];
     }
+  }
+
+  /// What a capability is called on this page — 翻译 / 查词 / 文字识别, the
+  /// names of the features. The provider capsules keep their terser
+  /// 词典 / OCR, where they sit three to a row.
+  String _capabilityTitle(ServiceType type) {
+    final capability = t.settings.services.capability;
+    return switch (type) {
+      ServiceType.translation => capability.translation,
+      ServiceType.dictionary => capability.dictionary,
+      ServiceType.ocr => capability.ocr,
+      ServiceType.llm => serviceTypeLabel(type),
+    };
   }
 
   @override
@@ -350,35 +322,18 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
         // are sections that happen to be about one subject. Making it a group
         // keeps every section heading the same size.
         PreferenceGroup(
-          title: serviceTypeLabel(type),
+          title: _capabilityTitle(type),
           children: [
             PreferenceSection(
               label: t.settings.services.section.available_services,
-              // 添加服务 is raised from inside the capability's own group, so
-              // the sheet opens with the kind already decided.
-              action: Button(
-                  variant: ButtonVariant.filled,
-                  size: WidgetSize.tiny,
-                  onPressed: providers.isNotEmpty
-                      ? () => _openServiceEditor(type)
-                      : null,
-                  child: Text(t.settings.services.button.add_service)),
               children: [
                 if (rows.isEmpty)
                   PreferenceRow(
                       title: t.settings.general.option.no_services_available,
                       subtitle: formatTranslation(
                         t.settings.services.item.none_of_kind,
-                        args: [serviceTypeLabel(type)],
-                      ),
-                      trailing: providers.isEmpty
-                          ? Button(
-                              variant: ButtonVariant.normal,
-                              onPressed: () => context.go(
-                                    const ProvidersSettingsRoute().location,
-                                  ),
-                              child: Text(t.settings.providers.button.add))
-                          : null)
+                        args: [_capabilityTitle(type)],
+                      ))
                 else
                   for (final service in rows)
                     _ServiceRow(
@@ -386,9 +341,9 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                       provider: providers
                           .where((entry) => entry.id == service.providerId)
                           .firstOrNull,
-                      isDefault: _isDefault(type, service),
+                      isDefault: isDefaultService(service),
                       enabled: isServiceEnabled(service),
-                      onMakeDefault: () => _setDefault(type, service.id),
+                      onMakeDefault: () => makeDefaultService(service),
                       onEnabledChange: (value) => _setEnabled(service, value),
                       // A built-in service has nothing to edit and cannot be
                       // deleted, so the row offers neither.
@@ -396,6 +351,27 @@ class _ServicesSettingsPageState extends State<ServicesSettingsPage> {
                           ? null
                           : () => _openServiceEditor(type, existing: service),
                     ),
+                // 添加服务 is the roster's last row rather than a button beside
+                // the heading: what it adds are the rows above it, so the way
+                // out sits where the eye ends up running down the list — and
+                // an empty list needs no second button of its own. It is raised
+                // from inside the capability, so the sheet opens with the kind
+                // already decided.
+                if (providers.isNotEmpty)
+                  _AddRow(
+                    title: t.settings.services.button.add_service,
+                    onOpen: () => _openServiceEditor(type),
+                  )
+                else
+                  // No provider can derive a service yet, so there is nothing
+                  // to add here: the row becomes the way to the page that can.
+                  PreferenceRow(
+                    title: t.settings.services.go_to_providers,
+                    subtitle: t.settings.services.go_to_providers_hint,
+                    trailing: const _Chevron(),
+                    onPressed: () =>
+                        context.go(const ProvidersSettingsRoute().location),
+                  ),
               ],
             ),
             // Anything specific to how the feature behaves comes below the
@@ -524,6 +500,7 @@ class _ServiceRow extends StatelessWidget {
                       Button(
                           variant: ButtonVariant.plain,
                           onPressed: onMakeDefault,
+                          size: WidgetSize.tiny,
                           child: Text(t.settings.services.make_default)),
                       if (onEdit != null) const SizedBox(width: 10),
                     ],
@@ -594,7 +571,7 @@ class _CommonLanguageStrip extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: vars.colorSurfaceInset,
-              borderRadius: BorderRadius.circular(vars.radiusTiny),
+              borderRadius: BorderRadius.circular(vars.radiusSmall),
             ),
             child: Text(
               getLanguageNativeName(code),
@@ -607,6 +584,84 @@ class _CommonLanguageStrip extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The last row of a list: the way to add one more of what is above it.
+///
+/// Shared by 可用服务 and 翻译目标, which are the same shape — a roster whose
+/// exit belongs to the roster rather than to a button beside its heading.
+class _AddRow extends StatelessWidget {
+  const _AddRow({required this.title, required this.onOpen});
+
+  final String title;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return PreferenceRow(
+      icon: Icon(
+        FluentIcons.add_20_regular,
+        size: 16,
+        color: context.vars.colorContentSubtle,
+      ),
+      title: title,
+      trailing: const _Chevron(),
+      onPressed: onOpen,
+    );
+  }
+}
+
+/// The `›` an opening row ends on. The React row draws it for any row that
+/// opens something; the Flutter kit leaves it to the caller.
+class _Chevron extends StatelessWidget {
+  const _Chevron();
+
+  @override
+  Widget build(BuildContext context) {
+    final vars = context.vars;
+    return Text('›', style: vars.labelQuiet.copyWith(color: vars.colorContent));
+  }
+}
+
+/// 尚未授予系统权限 — shown under 取词行为 while either grant capture needs is
+/// missing, with the way to 常规, where the grants live.
+class _PermissionsMissingRow extends StatefulWidget {
+  const _PermissionsMissingRow();
+
+  @override
+  State<_PermissionsMissingRow> createState() => _PermissionsMissingRowState();
+}
+
+class _PermissionsMissingRowState extends State<_PermissionsMissingRow> {
+  bool _missing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  Future<void> _refresh() async {
+    final permission = runtime.permission();
+    final granted = await permission.isScreenRecordingPermissionGranted() &&
+        await permission.isAccessibilityPermissionGranted();
+    if (mounted) setState(() => _missing = !granted);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_missing) return const SizedBox.shrink();
+    final copy = t.settings.services.permissions_missing;
+    return PreferenceRow(
+      title: copy.title,
+      subtitle: copy.hint,
+      trailing: Button(
+        variant: ButtonVariant.normal,
+        onPressed: () => context.go(const GeneralSettingsRoute().location),
+        child: Text(copy.open_general),
+      ),
     );
   }
 }

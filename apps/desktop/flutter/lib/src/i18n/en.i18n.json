@@ -363,7 +363,7 @@
     "check_updates": "Check for updates"
   },
   "settings": {
-    "version": "v{} (Build {})",
+    "version": "{} (Build {})",
     "general": {
       "title": "General",
       "section": {
@@ -468,7 +468,7 @@
       },
       "reset_dialog": {
         "title": "Reset Shortcuts",
-        "message": "Are you sure you want to reset all shortcuts to their default values?",
+        "message": "Reset all shortcuts to their defaults? Any bindings you changed will be overwritten.",
         "confirm": "Reset",
         "cancel": "Cancel"
       },
@@ -532,18 +532,29 @@
       "make_default": "Make Default",
       "item": {
         "none_of_kind": "No {} service available yet."
+      },
+      "go_to_providers": "Go to Providers",
+      "go_to_providers_hint": "Services come from providers — set one up on the Providers page first.",
+      "capability": {
+        "translation": "Translation",
+        "dictionary": "Dictionary",
+        "ocr": "Text Recognition"
+      },
+      "permissions_missing": {
+        "title": "System permissions not granted",
+        "hint": "Screenshot and selection capture need screen recording and accessibility access.",
+        "open_general": "Open General"
       }
     },
     "providers": {
       "title": "Providers",
       "section": {
         "services": "Available Services",
-        "services_description": "View available services from configured providers and switch between service types."
+        "services_description": "View available services from configured providers and switch between service types.",
+        "count": "Providers · {}"
       },
       "item": {
-        "empty": "No providers configured. Add one to enable translation services.",
-        "loading": "Loading providers...",
-        "no_services": "No services available."
+        "loading": "Loading providers..."
       },
       "button": {
         "add": "Add a Provider..."
@@ -600,12 +611,10 @@
         "tooltip": {
           "edit": "Edit provider"
         },
-        "row": {
-          "id_hint": "Cannot be changed after creation"
-        },
         "section": {
           "configuration": "Configuration",
-          "models": "Models"
+          "models": "Models",
+          "services": "Services from This Provider"
         },
         "models": {
           "loading": "Loading models...",
@@ -614,8 +623,50 @@
           "refresh": "Refresh List",
           "default_badge": "Default",
           "set_default": "Set as Default",
-          "fetch_error": "Could not fetch models from provider API."
-        }
+          "fetching": "Asking the endpoint for its model list…",
+          "fetch_failed_title": "Couldn't fetch models",
+          "fetch_failed_body": "The endpoint didn't respond, or it doesn't accept this key. Once the address and key are right, you can try again.",
+          "empty_answer": "The endpoint answered but listed no models — typing a model name by hand works too.",
+          "test_draft": "Test New Settings",
+          "draft_note": "These models were fetched with unsaved values — they count once you press Save.",
+          "locked": "Enter a key and save, and Refresh List fetches the models this provider offers.",
+          "manual_placeholder": "Enter a model name"
+        },
+        "button": {
+          "saving": "Saving",
+          "add_service": "Add Service...",
+          "clear_key": "Clear Key"
+        },
+        "receipt": {
+          "problems_title": "This configuration can't be saved yet",
+          "saved_title": "Saved",
+          "saved_body": "This provider's configuration has been written.",
+          "save_failed_title": "Couldn't save",
+          "delete_failed_title": "Couldn't delete",
+          "add_service_failed_title": "Couldn't add the service",
+          "saved_rejected_title": "Saved, but the endpoint didn’t accept it",
+          "saved_rejected_body": "The configuration was written, but fetching the model list with it failed — try another key and save again.",
+          "saved_verifying": "Saved. Checking the connection…"
+        },
+        "problem": {
+          "item": "{}: {}",
+          "separator": "; ",
+          "required": "Required",
+          "url_scheme": "Must start with http:// or https://",
+          "url_protocol": "Only http:// and https:// are accepted",
+          "url_host": "Missing a host name",
+          "no_model": "No model yet — fetch the list first, or enter a model name."
+        },
+        "field": {
+          "fallback_hint": "Leave blank to use {}",
+          "show_secret": "Show {}",
+          "hide_secret": "Hide {}",
+          "secret_stored": "Saved · Leave blank to keep",
+          "secret_empty": "Enter key"
+        },
+        "no_fields": "Nothing to fill in — it works as soon as it is installed; the lines above are only a description.",
+        "services_empty": "No services yet",
+        "services_locked": "Enter a key and save to add services from this provider."
       },
       "capability": {
         "translation": "Translation",
@@ -629,9 +680,48 @@
         "translation": "Provides text translation between languages",
         "fallback": "Provides translation services"
       },
-      "delete_dialog": {
-        "title": "Delete \"{}\"?",
-        "message": "This action cannot be undone."
+      "need": {
+        "anthropic": "Needs an API key",
+        "openai": "Needs an API key",
+        "gemini": "Needs an API key",
+        "deepseek": "Needs an API key",
+        "qwen": "Needs a Model Studio API key",
+        "moonshot": "Needs a Moonshot API key",
+        "doubao": "Needs a Volcano Ark API key",
+        "zhipu": "Needs a Zhipu Open Platform API key",
+        "xai": "Needs an xAI API key",
+        "groq": "Needs a Groq API key",
+        "ollama": "Runs on this Mac · No API key",
+        "openai_compatible": "Self-hosted or aggregator endpoint · Bring your own Base URL"
+      },
+      "status": {
+        "unconfigured": "Not set up",
+        "unverified": "Unverified",
+        "invalid": "Needs attention"
+      },
+      "meta": {
+        "key_valid": "Key valid",
+        "reachable": "Connected",
+        "invalid": "Key rejected · Needs attention"
+      },
+      "search": {
+        "button": "Search",
+        "placeholder": "Search provider name or id",
+        "label": "Search providers",
+        "clear": "Clear Search",
+        "no_match_title": "No matching providers",
+        "no_match_body": "Nothing found for “{}”."
+      },
+      "discard_dialog": {
+        "title": "Discard unsaved changes?",
+        "message": "What you entered on this page hasn’t been saved and will be lost if you leave.",
+        "confirm": "Discard",
+        "cancel": "Keep Editing"
+      },
+      "clear_dialog": {
+        "title": "Clear Key",
+        "message": "{} goes back to “Not set up”, and the services it provides are removed with it. The key you entered is cleared.",
+        "confirm": "Clear"
       }
     },
     "layout": {
@@ -647,13 +737,13 @@
     "about": {
       "title": "About",
       "copy_version_info": "Copy Version Info",
-      "up_to_date": "You're up to date.",
-      "check_again": "Check Again",
+      "up_to_date": "You're up to date",
       "links": "Links",
       "website": "Website",
       "help_center": "Help Center",
       "open_changelog": "Changelog",
-      "update": "Update"
+      "update": "Update",
+      "software_update": "Software Update"
     }
   }
 }

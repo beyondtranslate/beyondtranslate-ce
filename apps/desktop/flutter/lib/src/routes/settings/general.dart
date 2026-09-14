@@ -219,8 +219,9 @@ class _PermissionAccessRowState extends State<_PermissionAccessRow> {
   }
 }
 
-/// The right-hand control of an 外观 row: a fixed-width menu, the way the deck
-/// draws a preference whose value comes from a list.
+/// The right-hand control of an 外观 row: a menu as wide as the name it shows,
+/// the way the deck draws a preference whose value comes from a list — a fixed
+/// width left 中文 floating in a box sized for Português.
 class _AppearanceSelect extends StatelessWidget {
   const _AppearanceSelect({
     required this.value,
@@ -234,8 +235,8 @@ class _AppearanceSelect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 160,
+    // The select fills its box, so the box is what takes the value's width.
+    return IntrinsicWidth(
       child: NativeSelect<String>(
         value: value,
         items: items,

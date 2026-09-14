@@ -6,15 +6,9 @@ import '../../i18n/i18n.dart';
 import '../../services/runtime.dart' as runtime_service;
 import '../../services/runtime.dart' show AdvancedSettingsPatch;
 import '../../services/settings_store.dart';
-import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../widgets/settings_page.dart';
 import '../../widgets/ui.dart'
-    show
-        PreferenceRow,
-        PreferenceSection,
-        Switch,
-        TextField,
-        ThemeDataBuildContextProps;
+    show PreferenceRow, PreferenceSection, Switch, TextField;
 
 /// Mirrors macOS `AdvancedView.swift`.
 class AdvancedSettingsPage extends StatefulWidget {
@@ -107,7 +101,10 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
                 trailing: SizedBox(
                   width: 96,
                   child: TextField(
-                      style: context.vars.monoStyle(),
+                      mono: true,
+                      // A port is a number, and the deck sets numbers flush
+                      // right.
+                      textAlign: TextAlign.end,
                       controller: _portController,
                       placeholder: '0',
                       onSubmitted: _updatePort),

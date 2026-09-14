@@ -37,13 +37,13 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
   _UpdateState _state = _UpdateState.latest;
   bool _copied = false;
 
-  /// `settings.version` is a literal `v{} (Build {})` — slang leaves it alone
+  /// `settings.version` is a literal `{} (Build {})` — slang leaves it alone
   /// because `{}` is not its placeholder syntax — so the two slots are filled
   /// here, in order.
   String get _versionLabel {
     final parts = t.settings.version.split('{}');
     if (parts.length < 3) {
-      return 'v${Env.instance.appVersion} (Build ${Env.instance.appBuildNumber})';
+      return '${Env.instance.appVersion} (Build ${Env.instance.appBuildNumber})';
     }
     return parts[0] +
         Env.instance.appVersion +
@@ -115,20 +115,19 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
           ),
         ),
         const SettingsSectionDivider(),
-        PreferenceSection(label: about.title, children: [
+        PreferenceSection(label: about.update, children: [
           // The row is named for the thing, the button for the act —
           // repeating 检查更新 on both sides would read as a label and its
-          // echo.
+          // echo. The subtitle already says 正在检查…, so the button only
+          // goes quiet rather than saying it twice.
           PreferenceRow(
-              title: t.workbench.check_updates,
+              title: about.software_update,
               subtitle:
                   checking ? t.workbench.version_checking : about.up_to_date,
               trailing: Button(
                   variant: ButtonVariant.normal,
                   onPressed: !checking ? _checkForUpdates : null,
-                  child: Text(
-                    checking ? t.workbench.version_checking : about.check_again,
-                  ))),
+                  child: Text(t.workbench.check_updates))),
         ]),
         const SettingsSectionDivider(),
         // 网站 · 帮助中心 · 更新日志 — widest first, then the two you go to

@@ -303,7 +303,7 @@
     "check_updates": "업데이트 확인"
   },
   "settings": {
-    "version": "v{} (Build {})",
+    "version": "{} (Build {})",
     "general": {
       "title": "일반",
       "section": {
@@ -408,7 +408,7 @@
       },
       "reset_dialog": {
         "title": "단축키 초기화",
-        "message": "모든 단축키를 기본값으로 초기화하시겠습니까?",
+        "message": "모든 단축키를 기본값으로 되돌릴까요? 변경한 단축키는 덮어쓰여집니다.",
         "confirm": "초기화",
         "cancel": "취소"
       },
@@ -468,18 +468,29 @@
       "make_default": "기본으로 설정",
       "item": {
         "none_of_kind": "사용할 수 있는 {} 서비스가 아직 없습니다."
+      },
+      "go_to_providers": "제공자로 이동",
+      "go_to_providers_hint": "서비스는 제공자에서 만들어집니다. 먼저 제공자 페이지에서 하나를 설정하세요.",
+      "capability": {
+        "translation": "번역",
+        "dictionary": "사전",
+        "ocr": "텍스트 인식"
+      },
+      "permissions_missing": {
+        "title": "시스템 권한이 허용되지 않음",
+        "hint": "스크린샷 및 선택 텍스트 가져오기에는 화면 기록과 손쉬운 사용 권한이 필요합니다.",
+        "open_general": "일반 열기"
       }
     },
     "providers": {
       "title": "제공자",
       "section": {
         "services": "사용 가능한 서비스",
-        "services_description": "구성된 제공업체의 사용 가능한 서비스를 확인하고 서비스 유형별로 전환합니다."
+        "services_description": "구성된 제공업체의 사용 가능한 서비스를 확인하고 서비스 유형별로 전환합니다.",
+        "count": "제공자 · {}개"
       },
       "item": {
-        "empty": "구성된 제공자가 없습니다. 추가하여 번역 서비스를 활성화하세요.",
-        "loading": "제공자 로딩 중...",
-        "no_services": "사용 가능한 서비스가 없습니다."
+        "loading": "제공자 로딩 중..."
       },
       "button": {
         "add": "제공자 추가..."
@@ -536,12 +547,10 @@
         "tooltip": {
           "edit": "제공자 편집"
         },
-        "row": {
-          "id_hint": "생성 후에는 변경할 수 없습니다"
-        },
         "section": {
           "configuration": "구성",
-          "models": "모델"
+          "models": "모델",
+          "services": "이 제공자에서 파생된 서비스"
         },
         "models": {
           "loading": "모델 로딩 중...",
@@ -550,8 +559,50 @@
           "refresh": "목록 새로 고침",
           "default_badge": "기본값",
           "set_default": "기본값으로 설정",
-          "fetch_error": "제공자 API에서 모델을 가져올 수 없습니다."
-        }
+          "fetching": "엔드포인트에 모델 목록을 요청하는 중…",
+          "fetch_failed_title": "가져오지 못했습니다",
+          "fetch_failed_body": "엔드포인트가 응답하지 않거나 이 키를 받아들이지 않습니다. 주소와 키가 올바르면 다시 시도할 수 있습니다.",
+          "empty_answer": "엔드포인트가 응답했지만 모델을 알려 주지 않았습니다 — 모델 이름을 직접 입력해도 됩니다.",
+          "test_draft": "새 설정으로 테스트",
+          "draft_note": "이 모델들은 저장되지 않은 값으로 가져온 것입니다. “저장”을 눌러야 반영됩니다.",
+          "locked": "키를 입력하고 저장하면 “목록 새로 고침”으로 이 제공자의 모델을 가져옵니다.",
+          "manual_placeholder": "모델 이름 입력"
+        },
+        "button": {
+          "saving": "저장 중",
+          "add_service": "서비스 추가...",
+          "clear_key": "키 지우기"
+        },
+        "receipt": {
+          "problems_title": "이 구성은 아직 저장할 수 없습니다",
+          "saved_title": "저장됨",
+          "saved_body": "이 제공자의 구성이 저장되었습니다.",
+          "save_failed_title": "저장하지 못했습니다",
+          "delete_failed_title": "삭제하지 못했습니다",
+          "add_service_failed_title": "서비스를 추가하지 못했습니다",
+          "saved_rejected_title": "저장했지만 엔드포인트가 받아들이지 않았습니다",
+          "saved_rejected_body": "설정은 저장되었지만 이 설정으로 모델 목록을 가져오지 못했습니다. 다른 키로 다시 저장하세요.",
+          "saved_verifying": "저장했습니다. 연결을 확인하는 중…"
+        },
+        "problem": {
+          "item": "{}: {}",
+          "separator": ", ",
+          "required": "필수",
+          "url_scheme": "http:// 또는 https://로 시작해야 합니다",
+          "url_protocol": "http://와 https://만 사용할 수 있습니다",
+          "url_host": "호스트 이름이 없습니다",
+          "no_model": "아직 모델이 없습니다. 먼저 목록을 가져오거나 모델 이름을 입력하세요."
+        },
+        "field": {
+          "fallback_hint": "비워 두면 {}을(를) 사용합니다",
+          "show_secret": "{} 표시",
+          "hide_secret": "{} 숨기기",
+          "secret_stored": "저장됨 · 비워 두면 그대로 유지",
+          "secret_empty": "키 입력"
+        },
+        "no_fields": "입력할 항목이 없습니다 — 설치하면 바로 쓸 수 있으며, 위의 줄은 설명일 뿐입니다.",
+        "services_empty": "사용 가능한 서비스 없음",
+        "services_locked": "키를 입력하고 저장하면 이 제공자에서 서비스를 추가할 수 있습니다."
       },
       "capability": {
         "translation": "번역",
@@ -565,9 +616,48 @@
         "translation": "언어 간 텍스트 번역을 제공합니다",
         "fallback": "번역 서비스를 제공합니다"
       },
-      "delete_dialog": {
-        "title": "\"{}\"을(를) 삭제하시겠습니까?",
-        "message": "이 작업은 되돌릴 수 없습니다."
+      "need": {
+        "anthropic": "API 키 필요",
+        "openai": "API 키 필요",
+        "gemini": "API 키 필요",
+        "deepseek": "API 키 필요",
+        "qwen": "Model Studio API 키 필요",
+        "moonshot": "Moonshot API 키 필요",
+        "doubao": "Volcano Ark API 키 필요",
+        "zhipu": "Zhipu Open Platform API 키 필요",
+        "xai": "xAI API 키 필요",
+        "groq": "Groq API 키 필요",
+        "ollama": "이 기기에서 추론 · API 키 불필요",
+        "openai_compatible": "자체 호스팅 또는 집계 엔드포인트 · Base URL 직접 입력"
+      },
+      "status": {
+        "unconfigured": "설정 안 됨",
+        "unverified": "확인 대기",
+        "invalid": "재확인 필요"
+      },
+      "meta": {
+        "key_valid": "키 유효",
+        "reachable": "연결 가능",
+        "invalid": "키가 거부됨 · 재확인 필요"
+      },
+      "search": {
+        "button": "검색",
+        "placeholder": "제공자 이름 또는 ID 검색",
+        "label": "제공자 검색",
+        "clear": "검색 지우기",
+        "no_match_title": "일치하는 제공자 없음",
+        "no_match_body": "“{}”에 대한 결과가 없습니다."
+      },
+      "discard_dialog": {
+        "title": "저장하지 않은 변경 사항을 버릴까요?",
+        "message": "이 페이지에 입력한 내용은 아직 저장되지 않았으며, 나가면 사라집니다.",
+        "confirm": "버리기",
+        "cancel": "계속 편집"
+      },
+      "clear_dialog": {
+        "title": "키 지우기",
+        "message": "{}은(는) “설정 안 됨”으로 돌아가며, 여기서 만들어진 서비스도 함께 중지됩니다. 입력한 키는 지워집니다.",
+        "confirm": "지우기"
       }
     },
     "layout": {
@@ -583,13 +673,13 @@
     "about": {
       "title": "정보",
       "copy_version_info": "버전 정보 복사",
-      "up_to_date": "최신 버전입니다.",
-      "check_again": "다시 확인",
+      "up_to_date": "최신 버전입니다",
       "links": "링크",
       "website": "웹사이트",
       "help_center": "고객 지원",
       "open_changelog": "변경 내역",
-      "update": "업데이트"
+      "update": "업데이트",
+      "software_update": "소프트웨어 업데이트"
     }
   }
 }

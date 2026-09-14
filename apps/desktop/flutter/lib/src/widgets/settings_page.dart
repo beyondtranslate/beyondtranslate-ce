@@ -33,34 +33,23 @@ class SettingsPage extends StatelessWidget {
         horizontalPadding,
         22,
         horizontalPadding,
-        24,
+        22,
       ),
       itemCount: blocks.length,
       itemBuilder: (_, index) => blocks[index],
-      // A rule brings its own air, so the page does not add the usual gap
-      // around it as well.
-      separatorBuilder: (_, index) => blocks[index] is SettingsSectionDivider ||
-              blocks[index + 1] is SettingsSectionDivider
-          ? const SizedBox.shrink()
-          : const SizedBox(height: 22),
+      separatorBuilder: (_, index) => const SizedBox(height: 22),
     );
   }
 }
 
 /// The rule a page draws between two groups, for the few panes that need one.
 ///
-/// Its air is deliberately lopsided: the rule sits closer to the group it
-/// closes (14px) than to the label that opens the next one (20px), so each
-/// heading belongs to the rows under it rather than floating midway between
-/// two groups.
+/// It is one more block in the page's column and takes the same 22px on
+/// either side as any other — the deck's rule sits in that gap rather than
+/// bringing air of its own.
 class SettingsSectionDivider extends StatelessWidget {
   const SettingsSectionDivider({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 14, bottom: 20),
-      child: Divider(),
-    );
-  }
+  Widget build(BuildContext context) => const Divider();
 }

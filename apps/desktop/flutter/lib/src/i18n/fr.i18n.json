@@ -303,7 +303,7 @@
     "check_updates": "Rechercher des mises à jour"
   },
   "settings": {
-    "version": "v{} (Build {})",
+    "version": "{} (Build {})",
     "general": {
       "title": "Général",
       "section": {
@@ -408,7 +408,7 @@
       },
       "reset_dialog": {
         "title": "Réinitialiser les raccourcis",
-        "message": "Êtes-vous sûr de vouloir réinitialiser tous les raccourcis à leurs valeurs par défaut ?",
+        "message": "Réinitialiser tous les raccourcis par défaut ? Les raccourcis que vous avez modifiés seront écrasés.",
         "confirm": "Réinitialiser",
         "cancel": "Annuler"
       },
@@ -468,18 +468,29 @@
       "make_default": "Définir par défaut",
       "item": {
         "none_of_kind": "Aucun service de {} disponible pour l’instant."
+      },
+      "go_to_providers": "Aller aux fournisseurs",
+      "go_to_providers_hint": "Les services viennent des fournisseurs : configurez-en un d’abord dans la page Fournisseurs.",
+      "capability": {
+        "translation": "Traduction",
+        "dictionary": "Dictionnaire",
+        "ocr": "Reconnaissance de texte"
+      },
+      "permissions_missing": {
+        "title": "Autorisations système non accordées",
+        "hint": "La capture d’écran et de sélection nécessitent l’enregistrement de l’écran et l’accessibilité.",
+        "open_general": "Ouvrir Général"
       }
     },
     "providers": {
       "title": "Fournisseurs",
       "section": {
         "services": "Services disponibles",
-        "services_description": "Consultez les services disponibles des fournisseurs configurés et changez de type de service."
+        "services_description": "Consultez les services disponibles des fournisseurs configurés et changez de type de service.",
+        "count": "Fournisseurs · {}"
       },
       "item": {
-        "empty": "Aucun fournisseur configuré. Ajoutez-en un pour activer les services de traduction.",
-        "loading": "Chargement des fournisseurs...",
-        "no_services": "Aucun service disponible."
+        "loading": "Chargement des fournisseurs..."
       },
       "button": {
         "add": "Ajouter un fournisseur..."
@@ -536,12 +547,10 @@
         "tooltip": {
           "edit": "Modifier le fournisseur"
         },
-        "row": {
-          "id_hint": "Non modifiable après la création"
-        },
         "section": {
           "configuration": "Configuration",
-          "models": "Modèles"
+          "models": "Modèles",
+          "services": "Services issus de ce fournisseur"
         },
         "models": {
           "loading": "Chargement des modèles...",
@@ -550,8 +559,50 @@
           "refresh": "Actualiser la liste",
           "default_badge": "Par défaut",
           "set_default": "Définir par défaut",
-          "fetch_error": "Impossible de récupérer les modèles depuis l'API du fournisseur."
-        }
+          "fetching": "Demande de la liste des modèles au point d'accès…",
+          "fetch_failed_title": "Impossible de récupérer les modèles",
+          "fetch_failed_body": "Le point d'accès n'a pas répondu, ou il n'accepte pas cette clé. Une fois l'adresse et la clé correctes, vous pouvez réessayer.",
+          "empty_answer": "Le point d'accès a répondu mais n'a listé aucun modèle — vous pouvez aussi saisir un nom de modèle à la main.",
+          "test_draft": "Tester la nouvelle configuration",
+          "draft_note": "Ces modèles ont été récupérés avec des valeurs non enregistrées ; ils ne comptent qu’après Enregistrer.",
+          "locked": "Saisissez une clé et enregistrez : Actualiser la liste récupérera les modèles de ce fournisseur.",
+          "manual_placeholder": "Saisir un nom de modèle"
+        },
+        "button": {
+          "saving": "Enregistrement",
+          "add_service": "Ajouter un service...",
+          "clear_key": "Effacer la clé"
+        },
+        "receipt": {
+          "problems_title": "Cette configuration ne peut pas encore être enregistrée",
+          "saved_title": "Enregistré",
+          "saved_body": "La configuration de ce fournisseur a été enregistrée.",
+          "save_failed_title": "Impossible d'enregistrer",
+          "delete_failed_title": "Impossible de supprimer",
+          "add_service_failed_title": "Impossible d'ajouter le service",
+          "saved_rejected_title": "Enregistré, mais le point de terminaison l’a refusé",
+          "saved_rejected_body": "La configuration est enregistrée, mais la récupération de la liste des modèles a échoué : essayez une autre clé et enregistrez à nouveau.",
+          "saved_verifying": "Enregistré. Vérification de la connexion…"
+        },
+        "problem": {
+          "item": "{} : {}",
+          "separator": " ; ",
+          "required": "Obligatoire",
+          "url_scheme": "Doit commencer par http:// ou https://",
+          "url_protocol": "Seuls http:// et https:// sont acceptés",
+          "url_host": "Nom d'hôte manquant",
+          "no_model": "Aucun modèle pour l’instant : récupérez la liste ou saisissez un nom de modèle."
+        },
+        "field": {
+          "fallback_hint": "Laissez vide pour utiliser {}",
+          "show_secret": "Afficher {}",
+          "hide_secret": "Masquer {}",
+          "secret_stored": "Enregistrée · Laisser vide pour la conserver",
+          "secret_empty": "Saisir la clé"
+        },
+        "no_fields": "Rien à remplir — il fonctionne dès qu'il est installé ; les lignes ci-dessus ne sont qu'une description.",
+        "services_empty": "Aucun service pour l’instant",
+        "services_locked": "Saisissez une clé et enregistrez pour ajouter des services de ce fournisseur."
       },
       "capability": {
         "translation": "Traduction",
@@ -565,9 +616,48 @@
         "translation": "Fournit la traduction de texte entre les langues",
         "fallback": "Fournit des services de traduction"
       },
-      "delete_dialog": {
-        "title": "Supprimer « {} » ?",
-        "message": "Cette action est irréversible."
+      "need": {
+        "anthropic": "Clé API requise",
+        "openai": "Clé API requise",
+        "gemini": "Clé API requise",
+        "deepseek": "Clé API requise",
+        "qwen": "Clé API Model Studio requise",
+        "moonshot": "Clé API Moonshot requise",
+        "doubao": "Clé API Volcano Ark requise",
+        "zhipu": "Clé API Zhipu Open Platform requise",
+        "xai": "Clé API xAI requise",
+        "groq": "Clé API Groq requise",
+        "ollama": "Exécution locale · Sans clé API",
+        "openai_compatible": "Point de terminaison auto-hébergé ou agrégateur · Saisissez la Base URL"
+      },
+      "status": {
+        "unconfigured": "Non configuré",
+        "unverified": "Non vérifié",
+        "invalid": "À revérifier"
+      },
+      "meta": {
+        "key_valid": "Clé valide",
+        "reachable": "Connecté",
+        "invalid": "Clé refusée · À revérifier"
+      },
+      "search": {
+        "button": "Rechercher",
+        "placeholder": "Rechercher un nom ou un id de fournisseur",
+        "label": "Rechercher des fournisseurs",
+        "clear": "Effacer la recherche",
+        "no_match_title": "Aucun fournisseur correspondant",
+        "no_match_body": "Aucun résultat pour « {} »."
+      },
+      "discard_dialog": {
+        "title": "Abandonner les modifications non enregistrées ?",
+        "message": "Ce que vous avez saisi sur cette page n’est pas enregistré et sera perdu si vous partez.",
+        "confirm": "Abandonner",
+        "cancel": "Continuer la modification"
+      },
+      "clear_dialog": {
+        "title": "Effacer la clé",
+        "message": "{} redevient « Non configuré » et les services qu’il fournit sont supprimés avec lui. La clé saisie est effacée.",
+        "confirm": "Effacer"
       }
     },
     "layout": {
@@ -583,13 +673,13 @@
     "about": {
       "title": "À propos",
       "copy_version_info": "Copier les informations de version",
-      "up_to_date": "Vous êtes à jour.",
-      "check_again": "Vérifier à nouveau",
+      "up_to_date": "Vous êtes à jour",
       "links": "Liens",
       "website": "Site web",
       "help_center": "Centre d'aide",
       "open_changelog": "Journal des modifications",
-      "update": "Mise à jour"
+      "update": "Mise à jour",
+      "software_update": "Mise à jour logicielle"
     }
   }
 }

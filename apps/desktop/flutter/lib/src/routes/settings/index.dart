@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../i18n/i18n.dart';
 import '../../widgets/nav_columns.dart' show Rail, RailGroup, RailItem;
 import '../../widgets/ui.dart' show ThemeDataBuildContextProps;
-import '../../widgets/workbench.dart' show WorkbenchToolbar;
+import '../../widgets/workbench.dart'
+    show WorkbenchSearchButton, WorkbenchSearchScope, WorkbenchToolbar;
 import 'about.dart';
 import 'advanced.dart';
 import 'general.dart';
+import 'provider_catalog.dart';
 import 'providers.dart';
 import 'services.dart';
 import 'shortcuts.dart';
@@ -160,7 +162,6 @@ class SettingsTabsShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vars = context.vars;
     final runs = <_SettingsRun>[
       (
         label: null,
@@ -210,40 +211,93 @@ class SettingsTabsShell extends StatelessWidget {
             ?.location ??
         pages.first.location;
 
-    return ColoredBox(
-      color: vars.colorSurface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          WorkbenchToolbar(title: t.settings.layout.title),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    // 搜索 belongs to the window's titlebar, as on 历史 and 术语库, but only
+    // one screen here has anything to search — the provider catalogue — so
+    // the button and its key come and go with it.
+    return ValueListenableBuilder<bool>(
+      valueListenable: providersSearchable,
+      builder: (context, searchable, _) => _buildShell(
+        context,
+        runs: runs,
+        active: active,
+        onSearch:
+            searchable && active == const ProvidersSettingsRoute().location
+                ? () => providersSearchRequest.value++
+                : null,
+      ),
+    );
+  }
+
+  Widget _buildShell(
+    BuildContext context, {
+    required List<_SettingsRun> runs,
+    required String active,
+    required VoidCallback? onSearch,
+  }) {
+    final vars = context.vars;
+    return WorkbenchSearchScope(
+      onSearch: onSearch,
+      child: ColoredBox(
+        color: vars.colorSurface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            WorkbenchToolbar(
+              title: t.settings.layout.title,
               children: [
-                Rail(
-                  resizable: true,
-                  children: [
-                    for (var i = 0; i < runs.length; i++)
-                      RailGroup(
-                        first: i == 0,
-                        label:
-                            runs[i].label == null ? null : Text(runs[i].label!),
-                        children: [
-                          for (final page in runs[i].pages)
-                            RailItem(
-                              active: page.location == active,
-                              onPressed: () => context.go(page.location),
-                              child: Text(page.label),
-                            ),
-                        ],
-                      ),
-                  ],
-                ),
-                Expanded(child: child),
+                if (onSearch != null) ...[
+                  const Spacer(),
+                  WorkbenchSearchButton(
+                    label: t.settings.providers.search.button,
+                    onPressed: onSearch,
+                  ),
+                ],
               ],
             ),
-          ),
-        ],
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Rail(
+                    resizable: true,
+                    children: [
+                      for (var i = 0; i < runs.length; i++)
+                        RailGroup(
+                          first: i == 0,
+                          label: runs[i].label == null
+                              ? null
+                              : Text(runs[i].label!),
+                          children: [
+                            for (final page in runs[i].pages)
+                              RailItem(
+                                active: page.location == active,
+                                // Switching page leaves a provider's detail page
+                                // too, so an unsaved key is asked about here as
+                                // well as on its own 返回.
+                                onPressed: () async {
+                                  final leave =
+                                      await confirmLeavingProviderDetail(
+                                    context,
+                                  );
+                                  if (!leave || !context.mounted) return;
+                                  if (page.location == active) {
+                                    providersCatalogRequest.value++;
+                                  } else {
+                                    context.go(page.location);
+                                  }
+                                },
+                                child: Text(page.label),
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
+                  Expanded(child: child),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

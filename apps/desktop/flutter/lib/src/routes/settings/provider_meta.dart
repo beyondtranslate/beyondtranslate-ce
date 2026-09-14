@@ -353,6 +353,50 @@ bool isLlmProviderType(ProviderType type) {
   }
 }
 
+/// What a config key is called on screen.
+///
+/// Credentials keep the spelling the provider's own console prints — `API
+/// Key`, `SecretKey`, `AccessKey ID` — because that is the label the user is
+/// copying the value from, and a translated one would only send them looking.
+/// 默认模型 is the one field named in prose, so it is the one translated. A key
+/// this map does not know is shown as the runtime spells it.
+String providerFieldLabel(String key) {
+  switch (key) {
+    case 'apiKey':
+      return 'API Key';
+    case 'baseUrl':
+      return 'Base URL';
+    case 'defaultModel':
+      return t.settings.providers.editor.row.default_model;
+    case 'authKey':
+      return 'Auth Key';
+    case 'appId':
+      return 'App ID';
+    case 'appKey':
+      return 'App Key';
+    case 'appSecret':
+      return 'App Secret';
+    case 'token':
+      return 'Token';
+    case 'folderId':
+      return 'Folder ID';
+    case 'region':
+      return 'Region';
+    case 'accessKeyId':
+      return 'AccessKey ID';
+    case 'accessKeySecret':
+      return 'AccessKey Secret';
+    case 'accessKey':
+      return 'AccessKey';
+    case 'secretId':
+      return 'SecretId';
+    case 'secretKey':
+      return 'SecretKey';
+    default:
+      return key;
+  }
+}
+
 /// A field the UI masks — anything that reads like a credential.
 bool isSecretField(String key) {
   final lower = key.toLowerCase();

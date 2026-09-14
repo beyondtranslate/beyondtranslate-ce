@@ -199,7 +199,7 @@ class _TranslationsSettingsEs extends TranslationsSettingsEn {
 
   // Translations
   @override
-  String get version => 'v{} (Build {})';
+  String get version => '{} (Build {})';
   @override
   late final _TranslationsSettingsGeneralEs general =
       _TranslationsSettingsGeneralEs._(_root);
@@ -1020,6 +1020,18 @@ class _TranslationsSettingsServicesEs extends TranslationsSettingsServicesEn {
   @override
   late final _TranslationsSettingsServicesItemEs item =
       _TranslationsSettingsServicesItemEs._(_root);
+  @override
+  String get go_to_providers => 'Ir a Proveedores';
+  @override
+  String get go_to_providers_hint =>
+      'Los servicios salen de los proveedores: configura uno primero en la página Proveedores.';
+  @override
+  late final _TranslationsSettingsServicesCapabilityEs capability =
+      _TranslationsSettingsServicesCapabilityEs._(_root);
+  @override
+  late final _TranslationsSettingsServicesPermissionsMissingEs
+      permissions_missing =
+      _TranslationsSettingsServicesPermissionsMissingEs._(_root);
 }
 
 // Path: settings.providers
@@ -1061,8 +1073,23 @@ class _TranslationsSettingsProvidersEs extends TranslationsSettingsProvidersEn {
   late final _TranslationsSettingsProvidersDescriptionEs description =
       _TranslationsSettingsProvidersDescriptionEs._(_root);
   @override
-  late final _TranslationsSettingsProvidersDeleteDialogEs delete_dialog =
-      _TranslationsSettingsProvidersDeleteDialogEs._(_root);
+  late final _TranslationsSettingsProvidersNeedEs need =
+      _TranslationsSettingsProvidersNeedEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersStatusEs status =
+      _TranslationsSettingsProvidersStatusEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersMetaEs meta =
+      _TranslationsSettingsProvidersMetaEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersSearchEs search =
+      _TranslationsSettingsProvidersSearchEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDiscardDialogEs discard_dialog =
+      _TranslationsSettingsProvidersDiscardDialogEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersClearDialogEs clear_dialog =
+      _TranslationsSettingsProvidersClearDialogEs._(_root);
 }
 
 // Path: settings.layout
@@ -1102,9 +1129,7 @@ class _TranslationsSettingsAboutEs extends TranslationsSettingsAboutEn {
   @override
   String get copy_version_info => 'Copiar información de versión';
   @override
-  String get up_to_date => 'Está actualizado.';
-  @override
-  String get check_again => 'Verificar de nuevo';
+  String get up_to_date => 'Estás al día';
   @override
   String get links => 'Enlaces';
   @override
@@ -1115,6 +1140,8 @@ class _TranslationsSettingsAboutEs extends TranslationsSettingsAboutEn {
   String get open_changelog => 'Registro de cambios';
   @override
   String get update => 'Actualización';
+  @override
+  String get software_update => 'Actualización de software';
 }
 
 // Path: common.ui.button
@@ -1602,7 +1629,7 @@ class _TranslationsSettingsShortcutsResetDialogEs
   String get title => 'Restablecer atajos';
   @override
   String get message =>
-      '¿Estás seguro de que deseas restablecer todos los atajos a sus valores predeterminados?';
+      '¿Restablecer todos los atajos a sus valores predeterminados? Se sobrescribirán los que hayas cambiado.';
   @override
   String get confirm => 'Restablecer';
   @override
@@ -1718,6 +1745,43 @@ class _TranslationsSettingsServicesItemEs
   String get none_of_kind => 'Aún no hay servicios de {} disponibles.';
 }
 
+// Path: settings.services.capability
+class _TranslationsSettingsServicesCapabilityEs
+    extends TranslationsSettingsServicesCapabilityEn {
+  _TranslationsSettingsServicesCapabilityEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => 'Traducción';
+  @override
+  String get dictionary => 'Diccionario';
+  @override
+  String get ocr => 'Reconocimiento de texto';
+}
+
+// Path: settings.services.permissions_missing
+class _TranslationsSettingsServicesPermissionsMissingEs
+    extends TranslationsSettingsServicesPermissionsMissingEn {
+  _TranslationsSettingsServicesPermissionsMissingEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Permisos del sistema no concedidos';
+  @override
+  String get hint =>
+      'La captura de pantalla y de selección necesitan permisos de grabación de pantalla y accesibilidad.';
+  @override
+  String get open_general => 'Abrir General';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionEs
     extends TranslationsSettingsProvidersSectionEn {
@@ -1733,6 +1797,8 @@ class _TranslationsSettingsProvidersSectionEs
   @override
   String get services_description =>
       'Consulta los servicios disponibles de los proveedores configurados y cambia entre tipos de servicio.';
+  @override
+  String get count => 'Proveedores · {}';
 }
 
 // Path: settings.providers.item
@@ -1746,12 +1812,7 @@ class _TranslationsSettingsProvidersItemEs
 
   // Translations
   @override
-  String get empty =>
-      'No hay proveedores configurados. Agrega uno para habilitar los servicios de traducción.';
-  @override
   String get loading => 'Cargando proveedores...';
-  @override
-  String get no_services => 'No hay servicios disponibles.';
 }
 
 // Path: settings.providers.button
@@ -1849,14 +1910,31 @@ class _TranslationsSettingsProvidersDetailEs
   late final _TranslationsSettingsProvidersDetailTooltipEs tooltip =
       _TranslationsSettingsProvidersDetailTooltipEs._(_root);
   @override
-  late final _TranslationsSettingsProvidersDetailRowEs row =
-      _TranslationsSettingsProvidersDetailRowEs._(_root);
-  @override
   late final _TranslationsSettingsProvidersDetailSectionEs section =
       _TranslationsSettingsProvidersDetailSectionEs._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailModelsEs models =
       _TranslationsSettingsProvidersDetailModelsEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailButtonEs button =
+      _TranslationsSettingsProvidersDetailButtonEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailReceiptEs receipt =
+      _TranslationsSettingsProvidersDetailReceiptEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailProblemEs problem =
+      _TranslationsSettingsProvidersDetailProblemEs._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailFieldEs field =
+      _TranslationsSettingsProvidersDetailFieldEs._(_root);
+  @override
+  String get no_fields =>
+      'No hay nada que rellenar: funciona en cuanto se instala; las líneas de arriba son solo una descripción.';
+  @override
+  String get services_empty => 'Aún no hay servicios';
+  @override
+  String get services_locked =>
+      'Introduce una clave y guarda para añadir servicios de este proveedor.';
 }
 
 // Path: settings.providers.capability
@@ -1900,10 +1978,10 @@ class _TranslationsSettingsProvidersDescriptionEs
   String get fallback => 'Proporciona servicios de traducción';
 }
 
-// Path: settings.providers.delete_dialog
-class _TranslationsSettingsProvidersDeleteDialogEs
-    extends TranslationsSettingsProvidersDeleteDialogEn {
-  _TranslationsSettingsProvidersDeleteDialogEs._(TranslationsEs root)
+// Path: settings.providers.need
+class _TranslationsSettingsProvidersNeedEs
+    extends TranslationsSettingsProvidersNeedEn {
+  _TranslationsSettingsProvidersNeedEs._(TranslationsEs root)
       : this._root = root,
         super.internal(root);
 
@@ -1911,9 +1989,130 @@ class _TranslationsSettingsProvidersDeleteDialogEs
 
   // Translations
   @override
-  String get title => '¿Eliminar "{}"?';
+  String get anthropic => 'Necesita una clave de API';
   @override
-  String get message => 'Esta acción no se puede deshacer.';
+  String get openai => 'Necesita una clave de API';
+  @override
+  String get gemini => 'Necesita una clave de API';
+  @override
+  String get deepseek => 'Necesita una clave de API';
+  @override
+  String get qwen => 'Necesita una clave de API de Model Studio';
+  @override
+  String get moonshot => 'Necesita una clave de API de Moonshot';
+  @override
+  String get doubao => 'Necesita una clave de API de Volcano Ark';
+  @override
+  String get zhipu => 'Necesita una clave de API de Zhipu Open Platform';
+  @override
+  String get xai => 'Necesita una clave de API de xAI';
+  @override
+  String get groq => 'Necesita una clave de API de Groq';
+  @override
+  String get ollama => 'Se ejecuta en este equipo · Sin clave de API';
+  @override
+  String get openai_compatible =>
+      'Endpoint propio o agregador · Indica tu Base URL';
+}
+
+// Path: settings.providers.status
+class _TranslationsSettingsProvidersStatusEs
+    extends TranslationsSettingsProvidersStatusEn {
+  _TranslationsSettingsProvidersStatusEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get unconfigured => 'Sin configurar';
+  @override
+  String get unverified => 'Sin verificar';
+  @override
+  String get invalid => 'Requiere revisión';
+}
+
+// Path: settings.providers.meta
+class _TranslationsSettingsProvidersMetaEs
+    extends TranslationsSettingsProvidersMetaEn {
+  _TranslationsSettingsProvidersMetaEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get key_valid => 'Clave válida';
+  @override
+  String get reachable => 'Conectado';
+  @override
+  String get invalid => 'Clave rechazada · Requiere revisión';
+}
+
+// Path: settings.providers.search
+class _TranslationsSettingsProvidersSearchEs
+    extends TranslationsSettingsProvidersSearchEn {
+  _TranslationsSettingsProvidersSearchEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get button => 'Buscar';
+  @override
+  String get placeholder => 'Buscar nombre o id del proveedor';
+  @override
+  String get label => 'Buscar proveedores';
+  @override
+  String get clear => 'Borrar búsqueda';
+  @override
+  String get no_match_title => 'No hay proveedores que coincidan';
+  @override
+  String get no_match_body => 'No se encontró «{}».';
+}
+
+// Path: settings.providers.discard_dialog
+class _TranslationsSettingsProvidersDiscardDialogEs
+    extends TranslationsSettingsProvidersDiscardDialogEn {
+  _TranslationsSettingsProvidersDiscardDialogEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '¿Descartar los cambios sin guardar?';
+  @override
+  String get message =>
+      'Lo que escribiste en esta página no se ha guardado y se perderá si sales.';
+  @override
+  String get confirm => 'Descartar';
+  @override
+  String get cancel => 'Seguir editando';
+}
+
+// Path: settings.providers.clear_dialog
+class _TranslationsSettingsProvidersClearDialogEs
+    extends TranslationsSettingsProvidersClearDialogEn {
+  _TranslationsSettingsProvidersClearDialogEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Borrar clave';
+  @override
+  String get message =>
+      '{} vuelve a «Sin configurar» y los servicios que ofrece se eliminan con él. La clave introducida se borra.';
+  @override
+  String get confirm => 'Borrar';
 }
 
 // Path: settings.layout.empty
@@ -2198,20 +2397,6 @@ class _TranslationsSettingsProvidersDetailTooltipEs
   String get edit => 'Editar proveedor';
 }
 
-// Path: settings.providers.detail.row
-class _TranslationsSettingsProvidersDetailRowEs
-    extends TranslationsSettingsProvidersDetailRowEn {
-  _TranslationsSettingsProvidersDetailRowEs._(TranslationsEs root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsEs _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get id_hint => 'No se puede cambiar después de crearlo';
-}
-
 // Path: settings.providers.detail.section
 class _TranslationsSettingsProvidersDetailSectionEs
     extends TranslationsSettingsProvidersDetailSectionEn {
@@ -2226,6 +2411,8 @@ class _TranslationsSettingsProvidersDetailSectionEs
   String get configuration => 'Configuración';
   @override
   String get models => 'Modelos';
+  @override
+  String get services => 'Servicios derivados de este proveedor';
 }
 
 // Path: settings.providers.detail.models
@@ -2251,8 +2438,123 @@ class _TranslationsSettingsProvidersDetailModelsEs
   @override
   String get set_default => 'Establecer como predeterminado';
   @override
-  String get fetch_error =>
-      'No se pudieron obtener los modelos de la API del proveedor.';
+  String get fetching => 'Pidiendo la lista de modelos al endpoint…';
+  @override
+  String get fetch_failed_title => 'No se pudieron obtener los modelos';
+  @override
+  String get fetch_failed_body =>
+      'El endpoint no respondió o no acepta esta clave. Cuando la dirección y la clave sean correctas, puedes volver a intentarlo.';
+  @override
+  String get empty_answer =>
+      'El endpoint respondió, pero no devolvió ningún modelo; también puedes escribir el nombre de un modelo a mano.';
+  @override
+  String get test_draft => 'Probar la nueva configuración';
+  @override
+  String get draft_note =>
+      'Estos modelos se obtuvieron con valores sin guardar; cuentan cuando pulses Guardar.';
+  @override
+  String get locked =>
+      'Introduce una clave y guarda; Actualizar lista obtendrá los modelos de este proveedor.';
+  @override
+  String get manual_placeholder => 'Escribe un nombre de modelo';
+}
+
+// Path: settings.providers.detail.button
+class _TranslationsSettingsProvidersDetailButtonEs
+    extends TranslationsSettingsProvidersDetailButtonEn {
+  _TranslationsSettingsProvidersDetailButtonEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get saving => 'Guardando';
+  @override
+  String get add_service => 'Agregar servicio...';
+  @override
+  String get clear_key => 'Borrar clave';
+}
+
+// Path: settings.providers.detail.receipt
+class _TranslationsSettingsProvidersDetailReceiptEs
+    extends TranslationsSettingsProvidersDetailReceiptEn {
+  _TranslationsSettingsProvidersDetailReceiptEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get problems_title => 'Esta configuración aún no se puede guardar';
+  @override
+  String get saved_title => 'Guardado';
+  @override
+  String get saved_body => 'La configuración de este proveedor se ha guardado.';
+  @override
+  String get save_failed_title => 'No se pudo guardar';
+  @override
+  String get delete_failed_title => 'No se pudo eliminar';
+  @override
+  String get add_service_failed_title => 'No se pudo agregar el servicio';
+  @override
+  String get saved_rejected_title => 'Guardado, pero el endpoint no lo aceptó';
+  @override
+  String get saved_rejected_body =>
+      'La configuración se guardó, pero no se pudo obtener la lista de modelos con ella: prueba otra clave y guarda de nuevo.';
+  @override
+  String get saved_verifying => 'Guardado. Comprobando la conexión…';
+}
+
+// Path: settings.providers.detail.problem
+class _TranslationsSettingsProvidersDetailProblemEs
+    extends TranslationsSettingsProvidersDetailProblemEn {
+  _TranslationsSettingsProvidersDetailProblemEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get item => '{}: {}';
+  @override
+  String get separator => '; ';
+  @override
+  String get required => 'Obligatorio';
+  @override
+  String get url_scheme => 'Debe empezar por http:// o https://';
+  @override
+  String get url_protocol => 'Solo se aceptan http:// y https://';
+  @override
+  String get url_host => 'Falta el nombre de host';
+  @override
+  String get no_model =>
+      'Aún no hay modelo: obtén la lista primero o escribe un nombre de modelo.';
+}
+
+// Path: settings.providers.detail.field
+class _TranslationsSettingsProvidersDetailFieldEs
+    extends TranslationsSettingsProvidersDetailFieldEn {
+  _TranslationsSettingsProvidersDetailFieldEs._(TranslationsEs root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEs _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get fallback_hint => 'Déjalo en blanco para usar {}';
+  @override
+  String get show_secret => 'Mostrar {}';
+  @override
+  String get hide_secret => 'Ocultar {}';
+  @override
+  String get secret_stored => 'Guardada · Déjala vacía para conservarla';
+  @override
+  String get secret_empty => 'Introduce la clave';
 }
 
 /// The flat map containing all translations for locale <es>.
@@ -2559,7 +2861,7 @@ extension on TranslationsEs {
       'workbench.version_latest' => 'Actualizado',
       'workbench.version_checking' => 'Comprobando…',
       'workbench.check_updates' => 'Buscar actualizaciones',
-      'settings.version' => 'v{} (Build {})',
+      'settings.version' => '{} (Build {})',
       'settings.general.title' => 'General',
       'settings.general.section.permissions' => 'Permisos del sistema',
       'settings.general.section.ocr' => 'Reconocimiento de texto',
@@ -2685,7 +2987,7 @@ extension on TranslationsEs {
         'Extraer texto del portapapeles',
       'settings.shortcuts.reset_dialog.title' => 'Restablecer atajos',
       'settings.shortcuts.reset_dialog.message' =>
-        '¿Estás seguro de que deseas restablecer todos los atajos a sus valores predeterminados?',
+        '¿Restablecer todos los atajos a sus valores predeterminados? Se sobrescribirán los que hayas cambiado.',
       'settings.shortcuts.reset_dialog.confirm' => 'Restablecer',
       'settings.shortcuts.reset_dialog.cancel' => 'Cancelar',
       'settings.shortcuts.group.global.title' => 'Atajos globales',
@@ -2729,14 +3031,23 @@ extension on TranslationsEs {
       'settings.services.make_default' => 'Establecer como predeterminado',
       'settings.services.item.none_of_kind' =>
         'Aún no hay servicios de {} disponibles.',
+      'settings.services.go_to_providers' => 'Ir a Proveedores',
+      'settings.services.go_to_providers_hint' =>
+        'Los servicios salen de los proveedores: configura uno primero en la página Proveedores.',
+      'settings.services.capability.translation' => 'Traducción',
+      'settings.services.capability.dictionary' => 'Diccionario',
+      'settings.services.capability.ocr' => 'Reconocimiento de texto',
+      'settings.services.permissions_missing.title' =>
+        'Permisos del sistema no concedidos',
+      'settings.services.permissions_missing.hint' =>
+        'La captura de pantalla y de selección necesitan permisos de grabación de pantalla y accesibilidad.',
+      'settings.services.permissions_missing.open_general' => 'Abrir General',
       'settings.providers.title' => 'Proveedores',
       'settings.providers.section.services' => 'Servicios disponibles',
       'settings.providers.section.services_description' =>
         'Consulta los servicios disponibles de los proveedores configurados y cambia entre tipos de servicio.',
-      'settings.providers.item.empty' =>
-        'No hay proveedores configurados. Agrega uno para habilitar los servicios de traducción.',
+      'settings.providers.section.count' => 'Proveedores · {}',
       'settings.providers.item.loading' => 'Cargando proveedores...',
-      'settings.providers.item.no_services' => 'No hay servicios disponibles.',
       'settings.providers.button.add' => 'Agregar un proveedor...',
       'settings.providers.alert.error' => 'Error',
       'settings.providers.intro.body' =>
@@ -2780,10 +3091,10 @@ extension on TranslationsEs {
       'settings.providers.editor.test.failed_suffix' => 'verificación fallida',
       'settings.providers.editor.test.passed_suffix' => 'verificado',
       'settings.providers.detail.tooltip.edit' => 'Editar proveedor',
-      'settings.providers.detail.row.id_hint' =>
-        'No se puede cambiar después de crearlo',
       'settings.providers.detail.section.configuration' => 'Configuración',
       'settings.providers.detail.section.models' => 'Modelos',
+      'settings.providers.detail.section.services' =>
+        'Servicios derivados de este proveedor',
       'settings.providers.detail.models.loading' => 'Cargando modelos...',
       'settings.providers.detail.models.empty' => 'No se encontraron modelos.',
       'settings.providers.detail.models.retry' => 'Reintentar',
@@ -2791,8 +3102,64 @@ extension on TranslationsEs {
       'settings.providers.detail.models.default_badge' => 'Predeterminado',
       'settings.providers.detail.models.set_default' =>
         'Establecer como predeterminado',
-      'settings.providers.detail.models.fetch_error' =>
-        'No se pudieron obtener los modelos de la API del proveedor.',
+      'settings.providers.detail.models.fetching' =>
+        'Pidiendo la lista de modelos al endpoint…',
+      'settings.providers.detail.models.fetch_failed_title' =>
+        'No se pudieron obtener los modelos',
+      'settings.providers.detail.models.fetch_failed_body' =>
+        'El endpoint no respondió o no acepta esta clave. Cuando la dirección y la clave sean correctas, puedes volver a intentarlo.',
+      'settings.providers.detail.models.empty_answer' =>
+        'El endpoint respondió, pero no devolvió ningún modelo; también puedes escribir el nombre de un modelo a mano.',
+      'settings.providers.detail.models.test_draft' =>
+        'Probar la nueva configuración',
+      'settings.providers.detail.models.draft_note' =>
+        'Estos modelos se obtuvieron con valores sin guardar; cuentan cuando pulses Guardar.',
+      'settings.providers.detail.models.locked' =>
+        'Introduce una clave y guarda; Actualizar lista obtendrá los modelos de este proveedor.',
+      'settings.providers.detail.models.manual_placeholder' =>
+        'Escribe un nombre de modelo',
+      'settings.providers.detail.button.saving' => 'Guardando',
+      'settings.providers.detail.button.add_service' => 'Agregar servicio...',
+      'settings.providers.detail.button.clear_key' => 'Borrar clave',
+      'settings.providers.detail.receipt.problems_title' =>
+        'Esta configuración aún no se puede guardar',
+      'settings.providers.detail.receipt.saved_title' => 'Guardado',
+      'settings.providers.detail.receipt.saved_body' =>
+        'La configuración de este proveedor se ha guardado.',
+      'settings.providers.detail.receipt.save_failed_title' =>
+        'No se pudo guardar',
+      'settings.providers.detail.receipt.delete_failed_title' =>
+        'No se pudo eliminar',
+      'settings.providers.detail.receipt.add_service_failed_title' =>
+        'No se pudo agregar el servicio',
+      'settings.providers.detail.receipt.saved_rejected_title' =>
+        'Guardado, pero el endpoint no lo aceptó',
+      'settings.providers.detail.receipt.saved_rejected_body' =>
+        'La configuración se guardó, pero no se pudo obtener la lista de modelos con ella: prueba otra clave y guarda de nuevo.',
+      'settings.providers.detail.receipt.saved_verifying' =>
+        'Guardado. Comprobando la conexión…',
+      'settings.providers.detail.problem.item' => '{}: {}',
+      'settings.providers.detail.problem.separator' => '; ',
+      'settings.providers.detail.problem.required' => 'Obligatorio',
+      'settings.providers.detail.problem.url_scheme' =>
+        'Debe empezar por http:// o https://',
+      'settings.providers.detail.problem.url_protocol' =>
+        'Solo se aceptan http:// y https://',
+      'settings.providers.detail.problem.url_host' => 'Falta el nombre de host',
+      'settings.providers.detail.problem.no_model' =>
+        'Aún no hay modelo: obtén la lista primero o escribe un nombre de modelo.',
+      'settings.providers.detail.field.fallback_hint' =>
+        'Déjalo en blanco para usar {}',
+      'settings.providers.detail.field.show_secret' => 'Mostrar {}',
+      'settings.providers.detail.field.hide_secret' => 'Ocultar {}',
+      'settings.providers.detail.field.secret_stored' =>
+        'Guardada · Déjala vacía para conservarla',
+      'settings.providers.detail.field.secret_empty' => 'Introduce la clave',
+      'settings.providers.detail.no_fields' =>
+        'No hay nada que rellenar: funciona en cuanto se instala; las líneas de arriba son solo una descripción.',
+      'settings.providers.detail.services_empty' => 'Aún no hay servicios',
+      'settings.providers.detail.services_locked' =>
+        'Introduce una clave y guarda para añadir servicios de este proveedor.',
       'settings.providers.capability.translation' => 'Traducción',
       'settings.providers.capability.dictionary' => 'Diccionario',
       'settings.providers.capability.ocr' => 'OCR',
@@ -2805,9 +3172,49 @@ extension on TranslationsEs {
         'Proporciona traducción de texto entre idiomas',
       'settings.providers.description.fallback' =>
         'Proporciona servicios de traducción',
-      'settings.providers.delete_dialog.title' => '¿Eliminar "{}"?',
-      'settings.providers.delete_dialog.message' =>
-        'Esta acción no se puede deshacer.',
+      'settings.providers.need.anthropic' => 'Necesita una clave de API',
+      'settings.providers.need.openai' => 'Necesita una clave de API',
+      'settings.providers.need.gemini' => 'Necesita una clave de API',
+      'settings.providers.need.deepseek' => 'Necesita una clave de API',
+      'settings.providers.need.qwen' =>
+        'Necesita una clave de API de Model Studio',
+      'settings.providers.need.moonshot' =>
+        'Necesita una clave de API de Moonshot',
+      'settings.providers.need.doubao' =>
+        'Necesita una clave de API de Volcano Ark',
+      'settings.providers.need.zhipu' =>
+        'Necesita una clave de API de Zhipu Open Platform',
+      'settings.providers.need.xai' => 'Necesita una clave de API de xAI',
+      'settings.providers.need.groq' => 'Necesita una clave de API de Groq',
+      'settings.providers.need.ollama' =>
+        'Se ejecuta en este equipo · Sin clave de API',
+      'settings.providers.need.openai_compatible' =>
+        'Endpoint propio o agregador · Indica tu Base URL',
+      'settings.providers.status.unconfigured' => 'Sin configurar',
+      'settings.providers.status.unverified' => 'Sin verificar',
+      'settings.providers.status.invalid' => 'Requiere revisión',
+      'settings.providers.meta.key_valid' => 'Clave válida',
+      'settings.providers.meta.reachable' => 'Conectado',
+      'settings.providers.meta.invalid' =>
+        'Clave rechazada · Requiere revisión',
+      'settings.providers.search.button' => 'Buscar',
+      'settings.providers.search.placeholder' =>
+        'Buscar nombre o id del proveedor',
+      'settings.providers.search.label' => 'Buscar proveedores',
+      'settings.providers.search.clear' => 'Borrar búsqueda',
+      'settings.providers.search.no_match_title' =>
+        'No hay proveedores que coincidan',
+      'settings.providers.search.no_match_body' => 'No se encontró «{}».',
+      'settings.providers.discard_dialog.title' =>
+        '¿Descartar los cambios sin guardar?',
+      'settings.providers.discard_dialog.message' =>
+        'Lo que escribiste en esta página no se ha guardado y se perderá si sales.',
+      'settings.providers.discard_dialog.confirm' => 'Descartar',
+      'settings.providers.discard_dialog.cancel' => 'Seguir editando',
+      'settings.providers.clear_dialog.title' => 'Borrar clave',
+      'settings.providers.clear_dialog.message' =>
+        '{} vuelve a «Sin configurar» y los servicios que ofrece se eliminan con él. La clave introducida se borra.',
+      'settings.providers.clear_dialog.confirm' => 'Borrar',
       'settings.layout.title' => 'Configuración',
       'settings.layout.empty.title' => 'Selecciona una categoría',
       'settings.layout.empty.message' =>
@@ -2818,13 +3225,13 @@ extension on TranslationsEs {
       'settings.layout.support' => 'Soporte',
       'settings.about.title' => 'Acerca de',
       'settings.about.copy_version_info' => 'Copiar información de versión',
-      'settings.about.up_to_date' => 'Está actualizado.',
-      'settings.about.check_again' => 'Verificar de nuevo',
+      'settings.about.up_to_date' => 'Estás al día',
       'settings.about.links' => 'Enlaces',
       'settings.about.website' => 'Sitio web',
       'settings.about.help_center' => 'Centro de ayuda',
       'settings.about.open_changelog' => 'Registro de cambios',
       'settings.about.update' => 'Actualización',
+      'settings.about.software_update' => 'Actualización de software',
       _ => null,
     };
   }

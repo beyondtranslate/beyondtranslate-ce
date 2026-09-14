@@ -199,7 +199,7 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 
   // Translations
   @override
-  String get version => 'v{} (Build {})';
+  String get version => '{} (Build {})';
   @override
   late final _TranslationsSettingsGeneralJa general =
       _TranslationsSettingsGeneralJa._(_root);
@@ -1003,6 +1003,18 @@ class _TranslationsSettingsServicesJa extends TranslationsSettingsServicesEn {
   @override
   late final _TranslationsSettingsServicesItemJa item =
       _TranslationsSettingsServicesItemJa._(_root);
+  @override
+  String get go_to_providers => 'プロバイダーへ移動';
+  @override
+  String get go_to_providers_hint =>
+      'サービスはプロバイダーから作られます。まずプロバイダーのページで 1 つ設定してください。';
+  @override
+  late final _TranslationsSettingsServicesCapabilityJa capability =
+      _TranslationsSettingsServicesCapabilityJa._(_root);
+  @override
+  late final _TranslationsSettingsServicesPermissionsMissingJa
+      permissions_missing =
+      _TranslationsSettingsServicesPermissionsMissingJa._(_root);
 }
 
 // Path: settings.providers
@@ -1044,8 +1056,23 @@ class _TranslationsSettingsProvidersJa extends TranslationsSettingsProvidersEn {
   late final _TranslationsSettingsProvidersDescriptionJa description =
       _TranslationsSettingsProvidersDescriptionJa._(_root);
   @override
-  late final _TranslationsSettingsProvidersDeleteDialogJa delete_dialog =
-      _TranslationsSettingsProvidersDeleteDialogJa._(_root);
+  late final _TranslationsSettingsProvidersNeedJa need =
+      _TranslationsSettingsProvidersNeedJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersStatusJa status =
+      _TranslationsSettingsProvidersStatusJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersMetaJa meta =
+      _TranslationsSettingsProvidersMetaJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersSearchJa search =
+      _TranslationsSettingsProvidersSearchJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDiscardDialogJa discard_dialog =
+      _TranslationsSettingsProvidersDiscardDialogJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersClearDialogJa clear_dialog =
+      _TranslationsSettingsProvidersClearDialogJa._(_root);
 }
 
 // Path: settings.layout
@@ -1084,9 +1111,7 @@ class _TranslationsSettingsAboutJa extends TranslationsSettingsAboutEn {
   @override
   String get copy_version_info => 'バージョン情報をコピー';
   @override
-  String get up_to_date => '最新の状態です。';
-  @override
-  String get check_again => '再確認';
+  String get up_to_date => '最新の状態です';
   @override
   String get links => 'リンク';
   @override
@@ -1097,6 +1122,8 @@ class _TranslationsSettingsAboutJa extends TranslationsSettingsAboutEn {
   String get open_changelog => '更新履歴';
   @override
   String get update => 'アップデート';
+  @override
+  String get software_update => 'ソフトウェアアップデート';
 }
 
 // Path: common.ui.button
@@ -1557,7 +1584,7 @@ class _TranslationsSettingsShortcutsResetDialogJa
   @override
   String get title => 'ショートカットをリセット';
   @override
-  String get message => 'すべてのショートカットをデフォルト値にリセットしますか？';
+  String get message => 'すべてのショートカットをデフォルトに戻しますか？変更したキー割り当ては上書きされます。';
   @override
   String get confirm => 'リセット';
   @override
@@ -1671,6 +1698,42 @@ class _TranslationsSettingsServicesItemJa
   String get none_of_kind => '利用できる{}サービスがまだありません。';
 }
 
+// Path: settings.services.capability
+class _TranslationsSettingsServicesCapabilityJa
+    extends TranslationsSettingsServicesCapabilityEn {
+  _TranslationsSettingsServicesCapabilityJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get translation => '翻訳';
+  @override
+  String get dictionary => '辞書';
+  @override
+  String get ocr => 'テキスト認識';
+}
+
+// Path: settings.services.permissions_missing
+class _TranslationsSettingsServicesPermissionsMissingJa
+    extends TranslationsSettingsServicesPermissionsMissingEn {
+  _TranslationsSettingsServicesPermissionsMissingJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'システム権限が許可されていません';
+  @override
+  String get hint => 'スクリーンショットと選択テキストの取得には、画面収録とアクセシビリティの権限が必要です。';
+  @override
+  String get open_general => '一般を開く';
+}
+
 // Path: settings.providers.section
 class _TranslationsSettingsProvidersSectionJa
     extends TranslationsSettingsProvidersSectionEn {
@@ -1685,6 +1748,8 @@ class _TranslationsSettingsProvidersSectionJa
   String get services => '利用可能なサービス';
   @override
   String get services_description => '設定済みプロバイダーで利用できるサービスを確認し、種類ごとに切り替えます。';
+  @override
+  String get count => 'プロバイダー · {} 件';
 }
 
 // Path: settings.providers.item
@@ -1698,11 +1763,7 @@ class _TranslationsSettingsProvidersItemJa
 
   // Translations
   @override
-  String get empty => 'プロバイダーが設定されていません。追加して翻訳サービスを有効にしてください。';
-  @override
   String get loading => 'プロバイダーを読み込み中...';
-  @override
-  String get no_services => '利用可能なサービスがありません。';
 }
 
 // Path: settings.providers.button
@@ -1800,14 +1861,29 @@ class _TranslationsSettingsProvidersDetailJa
   late final _TranslationsSettingsProvidersDetailTooltipJa tooltip =
       _TranslationsSettingsProvidersDetailTooltipJa._(_root);
   @override
-  late final _TranslationsSettingsProvidersDetailRowJa row =
-      _TranslationsSettingsProvidersDetailRowJa._(_root);
-  @override
   late final _TranslationsSettingsProvidersDetailSectionJa section =
       _TranslationsSettingsProvidersDetailSectionJa._(_root);
   @override
   late final _TranslationsSettingsProvidersDetailModelsJa models =
       _TranslationsSettingsProvidersDetailModelsJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailButtonJa button =
+      _TranslationsSettingsProvidersDetailButtonJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailReceiptJa receipt =
+      _TranslationsSettingsProvidersDetailReceiptJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailProblemJa problem =
+      _TranslationsSettingsProvidersDetailProblemJa._(_root);
+  @override
+  late final _TranslationsSettingsProvidersDetailFieldJa field =
+      _TranslationsSettingsProvidersDetailFieldJa._(_root);
+  @override
+  String get no_fields => '入力する項目はありません —— 追加すればすぐ使えます。上の行は説明にすぎません。';
+  @override
+  String get services_empty => '利用できるサービスはありません';
+  @override
+  String get services_locked => 'キーを入力して保存すると、このプロバイダーからサービスを追加できます。';
 }
 
 // Path: settings.providers.capability
@@ -1850,10 +1926,10 @@ class _TranslationsSettingsProvidersDescriptionJa
   String get fallback => '翻訳サービスを提供';
 }
 
-// Path: settings.providers.delete_dialog
-class _TranslationsSettingsProvidersDeleteDialogJa
-    extends TranslationsSettingsProvidersDeleteDialogEn {
-  _TranslationsSettingsProvidersDeleteDialogJa._(TranslationsJa root)
+// Path: settings.providers.need
+class _TranslationsSettingsProvidersNeedJa
+    extends TranslationsSettingsProvidersNeedEn {
+  _TranslationsSettingsProvidersNeedJa._(TranslationsJa root)
       : this._root = root,
         super.internal(root);
 
@@ -1861,9 +1937,127 @@ class _TranslationsSettingsProvidersDeleteDialogJa
 
   // Translations
   @override
-  String get title => '"{}" を削除しますか？';
+  String get anthropic => 'API キーが必要';
   @override
-  String get message => 'この操作は元に戻せません。';
+  String get openai => 'API キーが必要';
+  @override
+  String get gemini => 'API キーが必要';
+  @override
+  String get deepseek => 'API キーが必要';
+  @override
+  String get qwen => 'Model Studio の API キーが必要';
+  @override
+  String get moonshot => 'Moonshot の API キーが必要';
+  @override
+  String get doubao => 'Volcano Ark の API キーが必要';
+  @override
+  String get zhipu => 'Zhipu Open Platform の API キーが必要';
+  @override
+  String get xai => 'xAI の API キーが必要';
+  @override
+  String get groq => 'Groq の API キーが必要';
+  @override
+  String get ollama => 'このマシンで推論 · API キー不要';
+  @override
+  String get openai_compatible => 'セルフホストまたは集約エンドポイント · Base URL を入力';
+}
+
+// Path: settings.providers.status
+class _TranslationsSettingsProvidersStatusJa
+    extends TranslationsSettingsProvidersStatusEn {
+  _TranslationsSettingsProvidersStatusJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get unconfigured => '未設定';
+  @override
+  String get unverified => '未確認';
+  @override
+  String get invalid => '再確認が必要';
+}
+
+// Path: settings.providers.meta
+class _TranslationsSettingsProvidersMetaJa
+    extends TranslationsSettingsProvidersMetaEn {
+  _TranslationsSettingsProvidersMetaJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get key_valid => 'キー有効';
+  @override
+  String get reachable => '接続可能';
+  @override
+  String get invalid => 'キーが無効 · 再確認が必要';
+}
+
+// Path: settings.providers.search
+class _TranslationsSettingsProvidersSearchJa
+    extends TranslationsSettingsProvidersSearchEn {
+  _TranslationsSettingsProvidersSearchJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get button => '検索';
+  @override
+  String get placeholder => 'プロバイダー名または ID を検索';
+  @override
+  String get label => 'プロバイダーを検索';
+  @override
+  String get clear => '検索をクリア';
+  @override
+  String get no_match_title => '一致するプロバイダーはありません';
+  @override
+  String get no_match_body => '「{}」は見つかりませんでした。';
+}
+
+// Path: settings.providers.discard_dialog
+class _TranslationsSettingsProvidersDiscardDialogJa
+    extends TranslationsSettingsProvidersDiscardDialogEn {
+  _TranslationsSettingsProvidersDiscardDialogJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '保存していない変更を破棄しますか？';
+  @override
+  String get message => 'このページの入力はまだ保存されていません。移動すると失われます。';
+  @override
+  String get confirm => '破棄';
+  @override
+  String get cancel => '編集を続ける';
+}
+
+// Path: settings.providers.clear_dialog
+class _TranslationsSettingsProvidersClearDialogJa
+    extends TranslationsSettingsProvidersClearDialogEn {
+  _TranslationsSettingsProvidersClearDialogJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'キーを消去';
+  @override
+  String get message => '{} は「未設定」に戻り、そこから作られたサービスも停止します。入力したキーは消去されます。';
+  @override
+  String get confirm => '消去';
 }
 
 // Path: settings.layout.empty
@@ -2146,20 +2340,6 @@ class _TranslationsSettingsProvidersDetailTooltipJa
   String get edit => 'プロバイダーを編集';
 }
 
-// Path: settings.providers.detail.row
-class _TranslationsSettingsProvidersDetailRowJa
-    extends TranslationsSettingsProvidersDetailRowEn {
-  _TranslationsSettingsProvidersDetailRowJa._(TranslationsJa root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsJa _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get id_hint => '作成後は変更できません';
-}
-
 // Path: settings.providers.detail.section
 class _TranslationsSettingsProvidersDetailSectionJa
     extends TranslationsSettingsProvidersDetailSectionEn {
@@ -2174,6 +2354,8 @@ class _TranslationsSettingsProvidersDetailSectionJa
   String get configuration => '設定';
   @override
   String get models => 'モデル';
+  @override
+  String get services => 'このプロバイダーから派生したサービス';
 }
 
 // Path: settings.providers.detail.models
@@ -2199,7 +2381,119 @@ class _TranslationsSettingsProvidersDetailModelsJa
   @override
   String get set_default => 'デフォルトに設定';
   @override
-  String get fetch_error => 'プロバイダーAPIからモデルを取得できませんでした。';
+  String get fetching => 'エンドポイントにモデル一覧を問い合わせています…';
+  @override
+  String get fetch_failed_title => '取得に失敗しました';
+  @override
+  String get fetch_failed_body =>
+      'エンドポイントが応答しないか、このキーを受け付けていません。アドレスとキーが正しければ、もう一度お試しください。';
+  @override
+  String get empty_answer => 'エンドポイントは応答しましたが、モデルを返しませんでした —— モデル名を手入力しても使えます。';
+  @override
+  String get test_draft => '新しい設定でテスト';
+  @override
+  String get draft_note => 'これらのモデルは未保存の値で取得したものです。「保存」を押すまで確定しません。';
+  @override
+  String get locked => 'キーを入力して保存すると、「リストを更新」でこのプロバイダーのモデルを取得できます。';
+  @override
+  String get manual_placeholder => 'モデル名を入力';
+}
+
+// Path: settings.providers.detail.button
+class _TranslationsSettingsProvidersDetailButtonJa
+    extends TranslationsSettingsProvidersDetailButtonEn {
+  _TranslationsSettingsProvidersDetailButtonJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get saving => '保存中';
+  @override
+  String get add_service => 'サービスを追加...';
+  @override
+  String get clear_key => 'キーを消去';
+}
+
+// Path: settings.providers.detail.receipt
+class _TranslationsSettingsProvidersDetailReceiptJa
+    extends TranslationsSettingsProvidersDetailReceiptEn {
+  _TranslationsSettingsProvidersDetailReceiptJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get problems_title => 'この設定はまだ保存できません';
+  @override
+  String get saved_title => '保存しました';
+  @override
+  String get saved_body => 'このプロバイダーの設定を書き込みました。';
+  @override
+  String get save_failed_title => '保存できませんでした';
+  @override
+  String get delete_failed_title => '削除できませんでした';
+  @override
+  String get add_service_failed_title => 'サービスを追加できませんでした';
+  @override
+  String get saved_rejected_title => '保存しましたが、エンドポイントに受け入れられませんでした';
+  @override
+  String get saved_rejected_body =>
+      '設定は書き込まれましたが、それを使ったモデル一覧の取得に失敗しました。別のキーで保存し直してください。';
+  @override
+  String get saved_verifying => '保存しました。接続を確認しています…';
+}
+
+// Path: settings.providers.detail.problem
+class _TranslationsSettingsProvidersDetailProblemJa
+    extends TranslationsSettingsProvidersDetailProblemEn {
+  _TranslationsSettingsProvidersDetailProblemJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get item => '{}: {}';
+  @override
+  String get separator => '、';
+  @override
+  String get required => '必須';
+  @override
+  String get url_scheme => 'http:// または https:// を付けてください';
+  @override
+  String get url_protocol => 'http:// と https:// のみ使用できます';
+  @override
+  String get url_host => 'ホスト名がありません';
+  @override
+  String get no_model => 'まだモデルがありません。先に一覧を取得するか、モデル名を入力してください。';
+}
+
+// Path: settings.providers.detail.field
+class _TranslationsSettingsProvidersDetailFieldJa
+    extends TranslationsSettingsProvidersDetailFieldEn {
+  _TranslationsSettingsProvidersDetailFieldJa._(TranslationsJa root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsJa _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get fallback_hint => '空欄の場合は {} を使用します';
+  @override
+  String get show_secret => '{} を表示';
+  @override
+  String get hide_secret => '{} を隠す';
+  @override
+  String get secret_stored => '保存済み · 空欄のままなら変更しません';
+  @override
+  String get secret_empty => 'キーを入力';
 }
 
 /// The flat map containing all translations for locale <ja>.
@@ -2472,7 +2766,7 @@ extension on TranslationsJa {
       'workbench.version_latest' => '最新です',
       'workbench.version_checking' => '確認中…',
       'workbench.check_updates' => 'アップデートを確認',
-      'settings.version' => 'v{} (Build {})',
+      'settings.version' => '{} (Build {})',
       'settings.general.title' => '一般',
       'settings.general.section.permissions' => 'システム権限',
       'settings.general.section.ocr' => 'テキスト認識',
@@ -2572,7 +2866,7 @@ extension on TranslationsJa {
         'クリップボードからテキストを抽出',
       'settings.shortcuts.reset_dialog.title' => 'ショートカットをリセット',
       'settings.shortcuts.reset_dialog.message' =>
-        'すべてのショートカットをデフォルト値にリセットしますか？',
+        'すべてのショートカットをデフォルトに戻しますか？変更したキー割り当ては上書きされます。',
       'settings.shortcuts.reset_dialog.confirm' => 'リセット',
       'settings.shortcuts.reset_dialog.cancel' => 'キャンセル',
       'settings.shortcuts.group.global.title' => 'グローバルショートカット',
@@ -2612,14 +2906,22 @@ extension on TranslationsJa {
         '利用可能な変数: {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
       'settings.services.make_default' => 'デフォルトにする',
       'settings.services.item.none_of_kind' => '利用できる{}サービスがまだありません。',
+      'settings.services.go_to_providers' => 'プロバイダーへ移動',
+      'settings.services.go_to_providers_hint' =>
+        'サービスはプロバイダーから作られます。まずプロバイダーのページで 1 つ設定してください。',
+      'settings.services.capability.translation' => '翻訳',
+      'settings.services.capability.dictionary' => '辞書',
+      'settings.services.capability.ocr' => 'テキスト認識',
+      'settings.services.permissions_missing.title' => 'システム権限が許可されていません',
+      'settings.services.permissions_missing.hint' =>
+        'スクリーンショットと選択テキストの取得には、画面収録とアクセシビリティの権限が必要です。',
+      'settings.services.permissions_missing.open_general' => '一般を開く',
       'settings.providers.title' => 'プロバイダー',
       'settings.providers.section.services' => '利用可能なサービス',
       'settings.providers.section.services_description' =>
         '設定済みプロバイダーで利用できるサービスを確認し、種類ごとに切り替えます。',
-      'settings.providers.item.empty' =>
-        'プロバイダーが設定されていません。追加して翻訳サービスを有効にしてください。',
+      'settings.providers.section.count' => 'プロバイダー · {} 件',
       'settings.providers.item.loading' => 'プロバイダーを読み込み中...',
-      'settings.providers.item.no_services' => '利用可能なサービスがありません。',
       'settings.providers.button.add' => 'プロバイダーを追加...',
       'settings.providers.alert.error' => 'エラー',
       'settings.providers.intro.body' => 'アプリで使用するサービスプロバイダーを管理します。',
@@ -2654,17 +2956,63 @@ extension on TranslationsJa {
       'settings.providers.editor.test.failed_suffix' => '検証に失敗',
       'settings.providers.editor.test.passed_suffix' => '検証済み',
       'settings.providers.detail.tooltip.edit' => 'プロバイダーを編集',
-      'settings.providers.detail.row.id_hint' => '作成後は変更できません',
       'settings.providers.detail.section.configuration' => '設定',
       'settings.providers.detail.section.models' => 'モデル',
+      'settings.providers.detail.section.services' => 'このプロバイダーから派生したサービス',
       'settings.providers.detail.models.loading' => 'モデルを読み込み中...',
       'settings.providers.detail.models.empty' => 'モデルが見つかりません。',
       'settings.providers.detail.models.retry' => '再試行',
       'settings.providers.detail.models.refresh' => 'リストを更新',
       'settings.providers.detail.models.default_badge' => 'デフォルト',
       'settings.providers.detail.models.set_default' => 'デフォルトに設定',
-      'settings.providers.detail.models.fetch_error' =>
-        'プロバイダーAPIからモデルを取得できませんでした。',
+      'settings.providers.detail.models.fetching' => 'エンドポイントにモデル一覧を問い合わせています…',
+      'settings.providers.detail.models.fetch_failed_title' => '取得に失敗しました',
+      'settings.providers.detail.models.fetch_failed_body' =>
+        'エンドポイントが応答しないか、このキーを受け付けていません。アドレスとキーが正しければ、もう一度お試しください。',
+      'settings.providers.detail.models.empty_answer' =>
+        'エンドポイントは応答しましたが、モデルを返しませんでした —— モデル名を手入力しても使えます。',
+      'settings.providers.detail.models.test_draft' => '新しい設定でテスト',
+      'settings.providers.detail.models.draft_note' =>
+        'これらのモデルは未保存の値で取得したものです。「保存」を押すまで確定しません。',
+      'settings.providers.detail.models.locked' =>
+        'キーを入力して保存すると、「リストを更新」でこのプロバイダーのモデルを取得できます。',
+      'settings.providers.detail.models.manual_placeholder' => 'モデル名を入力',
+      'settings.providers.detail.button.saving' => '保存中',
+      'settings.providers.detail.button.add_service' => 'サービスを追加...',
+      'settings.providers.detail.button.clear_key' => 'キーを消去',
+      'settings.providers.detail.receipt.problems_title' => 'この設定はまだ保存できません',
+      'settings.providers.detail.receipt.saved_title' => '保存しました',
+      'settings.providers.detail.receipt.saved_body' => 'このプロバイダーの設定を書き込みました。',
+      'settings.providers.detail.receipt.save_failed_title' => '保存できませんでした',
+      'settings.providers.detail.receipt.delete_failed_title' => '削除できませんでした',
+      'settings.providers.detail.receipt.add_service_failed_title' =>
+        'サービスを追加できませんでした',
+      'settings.providers.detail.receipt.saved_rejected_title' =>
+        '保存しましたが、エンドポイントに受け入れられませんでした',
+      'settings.providers.detail.receipt.saved_rejected_body' =>
+        '設定は書き込まれましたが、それを使ったモデル一覧の取得に失敗しました。別のキーで保存し直してください。',
+      'settings.providers.detail.receipt.saved_verifying' =>
+        '保存しました。接続を確認しています…',
+      'settings.providers.detail.problem.item' => '{}: {}',
+      'settings.providers.detail.problem.separator' => '、',
+      'settings.providers.detail.problem.required' => '必須',
+      'settings.providers.detail.problem.url_scheme' =>
+        'http:// または https:// を付けてください',
+      'settings.providers.detail.problem.url_protocol' =>
+        'http:// と https:// のみ使用できます',
+      'settings.providers.detail.problem.url_host' => 'ホスト名がありません',
+      'settings.providers.detail.problem.no_model' =>
+        'まだモデルがありません。先に一覧を取得するか、モデル名を入力してください。',
+      'settings.providers.detail.field.fallback_hint' => '空欄の場合は {} を使用します',
+      'settings.providers.detail.field.show_secret' => '{} を表示',
+      'settings.providers.detail.field.hide_secret' => '{} を隠す',
+      'settings.providers.detail.field.secret_stored' => '保存済み · 空欄のままなら変更しません',
+      'settings.providers.detail.field.secret_empty' => 'キーを入力',
+      'settings.providers.detail.no_fields' =>
+        '入力する項目はありません —— 追加すればすぐ使えます。上の行は説明にすぎません。',
+      'settings.providers.detail.services_empty' => '利用できるサービスはありません',
+      'settings.providers.detail.services_locked' =>
+        'キーを入力して保存すると、このプロバイダーからサービスを追加できます。',
       'settings.providers.capability.translation' => '翻訳',
       'settings.providers.capability.dictionary' => '辞書',
       'settings.providers.capability.ocr' => 'OCR',
@@ -2673,8 +3021,40 @@ extension on TranslationsJa {
       'settings.providers.description.dictionary' => '辞書検索と単語定義を提供',
       'settings.providers.description.translation' => '言語間のテキスト翻訳を提供',
       'settings.providers.description.fallback' => '翻訳サービスを提供',
-      'settings.providers.delete_dialog.title' => '"{}" を削除しますか？',
-      'settings.providers.delete_dialog.message' => 'この操作は元に戻せません。',
+      'settings.providers.need.anthropic' => 'API キーが必要',
+      'settings.providers.need.openai' => 'API キーが必要',
+      'settings.providers.need.gemini' => 'API キーが必要',
+      'settings.providers.need.deepseek' => 'API キーが必要',
+      'settings.providers.need.qwen' => 'Model Studio の API キーが必要',
+      'settings.providers.need.moonshot' => 'Moonshot の API キーが必要',
+      'settings.providers.need.doubao' => 'Volcano Ark の API キーが必要',
+      'settings.providers.need.zhipu' => 'Zhipu Open Platform の API キーが必要',
+      'settings.providers.need.xai' => 'xAI の API キーが必要',
+      'settings.providers.need.groq' => 'Groq の API キーが必要',
+      'settings.providers.need.ollama' => 'このマシンで推論 · API キー不要',
+      'settings.providers.need.openai_compatible' =>
+        'セルフホストまたは集約エンドポイント · Base URL を入力',
+      'settings.providers.status.unconfigured' => '未設定',
+      'settings.providers.status.unverified' => '未確認',
+      'settings.providers.status.invalid' => '再確認が必要',
+      'settings.providers.meta.key_valid' => 'キー有効',
+      'settings.providers.meta.reachable' => '接続可能',
+      'settings.providers.meta.invalid' => 'キーが無効 · 再確認が必要',
+      'settings.providers.search.button' => '検索',
+      'settings.providers.search.placeholder' => 'プロバイダー名または ID を検索',
+      'settings.providers.search.label' => 'プロバイダーを検索',
+      'settings.providers.search.clear' => '検索をクリア',
+      'settings.providers.search.no_match_title' => '一致するプロバイダーはありません',
+      'settings.providers.search.no_match_body' => '「{}」は見つかりませんでした。',
+      'settings.providers.discard_dialog.title' => '保存していない変更を破棄しますか？',
+      'settings.providers.discard_dialog.message' =>
+        'このページの入力はまだ保存されていません。移動すると失われます。',
+      'settings.providers.discard_dialog.confirm' => '破棄',
+      'settings.providers.discard_dialog.cancel' => '編集を続ける',
+      'settings.providers.clear_dialog.title' => 'キーを消去',
+      'settings.providers.clear_dialog.message' =>
+        '{} は「未設定」に戻り、そこから作られたサービスも停止します。入力したキーは消去されます。',
+      'settings.providers.clear_dialog.confirm' => '消去',
       'settings.layout.title' => '設定',
       'settings.layout.empty.title' => 'カテゴリを選択',
       'settings.layout.empty.message' => 'サイドバーから設定セクションを選択してください。',
@@ -2683,13 +3063,13 @@ extension on TranslationsJa {
       'settings.layout.support' => 'サポート',
       'settings.about.title' => '情報',
       'settings.about.copy_version_info' => 'バージョン情報をコピー',
-      'settings.about.up_to_date' => '最新の状態です。',
-      'settings.about.check_again' => '再確認',
+      'settings.about.up_to_date' => '最新の状態です',
       'settings.about.links' => 'リンク',
       'settings.about.website' => 'ウェブサイト',
       'settings.about.help_center' => 'ヘルプセンター',
       'settings.about.open_changelog' => '更新履歴',
       'settings.about.update' => 'アップデート',
+      'settings.about.software_update' => 'ソフトウェアアップデート',
       _ => null,
     };
   }

@@ -303,7 +303,7 @@
     "check_updates": "檢查更新"
   },
   "settings": {
-    "version": "v{} (Build {})",
+    "version": "{} (Build {})",
     "general": {
       "title": "一般",
       "section": {
@@ -408,7 +408,7 @@
       },
       "reset_dialog": {
         "title": "重設快捷鍵",
-        "message": "確定要重設所有快捷鍵為預設值嗎？",
+        "message": "確定要將所有快捷鍵恢復為預設值嗎？你改過的綁定會被覆蓋。",
         "confirm": "重設",
         "cancel": "取消"
       },
@@ -468,18 +468,29 @@
       "make_default": "設為預設",
       "item": {
         "none_of_kind": "還沒有可用的{}服務。"
+      },
+      "go_to_providers": "前往提供者",
+      "go_to_providers_hint": "服務從提供者衍生，先在提供者頁設定好一家。",
+      "capability": {
+        "translation": "翻譯",
+        "dictionary": "查詞",
+        "ocr": "文字辨識"
+      },
+      "permissions_missing": {
+        "title": "尚未授予系統權限",
+        "hint": "截圖取詞與劃詞取詞需要螢幕錄製和輔助使用權限。",
+        "open_general": "前往一般"
       }
     },
     "providers": {
       "title": "提供者",
       "section": {
         "services": "可用服務",
-        "services_description": "查看已設定提供商的可用服務，並依服務類型切換。"
+        "services_description": "查看已設定提供商的可用服務，並依服務類型切換。",
+        "count": "提供者 · {} 家"
       },
       "item": {
-        "empty": "尚未設定任何提供者。新增一個提供者以啟用翻譯服務。",
-        "loading": "正在載入提供者…",
-        "no_services": "暫無可用服務。"
+        "loading": "正在載入提供者…"
       },
       "button": {
         "add": "新增提供者…"
@@ -536,12 +547,10 @@
         "tooltip": {
           "edit": "編輯提供者"
         },
-        "row": {
-          "id_hint": "建立後不可變更"
-        },
         "section": {
           "configuration": "配置",
-          "models": "模型"
+          "models": "模型",
+          "services": "由此提供者衍生的服務"
         },
         "models": {
           "loading": "正在載入模型...",
@@ -550,8 +559,50 @@
           "refresh": "重新整理清單",
           "default_badge": "預設",
           "set_default": "設為預設",
-          "fetch_error": "無法從提供者 API 取得模型。"
-        }
+          "fetching": "正在向端點要模型列表…",
+          "fetch_failed_title": "拉取失敗",
+          "fetch_failed_body": "端點沒有回應，或者不接受這枚金鑰。位址和金鑰填對了就能再試一次。",
+          "empty_answer": "端點答上話了，但沒有給出任何模型 —— 手動填一個模型名也能用。",
+          "test_draft": "用新設定測試",
+          "draft_note": "這些模型是用還沒儲存的值拉到的 —— 按「儲存」之後才算數。",
+          "locked": "填入金鑰並儲存後，「重新整理清單」會拉取這家可用的模型。",
+          "manual_placeholder": "手動填一個模型名稱"
+        },
+        "button": {
+          "saving": "儲存中",
+          "add_service": "新增服務...",
+          "clear_key": "清除金鑰"
+        },
+        "receipt": {
+          "problems_title": "這份配置還不能儲存",
+          "saved_title": "已儲存",
+          "saved_body": "這家提供者的配置已寫入。",
+          "save_failed_title": "儲存失敗",
+          "delete_failed_title": "刪除失敗",
+          "add_service_failed_title": "新增服務失敗",
+          "saved_rejected_title": "已儲存，但端點沒有接受它",
+          "saved_rejected_body": "設定寫進去了，可拿它去要模型清單時失敗了 —— 換一枚金鑰再儲存一次。",
+          "saved_verifying": "設定已寫入，正在確認連線…"
+        },
+        "problem": {
+          "item": "{} {}",
+          "separator": "、",
+          "required": "必填",
+          "url_scheme": "要帶上 http:// 或 https://",
+          "url_protocol": "只認 http:// 與 https://",
+          "url_host": "缺少主機名稱",
+          "no_model": "還沒有可用的模型 —— 先拉一次清單，或手動填一個模型名稱。"
+        },
+        "field": {
+          "fallback_hint": "留空則用 {}",
+          "show_secret": "顯示{}",
+          "hide_secret": "隱藏{}",
+          "secret_stored": "已儲存 · 留空表示不修改",
+          "secret_empty": "填入金鑰"
+        },
+        "no_fields": "這家沒有要填的東西 —— 裝上就能用，上面那幾行只是說明。",
+        "services_empty": "暫無可用服務",
+        "services_locked": "填入金鑰並儲存後，可以從這家衍生服務。"
       },
       "capability": {
         "translation": "翻譯",
@@ -565,9 +616,48 @@
         "dictionary": "提供辭典查詢和單字釋義",
         "fallback": "提供翻譯服務"
       },
-      "delete_dialog": {
-        "title": "刪除「{}」？",
-        "message": "此操作無法復原。"
+      "need": {
+        "anthropic": "需要 API Key",
+        "openai": "需要 API Key",
+        "gemini": "需要 API Key",
+        "deepseek": "需要 API Key",
+        "qwen": "需要百煉 API Key",
+        "moonshot": "需要 Moonshot API Key",
+        "doubao": "需要火山方舟 API Key",
+        "zhipu": "需要智譜開放平台 API Key",
+        "xai": "需要 xAI API Key",
+        "groq": "需要 Groq API Key",
+        "ollama": "本機推理 · 無需 API Key",
+        "openai_compatible": "自建或聚合端點 · 自己填 Base URL"
+      },
+      "status": {
+        "unconfigured": "未設定",
+        "unverified": "待驗證",
+        "invalid": "需重新驗證"
+      },
+      "meta": {
+        "key_valid": "金鑰有效",
+        "reachable": "連線可用",
+        "invalid": "金鑰已失效 · 需重新驗證"
+      },
+      "search": {
+        "button": "搜尋",
+        "placeholder": "搜尋提供者名稱或 id",
+        "label": "搜尋提供者",
+        "clear": "清除搜尋",
+        "no_match_title": "沒有相符的提供者",
+        "no_match_body": "沒有找到「{}」。"
+      },
+      "discard_dialog": {
+        "title": "放棄未儲存的變更？",
+        "message": "這一頁填的東西還沒有儲存，離開就會遺失。",
+        "confirm": "放棄",
+        "cancel": "繼續編輯"
+      },
+      "clear_dialog": {
+        "title": "清除金鑰",
+        "message": "{} 會回到「未設定」，由它衍生的服務也會一起停用。填過的金鑰會被清空。",
+        "confirm": "清除"
       }
     },
     "layout": {
@@ -583,13 +673,13 @@
     "about": {
       "title": "關於",
       "copy_version_info": "複製版本資訊",
-      "up_to_date": "已是最新版本。",
-      "check_again": "重新檢查",
+      "up_to_date": "已是最新版本",
       "links": "連結",
       "website": "網站",
       "help_center": "說明中心",
       "open_changelog": "更新日誌",
-      "update": "更新"
+      "update": "更新",
+      "software_update": "軟體更新"
     }
   }
 }

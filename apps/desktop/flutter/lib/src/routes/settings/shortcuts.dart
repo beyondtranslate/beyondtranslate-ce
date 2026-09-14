@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart' hide RadioGroup;
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
+import '../../theme/product_tokens.dart' show ProductPalette;
 import '../../widgets/app_dialog.dart';
 import '../../widgets/custom_alert_dialog/show_dialog.dart';
 import '../../widgets/settings_page.dart';
@@ -16,7 +17,8 @@ import '../../widgets/ui.dart'
         PreferenceRow,
         PreferenceSection,
         RadioGroup,
-        RadioItem;
+        RadioItem,
+        ThemeDataBuildContextProps;
 
 /// The bindings the page edits, in the order it lists them. A row is its
 /// section label, the patch that writes it, and the field that reads it —
@@ -303,21 +305,25 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
     final conflict = _conflictOf(binding, shortcuts);
     final text = t.settings.shortcuts;
 
-    return PreferenceRow(
-        title: binding.label,
-        subtitle:
-            conflict == null ? null : text.conflict(label: conflict.label),
-        trailing: ShortcutRecorder(
-          value: shortcutGlyphs(binding.read(shortcuts)),
-          onValueChanged: (glyphs) => _bind(binding, glyphs),
-          state: conflict == null
-              ? ShortcutRecorderState.normal
-              : ShortcutRecorderState.error,
-          placeholder: text.record_placeholder,
-          recordingLabel: text.recording,
-          clearLabel: text.clear,
-          semanticsLabel: binding.label,
-        ));
+    final recorder = ShortcutRecorder(
+      value: shortcutGlyphs(binding.read(shortcuts)),
+      onValueChanged: (glyphs) => _bind(binding, glyphs),
+      state: conflict == null
+          ? ShortcutRecorderState.normal
+          : ShortcutRecorderState.error,
+      placeholder: text.record_placeholder,
+      recordingLabel: text.recording,
+      clearLabel: text.clear,
+      semanticsLabel: binding.label,
+    );
+    if (conflict == null) {
+      return PreferenceRow(title: binding.label, trailing: recorder);
+    }
+    return _ConflictRow(
+      title: binding.label,
+      message: text.conflict(label: conflict.label),
+      trailing: recorder,
+    );
   }
 
   String _inputSubmitModeTitle(InputSubmitMode mode) {
@@ -327,5 +333,61 @@ class _ShortcutsSettingsPageState extends State<ShortcutsSettingsPage> {
       case InputSubmitMode.commandEnter:
         return t.settings.general.row.submit_with_meta_enter_mac;
     }
+  }
+}
+
+/// A shortcut row whose binding collides with another: the kit's row, with the
+/// second line in the danger ink. The kit prints its subtitle in its own
+/// subtle grey, and a conflict read in grey is a note, not a problem — so the
+/// row's metrics are restated here rather than borrowed.
+class _ConflictRow extends StatelessWidget {
+  const _ConflictRow({
+    required this.title,
+    required this.message,
+    required this.trailing,
+  });
+
+  final String title;
+  final String message;
+  final Widget trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final vars = context.vars;
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: vars.controlMediumSize),
+      child: Row(
+        spacing: vars.spacing25,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: vars.preferencesRowPadding,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                spacing: vars.spacing1,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: vars.labelQuiet.copyWith(color: vars.colorContent),
+                  ),
+                  Text(
+                    message,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: vars.captionSmall.copyWith(color: vars.dangerFg),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          trailing,
+        ],
+      ),
+    );
   }
 }

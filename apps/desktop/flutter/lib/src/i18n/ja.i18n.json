@@ -303,7 +303,7 @@
     "check_updates": "アップデートを確認"
   },
   "settings": {
-    "version": "v{} (Build {})",
+    "version": "{} (Build {})",
     "general": {
       "title": "一般",
       "section": {
@@ -408,7 +408,7 @@
       },
       "reset_dialog": {
         "title": "ショートカットをリセット",
-        "message": "すべてのショートカットをデフォルト値にリセットしますか？",
+        "message": "すべてのショートカットをデフォルトに戻しますか？変更したキー割り当ては上書きされます。",
         "confirm": "リセット",
         "cancel": "キャンセル"
       },
@@ -468,18 +468,29 @@
       "make_default": "デフォルトにする",
       "item": {
         "none_of_kind": "利用できる{}サービスがまだありません。"
+      },
+      "go_to_providers": "プロバイダーへ移動",
+      "go_to_providers_hint": "サービスはプロバイダーから作られます。まずプロバイダーのページで 1 つ設定してください。",
+      "capability": {
+        "translation": "翻訳",
+        "dictionary": "辞書",
+        "ocr": "テキスト認識"
+      },
+      "permissions_missing": {
+        "title": "システム権限が許可されていません",
+        "hint": "スクリーンショットと選択テキストの取得には、画面収録とアクセシビリティの権限が必要です。",
+        "open_general": "一般を開く"
       }
     },
     "providers": {
       "title": "プロバイダー",
       "section": {
         "services": "利用可能なサービス",
-        "services_description": "設定済みプロバイダーで利用できるサービスを確認し、種類ごとに切り替えます。"
+        "services_description": "設定済みプロバイダーで利用できるサービスを確認し、種類ごとに切り替えます。",
+        "count": "プロバイダー · {} 件"
       },
       "item": {
-        "empty": "プロバイダーが設定されていません。追加して翻訳サービスを有効にしてください。",
-        "loading": "プロバイダーを読み込み中...",
-        "no_services": "利用可能なサービスがありません。"
+        "loading": "プロバイダーを読み込み中..."
       },
       "button": {
         "add": "プロバイダーを追加..."
@@ -536,12 +547,10 @@
         "tooltip": {
           "edit": "プロバイダーを編集"
         },
-        "row": {
-          "id_hint": "作成後は変更できません"
-        },
         "section": {
           "configuration": "設定",
-          "models": "モデル"
+          "models": "モデル",
+          "services": "このプロバイダーから派生したサービス"
         },
         "models": {
           "loading": "モデルを読み込み中...",
@@ -550,8 +559,50 @@
           "refresh": "リストを更新",
           "default_badge": "デフォルト",
           "set_default": "デフォルトに設定",
-          "fetch_error": "プロバイダーAPIからモデルを取得できませんでした。"
-        }
+          "fetching": "エンドポイントにモデル一覧を問い合わせています…",
+          "fetch_failed_title": "取得に失敗しました",
+          "fetch_failed_body": "エンドポイントが応答しないか、このキーを受け付けていません。アドレスとキーが正しければ、もう一度お試しください。",
+          "empty_answer": "エンドポイントは応答しましたが、モデルを返しませんでした —— モデル名を手入力しても使えます。",
+          "test_draft": "新しい設定でテスト",
+          "draft_note": "これらのモデルは未保存の値で取得したものです。「保存」を押すまで確定しません。",
+          "locked": "キーを入力して保存すると、「リストを更新」でこのプロバイダーのモデルを取得できます。",
+          "manual_placeholder": "モデル名を入力"
+        },
+        "button": {
+          "saving": "保存中",
+          "add_service": "サービスを追加...",
+          "clear_key": "キーを消去"
+        },
+        "receipt": {
+          "problems_title": "この設定はまだ保存できません",
+          "saved_title": "保存しました",
+          "saved_body": "このプロバイダーの設定を書き込みました。",
+          "save_failed_title": "保存できませんでした",
+          "delete_failed_title": "削除できませんでした",
+          "add_service_failed_title": "サービスを追加できませんでした",
+          "saved_rejected_title": "保存しましたが、エンドポイントに受け入れられませんでした",
+          "saved_rejected_body": "設定は書き込まれましたが、それを使ったモデル一覧の取得に失敗しました。別のキーで保存し直してください。",
+          "saved_verifying": "保存しました。接続を確認しています…"
+        },
+        "problem": {
+          "item": "{}: {}",
+          "separator": "、",
+          "required": "必須",
+          "url_scheme": "http:// または https:// を付けてください",
+          "url_protocol": "http:// と https:// のみ使用できます",
+          "url_host": "ホスト名がありません",
+          "no_model": "まだモデルがありません。先に一覧を取得するか、モデル名を入力してください。"
+        },
+        "field": {
+          "fallback_hint": "空欄の場合は {} を使用します",
+          "show_secret": "{} を表示",
+          "hide_secret": "{} を隠す",
+          "secret_stored": "保存済み · 空欄のままなら変更しません",
+          "secret_empty": "キーを入力"
+        },
+        "no_fields": "入力する項目はありません —— 追加すればすぐ使えます。上の行は説明にすぎません。",
+        "services_empty": "利用できるサービスはありません",
+        "services_locked": "キーを入力して保存すると、このプロバイダーからサービスを追加できます。"
       },
       "capability": {
         "translation": "翻訳",
@@ -565,9 +616,48 @@
         "translation": "言語間のテキスト翻訳を提供",
         "fallback": "翻訳サービスを提供"
       },
-      "delete_dialog": {
-        "title": "\"{}\" を削除しますか？",
-        "message": "この操作は元に戻せません。"
+      "need": {
+        "anthropic": "API キーが必要",
+        "openai": "API キーが必要",
+        "gemini": "API キーが必要",
+        "deepseek": "API キーが必要",
+        "qwen": "Model Studio の API キーが必要",
+        "moonshot": "Moonshot の API キーが必要",
+        "doubao": "Volcano Ark の API キーが必要",
+        "zhipu": "Zhipu Open Platform の API キーが必要",
+        "xai": "xAI の API キーが必要",
+        "groq": "Groq の API キーが必要",
+        "ollama": "このマシンで推論 · API キー不要",
+        "openai_compatible": "セルフホストまたは集約エンドポイント · Base URL を入力"
+      },
+      "status": {
+        "unconfigured": "未設定",
+        "unverified": "未確認",
+        "invalid": "再確認が必要"
+      },
+      "meta": {
+        "key_valid": "キー有効",
+        "reachable": "接続可能",
+        "invalid": "キーが無効 · 再確認が必要"
+      },
+      "search": {
+        "button": "検索",
+        "placeholder": "プロバイダー名または ID を検索",
+        "label": "プロバイダーを検索",
+        "clear": "検索をクリア",
+        "no_match_title": "一致するプロバイダーはありません",
+        "no_match_body": "「{}」は見つかりませんでした。"
+      },
+      "discard_dialog": {
+        "title": "保存していない変更を破棄しますか？",
+        "message": "このページの入力はまだ保存されていません。移動すると失われます。",
+        "confirm": "破棄",
+        "cancel": "編集を続ける"
+      },
+      "clear_dialog": {
+        "title": "キーを消去",
+        "message": "{} は「未設定」に戻り、そこから作られたサービスも停止します。入力したキーは消去されます。",
+        "confirm": "消去"
       }
     },
     "layout": {
@@ -583,13 +673,13 @@
     "about": {
       "title": "情報",
       "copy_version_info": "バージョン情報をコピー",
-      "up_to_date": "最新の状態です。",
-      "check_again": "再確認",
+      "up_to_date": "最新の状態です",
       "links": "リンク",
       "website": "ウェブサイト",
       "help_center": "ヘルプセンター",
       "open_changelog": "更新履歴",
-      "update": "アップデート"
+      "update": "アップデート",
+      "software_update": "ソフトウェアアップデート"
     }
   }
 }

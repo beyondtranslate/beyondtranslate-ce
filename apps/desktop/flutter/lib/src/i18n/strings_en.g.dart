@@ -172,8 +172,8 @@ class TranslationsSettingsEn {
 
   // Translations
 
-  /// en: 'v{} (Build {})'
-  String get version => 'v{} (Build {})';
+  /// en: '{} (Build {})'
+  String get version => '{} (Build {})';
 
   late final TranslationsSettingsGeneralEn general =
       TranslationsSettingsGeneralEn.internal(_root);
@@ -1313,6 +1313,19 @@ class TranslationsSettingsServicesEn {
 
   late final TranslationsSettingsServicesItemEn item =
       TranslationsSettingsServicesItemEn.internal(_root);
+
+  /// en: 'Go to Providers'
+  String get go_to_providers => 'Go to Providers';
+
+  /// en: 'Services come from providers — set one up on the Providers page first.'
+  String get go_to_providers_hint =>
+      'Services come from providers — set one up on the Providers page first.';
+
+  late final TranslationsSettingsServicesCapabilityEn capability =
+      TranslationsSettingsServicesCapabilityEn.internal(_root);
+  late final TranslationsSettingsServicesPermissionsMissingEn
+      permissions_missing =
+      TranslationsSettingsServicesPermissionsMissingEn.internal(_root);
 }
 
 // Path: settings.providers
@@ -1344,8 +1357,18 @@ class TranslationsSettingsProvidersEn {
       TranslationsSettingsProvidersCapabilityEn.internal(_root);
   late final TranslationsSettingsProvidersDescriptionEn description =
       TranslationsSettingsProvidersDescriptionEn.internal(_root);
-  late final TranslationsSettingsProvidersDeleteDialogEn delete_dialog =
-      TranslationsSettingsProvidersDeleteDialogEn.internal(_root);
+  late final TranslationsSettingsProvidersNeedEn need =
+      TranslationsSettingsProvidersNeedEn.internal(_root);
+  late final TranslationsSettingsProvidersStatusEn status =
+      TranslationsSettingsProvidersStatusEn.internal(_root);
+  late final TranslationsSettingsProvidersMetaEn meta =
+      TranslationsSettingsProvidersMetaEn.internal(_root);
+  late final TranslationsSettingsProvidersSearchEn search =
+      TranslationsSettingsProvidersSearchEn.internal(_root);
+  late final TranslationsSettingsProvidersDiscardDialogEn discard_dialog =
+      TranslationsSettingsProvidersDiscardDialogEn.internal(_root);
+  late final TranslationsSettingsProvidersClearDialogEn clear_dialog =
+      TranslationsSettingsProvidersClearDialogEn.internal(_root);
 }
 
 // Path: settings.layout
@@ -1386,11 +1409,8 @@ class TranslationsSettingsAboutEn {
   /// en: 'Copy Version Info'
   String get copy_version_info => 'Copy Version Info';
 
-  /// en: 'You're up to date.'
-  String get up_to_date => 'You\'re up to date.';
-
-  /// en: 'Check Again'
-  String get check_again => 'Check Again';
+  /// en: 'You're up to date'
+  String get up_to_date => 'You\'re up to date';
 
   /// en: 'Links'
   String get links => 'Links';
@@ -1406,6 +1426,9 @@ class TranslationsSettingsAboutEn {
 
   /// en: 'Update'
   String get update => 'Update';
+
+  /// en: 'Software Update'
+  String get software_update => 'Software Update';
 }
 
 // Path: common.ui.button
@@ -1938,9 +1961,9 @@ class TranslationsSettingsShortcutsResetDialogEn {
   /// en: 'Reset Shortcuts'
   String get title => 'Reset Shortcuts';
 
-  /// en: 'Are you sure you want to reset all shortcuts to their default values?'
+  /// en: 'Reset all shortcuts to their defaults? Any bindings you changed will be overwritten.'
   String get message =>
-      'Are you sure you want to reset all shortcuts to their default values?';
+      'Reset all shortcuts to their defaults? Any bindings you changed will be overwritten.';
 
   /// en: 'Reset'
   String get confirm => 'Reset';
@@ -2045,6 +2068,43 @@ class TranslationsSettingsServicesItemEn {
   String get none_of_kind => 'No {} service available yet.';
 }
 
+// Path: settings.services.capability
+class TranslationsSettingsServicesCapabilityEn {
+  TranslationsSettingsServicesCapabilityEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Translation'
+  String get translation => 'Translation';
+
+  /// en: 'Dictionary'
+  String get dictionary => 'Dictionary';
+
+  /// en: 'Text Recognition'
+  String get ocr => 'Text Recognition';
+}
+
+// Path: settings.services.permissions_missing
+class TranslationsSettingsServicesPermissionsMissingEn {
+  TranslationsSettingsServicesPermissionsMissingEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'System permissions not granted'
+  String get title => 'System permissions not granted';
+
+  /// en: 'Screenshot and selection capture need screen recording and accessibility access.'
+  String get hint =>
+      'Screenshot and selection capture need screen recording and accessibility access.';
+
+  /// en: 'Open General'
+  String get open_general => 'Open General';
+}
+
 // Path: settings.providers.section
 class TranslationsSettingsProvidersSectionEn {
   TranslationsSettingsProvidersSectionEn.internal(this._root);
@@ -2059,6 +2119,9 @@ class TranslationsSettingsProvidersSectionEn {
   /// en: 'View available services from configured providers and switch between service types.'
   String get services_description =>
       'View available services from configured providers and switch between service types.';
+
+  /// en: 'Providers · {}'
+  String get count => 'Providers · {}';
 }
 
 // Path: settings.providers.item
@@ -2069,15 +2132,8 @@ class TranslationsSettingsProvidersItemEn {
 
   // Translations
 
-  /// en: 'No providers configured. Add one to enable translation services.'
-  String get empty =>
-      'No providers configured. Add one to enable translation services.';
-
   /// en: 'Loading providers...'
   String get loading => 'Loading providers...';
-
-  /// en: 'No services available.'
-  String get no_services => 'No services available.';
 }
 
 // Path: settings.providers.button
@@ -2157,12 +2213,29 @@ class TranslationsSettingsProvidersDetailEn {
   // Translations
   late final TranslationsSettingsProvidersDetailTooltipEn tooltip =
       TranslationsSettingsProvidersDetailTooltipEn.internal(_root);
-  late final TranslationsSettingsProvidersDetailRowEn row =
-      TranslationsSettingsProvidersDetailRowEn.internal(_root);
   late final TranslationsSettingsProvidersDetailSectionEn section =
       TranslationsSettingsProvidersDetailSectionEn.internal(_root);
   late final TranslationsSettingsProvidersDetailModelsEn models =
       TranslationsSettingsProvidersDetailModelsEn.internal(_root);
+  late final TranslationsSettingsProvidersDetailButtonEn button =
+      TranslationsSettingsProvidersDetailButtonEn.internal(_root);
+  late final TranslationsSettingsProvidersDetailReceiptEn receipt =
+      TranslationsSettingsProvidersDetailReceiptEn.internal(_root);
+  late final TranslationsSettingsProvidersDetailProblemEn problem =
+      TranslationsSettingsProvidersDetailProblemEn.internal(_root);
+  late final TranslationsSettingsProvidersDetailFieldEn field =
+      TranslationsSettingsProvidersDetailFieldEn.internal(_root);
+
+  /// en: 'Nothing to fill in — it works as soon as it is installed; the lines above are only a description.'
+  String get no_fields =>
+      'Nothing to fill in — it works as soon as it is installed; the lines above are only a description.';
+
+  /// en: 'No services yet'
+  String get services_empty => 'No services yet';
+
+  /// en: 'Enter a key and save to add services from this provider.'
+  String get services_locked =>
+      'Enter a key and save to add services from this provider.';
 }
 
 // Path: settings.providers.capability
@@ -2207,19 +2280,154 @@ class TranslationsSettingsProvidersDescriptionEn {
   String get fallback => 'Provides translation services';
 }
 
-// Path: settings.providers.delete_dialog
-class TranslationsSettingsProvidersDeleteDialogEn {
-  TranslationsSettingsProvidersDeleteDialogEn.internal(this._root);
+// Path: settings.providers.need
+class TranslationsSettingsProvidersNeedEn {
+  TranslationsSettingsProvidersNeedEn.internal(this._root);
 
   final Translations _root; // ignore: unused_field
 
   // Translations
 
-  /// en: 'Delete "{}"?'
-  String get title => 'Delete "{}"?';
+  /// en: 'Needs an API key'
+  String get anthropic => 'Needs an API key';
 
-  /// en: 'This action cannot be undone.'
-  String get message => 'This action cannot be undone.';
+  /// en: 'Needs an API key'
+  String get openai => 'Needs an API key';
+
+  /// en: 'Needs an API key'
+  String get gemini => 'Needs an API key';
+
+  /// en: 'Needs an API key'
+  String get deepseek => 'Needs an API key';
+
+  /// en: 'Needs a Model Studio API key'
+  String get qwen => 'Needs a Model Studio API key';
+
+  /// en: 'Needs a Moonshot API key'
+  String get moonshot => 'Needs a Moonshot API key';
+
+  /// en: 'Needs a Volcano Ark API key'
+  String get doubao => 'Needs a Volcano Ark API key';
+
+  /// en: 'Needs a Zhipu Open Platform API key'
+  String get zhipu => 'Needs a Zhipu Open Platform API key';
+
+  /// en: 'Needs an xAI API key'
+  String get xai => 'Needs an xAI API key';
+
+  /// en: 'Needs a Groq API key'
+  String get groq => 'Needs a Groq API key';
+
+  /// en: 'Runs on this Mac · No API key'
+  String get ollama => 'Runs on this Mac · No API key';
+
+  /// en: 'Self-hosted or aggregator endpoint · Bring your own Base URL'
+  String get openai_compatible =>
+      'Self-hosted or aggregator endpoint · Bring your own Base URL';
+}
+
+// Path: settings.providers.status
+class TranslationsSettingsProvidersStatusEn {
+  TranslationsSettingsProvidersStatusEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Not set up'
+  String get unconfigured => 'Not set up';
+
+  /// en: 'Unverified'
+  String get unverified => 'Unverified';
+
+  /// en: 'Needs attention'
+  String get invalid => 'Needs attention';
+}
+
+// Path: settings.providers.meta
+class TranslationsSettingsProvidersMetaEn {
+  TranslationsSettingsProvidersMetaEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Key valid'
+  String get key_valid => 'Key valid';
+
+  /// en: 'Connected'
+  String get reachable => 'Connected';
+
+  /// en: 'Key rejected · Needs attention'
+  String get invalid => 'Key rejected · Needs attention';
+}
+
+// Path: settings.providers.search
+class TranslationsSettingsProvidersSearchEn {
+  TranslationsSettingsProvidersSearchEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Search'
+  String get button => 'Search';
+
+  /// en: 'Search provider name or id'
+  String get placeholder => 'Search provider name or id';
+
+  /// en: 'Search providers'
+  String get label => 'Search providers';
+
+  /// en: 'Clear Search'
+  String get clear => 'Clear Search';
+
+  /// en: 'No matching providers'
+  String get no_match_title => 'No matching providers';
+
+  /// en: 'Nothing found for “{}”.'
+  String get no_match_body => 'Nothing found for “{}”.';
+}
+
+// Path: settings.providers.discard_dialog
+class TranslationsSettingsProvidersDiscardDialogEn {
+  TranslationsSettingsProvidersDiscardDialogEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Discard unsaved changes?'
+  String get title => 'Discard unsaved changes?';
+
+  /// en: 'What you entered on this page hasn’t been saved and will be lost if you leave.'
+  String get message =>
+      'What you entered on this page hasn’t been saved and will be lost if you leave.';
+
+  /// en: 'Discard'
+  String get confirm => 'Discard';
+
+  /// en: 'Keep Editing'
+  String get cancel => 'Keep Editing';
+}
+
+// Path: settings.providers.clear_dialog
+class TranslationsSettingsProvidersClearDialogEn {
+  TranslationsSettingsProvidersClearDialogEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Clear Key'
+  String get title => 'Clear Key';
+
+  /// en: '{} goes back to “Not set up”, and the services it provides are removed with it. The key you entered is cleared.'
+  String get message =>
+      '{} goes back to “Not set up”, and the services it provides are removed with it. The key you entered is cleared.';
+
+  /// en: 'Clear'
+  String get confirm => 'Clear';
 }
 
 // Path: settings.layout.empty
@@ -2497,18 +2705,6 @@ class TranslationsSettingsProvidersDetailTooltipEn {
   String get edit => 'Edit provider';
 }
 
-// Path: settings.providers.detail.row
-class TranslationsSettingsProvidersDetailRowEn {
-  TranslationsSettingsProvidersDetailRowEn.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-
-  /// en: 'Cannot be changed after creation'
-  String get id_hint => 'Cannot be changed after creation';
-}
-
 // Path: settings.providers.detail.section
 class TranslationsSettingsProvidersDetailSectionEn {
   TranslationsSettingsProvidersDetailSectionEn.internal(this._root);
@@ -2522,6 +2718,9 @@ class TranslationsSettingsProvidersDetailSectionEn {
 
   /// en: 'Models'
   String get models => 'Models';
+
+  /// en: 'Services from This Provider'
+  String get services => 'Services from This Provider';
 }
 
 // Path: settings.providers.detail.models
@@ -2550,8 +2749,143 @@ class TranslationsSettingsProvidersDetailModelsEn {
   /// en: 'Set as Default'
   String get set_default => 'Set as Default';
 
-  /// en: 'Could not fetch models from provider API.'
-  String get fetch_error => 'Could not fetch models from provider API.';
+  /// en: 'Asking the endpoint for its model list…'
+  String get fetching => 'Asking the endpoint for its model list…';
+
+  /// en: 'Couldn't fetch models'
+  String get fetch_failed_title => 'Couldn\'t fetch models';
+
+  /// en: 'The endpoint didn't respond, or it doesn't accept this key. Once the address and key are right, you can try again.'
+  String get fetch_failed_body =>
+      'The endpoint didn\'t respond, or it doesn\'t accept this key. Once the address and key are right, you can try again.';
+
+  /// en: 'The endpoint answered but listed no models — typing a model name by hand works too.'
+  String get empty_answer =>
+      'The endpoint answered but listed no models — typing a model name by hand works too.';
+
+  /// en: 'Test New Settings'
+  String get test_draft => 'Test New Settings';
+
+  /// en: 'These models were fetched with unsaved values — they count once you press Save.'
+  String get draft_note =>
+      'These models were fetched with unsaved values — they count once you press Save.';
+
+  /// en: 'Enter a key and save, and Refresh List fetches the models this provider offers.'
+  String get locked =>
+      'Enter a key and save, and Refresh List fetches the models this provider offers.';
+
+  /// en: 'Enter a model name'
+  String get manual_placeholder => 'Enter a model name';
+}
+
+// Path: settings.providers.detail.button
+class TranslationsSettingsProvidersDetailButtonEn {
+  TranslationsSettingsProvidersDetailButtonEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Saving'
+  String get saving => 'Saving';
+
+  /// en: 'Add Service...'
+  String get add_service => 'Add Service...';
+
+  /// en: 'Clear Key'
+  String get clear_key => 'Clear Key';
+}
+
+// Path: settings.providers.detail.receipt
+class TranslationsSettingsProvidersDetailReceiptEn {
+  TranslationsSettingsProvidersDetailReceiptEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'This configuration can't be saved yet'
+  String get problems_title => 'This configuration can\'t be saved yet';
+
+  /// en: 'Saved'
+  String get saved_title => 'Saved';
+
+  /// en: 'This provider's configuration has been written.'
+  String get saved_body => 'This provider\'s configuration has been written.';
+
+  /// en: 'Couldn't save'
+  String get save_failed_title => 'Couldn\'t save';
+
+  /// en: 'Couldn't delete'
+  String get delete_failed_title => 'Couldn\'t delete';
+
+  /// en: 'Couldn't add the service'
+  String get add_service_failed_title => 'Couldn\'t add the service';
+
+  /// en: 'Saved, but the endpoint didn’t accept it'
+  String get saved_rejected_title => 'Saved, but the endpoint didn’t accept it';
+
+  /// en: 'The configuration was written, but fetching the model list with it failed — try another key and save again.'
+  String get saved_rejected_body =>
+      'The configuration was written, but fetching the model list with it failed — try another key and save again.';
+
+  /// en: 'Saved. Checking the connection…'
+  String get saved_verifying => 'Saved. Checking the connection…';
+}
+
+// Path: settings.providers.detail.problem
+class TranslationsSettingsProvidersDetailProblemEn {
+  TranslationsSettingsProvidersDetailProblemEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: '{}: {}'
+  String get item => '{}: {}';
+
+  /// en: '; '
+  String get separator => '; ';
+
+  /// en: 'Required'
+  String get required => 'Required';
+
+  /// en: 'Must start with http:// or https://'
+  String get url_scheme => 'Must start with http:// or https://';
+
+  /// en: 'Only http:// and https:// are accepted'
+  String get url_protocol => 'Only http:// and https:// are accepted';
+
+  /// en: 'Missing a host name'
+  String get url_host => 'Missing a host name';
+
+  /// en: 'No model yet — fetch the list first, or enter a model name.'
+  String get no_model =>
+      'No model yet — fetch the list first, or enter a model name.';
+}
+
+// Path: settings.providers.detail.field
+class TranslationsSettingsProvidersDetailFieldEn {
+  TranslationsSettingsProvidersDetailFieldEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Leave blank to use {}'
+  String get fallback_hint => 'Leave blank to use {}';
+
+  /// en: 'Show {}'
+  String get show_secret => 'Show {}';
+
+  /// en: 'Hide {}'
+  String get hide_secret => 'Hide {}';
+
+  /// en: 'Saved · Leave blank to keep'
+  String get secret_stored => 'Saved · Leave blank to keep';
+
+  /// en: 'Enter key'
+  String get secret_empty => 'Enter key';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -2562,650 +2896,775 @@ class TranslationsSettingsProvidersDetailModelsEn {
 extension on Translations {
   dynamic _flatMapFunction(String path) {
     return switch (path) {
-      'common.service_name.baidu_fanyi_api' => 'General Translation API',
-      'common.service_name.caiyun_platform' => 'Caiyun Xiaoyi API',
-      'common.service_name.deepl_api' => 'DeepL API / Translate text',
-      'common.service_name.google_cloud' => 'Cloud Translation - Basic',
-      'common.service_name.yandex' => 'Yandex Translate API',
-      'common.service_name.microsoft_translator' => 'Microsoft Translator',
-      'common.service_name.aliyun' => 'Alibaba Cloud Machine Translation',
-      'common.service_name.volcengine' => 'Volcengine Machine Translation',
-      'common.service_name.niutrans' => 'NiuTrans Translation API',
-      'common.service_name.tencent_cloud' =>
-        'Tencent Machine Translation (TMT)',
-      'common.service_name.youdao_zhiyun_translation' => 'Text Translation API',
-      'common.service_name.youdao_zhiyun_dictionary' =>
-        'Text Translation API (dictionary results)',
-      'common.service_name.youdao_zhiyun_ocr' => 'General Text Recognition API',
-      'common.service_name.google_cloud_ocr' => 'Cloud Vision - Text Detection',
-      'common.service_name.tencent_cloud_ocr' => 'General Print OCR',
-      'common.service_name.volcengine_ocr' => 'Volcengine General OCR',
-      'common.service_name.aliyun_ocr' => 'Alibaba Cloud General OCR',
-      'common.service_name.yandex_ocr' => 'Yandex Vision OCR',
-      'common.ui.button.ok' => 'OK',
-      'common.ui.button.cancel' => 'Cancel',
-      'common.ui.button.add' => 'Add',
-      'common.ui.button.delete' => 'Delete',
-      'common.ui.button.edit' => 'Edit',
-      'common.ui.button.save' => 'Save',
-      'common.ui.button.manage' => 'Manage',
-      'common.ui.button.kContinue' => 'Continue',
-      'common.ui.button.copy' => 'Copy',
-      'common.ui.button.select_all' => 'Select all',
-      'common.ui.feedback.copied' => 'Copied',
-      'common.language.ar' => 'Arabic',
-      'common.language.bn' => 'Bengali',
-      'common.language.de' => 'German',
-      'common.language.en' => 'English',
-      'common.language.es' => 'Spanish',
-      'common.language.fa' => 'Persian',
-      'common.language.fr' => 'French',
-      'common.language.gu' => 'Gujarati',
-      'common.language.ha' => 'Hausa',
-      'common.language.hi' => 'Hindi',
-      'common.language.id' => 'Indonesian',
-      'common.language.it' => 'Italian',
-      'common.language.ja' => 'Japanese',
-      'common.language.jv' => 'Javanese',
-      'common.language.ko' => 'Korean',
-      'common.language.ml' => 'Malayalam',
-      'common.language.mr' => 'Marathi',
-      'common.language.ms' => 'Malay',
-      'common.language.nl' => 'Dutch',
-      'common.language.pa' => 'Punjabi',
-      'common.language.pl' => 'Polish',
-      'common.language.pt' => 'Portuguese',
-      'common.language.ro' => 'Romanian',
-      'common.language.ru' => 'Russian',
-      'common.language.sw' => 'Swahili',
-      'common.language.ta' => 'Tamil',
-      'common.language.te' => 'Telugu',
-      'common.language.th' => 'Thai',
-      'common.language.tr' => 'Turkish',
-      'common.language.uk' => 'Ukrainian',
-      'common.language.ur' => 'Urdu',
-      'common.language.vi' => 'Vietnamese',
-      'common.language.yo' => 'Yoruba',
-      'common.language.zh_hans' => 'Chinese (Simplified)',
-      'common.language.zh_hant' => 'Chinese (Traditional)',
-      'common.theme_mode.light' => 'Light',
-      'common.theme_mode.dark' => 'Dark',
-      'common.theme_mode.system' => 'System',
-      'common.theme_style.studio' => 'Studio',
-      'common.theme_style.bright' => 'Bright',
-      'common.provider.anthropic' => 'Anthropic',
-      'common.provider.baidu_fanyi_api' => 'Baidu Translate Open Platform',
-      'common.provider.caiyun_platform' => 'Caiyun Open Platform',
-      'common.provider.deepl_api' => 'DeepL API',
-      'common.provider.google_cloud' => 'Google Cloud',
-      'common.provider.yandex' => 'Yandex Cloud',
-      'common.provider.microsoft_translator' => 'Microsoft Azure',
-      'common.provider.aliyun' => 'Alibaba Cloud',
-      'common.provider.volcengine' => 'Volcengine',
-      'common.provider.niutrans' => 'NiuTrans',
-      'common.provider.ollama' => 'Ollama',
-      'common.provider.openai' => 'OpenAI',
-      'common.provider.sogou' => 'Sogou',
-      'common.provider.xai' => 'xAI',
-      'common.provider.system' => 'System',
-      'common.provider.tencent_cloud' => 'Tencent Cloud',
-      'common.provider.youdao_zhiyun' => 'Youdao Zhiyun AI Open Platform',
-      'app.tray.context_menu.show_window' => 'Show Window',
-      'app.tray.context_menu.dev_tools.title' => 'Dev Tools',
-      'app.tray.context_menu.dev_tools.open_data_directory' =>
-        'Open Data Directory',
-      'app.tray.context_menu.check_for_updates' => 'Check for Updates',
-      'app.tray.context_menu.settings' => 'Settings',
-      'app.tray.context_menu.quit' => 'Quit',
-      'mini_translator.limited_banner.permission.missing_both' =>
-        'Grant Screen Recording and Accessibility permissions to enable all features.',
-      'mini_translator.limited_banner.permission.missing_screen_capture' =>
-        'Grant Screen Recording permission to enable all features.',
-      'mini_translator.limited_banner.permission.missing_accessibility' =>
-        'Grant Accessibility permission to enable all features.',
-      'mini_translator.limited_banner.instruction.app_settings_prefix' =>
-        'Go to ',
-      'mini_translator.limited_banner.instruction.follow_guide_prefix' =>
-        ', follow the guide, then click ',
-      'mini_translator.limited_banner.instruction.suffix' => '.',
-      'mini_translator.limited_banner.action.app_settings' => 'App Settings',
-      'mini_translator.limited_banner.action.recheck' => 'Recheck',
-      'mini_translator.limited_banner.feedback.enabled' =>
-        'Screen text extraction is enabled.',
-      'mini_translator.limited_banner.feedback.still_missing' =>
-        'Required permissions are still missing.\nPlease check your settings and try again.',
-      'mini_translator.limited_banner.feedback.still_missing_screen_capture' =>
-        'Screen Recording is still missing.\nIf you just granted it, restart the app for it to take effect.',
-      'mini_translator.limited_banner.tooltip.help' => 'View help',
-      'mini_translator.input.hint' => 'Enter the word or text here',
-      'mini_translator.input.extracting_text' => 'Extracting text...',
-      'mini_translator.input.hint_translate_to' => (
-              {required Object language}) =>
-          'Type a word or text to translate into ${language}',
-      'mini_translator.toolbar.tooltip.extract_text_from_screen_capture' =>
-        'Capture screen area and recognize text',
-      'mini_translator.toolbar.tooltip.extract_text_from_clipboard' =>
-        'Read clipboard content',
-      'mini_translator.toolbar.tooltip.pin' => 'Pin window',
-      'mini_translator.toolbar.tooltip.more_actions' => 'More actions',
-      'mini_translator.toolbar.menu.extract_from_screen_capture' =>
-        'Capture from screen',
-      'mini_translator.toolbar.menu.extract_from_clipboard' => 'From clipboard',
-      'mini_translator.toolbar.menu.open_main_window' => 'Open main window',
-      'mini_translator.toolbar.menu.open_settings' => 'Settings…',
-      'mini_translator.button.clear' => 'Clear',
-      'mini_translator.button.translate' => 'Translate',
-      'mini_translator.button.copy' => 'Copy',
-      'mini_translator.button.copied' => 'Copied',
-      'mini_translator.button.bookmark' => 'Save',
-      'mini_translator.button.bookmarked' => 'Saved',
-      'mini_translator.language.auto_detect' => 'Auto Detect',
-      'mini_translator.language.auto_match' => 'Auto Match',
-      'mini_translator.language.switch_config' => 'Switch Target',
-      'mini_translator.language.more_languages' => 'More languages...',
-      'mini_translator.language.manage_common_languages' =>
-        'Manage Common Languages...',
-      'mini_translator.language.manage_targets' =>
-        'Manage Translation Targets...',
-      'mini_translator.language.add_target' => 'Add Translation Target...',
-      'mini_translator.message.please_enter_word_or_text' =>
-        'No text entered or text not extracted',
-      'mini_translator.message.capture_screen_area_canceled' =>
-        'Capture screen area has been canceled',
-      'mini_translator.message.ocr_service_not_configured' =>
-        'No default text recognition service configured. Please set one in Settings.',
-      'mini_translator.message.ocr_recognition_failed' =>
-        'Text recognition failed',
-      'mini_translator.result.translating' => 'Translating…',
-      'mini_translator.result.stale_notice' =>
-        'Source changed; the translation below is the earlier one',
-      'mini_translator.result.stale_retry' => ({required Object key}) =>
-          '${key} retranslate',
-      'mini_translator.result.compare_services' => ({required Object count}) =>
-          'Compare ${count} services',
-      'mini_translator.result.collapse_compare' => 'Collapse',
-      'mini_translator.result.set_preferred' => 'Set as preferred',
-      'mini_translator.result.retry' => 'Retry',
-      'mini_translator.result.no_result' =>
-        'No service returned a result — check your network or try another service.',
-      'mini_translator.result.no_result_note' =>
-        'Your text is kept; retrying will not duplicate history.',
-      'mini_translator.result.no_result_meta' => ({required Object count}) =>
-          '${count} services returned nothing',
-      'mini_translator.result.no_result_body' =>
-        'No translation came back. Check your network and press ⏎ to retry, or expand to see each service\'s reason.',
-      'mini_translator.result.check_services' => 'Check services',
-      'mini_translator.result.show_reasons' => ({required Object count}) =>
-          'Why ${count} services failed',
-      'mini_translator.result.collapse_reasons' => 'Hide reasons',
-      'mini_translator.result.unknown_error' => 'The service gave no reason.',
-      'mini_translator.result.language_missing_sentence' => (
-              {required Object source, required Object target}) =>
-          'System Translation has not downloaded the language files for “${source} → ${target}”.',
-      'mini_translator.result.language_missing_settings_path' =>
-        'System Settings › General › Language & Region › Translation Languages',
-      'mini_translator.result.language_missing_body_main' => (
-              {required Object path}) =>
-          'Download them under “${path}”, then retry.',
-      'mini_translator.result.language_missing_mini_before' =>
-        'Download them in ',
-      'mini_translator.result.language_missing_mini_link' => 'System Settings',
-      'mini_translator.result.language_missing_mini_after' =>
-        ({required Object key}) => ', then press ${key} to retry.',
-      'mini_translator.result.language_missing_note' => (
-              {required Object source, required Object target}) =>
-          '“${source} → ${target}” language files not downloaded',
-      'mini_translator.result.language_missing_flag' =>
-        'Language files not downloaded',
-      'mini_translator.result.language_missing_kept' =>
-        'Your text is kept; retry once the download finishes.',
-      'mini_translator.result.open_system_settings' => 'Open System Settings',
-      'workbench.workspace' => 'Workspace',
-      'workbench.translate' => 'Translate',
-      'workbench.history' => 'History',
-      'workbench.history_page.all' => 'All',
-      'workbench.history_page.favorites' => 'Favorites',
-      'workbench.history_page.edited' => 'Edited by me',
-      'workbench.history_page.search' => 'Search',
-      'workbench.history_page.search_placeholder' =>
-        'Search source, translation, or service',
-      'workbench.history_page.search_label' => 'Search history',
-      'workbench.history_page.entry_count' => (
-              {required Object label, required Object count}) =>
-          '${label} · ${count} entries',
-      'workbench.history_page.by_time' => 'By time',
-      'workbench.history_page.loading' => 'Loading history…',
-      'workbench.history_page.load_failed' => 'Failed to load history',
-      'workbench.history_page.retry' => 'Retry',
-      'workbench.history_page.empty_title' => 'No translation history yet',
-      'workbench.history_page.empty_description' =>
-        'Your preferred result is saved here after a successful translation.',
-      'workbench.history_page.no_results' => ({required Object query}) =>
-          'No history matches “${query}”',
-      'workbench.history_page.clear_search' => 'Clear search',
-      'workbench.history_page.select' => 'Select',
-      'workbench.history_page.selected_count' => ({required Object count}) =>
-          '${count} selected',
-      'workbench.history_page.exit_select' => 'Exit selection',
-      'workbench.history_page.add_to_glossary' => 'Add to glossary',
-      'workbench.history_page.favorite' => 'Favorite',
-      'workbench.history_page.unfavorite' => 'Unfavorite',
-      'workbench.history_page.delete_confirm' => ({required Object count}) =>
-          'Delete the selected ${count} history entries? This cannot be undone.',
-      'workbench.history_page.no_glossary' => 'Create a glossary first',
-      'workbench.history_page.added_to_glossary' => ({required Object count}) =>
-          'Added ${count} entries to the glossary',
-      'workbench.history_page.favorite_flag' => 'Favorite',
-      'workbench.history_page.edited_flag' => 'Edited',
-      'workbench.history_page.edit_history_hint' =>
-        'The edited translation will be saved to history',
-      'workbench.history_page.copy_translation' => 'Copy translation',
-      'workbench.history_page.more_actions' => 'More',
-      'workbench.history_page.delete_title_one' => 'Delete this record',
-      'workbench.history_page.delete_title_many' => ({required Object count}) =>
-          'Delete ${count} records',
-      'workbench.history_page.delete_message' =>
-        'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.',
-      'workbench.history_page.expand' => 'Show full text',
-      'workbench.history_page.collapse' => 'Collapse',
-      'workbench.glossary' => 'Glossary',
-      'workbench.recent_languages' => 'Recent Languages',
-      'workbench.not_configured' => 'Not configured',
-      'workbench.subtitle.translate' => 'Workbench · Service comparison',
-      'workbench.subtitle.settings' => 'Settings',
-      'workbench.placeholder.history' =>
-        'Favorites and history will be available in a future release',
-      'workbench.placeholder.glossary' => 'Glossary management is being built',
-      'workbench.glossary_page.add_entry' => 'New entry',
-      'workbench.glossary_page.term' => 'Source',
-      'workbench.glossary_page.translation' => 'Required translation',
-      'workbench.glossary_page.forbidden' => 'Forbidden',
-      'workbench.glossary_page.hits' => 'Hits',
-      'workbench.glossary_page.term_placeholder' => 'teacher forcing',
-      'workbench.glossary_page.translation_placeholder' => 'forced teaching',
-      'workbench.glossary_page.forbidden_placeholder' => 'coerced teaching',
-      'workbench.glossary_page.search' => 'Search',
-      'workbench.glossary_page.search_placeholder' =>
-        'Search terms or required translations',
-      'workbench.glossary_page.search_label' => 'Search the glossary',
-      'workbench.glossary_page.entry_count' => (
-              {required Object name, required Object count}) =>
-          '${name} · ${count} terms',
-      'workbench.glossary_page.priority_note' =>
-        'Glossary terms outrank any service output',
-      'workbench.glossary_page.new_book' => 'New glossary',
-      'workbench.glossary_page.new_book_placeholder' => 'Glossary name',
-      'workbench.glossary_page.rename_book' => 'Rename',
-      'workbench.glossary_page.delete_book_confirm' => (
-              {required Object name, required Object count}) =>
-          'Delete “${name}” and all ${count} of its terms?',
-      'workbench.glossary_page.disabled' => 'Off',
-      'workbench.glossary_page.enable' => 'Enable',
-      'workbench.glossary_page.disable' => 'Disable',
-      'workbench.glossary_page.empty_title' => 'This glossary is empty',
-      'workbench.glossary_page.empty_description' =>
-        'Glossary terms outrank any service output. Add them one at a time, or drop in a CSV to merge.',
-      'workbench.glossary_page.no_results_title' => ({required Object query}) =>
-          'No terms match “${query}”',
-      'workbench.glossary_page.no_results_description' =>
-        'Try another keyword, or add the term.',
-      'workbench.glossary_page.no_books_title' => 'No glossaries yet',
-      'workbench.glossary_page.no_books_description' =>
-        'A glossary keeps your chosen wording consistent across every service. Create one, then start adding terms.',
-      'workbench.glossary_page.loading' => 'Loading…',
-      'workbench.glossary_page.new_book_subtitle' =>
-        'One book per domain; all of them apply while translating',
-      'workbench.glossary_page.name' => 'Name',
-      'workbench.glossary_page.name_taken' => 'Name · already exists',
-      'workbench.glossary_page.name_taken_hint' => ({required Object name}) =>
-          'There is already a glossary called “${name}”.',
-      'workbench.glossary_page.name_placeholder' => 'Machine learning',
-      'workbench.glossary_page.source_language' => 'Source language',
-      'workbench.glossary_page.target_language' => 'Target language',
-      'workbench.glossary_page.same_language' =>
-        'The source and target have to be two different languages.',
-      'workbench.glossary_page.seed' => 'Initial content',
-      'workbench.glossary_page.seed_blank' => 'Blank',
-      'workbench.glossary_page.seed_blank_hint' =>
-        'Add entries one at a time later',
-      'workbench.glossary_page.seed_csv_hint' =>
-        'Two columns: term / translation',
-      'workbench.glossary_page.seed_tbx_hint' =>
-        'Industry term exchange format',
-      'workbench.glossary_page.seed_blank_note' =>
-        'Once it exists you can add entries one by one, or drop a CSV / TBX onto the list to merge.',
-      'workbench.glossary_page.seed_file_note' => ({required Object format}) =>
-          'Imports the ${format} file right after creating · duplicates take the file’s translation',
-      'workbench.glossary_page.choose_file' => 'Choose file…',
-      'workbench.glossary_page.create' => 'Create',
-      'workbench.glossary_page.add_entry_subtitle' =>
-        'A term outranks anything a service returns',
-      'workbench.glossary_page.book' => 'Glossary',
-      'workbench.glossary_page.forbidden_label' => 'Forbidden translations',
-      'workbench.glossary_page.forbidden_hint' =>
-        'A service offering these is flagged as a conflict; separate several with /, leave empty to forbid none.',
-      'workbench.glossary_page.forbidden_placeholder_full' =>
-        'forced teaching / forcing teacher',
-      'workbench.glossary_page.duplicate' => (
-              {required Object term, required Object book}) =>
-          '“${term}” is already in ${book}; saving overwrites the existing translation.',
-      'workbench.glossary_page.duplicate_book_fallback' => 'this glossary',
-      'workbench.glossary_page.keep_adding' => 'Keep adding after saving',
-      'workbench.glossary_page.added_count' => ({required Object count}) =>
-          'Added ${count} so far',
-      'workbench.glossary_page.overwrite' => 'Overwrite',
-      'workbench.glossary_page.done' => 'Done',
-      'workbench.translation.source' => 'Source',
-      'workbench.translation.target' => 'Translation',
-      'workbench.translation.input_hint' => 'Enter or paste text to translate',
-      'workbench.translation.button' => 'Translate',
-      'workbench.translation.auto_detected' => 'Auto detected',
-      'workbench.translation.loading_services' =>
-        'Loading translation services…',
-      'workbench.translation.no_services' =>
-        'Configure a translation service in Settings first',
-      'workbench.translation.translating' => 'Translating…',
-      'workbench.translation.failed' =>
-        'Translation failed. Check the service configuration and try again.',
-      'workbench.translation.empty' => 'The translation will appear here',
-      'workbench.translation.service_compare' => 'Service comparison',
-      'workbench.translation.main_translation' => 'Primary',
-      'workbench.translation.service_unavailable' => 'Service unavailable',
-      'workbench.translation.waiting' => 'Waiting to translate',
-      'workbench.translation.copy' => 'Copy',
-      'workbench.translation.favorite_unavailable' =>
-        'Favorites will be available in a future release',
-      'workbench.translation.preferred' => 'Preferred translation',
-      'workbench.translation.other_services' => 'Other services',
-      'workbench.translation.copy_result' => 'Copy translation',
-      'workbench.translation.copied' => 'Copied',
-      'workbench.translation.favorite' => 'Save',
-      'workbench.translation.terms' => 'Glossary hits',
-      'workbench.translation.terms_hint' => 'Terms are matched once you type.',
-      'workbench.translation.quality' => 'Quality signals',
-      'workbench.translation.quality_hint' =>
-        'Computed once a translation lands.',
-      'workbench.translation.shortcuts' => 'Shortcuts',
-      'workbench.translation.other_services_disabled' =>
-        'Other services are disabled',
-      'workbench.translation.input_hint_translate_to' => (
-              {required Object language}) =>
-          'Type or paste text to translate into ${language}',
-      'workbench.translation.target_separator' => ', ',
-      'workbench.translation.newline_hint' => ({required Object key}) =>
-          '${key} for a new line',
-      'workbench.translation.failed_body' =>
-        'This passage did not get a translation. Check your connection and retry, or expand to work through each service\'s reason.',
-      'workbench.status.runtime_ready' => 'Translation runtime ready',
-      'workbench.status.settings_synced' => 'Settings synced',
-      'workbench.status.shortcuts' => '⌥Space Quick window · ⌥⇧2 Capture',
-      'workbench.version_latest' => 'Up to date',
-      'workbench.version_checking' => 'Checking…',
-      'workbench.check_updates' => 'Check for updates',
-      'settings.version' => 'v{} (Build {})',
-      'settings.general.title' => 'General',
-      'settings.general.section.permissions' => 'System Permissions',
-      'settings.general.section.ocr' => 'Text Recognition',
-      'settings.general.section.directory' => 'Directory',
-      'settings.general.section.translation' => 'Translation',
-      'settings.general.section.translation_target' => 'Translation Target',
-      'settings.general.section.languages' => 'Languages',
-      'settings.general.section.input' => 'Input Settings',
-      'settings.general.section.startup' => 'Startup & Integration',
-      'settings.general.section.ocr_behaviour' => 'Capture Behaviour',
-      'settings.general.section.translation_behaviour' =>
-        'Translation Behaviour',
-      'settings.general.row.launch_at_login' => 'Launch when you log in',
-      'settings.general.row.show_in_menu_bar' => 'Show in menu bar',
-      'settings.general.row.screen_capture_access' =>
-        'Grant screen recording access',
-      'settings.general.row.screen_selection_access' =>
-        'Grant accessibility access',
-      'settings.general.row.default_ocr_service' =>
-        'Default text recognition service',
-      'settings.general.row.auto_copy_detected_text' =>
-        'Auto copy detected text',
-      'settings.general.row.default_directory_service' =>
-        'Default directory service',
-      'settings.general.row.default_translation_service' =>
-        'Default translation service',
-      'settings.general.row.translation_target_hint' =>
-        'Configure language pairs used by the translator.',
-      'settings.general.row.common_languages' => 'Common Languages',
-      'settings.general.row.common_languages_hint' =>
-        'Listed at the top of language menus in this order; the rest fold into “More languages”.',
-      'settings.general.row.common_languages_empty' => (
-              {required Object count}) =>
-          'Not set · language menus list all ${count} languages flat',
-      'settings.general.row.double_click_copy_result' =>
-        'Double click to copy translation result',
-      'settings.general.row.submit_with_enter' => 'Submit with Enter',
-      'settings.general.row.submit_with_meta_enter_mac' =>
-        'Submit with ⌘ + Enter',
-      'settings.general.row.screen_capture_access_hint' =>
-        'Capturing text from the screen needs to read screen contents.',
-      'settings.general.row.screen_selection_access_hint' =>
-        'Capturing selected text needs to read selections in other apps.',
-      'settings.general.row.no_translation_targets' =>
-        'No translation targets yet — add one to set the default language to translate into.',
-      'settings.general.button.add_provider' => 'Add...',
-      'settings.general.button.add_target' => 'Add Target...',
-      'settings.general.button.manage_targets' =>
-        'Manage Translation Targets...',
-      'settings.general.button.manage_languages' =>
-        'Manage Common Languages...',
-      'settings.general.button.grant' => 'Grant',
-      'settings.general.option.none' => 'None',
-      'settings.general.option.no_services_available' =>
-        'No services available',
-      'settings.general.option.granted' => 'Granted',
-      'settings.general.option.built_in_ocr' => 'Built-in OCR',
-      'settings.general.option.tesseract' => 'Tesseract',
-      'settings.general.option.youdao_ocr' => 'Youdao OCR',
-      'settings.general.editor.add_target_title' => 'Add Translation Target',
-      'settings.general.editor.edit_target_title' => 'Edit Translation Target',
-      'settings.general.editor.row.source_language' => 'Source Language',
-      'settings.general.editor.row.target_language' => 'Target Language',
-      'settings.general.editor.title_edit' => 'Edit Translation Target',
-      'settings.general.editor.subtitle' =>
-        'Decide which language a source language translates into by default',
-      'settings.general.editor.same_language' =>
-        'Source and target are the same language — pick another target.',
-      'settings.general.editor.duplicate' =>
-        'There is already a target with this pair.',
-      'settings.general.editor.hint_auto' =>
-        'Translate into {} when no other rule matches.',
-      'settings.general.editor.hint_source' =>
-        'Translate into {} when {} is detected.',
-      'settings.general.languages_editor.subtitle' =>
-        'Ordered as on the left at the top of language menus; the right folds into “More languages”',
-      'settings.general.languages_editor.common_pane' =>
-        ({required Object count}) => 'Common · ${count}',
-      'settings.general.languages_editor.more_pane' =>
-        ({required Object count}) => 'More languages · ${count}',
-      'settings.general.languages_editor.sort' => 'Sort',
-      'settings.general.languages_editor.sort_help' =>
-        'Reorder to match the language roster',
-      'settings.general.languages_editor.empty_common' =>
-        'No common languages yet.\nAdd at least one from the right.',
-      'settings.general.languages_editor.search' => 'Search',
-      'settings.general.languages_editor.all_in_common' =>
-        'Every language is already common.',
-      'settings.general.languages_editor.matches_in_common' => (
-              {required Object query}) =>
-          'Languages matching “${query}” are already on the left.',
-      'settings.general.languages_editor.no_matches' =>
-        ({required Object query}) => 'No languages match “${query}”',
-      'settings.general.languages_editor.reorder_hint' =>
-        'Drag the handle to reorder common languages, or focus it and press ↑↓.',
-      'settings.general.languages_editor.reset' => 'Reset to Defaults',
-      'settings.general.languages_editor.add_language' =>
-        ({required Object name}) => 'Add ${name} to common languages',
-      'settings.general.languages_editor.remove_language' =>
-        ({required Object name}) => 'Remove ${name} from common languages',
-      'settings.general.languages_editor.handle_label' => (
-              {required Object name, required Object position}) =>
-          '${name}, position ${position}, press up or down to reorder',
-      'settings.appearance.title' => 'Appearance',
-      'settings.appearance.section.app_language' => 'Display Language',
-      'settings.appearance.section.theme_mode' => 'Theme Mode',
-      'settings.appearance.section.theme_style' => 'Theme style',
-      'settings.appearance.footer' =>
-        'Changes apply to the whole window immediately.',
-      'settings.shortcuts.title' => 'Shortcuts',
-      'settings.shortcuts.section.text_extraction' => 'Text Extraction',
-      'settings.shortcuts.section.submit_mode' => 'Submit With',
-      'settings.shortcuts.row.toggle_mini_translator' => 'Show/Hide Window',
-      'settings.shortcuts.row.extract_text_from_screen_selection' =>
-        'Extract text from screen selection',
-      'settings.shortcuts.row.extract_text_from_screen_capture' =>
-        'Extract text from screen capture',
-      'settings.shortcuts.row.extract_text_from_clipboard' =>
-        'Extract text from clipboard',
-      'settings.shortcuts.reset_dialog.title' => 'Reset Shortcuts',
-      'settings.shortcuts.reset_dialog.message' =>
-        'Are you sure you want to reset all shortcuts to their default values?',
-      'settings.shortcuts.reset_dialog.confirm' => 'Reset',
-      'settings.shortcuts.reset_dialog.cancel' => 'Cancel',
-      'settings.shortcuts.group.global.title' => 'Global Shortcuts',
-      'settings.shortcuts.group.global.description' => 'Work in any app.',
-      'settings.shortcuts.group.in_app.title' => 'In-App Keys',
-      'settings.shortcuts.group.in_app.description' =>
-        'Only apply inside this app’s own text fields.',
-      'settings.shortcuts.reset' => 'Restore Defaults...',
-      'settings.shortcuts.record_placeholder' => 'Record shortcut',
-      'settings.shortcuts.recording' => 'Press keys…',
-      'settings.shortcuts.clear' => 'Clear',
-      'settings.shortcuts.conflict' => ({required Object label}) =>
-          'Conflicts with “${label}”',
-      'settings.advanced.title' => 'Advanced',
-      'settings.advanced.api_server' => 'Local API server',
-      'settings.advanced.api_server_description' =>
-        'Expose the translation API on 127.0.0.1 for local integrations.',
-      'settings.advanced.enable' => 'Enable',
-      'settings.advanced.port' => 'Port',
-      'settings.advanced.running_at' => 'Running at {url}',
-      'settings.advanced.disabled' => 'Disabled',
-      'settings.services.title' => 'Services',
-      'settings.services.button.add_service' => 'Add Service...',
-      'settings.services.section.available_services' => 'Available Services',
-      'settings.services.editor.title' => 'Add Service',
-      'settings.services.editor.subtitle' =>
-        'Add one more service to a configured provider',
-      'settings.services.editor.row.model' => 'Model',
-      'settings.services.editor.row.system_prompt' => 'System Prompt',
-      'settings.services.editor.prompt_placeholder' =>
-        'Leave blank to use the default prompt for this kind',
-      'settings.services.editor.variant_hint' =>
-        '{} already has a {} service; this one is added alongside it as a second configuration.',
-      'settings.services.editor.traditional_note' =>
-        '{} is a traditional endpoint — no model or prompt to tune. Its parameters live on the provider\'s detail page.',
-      'settings.services.detail.row.id' => 'Service ID',
-      'settings.services.detail.row.name' => 'Name',
-      'settings.services.detail.row.provider' => 'Provider',
-      'settings.services.detail.row.type' => 'Type',
-      'settings.services.detail.delete_dialog.title' => 'Delete "{}"?',
-      'settings.services.detail.delete_dialog.message' =>
-        'This service will be removed from the provider.',
-      'settings.services.detail.prompt_variables' =>
-        'Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
-      'settings.services.make_default' => 'Make Default',
-      'settings.services.item.none_of_kind' => 'No {} service available yet.',
-      'settings.providers.title' => 'Providers',
-      'settings.providers.section.services' => 'Available Services',
-      'settings.providers.section.services_description' =>
-        'View available services from configured providers and switch between service types.',
-      'settings.providers.item.empty' =>
-        'No providers configured. Add one to enable translation services.',
-      'settings.providers.item.loading' => 'Loading providers...',
-      'settings.providers.item.no_services' => 'No services available.',
-      'settings.providers.button.add' => 'Add a Provider...',
-      'settings.providers.alert.error' => 'Error',
-      'settings.providers.intro.body' =>
-        'Manage the service providers used by the app.',
-      'settings.providers.intro.warning' =>
-        'Connected providers may process the text or images you send. Only enable services you trust.',
-      'settings.providers.editor.row.id' => 'Provider ID',
-      'settings.providers.editor.row.type' => 'Provider Type',
-      'settings.providers.editor.row.default_model' => 'Default Model',
-      'settings.providers.editor.placeholder.id' => 'e.g. deepl-main',
-      'settings.providers.editor.type_picker.prompt' =>
-        'Select the type of provider you would like to add:',
-      'settings.providers.editor.type_picker.section_llm' => 'LLM',
-      'settings.providers.editor.type_picker.section_traditional' =>
-        'Traditional',
-      'settings.providers.editor.tooltip.help' => 'Help',
-      'settings.providers.editor.step.next' => 'Continue',
-      'settings.providers.editor.step.back' => 'Back',
-      'settings.providers.editor.add_title' => 'Add {}',
-      'settings.providers.editor.capability_note.translation' =>
-        'Joins the translation candidates',
-      'settings.providers.editor.capability_note.dictionary' =>
-        'Provides dictionary definitions',
-      'settings.providers.editor.capability_note.ocr' =>
-        'Recognises text in images',
-      'settings.providers.editor.test.run' => 'Test Connection',
-      'settings.providers.editor.test.running' =>
-        'Testing connection · {}s elapsed',
-      'settings.providers.editor.test.passed_models' =>
-        'Connection OK · {} models available',
-      'settings.providers.editor.test.passed_service' =>
-        'Connection OK · service available',
-      'settings.providers.editor.test.passed_footer' =>
-        'Connection test passed',
-      'settings.providers.editor.test.retest' => 'Test Again',
-      'settings.providers.editor.test.tips_title' => 'Things to try',
-      'settings.providers.editor.test.tips_llm' =>
-        '· Check the key matches the provider type you picked\n· Check whether the Base URL needs /v1\n· Confirm the model is enabled in the provider console',
-      'settings.providers.editor.test.tips_traditional' =>
-        '· Check the credentials match the provider type you picked\n· Confirm the service is enabled in the provider console',
-      'settings.providers.editor.test.failed_suffix' => 'verification failed',
-      'settings.providers.editor.test.passed_suffix' => 'verified',
-      'settings.providers.detail.tooltip.edit' => 'Edit provider',
-      'settings.providers.detail.row.id_hint' =>
-        'Cannot be changed after creation',
-      'settings.providers.detail.section.configuration' => 'Configuration',
-      'settings.providers.detail.section.models' => 'Models',
-      'settings.providers.detail.models.loading' => 'Loading models...',
-      'settings.providers.detail.models.empty' => 'No models found.',
-      'settings.providers.detail.models.retry' => 'Retry',
-      'settings.providers.detail.models.refresh' => 'Refresh List',
-      'settings.providers.detail.models.default_badge' => 'Default',
-      'settings.providers.detail.models.set_default' => 'Set as Default',
-      'settings.providers.detail.models.fetch_error' =>
-        'Could not fetch models from provider API.',
-      'settings.providers.capability.translation' => 'Translation',
-      'settings.providers.capability.dictionary' => 'Dictionary',
-      'settings.providers.capability.ocr' => 'OCR',
-      'settings.providers.capability.llm' => 'AI',
-      'settings.providers.description.all' =>
-        'Provides dictionary lookup and text translation',
-      'settings.providers.description.dictionary' =>
-        'Provides dictionary lookup and word definitions',
-      'settings.providers.description.translation' =>
-        'Provides text translation between languages',
-      'settings.providers.description.fallback' =>
-        'Provides translation services',
-      'settings.providers.delete_dialog.title' => 'Delete "{}"?',
-      'settings.providers.delete_dialog.message' =>
-        'This action cannot be undone.',
-      'settings.layout.title' => 'Settings',
-      'settings.layout.empty.title' => 'Select a Category',
-      'settings.layout.empty.message' =>
-        'Choose a settings section from the sidebar.',
-      'settings.layout.groups' => 'Groups',
-      'settings.layout.footer_note' => 'Translations and keys stay on this Mac',
-      'settings.layout.support' => 'Support',
-      'settings.about.title' => 'About',
-      'settings.about.copy_version_info' => 'Copy Version Info',
-      'settings.about.up_to_date' => 'You\'re up to date.',
-      'settings.about.check_again' => 'Check Again',
-      'settings.about.links' => 'Links',
-      'settings.about.website' => 'Website',
-      'settings.about.help_center' => 'Help Center',
-      'settings.about.open_changelog' => 'Changelog',
-      'settings.about.update' => 'Update',
-      _ => null,
-    };
+          'common.service_name.baidu_fanyi_api' => 'General Translation API',
+          'common.service_name.caiyun_platform' => 'Caiyun Xiaoyi API',
+          'common.service_name.deepl_api' => 'DeepL API / Translate text',
+          'common.service_name.google_cloud' => 'Cloud Translation - Basic',
+          'common.service_name.yandex' => 'Yandex Translate API',
+          'common.service_name.microsoft_translator' => 'Microsoft Translator',
+          'common.service_name.aliyun' => 'Alibaba Cloud Machine Translation',
+          'common.service_name.volcengine' => 'Volcengine Machine Translation',
+          'common.service_name.niutrans' => 'NiuTrans Translation API',
+          'common.service_name.tencent_cloud' =>
+            'Tencent Machine Translation (TMT)',
+          'common.service_name.youdao_zhiyun_translation' =>
+            'Text Translation API',
+          'common.service_name.youdao_zhiyun_dictionary' =>
+            'Text Translation API (dictionary results)',
+          'common.service_name.youdao_zhiyun_ocr' =>
+            'General Text Recognition API',
+          'common.service_name.google_cloud_ocr' =>
+            'Cloud Vision - Text Detection',
+          'common.service_name.tencent_cloud_ocr' => 'General Print OCR',
+          'common.service_name.volcengine_ocr' => 'Volcengine General OCR',
+          'common.service_name.aliyun_ocr' => 'Alibaba Cloud General OCR',
+          'common.service_name.yandex_ocr' => 'Yandex Vision OCR',
+          'common.ui.button.ok' => 'OK',
+          'common.ui.button.cancel' => 'Cancel',
+          'common.ui.button.add' => 'Add',
+          'common.ui.button.delete' => 'Delete',
+          'common.ui.button.edit' => 'Edit',
+          'common.ui.button.save' => 'Save',
+          'common.ui.button.manage' => 'Manage',
+          'common.ui.button.kContinue' => 'Continue',
+          'common.ui.button.copy' => 'Copy',
+          'common.ui.button.select_all' => 'Select all',
+          'common.ui.feedback.copied' => 'Copied',
+          'common.language.ar' => 'Arabic',
+          'common.language.bn' => 'Bengali',
+          'common.language.de' => 'German',
+          'common.language.en' => 'English',
+          'common.language.es' => 'Spanish',
+          'common.language.fa' => 'Persian',
+          'common.language.fr' => 'French',
+          'common.language.gu' => 'Gujarati',
+          'common.language.ha' => 'Hausa',
+          'common.language.hi' => 'Hindi',
+          'common.language.id' => 'Indonesian',
+          'common.language.it' => 'Italian',
+          'common.language.ja' => 'Japanese',
+          'common.language.jv' => 'Javanese',
+          'common.language.ko' => 'Korean',
+          'common.language.ml' => 'Malayalam',
+          'common.language.mr' => 'Marathi',
+          'common.language.ms' => 'Malay',
+          'common.language.nl' => 'Dutch',
+          'common.language.pa' => 'Punjabi',
+          'common.language.pl' => 'Polish',
+          'common.language.pt' => 'Portuguese',
+          'common.language.ro' => 'Romanian',
+          'common.language.ru' => 'Russian',
+          'common.language.sw' => 'Swahili',
+          'common.language.ta' => 'Tamil',
+          'common.language.te' => 'Telugu',
+          'common.language.th' => 'Thai',
+          'common.language.tr' => 'Turkish',
+          'common.language.uk' => 'Ukrainian',
+          'common.language.ur' => 'Urdu',
+          'common.language.vi' => 'Vietnamese',
+          'common.language.yo' => 'Yoruba',
+          'common.language.zh_hans' => 'Chinese (Simplified)',
+          'common.language.zh_hant' => 'Chinese (Traditional)',
+          'common.theme_mode.light' => 'Light',
+          'common.theme_mode.dark' => 'Dark',
+          'common.theme_mode.system' => 'System',
+          'common.theme_style.studio' => 'Studio',
+          'common.theme_style.bright' => 'Bright',
+          'common.provider.anthropic' => 'Anthropic',
+          'common.provider.baidu_fanyi_api' => 'Baidu Translate Open Platform',
+          'common.provider.caiyun_platform' => 'Caiyun Open Platform',
+          'common.provider.deepl_api' => 'DeepL API',
+          'common.provider.google_cloud' => 'Google Cloud',
+          'common.provider.yandex' => 'Yandex Cloud',
+          'common.provider.microsoft_translator' => 'Microsoft Azure',
+          'common.provider.aliyun' => 'Alibaba Cloud',
+          'common.provider.volcengine' => 'Volcengine',
+          'common.provider.niutrans' => 'NiuTrans',
+          'common.provider.ollama' => 'Ollama',
+          'common.provider.openai' => 'OpenAI',
+          'common.provider.sogou' => 'Sogou',
+          'common.provider.xai' => 'xAI',
+          'common.provider.system' => 'System',
+          'common.provider.tencent_cloud' => 'Tencent Cloud',
+          'common.provider.youdao_zhiyun' => 'Youdao Zhiyun AI Open Platform',
+          'app.tray.context_menu.show_window' => 'Show Window',
+          'app.tray.context_menu.dev_tools.title' => 'Dev Tools',
+          'app.tray.context_menu.dev_tools.open_data_directory' =>
+            'Open Data Directory',
+          'app.tray.context_menu.check_for_updates' => 'Check for Updates',
+          'app.tray.context_menu.settings' => 'Settings',
+          'app.tray.context_menu.quit' => 'Quit',
+          'mini_translator.limited_banner.permission.missing_both' =>
+            'Grant Screen Recording and Accessibility permissions to enable all features.',
+          'mini_translator.limited_banner.permission.missing_screen_capture' =>
+            'Grant Screen Recording permission to enable all features.',
+          'mini_translator.limited_banner.permission.missing_accessibility' =>
+            'Grant Accessibility permission to enable all features.',
+          'mini_translator.limited_banner.instruction.app_settings_prefix' =>
+            'Go to ',
+          'mini_translator.limited_banner.instruction.follow_guide_prefix' =>
+            ', follow the guide, then click ',
+          'mini_translator.limited_banner.instruction.suffix' => '.',
+          'mini_translator.limited_banner.action.app_settings' =>
+            'App Settings',
+          'mini_translator.limited_banner.action.recheck' => 'Recheck',
+          'mini_translator.limited_banner.feedback.enabled' =>
+            'Screen text extraction is enabled.',
+          'mini_translator.limited_banner.feedback.still_missing' =>
+            'Required permissions are still missing.\nPlease check your settings and try again.',
+          'mini_translator.limited_banner.feedback.still_missing_screen_capture' =>
+            'Screen Recording is still missing.\nIf you just granted it, restart the app for it to take effect.',
+          'mini_translator.limited_banner.tooltip.help' => 'View help',
+          'mini_translator.input.hint' => 'Enter the word or text here',
+          'mini_translator.input.extracting_text' => 'Extracting text...',
+          'mini_translator.input.hint_translate_to' => (
+                  {required Object language}) =>
+              'Type a word or text to translate into ${language}',
+          'mini_translator.toolbar.tooltip.extract_text_from_screen_capture' =>
+            'Capture screen area and recognize text',
+          'mini_translator.toolbar.tooltip.extract_text_from_clipboard' =>
+            'Read clipboard content',
+          'mini_translator.toolbar.tooltip.pin' => 'Pin window',
+          'mini_translator.toolbar.tooltip.more_actions' => 'More actions',
+          'mini_translator.toolbar.menu.extract_from_screen_capture' =>
+            'Capture from screen',
+          'mini_translator.toolbar.menu.extract_from_clipboard' =>
+            'From clipboard',
+          'mini_translator.toolbar.menu.open_main_window' => 'Open main window',
+          'mini_translator.toolbar.menu.open_settings' => 'Settings…',
+          'mini_translator.button.clear' => 'Clear',
+          'mini_translator.button.translate' => 'Translate',
+          'mini_translator.button.copy' => 'Copy',
+          'mini_translator.button.copied' => 'Copied',
+          'mini_translator.button.bookmark' => 'Save',
+          'mini_translator.button.bookmarked' => 'Saved',
+          'mini_translator.language.auto_detect' => 'Auto Detect',
+          'mini_translator.language.auto_match' => 'Auto Match',
+          'mini_translator.language.switch_config' => 'Switch Target',
+          'mini_translator.language.more_languages' => 'More languages...',
+          'mini_translator.language.manage_common_languages' =>
+            'Manage Common Languages...',
+          'mini_translator.language.manage_targets' =>
+            'Manage Translation Targets...',
+          'mini_translator.language.add_target' => 'Add Translation Target...',
+          'mini_translator.message.please_enter_word_or_text' =>
+            'No text entered or text not extracted',
+          'mini_translator.message.capture_screen_area_canceled' =>
+            'Capture screen area has been canceled',
+          'mini_translator.message.ocr_service_not_configured' =>
+            'No default text recognition service configured. Please set one in Settings.',
+          'mini_translator.message.ocr_recognition_failed' =>
+            'Text recognition failed',
+          'mini_translator.result.translating' => 'Translating…',
+          'mini_translator.result.stale_notice' =>
+            'Source changed; the translation below is the earlier one',
+          'mini_translator.result.stale_retry' => ({required Object key}) =>
+              '${key} retranslate',
+          'mini_translator.result.compare_services' =>
+            ({required Object count}) => 'Compare ${count} services',
+          'mini_translator.result.collapse_compare' => 'Collapse',
+          'mini_translator.result.set_preferred' => 'Set as preferred',
+          'mini_translator.result.retry' => 'Retry',
+          'mini_translator.result.no_result' =>
+            'No service returned a result — check your network or try another service.',
+          'mini_translator.result.no_result_note' =>
+            'Your text is kept; retrying will not duplicate history.',
+          'mini_translator.result.no_result_meta' =>
+            ({required Object count}) => '${count} services returned nothing',
+          'mini_translator.result.no_result_body' =>
+            'No translation came back. Check your network and press ⏎ to retry, or expand to see each service\'s reason.',
+          'mini_translator.result.check_services' => 'Check services',
+          'mini_translator.result.show_reasons' => ({required Object count}) =>
+              'Why ${count} services failed',
+          'mini_translator.result.collapse_reasons' => 'Hide reasons',
+          'mini_translator.result.unknown_error' =>
+            'The service gave no reason.',
+          'mini_translator.result.language_missing_sentence' => (
+                  {required Object source, required Object target}) =>
+              'System Translation has not downloaded the language files for “${source} → ${target}”.',
+          'mini_translator.result.language_missing_settings_path' =>
+            'System Settings › General › Language & Region › Translation Languages',
+          'mini_translator.result.language_missing_body_main' => (
+                  {required Object path}) =>
+              'Download them under “${path}”, then retry.',
+          'mini_translator.result.language_missing_mini_before' =>
+            'Download them in ',
+          'mini_translator.result.language_missing_mini_link' =>
+            'System Settings',
+          'mini_translator.result.language_missing_mini_after' =>
+            ({required Object key}) => ', then press ${key} to retry.',
+          'mini_translator.result.language_missing_note' => (
+                  {required Object source, required Object target}) =>
+              '“${source} → ${target}” language files not downloaded',
+          'mini_translator.result.language_missing_flag' =>
+            'Language files not downloaded',
+          'mini_translator.result.language_missing_kept' =>
+            'Your text is kept; retry once the download finishes.',
+          'mini_translator.result.open_system_settings' =>
+            'Open System Settings',
+          'workbench.workspace' => 'Workspace',
+          'workbench.translate' => 'Translate',
+          'workbench.history' => 'History',
+          'workbench.history_page.all' => 'All',
+          'workbench.history_page.favorites' => 'Favorites',
+          'workbench.history_page.edited' => 'Edited by me',
+          'workbench.history_page.search' => 'Search',
+          'workbench.history_page.search_placeholder' =>
+            'Search source, translation, or service',
+          'workbench.history_page.search_label' => 'Search history',
+          'workbench.history_page.entry_count' => (
+                  {required Object label, required Object count}) =>
+              '${label} · ${count} entries',
+          'workbench.history_page.by_time' => 'By time',
+          'workbench.history_page.loading' => 'Loading history…',
+          'workbench.history_page.load_failed' => 'Failed to load history',
+          'workbench.history_page.retry' => 'Retry',
+          'workbench.history_page.empty_title' => 'No translation history yet',
+          'workbench.history_page.empty_description' =>
+            'Your preferred result is saved here after a successful translation.',
+          'workbench.history_page.no_results' => ({required Object query}) =>
+              'No history matches “${query}”',
+          'workbench.history_page.clear_search' => 'Clear search',
+          'workbench.history_page.select' => 'Select',
+          'workbench.history_page.selected_count' =>
+            ({required Object count}) => '${count} selected',
+          'workbench.history_page.exit_select' => 'Exit selection',
+          'workbench.history_page.add_to_glossary' => 'Add to glossary',
+          'workbench.history_page.favorite' => 'Favorite',
+          'workbench.history_page.unfavorite' => 'Unfavorite',
+          'workbench.history_page.delete_confirm' => (
+                  {required Object count}) =>
+              'Delete the selected ${count} history entries? This cannot be undone.',
+          'workbench.history_page.no_glossary' => 'Create a glossary first',
+          'workbench.history_page.added_to_glossary' => (
+                  {required Object count}) =>
+              'Added ${count} entries to the glossary',
+          'workbench.history_page.favorite_flag' => 'Favorite',
+          'workbench.history_page.edited_flag' => 'Edited',
+          'workbench.history_page.edit_history_hint' =>
+            'The edited translation will be saved to history',
+          'workbench.history_page.copy_translation' => 'Copy translation',
+          'workbench.history_page.more_actions' => 'More',
+          'workbench.history_page.delete_title_one' => 'Delete this record',
+          'workbench.history_page.delete_title_many' =>
+            ({required Object count}) => 'Delete ${count} records',
+          'workbench.history_page.delete_message' =>
+            'This cannot be undone. Favourites and your own wording go with it; the glossary is untouched.',
+          'workbench.history_page.expand' => 'Show full text',
+          'workbench.history_page.collapse' => 'Collapse',
+          'workbench.glossary' => 'Glossary',
+          'workbench.recent_languages' => 'Recent Languages',
+          'workbench.not_configured' => 'Not configured',
+          'workbench.subtitle.translate' => 'Workbench · Service comparison',
+          'workbench.subtitle.settings' => 'Settings',
+          'workbench.placeholder.history' =>
+            'Favorites and history will be available in a future release',
+          'workbench.placeholder.glossary' =>
+            'Glossary management is being built',
+          'workbench.glossary_page.add_entry' => 'New entry',
+          'workbench.glossary_page.term' => 'Source',
+          'workbench.glossary_page.translation' => 'Required translation',
+          'workbench.glossary_page.forbidden' => 'Forbidden',
+          'workbench.glossary_page.hits' => 'Hits',
+          'workbench.glossary_page.term_placeholder' => 'teacher forcing',
+          'workbench.glossary_page.translation_placeholder' =>
+            'forced teaching',
+          'workbench.glossary_page.forbidden_placeholder' => 'coerced teaching',
+          'workbench.glossary_page.search' => 'Search',
+          'workbench.glossary_page.search_placeholder' =>
+            'Search terms or required translations',
+          'workbench.glossary_page.search_label' => 'Search the glossary',
+          'workbench.glossary_page.entry_count' => (
+                  {required Object name, required Object count}) =>
+              '${name} · ${count} terms',
+          'workbench.glossary_page.priority_note' =>
+            'Glossary terms outrank any service output',
+          'workbench.glossary_page.new_book' => 'New glossary',
+          'workbench.glossary_page.new_book_placeholder' => 'Glossary name',
+          'workbench.glossary_page.rename_book' => 'Rename',
+          'workbench.glossary_page.delete_book_confirm' => (
+                  {required Object name, required Object count}) =>
+              'Delete “${name}” and all ${count} of its terms?',
+          'workbench.glossary_page.disabled' => 'Off',
+          'workbench.glossary_page.enable' => 'Enable',
+          'workbench.glossary_page.disable' => 'Disable',
+          'workbench.glossary_page.empty_title' => 'This glossary is empty',
+          'workbench.glossary_page.empty_description' =>
+            'Glossary terms outrank any service output. Add them one at a time, or drop in a CSV to merge.',
+          'workbench.glossary_page.no_results_title' =>
+            ({required Object query}) => 'No terms match “${query}”',
+          'workbench.glossary_page.no_results_description' =>
+            'Try another keyword, or add the term.',
+          'workbench.glossary_page.no_books_title' => 'No glossaries yet',
+          'workbench.glossary_page.no_books_description' =>
+            'A glossary keeps your chosen wording consistent across every service. Create one, then start adding terms.',
+          'workbench.glossary_page.loading' => 'Loading…',
+          'workbench.glossary_page.new_book_subtitle' =>
+            'One book per domain; all of them apply while translating',
+          'workbench.glossary_page.name' => 'Name',
+          'workbench.glossary_page.name_taken' => 'Name · already exists',
+          'workbench.glossary_page.name_taken_hint' => (
+                  {required Object name}) =>
+              'There is already a glossary called “${name}”.',
+          'workbench.glossary_page.name_placeholder' => 'Machine learning',
+          'workbench.glossary_page.source_language' => 'Source language',
+          'workbench.glossary_page.target_language' => 'Target language',
+          'workbench.glossary_page.same_language' =>
+            'The source and target have to be two different languages.',
+          'workbench.glossary_page.seed' => 'Initial content',
+          'workbench.glossary_page.seed_blank' => 'Blank',
+          'workbench.glossary_page.seed_blank_hint' =>
+            'Add entries one at a time later',
+          'workbench.glossary_page.seed_csv_hint' =>
+            'Two columns: term / translation',
+          'workbench.glossary_page.seed_tbx_hint' =>
+            'Industry term exchange format',
+          'workbench.glossary_page.seed_blank_note' =>
+            'Once it exists you can add entries one by one, or drop a CSV / TBX onto the list to merge.',
+          'workbench.glossary_page.seed_file_note' => (
+                  {required Object format}) =>
+              'Imports the ${format} file right after creating · duplicates take the file’s translation',
+          'workbench.glossary_page.choose_file' => 'Choose file…',
+          'workbench.glossary_page.create' => 'Create',
+          'workbench.glossary_page.add_entry_subtitle' =>
+            'A term outranks anything a service returns',
+          'workbench.glossary_page.book' => 'Glossary',
+          'workbench.glossary_page.forbidden_label' => 'Forbidden translations',
+          'workbench.glossary_page.forbidden_hint' =>
+            'A service offering these is flagged as a conflict; separate several with /, leave empty to forbid none.',
+          'workbench.glossary_page.forbidden_placeholder_full' =>
+            'forced teaching / forcing teacher',
+          'workbench.glossary_page.duplicate' => (
+                  {required Object term, required Object book}) =>
+              '“${term}” is already in ${book}; saving overwrites the existing translation.',
+          'workbench.glossary_page.duplicate_book_fallback' => 'this glossary',
+          'workbench.glossary_page.keep_adding' => 'Keep adding after saving',
+          'workbench.glossary_page.added_count' => ({required Object count}) =>
+              'Added ${count} so far',
+          'workbench.glossary_page.overwrite' => 'Overwrite',
+          'workbench.glossary_page.done' => 'Done',
+          'workbench.translation.source' => 'Source',
+          'workbench.translation.target' => 'Translation',
+          'workbench.translation.input_hint' =>
+            'Enter or paste text to translate',
+          'workbench.translation.button' => 'Translate',
+          'workbench.translation.auto_detected' => 'Auto detected',
+          'workbench.translation.loading_services' =>
+            'Loading translation services…',
+          'workbench.translation.no_services' =>
+            'Configure a translation service in Settings first',
+          'workbench.translation.translating' => 'Translating…',
+          'workbench.translation.failed' =>
+            'Translation failed. Check the service configuration and try again.',
+          'workbench.translation.empty' => 'The translation will appear here',
+          'workbench.translation.service_compare' => 'Service comparison',
+          'workbench.translation.main_translation' => 'Primary',
+          'workbench.translation.service_unavailable' => 'Service unavailable',
+          'workbench.translation.waiting' => 'Waiting to translate',
+          'workbench.translation.copy' => 'Copy',
+          'workbench.translation.favorite_unavailable' =>
+            'Favorites will be available in a future release',
+          'workbench.translation.preferred' => 'Preferred translation',
+          'workbench.translation.other_services' => 'Other services',
+          'workbench.translation.copy_result' => 'Copy translation',
+          'workbench.translation.copied' => 'Copied',
+          'workbench.translation.favorite' => 'Save',
+          'workbench.translation.terms' => 'Glossary hits',
+          'workbench.translation.terms_hint' =>
+            'Terms are matched once you type.',
+          'workbench.translation.quality' => 'Quality signals',
+          'workbench.translation.quality_hint' =>
+            'Computed once a translation lands.',
+          'workbench.translation.shortcuts' => 'Shortcuts',
+          'workbench.translation.other_services_disabled' =>
+            'Other services are disabled',
+          'workbench.translation.input_hint_translate_to' => (
+                  {required Object language}) =>
+              'Type or paste text to translate into ${language}',
+          'workbench.translation.target_separator' => ', ',
+          'workbench.translation.newline_hint' => ({required Object key}) =>
+              '${key} for a new line',
+          'workbench.translation.failed_body' =>
+            'This passage did not get a translation. Check your connection and retry, or expand to work through each service\'s reason.',
+          'workbench.status.runtime_ready' => 'Translation runtime ready',
+          'workbench.status.settings_synced' => 'Settings synced',
+          'workbench.status.shortcuts' => '⌥Space Quick window · ⌥⇧2 Capture',
+          'workbench.version_latest' => 'Up to date',
+          'workbench.version_checking' => 'Checking…',
+          'workbench.check_updates' => 'Check for updates',
+          'settings.version' => '{} (Build {})',
+          'settings.general.title' => 'General',
+          'settings.general.section.permissions' => 'System Permissions',
+          'settings.general.section.ocr' => 'Text Recognition',
+          'settings.general.section.directory' => 'Directory',
+          'settings.general.section.translation' => 'Translation',
+          'settings.general.section.translation_target' => 'Translation Target',
+          'settings.general.section.languages' => 'Languages',
+          'settings.general.section.input' => 'Input Settings',
+          'settings.general.section.startup' => 'Startup & Integration',
+          'settings.general.section.ocr_behaviour' => 'Capture Behaviour',
+          'settings.general.section.translation_behaviour' =>
+            'Translation Behaviour',
+          'settings.general.row.launch_at_login' => 'Launch when you log in',
+          'settings.general.row.show_in_menu_bar' => 'Show in menu bar',
+          'settings.general.row.screen_capture_access' =>
+            'Grant screen recording access',
+          'settings.general.row.screen_selection_access' =>
+            'Grant accessibility access',
+          'settings.general.row.default_ocr_service' =>
+            'Default text recognition service',
+          'settings.general.row.auto_copy_detected_text' =>
+            'Auto copy detected text',
+          'settings.general.row.default_directory_service' =>
+            'Default directory service',
+          'settings.general.row.default_translation_service' =>
+            'Default translation service',
+          'settings.general.row.translation_target_hint' =>
+            'Configure language pairs used by the translator.',
+          'settings.general.row.common_languages' => 'Common Languages',
+          'settings.general.row.common_languages_hint' =>
+            'Listed at the top of language menus in this order; the rest fold into “More languages”.',
+          'settings.general.row.common_languages_empty' => (
+                  {required Object count}) =>
+              'Not set · language menus list all ${count} languages flat',
+          'settings.general.row.double_click_copy_result' =>
+            'Double click to copy translation result',
+          'settings.general.row.submit_with_enter' => 'Submit with Enter',
+          'settings.general.row.submit_with_meta_enter_mac' =>
+            'Submit with ⌘ + Enter',
+          'settings.general.row.screen_capture_access_hint' =>
+            'Capturing text from the screen needs to read screen contents.',
+          'settings.general.row.screen_selection_access_hint' =>
+            'Capturing selected text needs to read selections in other apps.',
+          'settings.general.row.no_translation_targets' =>
+            'No translation targets yet — add one to set the default language to translate into.',
+          'settings.general.button.add_provider' => 'Add...',
+          'settings.general.button.add_target' => 'Add Target...',
+          'settings.general.button.manage_targets' =>
+            'Manage Translation Targets...',
+          'settings.general.button.manage_languages' =>
+            'Manage Common Languages...',
+          'settings.general.button.grant' => 'Grant',
+          'settings.general.option.none' => 'None',
+          'settings.general.option.no_services_available' =>
+            'No services available',
+          'settings.general.option.granted' => 'Granted',
+          'settings.general.option.built_in_ocr' => 'Built-in OCR',
+          'settings.general.option.tesseract' => 'Tesseract',
+          'settings.general.option.youdao_ocr' => 'Youdao OCR',
+          'settings.general.editor.add_target_title' =>
+            'Add Translation Target',
+          'settings.general.editor.edit_target_title' =>
+            'Edit Translation Target',
+          'settings.general.editor.row.source_language' => 'Source Language',
+          'settings.general.editor.row.target_language' => 'Target Language',
+          'settings.general.editor.title_edit' => 'Edit Translation Target',
+          'settings.general.editor.subtitle' =>
+            'Decide which language a source language translates into by default',
+          'settings.general.editor.same_language' =>
+            'Source and target are the same language — pick another target.',
+          'settings.general.editor.duplicate' =>
+            'There is already a target with this pair.',
+          'settings.general.editor.hint_auto' =>
+            'Translate into {} when no other rule matches.',
+          'settings.general.editor.hint_source' =>
+            'Translate into {} when {} is detected.',
+          'settings.general.languages_editor.subtitle' =>
+            'Ordered as on the left at the top of language menus; the right folds into “More languages”',
+          'settings.general.languages_editor.common_pane' =>
+            ({required Object count}) => 'Common · ${count}',
+          'settings.general.languages_editor.more_pane' =>
+            ({required Object count}) => 'More languages · ${count}',
+          'settings.general.languages_editor.sort' => 'Sort',
+          'settings.general.languages_editor.sort_help' =>
+            'Reorder to match the language roster',
+          'settings.general.languages_editor.empty_common' =>
+            'No common languages yet.\nAdd at least one from the right.',
+          'settings.general.languages_editor.search' => 'Search',
+          'settings.general.languages_editor.all_in_common' =>
+            'Every language is already common.',
+          'settings.general.languages_editor.matches_in_common' => (
+                  {required Object query}) =>
+              'Languages matching “${query}” are already on the left.',
+          'settings.general.languages_editor.no_matches' =>
+            ({required Object query}) => 'No languages match “${query}”',
+          'settings.general.languages_editor.reorder_hint' =>
+            'Drag the handle to reorder common languages, or focus it and press ↑↓.',
+          'settings.general.languages_editor.reset' => 'Reset to Defaults',
+          'settings.general.languages_editor.add_language' =>
+            ({required Object name}) => 'Add ${name} to common languages',
+          'settings.general.languages_editor.remove_language' =>
+            ({required Object name}) => 'Remove ${name} from common languages',
+          'settings.general.languages_editor.handle_label' => (
+                  {required Object name, required Object position}) =>
+              '${name}, position ${position}, press up or down to reorder',
+          'settings.appearance.title' => 'Appearance',
+          'settings.appearance.section.app_language' => 'Display Language',
+          'settings.appearance.section.theme_mode' => 'Theme Mode',
+          'settings.appearance.section.theme_style' => 'Theme style',
+          'settings.appearance.footer' =>
+            'Changes apply to the whole window immediately.',
+          'settings.shortcuts.title' => 'Shortcuts',
+          'settings.shortcuts.section.text_extraction' => 'Text Extraction',
+          'settings.shortcuts.section.submit_mode' => 'Submit With',
+          'settings.shortcuts.row.toggle_mini_translator' => 'Show/Hide Window',
+          'settings.shortcuts.row.extract_text_from_screen_selection' =>
+            'Extract text from screen selection',
+          'settings.shortcuts.row.extract_text_from_screen_capture' =>
+            'Extract text from screen capture',
+          'settings.shortcuts.row.extract_text_from_clipboard' =>
+            'Extract text from clipboard',
+          'settings.shortcuts.reset_dialog.title' => 'Reset Shortcuts',
+          'settings.shortcuts.reset_dialog.message' =>
+            'Reset all shortcuts to their defaults? Any bindings you changed will be overwritten.',
+          'settings.shortcuts.reset_dialog.confirm' => 'Reset',
+          'settings.shortcuts.reset_dialog.cancel' => 'Cancel',
+          'settings.shortcuts.group.global.title' => 'Global Shortcuts',
+          'settings.shortcuts.group.global.description' => 'Work in any app.',
+          'settings.shortcuts.group.in_app.title' => 'In-App Keys',
+          'settings.shortcuts.group.in_app.description' =>
+            'Only apply inside this app’s own text fields.',
+          'settings.shortcuts.reset' => 'Restore Defaults...',
+          'settings.shortcuts.record_placeholder' => 'Record shortcut',
+          'settings.shortcuts.recording' => 'Press keys…',
+          'settings.shortcuts.clear' => 'Clear',
+          'settings.shortcuts.conflict' => ({required Object label}) =>
+              'Conflicts with “${label}”',
+          'settings.advanced.title' => 'Advanced',
+          'settings.advanced.api_server' => 'Local API server',
+          'settings.advanced.api_server_description' =>
+            'Expose the translation API on 127.0.0.1 for local integrations.',
+          'settings.advanced.enable' => 'Enable',
+          'settings.advanced.port' => 'Port',
+          'settings.advanced.running_at' => 'Running at {url}',
+          'settings.advanced.disabled' => 'Disabled',
+          'settings.services.title' => 'Services',
+          'settings.services.button.add_service' => 'Add Service...',
+          'settings.services.section.available_services' =>
+            'Available Services',
+          'settings.services.editor.title' => 'Add Service',
+          'settings.services.editor.subtitle' =>
+            'Add one more service to a configured provider',
+          'settings.services.editor.row.model' => 'Model',
+          'settings.services.editor.row.system_prompt' => 'System Prompt',
+          'settings.services.editor.prompt_placeholder' =>
+            'Leave blank to use the default prompt for this kind',
+          'settings.services.editor.variant_hint' =>
+            '{} already has a {} service; this one is added alongside it as a second configuration.',
+          'settings.services.editor.traditional_note' =>
+            '{} is a traditional endpoint — no model or prompt to tune. Its parameters live on the provider\'s detail page.',
+          'settings.services.detail.row.id' => 'Service ID',
+          'settings.services.detail.row.name' => 'Name',
+          'settings.services.detail.row.provider' => 'Provider',
+          'settings.services.detail.row.type' => 'Type',
+          'settings.services.detail.delete_dialog.title' => 'Delete "{}"?',
+          'settings.services.detail.delete_dialog.message' =>
+            'This service will be removed from the provider.',
+          'settings.services.detail.prompt_variables' =>
+            'Available variables: {{sourceLanguage}}, {{targetLanguage}}, {{text}}',
+          'settings.services.make_default' => 'Make Default',
+          'settings.services.item.none_of_kind' =>
+            'No {} service available yet.',
+          'settings.services.go_to_providers' => 'Go to Providers',
+          'settings.services.go_to_providers_hint' =>
+            'Services come from providers — set one up on the Providers page first.',
+          'settings.services.capability.translation' => 'Translation',
+          'settings.services.capability.dictionary' => 'Dictionary',
+          'settings.services.capability.ocr' => 'Text Recognition',
+          'settings.services.permissions_missing.title' =>
+            'System permissions not granted',
+          'settings.services.permissions_missing.hint' =>
+            'Screenshot and selection capture need screen recording and accessibility access.',
+          'settings.services.permissions_missing.open_general' =>
+            'Open General',
+          'settings.providers.title' => 'Providers',
+          'settings.providers.section.services' => 'Available Services',
+          'settings.providers.section.services_description' =>
+            'View available services from configured providers and switch between service types.',
+          'settings.providers.section.count' => 'Providers · {}',
+          'settings.providers.item.loading' => 'Loading providers...',
+          'settings.providers.button.add' => 'Add a Provider...',
+          'settings.providers.alert.error' => 'Error',
+          'settings.providers.intro.body' =>
+            'Manage the service providers used by the app.',
+          'settings.providers.intro.warning' =>
+            'Connected providers may process the text or images you send. Only enable services you trust.',
+          'settings.providers.editor.row.id' => 'Provider ID',
+          'settings.providers.editor.row.type' => 'Provider Type',
+          'settings.providers.editor.row.default_model' => 'Default Model',
+          'settings.providers.editor.placeholder.id' => 'e.g. deepl-main',
+          'settings.providers.editor.type_picker.prompt' =>
+            'Select the type of provider you would like to add:',
+          'settings.providers.editor.type_picker.section_llm' => 'LLM',
+          'settings.providers.editor.type_picker.section_traditional' =>
+            'Traditional',
+          'settings.providers.editor.tooltip.help' => 'Help',
+          'settings.providers.editor.step.next' => 'Continue',
+          'settings.providers.editor.step.back' => 'Back',
+          'settings.providers.editor.add_title' => 'Add {}',
+          'settings.providers.editor.capability_note.translation' =>
+            'Joins the translation candidates',
+          'settings.providers.editor.capability_note.dictionary' =>
+            'Provides dictionary definitions',
+          'settings.providers.editor.capability_note.ocr' =>
+            'Recognises text in images',
+          'settings.providers.editor.test.run' => 'Test Connection',
+          'settings.providers.editor.test.running' =>
+            'Testing connection · {}s elapsed',
+          'settings.providers.editor.test.passed_models' =>
+            'Connection OK · {} models available',
+          'settings.providers.editor.test.passed_service' =>
+            'Connection OK · service available',
+          'settings.providers.editor.test.passed_footer' =>
+            'Connection test passed',
+          'settings.providers.editor.test.retest' => 'Test Again',
+          'settings.providers.editor.test.tips_title' => 'Things to try',
+          'settings.providers.editor.test.tips_llm' =>
+            '· Check the key matches the provider type you picked\n· Check whether the Base URL needs /v1\n· Confirm the model is enabled in the provider console',
+          'settings.providers.editor.test.tips_traditional' =>
+            '· Check the credentials match the provider type you picked\n· Confirm the service is enabled in the provider console',
+          'settings.providers.editor.test.failed_suffix' =>
+            'verification failed',
+          'settings.providers.editor.test.passed_suffix' => 'verified',
+          'settings.providers.detail.tooltip.edit' => 'Edit provider',
+          'settings.providers.detail.section.configuration' => 'Configuration',
+          'settings.providers.detail.section.models' => 'Models',
+          'settings.providers.detail.section.services' =>
+            'Services from This Provider',
+          'settings.providers.detail.models.loading' => 'Loading models...',
+          'settings.providers.detail.models.empty' => 'No models found.',
+          'settings.providers.detail.models.retry' => 'Retry',
+          'settings.providers.detail.models.refresh' => 'Refresh List',
+          'settings.providers.detail.models.default_badge' => 'Default',
+          'settings.providers.detail.models.set_default' => 'Set as Default',
+          'settings.providers.detail.models.fetching' =>
+            'Asking the endpoint for its model list…',
+          'settings.providers.detail.models.fetch_failed_title' =>
+            'Couldn\'t fetch models',
+          'settings.providers.detail.models.fetch_failed_body' =>
+            'The endpoint didn\'t respond, or it doesn\'t accept this key. Once the address and key are right, you can try again.',
+          'settings.providers.detail.models.empty_answer' =>
+            'The endpoint answered but listed no models — typing a model name by hand works too.',
+          'settings.providers.detail.models.test_draft' => 'Test New Settings',
+          'settings.providers.detail.models.draft_note' =>
+            'These models were fetched with unsaved values — they count once you press Save.',
+          'settings.providers.detail.models.locked' =>
+            'Enter a key and save, and Refresh List fetches the models this provider offers.',
+          'settings.providers.detail.models.manual_placeholder' =>
+            'Enter a model name',
+          'settings.providers.detail.button.saving' => 'Saving',
+          'settings.providers.detail.button.add_service' => 'Add Service...',
+          'settings.providers.detail.button.clear_key' => 'Clear Key',
+          'settings.providers.detail.receipt.problems_title' =>
+            'This configuration can\'t be saved yet',
+          'settings.providers.detail.receipt.saved_title' => 'Saved',
+          'settings.providers.detail.receipt.saved_body' =>
+            'This provider\'s configuration has been written.',
+          'settings.providers.detail.receipt.save_failed_title' =>
+            'Couldn\'t save',
+          'settings.providers.detail.receipt.delete_failed_title' =>
+            'Couldn\'t delete',
+          'settings.providers.detail.receipt.add_service_failed_title' =>
+            'Couldn\'t add the service',
+          'settings.providers.detail.receipt.saved_rejected_title' =>
+            'Saved, but the endpoint didn’t accept it',
+          'settings.providers.detail.receipt.saved_rejected_body' =>
+            'The configuration was written, but fetching the model list with it failed — try another key and save again.',
+          'settings.providers.detail.receipt.saved_verifying' =>
+            'Saved. Checking the connection…',
+          'settings.providers.detail.problem.item' => '{}: {}',
+          'settings.providers.detail.problem.separator' => '; ',
+          'settings.providers.detail.problem.required' => 'Required',
+          'settings.providers.detail.problem.url_scheme' =>
+            'Must start with http:// or https://',
+          'settings.providers.detail.problem.url_protocol' =>
+            'Only http:// and https:// are accepted',
+          'settings.providers.detail.problem.url_host' => 'Missing a host name',
+          'settings.providers.detail.problem.no_model' =>
+            'No model yet — fetch the list first, or enter a model name.',
+          'settings.providers.detail.field.fallback_hint' =>
+            'Leave blank to use {}',
+          'settings.providers.detail.field.show_secret' => 'Show {}',
+          'settings.providers.detail.field.hide_secret' => 'Hide {}',
+          'settings.providers.detail.field.secret_stored' =>
+            'Saved · Leave blank to keep',
+          'settings.providers.detail.field.secret_empty' => 'Enter key',
+          'settings.providers.detail.no_fields' =>
+            'Nothing to fill in — it works as soon as it is installed; the lines above are only a description.',
+          'settings.providers.detail.services_empty' => 'No services yet',
+          'settings.providers.detail.services_locked' =>
+            'Enter a key and save to add services from this provider.',
+          'settings.providers.capability.translation' => 'Translation',
+          'settings.providers.capability.dictionary' => 'Dictionary',
+          'settings.providers.capability.ocr' => 'OCR',
+          'settings.providers.capability.llm' => 'AI',
+          'settings.providers.description.all' =>
+            'Provides dictionary lookup and text translation',
+          'settings.providers.description.dictionary' =>
+            'Provides dictionary lookup and word definitions',
+          'settings.providers.description.translation' =>
+            'Provides text translation between languages',
+          'settings.providers.description.fallback' =>
+            'Provides translation services',
+          'settings.providers.need.anthropic' => 'Needs an API key',
+          'settings.providers.need.openai' => 'Needs an API key',
+          'settings.providers.need.gemini' => 'Needs an API key',
+          'settings.providers.need.deepseek' => 'Needs an API key',
+          'settings.providers.need.qwen' => 'Needs a Model Studio API key',
+          'settings.providers.need.moonshot' => 'Needs a Moonshot API key',
+          'settings.providers.need.doubao' => 'Needs a Volcano Ark API key',
+          _ => null,
+        } ??
+        switch (path) {
+          'settings.providers.need.zhipu' =>
+            'Needs a Zhipu Open Platform API key',
+          'settings.providers.need.xai' => 'Needs an xAI API key',
+          'settings.providers.need.groq' => 'Needs a Groq API key',
+          'settings.providers.need.ollama' => 'Runs on this Mac · No API key',
+          'settings.providers.need.openai_compatible' =>
+            'Self-hosted or aggregator endpoint · Bring your own Base URL',
+          'settings.providers.status.unconfigured' => 'Not set up',
+          'settings.providers.status.unverified' => 'Unverified',
+          'settings.providers.status.invalid' => 'Needs attention',
+          'settings.providers.meta.key_valid' => 'Key valid',
+          'settings.providers.meta.reachable' => 'Connected',
+          'settings.providers.meta.invalid' => 'Key rejected · Needs attention',
+          'settings.providers.search.button' => 'Search',
+          'settings.providers.search.placeholder' =>
+            'Search provider name or id',
+          'settings.providers.search.label' => 'Search providers',
+          'settings.providers.search.clear' => 'Clear Search',
+          'settings.providers.search.no_match_title' => 'No matching providers',
+          'settings.providers.search.no_match_body' =>
+            'Nothing found for “{}”.',
+          'settings.providers.discard_dialog.title' =>
+            'Discard unsaved changes?',
+          'settings.providers.discard_dialog.message' =>
+            'What you entered on this page hasn’t been saved and will be lost if you leave.',
+          'settings.providers.discard_dialog.confirm' => 'Discard',
+          'settings.providers.discard_dialog.cancel' => 'Keep Editing',
+          'settings.providers.clear_dialog.title' => 'Clear Key',
+          'settings.providers.clear_dialog.message' =>
+            '{} goes back to “Not set up”, and the services it provides are removed with it. The key you entered is cleared.',
+          'settings.providers.clear_dialog.confirm' => 'Clear',
+          'settings.layout.title' => 'Settings',
+          'settings.layout.empty.title' => 'Select a Category',
+          'settings.layout.empty.message' =>
+            'Choose a settings section from the sidebar.',
+          'settings.layout.groups' => 'Groups',
+          'settings.layout.footer_note' =>
+            'Translations and keys stay on this Mac',
+          'settings.layout.support' => 'Support',
+          'settings.about.title' => 'About',
+          'settings.about.copy_version_info' => 'Copy Version Info',
+          'settings.about.up_to_date' => 'You\'re up to date',
+          'settings.about.links' => 'Links',
+          'settings.about.website' => 'Website',
+          'settings.about.help_center' => 'Help Center',
+          'settings.about.open_changelog' => 'Changelog',
+          'settings.about.update' => 'Update',
+          'settings.about.software_update' => 'Software Update',
+          _ => null,
+        };
   }
 }

@@ -416,8 +416,8 @@ class _ShortcutRecorderState extends State<ShortcutRecorder> {
                 semanticsLabel: widget.clearLabel,
                 borderRadius: BorderRadius.circular(vars.radiusFull),
                 builder: (context, states) => Icon(
-                  FluentIcons.dismiss_circle_20_filled,
-                  size: 14,
+                  FluentIcons.dismiss_circle_12_filled,
+                  size: 12,
                   color: states.contains(WidgetState.hovered)
                       ? vars.colorContentSubtle
                       : vars.colorContentFaint,

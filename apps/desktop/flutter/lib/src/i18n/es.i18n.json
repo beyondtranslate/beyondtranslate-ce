@@ -303,7 +303,7 @@
     "check_updates": "Buscar actualizaciones"
   },
   "settings": {
-    "version": "v{} (Build {})",
+    "version": "{} (Build {})",
     "general": {
       "title": "General",
       "section": {
@@ -408,7 +408,7 @@
       },
       "reset_dialog": {
         "title": "Restablecer atajos",
-        "message": "¿Estás seguro de que deseas restablecer todos los atajos a sus valores predeterminados?",
+        "message": "¿Restablecer todos los atajos a sus valores predeterminados? Se sobrescribirán los que hayas cambiado.",
         "confirm": "Restablecer",
         "cancel": "Cancelar"
       },
@@ -468,18 +468,29 @@
       "make_default": "Establecer como predeterminado",
       "item": {
         "none_of_kind": "Aún no hay servicios de {} disponibles."
+      },
+      "go_to_providers": "Ir a Proveedores",
+      "go_to_providers_hint": "Los servicios salen de los proveedores: configura uno primero en la página Proveedores.",
+      "capability": {
+        "translation": "Traducción",
+        "dictionary": "Diccionario",
+        "ocr": "Reconocimiento de texto"
+      },
+      "permissions_missing": {
+        "title": "Permisos del sistema no concedidos",
+        "hint": "La captura de pantalla y de selección necesitan permisos de grabación de pantalla y accesibilidad.",
+        "open_general": "Abrir General"
       }
     },
     "providers": {
       "title": "Proveedores",
       "section": {
         "services": "Servicios disponibles",
-        "services_description": "Consulta los servicios disponibles de los proveedores configurados y cambia entre tipos de servicio."
+        "services_description": "Consulta los servicios disponibles de los proveedores configurados y cambia entre tipos de servicio.",
+        "count": "Proveedores · {}"
       },
       "item": {
-        "empty": "No hay proveedores configurados. Agrega uno para habilitar los servicios de traducción.",
-        "loading": "Cargando proveedores...",
-        "no_services": "No hay servicios disponibles."
+        "loading": "Cargando proveedores..."
       },
       "button": {
         "add": "Agregar un proveedor..."
@@ -536,12 +547,10 @@
         "tooltip": {
           "edit": "Editar proveedor"
         },
-        "row": {
-          "id_hint": "No se puede cambiar después de crearlo"
-        },
         "section": {
           "configuration": "Configuración",
-          "models": "Modelos"
+          "models": "Modelos",
+          "services": "Servicios derivados de este proveedor"
         },
         "models": {
           "loading": "Cargando modelos...",
@@ -550,8 +559,50 @@
           "refresh": "Actualizar lista",
           "default_badge": "Predeterminado",
           "set_default": "Establecer como predeterminado",
-          "fetch_error": "No se pudieron obtener los modelos de la API del proveedor."
-        }
+          "fetching": "Pidiendo la lista de modelos al endpoint…",
+          "fetch_failed_title": "No se pudieron obtener los modelos",
+          "fetch_failed_body": "El endpoint no respondió o no acepta esta clave. Cuando la dirección y la clave sean correctas, puedes volver a intentarlo.",
+          "empty_answer": "El endpoint respondió, pero no devolvió ningún modelo; también puedes escribir el nombre de un modelo a mano.",
+          "test_draft": "Probar la nueva configuración",
+          "draft_note": "Estos modelos se obtuvieron con valores sin guardar; cuentan cuando pulses Guardar.",
+          "locked": "Introduce una clave y guarda; Actualizar lista obtendrá los modelos de este proveedor.",
+          "manual_placeholder": "Escribe un nombre de modelo"
+        },
+        "button": {
+          "saving": "Guardando",
+          "add_service": "Agregar servicio...",
+          "clear_key": "Borrar clave"
+        },
+        "receipt": {
+          "problems_title": "Esta configuración aún no se puede guardar",
+          "saved_title": "Guardado",
+          "saved_body": "La configuración de este proveedor se ha guardado.",
+          "save_failed_title": "No se pudo guardar",
+          "delete_failed_title": "No se pudo eliminar",
+          "add_service_failed_title": "No se pudo agregar el servicio",
+          "saved_rejected_title": "Guardado, pero el endpoint no lo aceptó",
+          "saved_rejected_body": "La configuración se guardó, pero no se pudo obtener la lista de modelos con ella: prueba otra clave y guarda de nuevo.",
+          "saved_verifying": "Guardado. Comprobando la conexión…"
+        },
+        "problem": {
+          "item": "{}: {}",
+          "separator": "; ",
+          "required": "Obligatorio",
+          "url_scheme": "Debe empezar por http:// o https://",
+          "url_protocol": "Solo se aceptan http:// y https://",
+          "url_host": "Falta el nombre de host",
+          "no_model": "Aún no hay modelo: obtén la lista primero o escribe un nombre de modelo."
+        },
+        "field": {
+          "fallback_hint": "Déjalo en blanco para usar {}",
+          "show_secret": "Mostrar {}",
+          "hide_secret": "Ocultar {}",
+          "secret_stored": "Guardada · Déjala vacía para conservarla",
+          "secret_empty": "Introduce la clave"
+        },
+        "no_fields": "No hay nada que rellenar: funciona en cuanto se instala; las líneas de arriba son solo una descripción.",
+        "services_empty": "Aún no hay servicios",
+        "services_locked": "Introduce una clave y guarda para añadir servicios de este proveedor."
       },
       "capability": {
         "translation": "Traducción",
@@ -565,9 +616,48 @@
         "translation": "Proporciona traducción de texto entre idiomas",
         "fallback": "Proporciona servicios de traducción"
       },
-      "delete_dialog": {
-        "title": "¿Eliminar \"{}\"?",
-        "message": "Esta acción no se puede deshacer."
+      "need": {
+        "anthropic": "Necesita una clave de API",
+        "openai": "Necesita una clave de API",
+        "gemini": "Necesita una clave de API",
+        "deepseek": "Necesita una clave de API",
+        "qwen": "Necesita una clave de API de Model Studio",
+        "moonshot": "Necesita una clave de API de Moonshot",
+        "doubao": "Necesita una clave de API de Volcano Ark",
+        "zhipu": "Necesita una clave de API de Zhipu Open Platform",
+        "xai": "Necesita una clave de API de xAI",
+        "groq": "Necesita una clave de API de Groq",
+        "ollama": "Se ejecuta en este equipo · Sin clave de API",
+        "openai_compatible": "Endpoint propio o agregador · Indica tu Base URL"
+      },
+      "status": {
+        "unconfigured": "Sin configurar",
+        "unverified": "Sin verificar",
+        "invalid": "Requiere revisión"
+      },
+      "meta": {
+        "key_valid": "Clave válida",
+        "reachable": "Conectado",
+        "invalid": "Clave rechazada · Requiere revisión"
+      },
+      "search": {
+        "button": "Buscar",
+        "placeholder": "Buscar nombre o id del proveedor",
+        "label": "Buscar proveedores",
+        "clear": "Borrar búsqueda",
+        "no_match_title": "No hay proveedores que coincidan",
+        "no_match_body": "No se encontró «{}»."
+      },
+      "discard_dialog": {
+        "title": "¿Descartar los cambios sin guardar?",
+        "message": "Lo que escribiste en esta página no se ha guardado y se perderá si sales.",
+        "confirm": "Descartar",
+        "cancel": "Seguir editando"
+      },
+      "clear_dialog": {
+        "title": "Borrar clave",
+        "message": "{} vuelve a «Sin configurar» y los servicios que ofrece se eliminan con él. La clave introducida se borra.",
+        "confirm": "Borrar"
       }
     },
     "layout": {
@@ -583,13 +673,13 @@
     "about": {
       "title": "Acerca de",
       "copy_version_info": "Copiar información de versión",
-      "up_to_date": "Está actualizado.",
-      "check_again": "Verificar de nuevo",
+      "up_to_date": "Estás al día",
       "links": "Enlaces",
       "website": "Sitio web",
       "help_center": "Centro de ayuda",
       "open_changelog": "Registro de cambios",
-      "update": "Actualización"
+      "update": "Actualización",
+      "software_update": "Actualización de software"
     }
   }
 }
