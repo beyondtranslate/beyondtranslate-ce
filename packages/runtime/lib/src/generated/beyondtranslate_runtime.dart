@@ -5751,6 +5751,11 @@ abstract class RuntimeSettingsInterface {
     required String serviceId,
   });
   Future<ShortcutSettings> getShortcuts();
+  Future<List<String>> listDraftModels({
+    required String providerId,
+    required String providerType,
+    required Map<String, String> fields,
+  });
   Future<List<String>> listModels({
     required String providerId,
   });
@@ -5999,6 +6004,27 @@ class RuntimeSettings implements RuntimeSettingsInterface {
       ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
       ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
       FfiConverterShortcutSettings.lift,
+      runtimeExceptionErrorHandler,
+    );
+  }
+
+  Future<List<String>> listDraftModels({
+    required String providerId,
+    required String providerType,
+    required Map<String, String> fields,
+  }) {
+    return uniffiRustCallAsync(
+      () =>
+          uniffi_beyondtranslate_runtime_fn_method_runtimesettings_list_draft_models(
+        uniffiClonePointer(),
+        FfiConverterString.lower(providerId),
+        FfiConverterString.lower(providerType),
+        FfiConverterMapStringToString.lower(fields),
+      ),
+      ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
+      ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
+      ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
+      FfiConverterSequenceString.lift,
       runtimeExceptionErrorHandler,
     );
   }
@@ -10168,6 +10194,16 @@ external Pointer<Void>
     uniffi_beyondtranslate_runtime_fn_method_runtimesettings_get_shortcuts(
         Pointer<Void> ptr);
 
+@Native<
+    Pointer<Void> Function(Pointer<Void>, RustBuffer, RustBuffer,
+        RustBuffer)>(assetId: _uniffiAssetId)
+external Pointer<Void>
+    uniffi_beyondtranslate_runtime_fn_method_runtimesettings_list_draft_models(
+        Pointer<Void> ptr,
+        RustBuffer provider_id,
+        RustBuffer provider_type,
+        RustBuffer fields);
+
 @Native<Pointer<Void> Function(Pointer<Void>, RustBuffer)>(
     assetId: _uniffiAssetId)
 external Pointer<Void>
@@ -11034,6 +11070,10 @@ external int
 
 @Native<Uint16 Function()>(assetId: _uniffiAssetId)
 external int
+    uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_list_draft_models();
+
+@Native<Uint16 Function()>(assetId: _uniffiAssetId)
+external int
     uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_list_models();
 
 @Native<Uint16 Function()>(assetId: _uniffiAssetId)
@@ -11427,6 +11467,10 @@ void _checkApiChecksums() {
   }
   if (uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_get_shortcuts() !=
       44721) {
+    throw UniffiInternalError.panicked("UniFFI API checksum mismatch");
+  }
+  if (uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_list_draft_models() !=
+      5337) {
     throw UniffiInternalError.panicked("UniFFI API checksum mismatch");
   }
   if (uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_list_models() !=

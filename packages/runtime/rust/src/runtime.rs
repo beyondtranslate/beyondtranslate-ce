@@ -1106,6 +1106,65 @@ impl RuntimeSettings {
         .map_err(|e: String| RuntimeError::from(e))
     }
 
+    /// Lists models for an unsaved provider configuration, so a settings form
+    /// can test its edits before committing them. The draft is layered over a
+    /// clone of the current settings; nothing is persisted or broadcast.
+    pub async fn list_draft_models(
+        &self,
+        provider_id: String,
+        provider_type: String,
+        fields: HashMap<String, String>,
+    ) -> Result<Vec<String>, RuntimeError> {
+        let provider_id = validate_provider_id(provider_id).map_err(RuntimeError::from)?;
+        let provider_type =
+            validate_required("provider_type", provider_type).map_err(RuntimeError::from)?;
+        let provider_type = crate::domain::settings::parse_provider_type(&provider_type)
+            .map_err(RuntimeError::from)?;
+        if is_builtin_provider(&provider_id) || provider_type == ProviderType::System {
+            return Err(RuntimeError::from(builtin_provider_error()));
+        }
+        let mut fields = fields;
+        // LLM providers refuse to build without a default model, but testing a
+        // draft is how the form finds a model to pick in the first place.
+        // Listing models never reads it, so a placeholder lets the build pass.
+        if is_llm_provider_type(provider_type) {
+            let blank = |key: &str| {
+                fields
+                    .get(key)
+                    .map_or(true, |value| value.trim().is_empty())
+            };
+            if blank("defaultModel") && blank("default_model") {
+                // Both spellings decode into one field; keep only one.
+                fields.remove("default_model");
+                fields.insert("defaultModel".to_owned(), DRAFT_DEFAULT_MODEL.to_owned());
+            }
+        }
+        let entry = ProviderConfigEntry {
+            id: provider_id.clone(),
+            r#type: provider_type,
+            fields,
+            created_at: None,
+        };
+        let config = crate::domain::settings::provider_config_from_settings(&entry)
+            .map_err(RuntimeError::from)?;
+        let entry =
+            provider_entry_from_config(&provider_id, &config).map_err(RuntimeError::from)?;
+
+        let mut draft_settings = self.runtime.inner.state.read().await.settings.clone();
+        draft_settings.providers.insert(provider_id.clone(), entry);
+
+        run_on_worker_thread(move || async move {
+            let engine = engine::build_from_settings(&draft_settings)?;
+            let provider = engine
+                .require(&provider_id)
+                .map_err(|e| e.to_string())?
+                .clone();
+            provider.list_models().await.map_err(|e| e.to_string())
+        })
+        .await
+        .map_err(|e: String| RuntimeError::from(e))
+    }
+
     pub async fn get_service(
         &self,
         service_id: String,
@@ -2501,6 +2560,28 @@ fn validate_provider_id(provider_id: String) -> Result<String, String> {
     validate_required("provider_id", provider_id)
 }
 
+/// Stand-in `defaultModel` for a draft LLM provider whose form has none yet.
+const DRAFT_DEFAULT_MODEL: &str = "draft";
+
+/// Provider types whose constructors require a `defaultModel`.
+fn is_llm_provider_type(provider_type: ProviderType) -> bool {
+    matches!(
+        provider_type,
+        ProviderType::Anthropic
+            | ProviderType::OpenAi
+            | ProviderType::Ollama
+            | ProviderType::XAi
+            | ProviderType::DeepSeek
+            | ProviderType::Qwen
+            | ProviderType::Zhipu
+            | ProviderType::Moonshot
+            | ProviderType::Doubao
+            | ProviderType::Groq
+            | ProviderType::Gemini
+            | ProviderType::OpenAiCompatible
+    )
+}
+
 fn validate_service_provider_id(provider_id: String, suffix: &str) -> Result<String, String> {
     let provider_id = validate_provider_id(provider_id)?;
     // Try to strip the expected suffix first. If that doesn't match, also try
@@ -3392,6 +3473,50 @@ mod tests {
                 .expect("failed to get service")
                 .expect("builtin ocr service exists");
             assert_eq!(service.r#type, ServiceType::Ocr);
+        });
+    }
+
+    #[test]
+    fn list_draft_models_does_not_commit_the_draft() {
+        let runtime = create_runtime();
+        block_on(async {
+            let settings = runtime.clone().settings();
+            let mut events = runtime.inner.events.subscribe();
+
+            // Port 1 refuses connections, so this fails at the request, and a
+            // blank defaultModel must not fail config validation first.
+            let error = settings
+                .list_draft_models(
+                    "ollama".to_owned(),
+                    "ollama".to_owned(),
+                    HashMap::from([
+                        ("baseUrl".to_owned(), "http://127.0.0.1:1".to_owned()),
+                        ("defaultModel".to_owned(), " ".to_owned()),
+                    ]),
+                )
+                .await
+                .expect_err("unreachable endpoint should fail");
+            assert!(
+                !error.to_string().contains("default_model"),
+                "unexpected config error: {error}"
+            );
+
+            assert!(settings
+                .list_draft_models("system".to_owned(), "system".to_owned(), HashMap::new())
+                .await
+                .is_err());
+
+            let providers = settings
+                .list_providers()
+                .await
+                .expect("failed to list providers");
+            assert!(providers.iter().all(|provider| provider.id != "ollama"));
+            assert!(settings
+                .get_provider("ollama".to_owned())
+                .await
+                .expect("failed to get provider")
+                .is_none());
+            assert!(events.try_recv().is_err());
         });
     }
 

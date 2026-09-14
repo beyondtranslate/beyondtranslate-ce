@@ -2200,6 +2200,14 @@ public protocol RuntimeSettingsProtocol: AnyObject, Sendable {
 
   func getShortcuts() async throws -> ShortcutSettings
 
+  /**
+   * Lists models for an unsaved provider configuration, so a settings form
+   * can test its edits before committing them. The draft is layered over a
+   * clone of the current settings; nothing is persisted or broadcast.
+   */
+  func listDraftModels(providerId: String, providerType: String, fields: [String: String])
+    async throws -> [String]
+
   func listModels(providerId: String) async throws -> [String]
 
   func listProviders() async throws -> [ProviderConfigEntry]
@@ -2484,6 +2492,31 @@ open class RuntimeSettings: RuntimeSettingsProtocol, @unchecked Sendable {
         completeFunc: ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
         freeFunc: ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
         liftFunc: FfiConverterTypeShortcutSettings_lift,
+        errorHandler: FfiConverterTypeRuntimeError_lift
+      )
+  }
+
+  /**
+   * Lists models for an unsaved provider configuration, so a settings form
+   * can test its edits before committing them. The draft is layered over a
+   * clone of the current settings; nothing is persisted or broadcast.
+   */
+  open func listDraftModels(providerId: String, providerType: String, fields: [String: String])
+    async throws -> [String]
+  {
+    return
+      try await uniffiRustCallAsync(
+        rustFutureFunc: {
+          uniffi_beyondtranslate_runtime_fn_method_runtimesettings_list_draft_models(
+            self.uniffiCloneHandle(),
+            FfiConverterString.lower(providerId), FfiConverterString.lower(providerType),
+            FfiConverterDictionaryStringString.lower(fields)
+          )
+        },
+        pollFunc: ffi_beyondtranslate_runtime_rust_future_poll_rust_buffer,
+        completeFunc: ffi_beyondtranslate_runtime_rust_future_complete_rust_buffer,
+        freeFunc: ffi_beyondtranslate_runtime_rust_future_free_rust_buffer,
+        liftFunc: FfiConverterSequenceString.lift,
         errorHandler: FfiConverterTypeRuntimeError_lift
       )
   }
@@ -9028,6 +9061,9 @@ private let initializationResult: InitializationResult = {
     return InitializationResult.apiChecksumMismatch
   }
   if uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_get_shortcuts() != 44721 {
+    return InitializationResult.apiChecksumMismatch
+  }
+  if uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_list_draft_models() != 5337 {
     return InitializationResult.apiChecksumMismatch
   }
   if uniffi_beyondtranslate_runtime_checksum_method_runtimesettings_list_models() != 22292 {
