@@ -1,19 +1,24 @@
 import 'package:flutter/widgets.dart';
 
 import 'app_tooltip.dart' show AppTooltip;
-import 'ui.dart' show IconButton, ThemeDataBuildContextProps, Toggle;
+import 'ui.dart'
+    show
+        IconButton,
+        IconButtonTint,
+        IconButtonVariant,
+        ThemeDataBuildContextProps;
 
 /// The design system's 24pt flat toolbar affordance, taking an [IconData]
 /// instead of a widget, wearing a hover label, and adding the optional
 /// rotation the mini translator's pin needs.
 ///
-/// Everything visual — geometry, hover wash, held read, disabled dimming —
-/// comes from the package, so this stays a convenience adapter rather than a
-/// second implementation. Which of the package's two it adapts is [selected]'s
-/// doing, and it is settled when the button is built rather than as it is
-/// used: a glyph that never latches is an [IconButton], whose quiet chrome is
-/// what a toolbar row reads as, and one that does is a [Toggle], which is
-/// where the kit keeps the held state that `IconButton.active` used to carry.
+/// Everything visual — geometry, hover wash, disabled dimming — comes from the
+/// package's [IconButton], so this stays a convenience adapter rather than a
+/// second implementation. A glyph that latches stays that same button: held on,
+/// only its tint turns to the accent. A row of these has to read as chrome
+/// until touched, and the kit's `Toggle` draws its held state as a tinted chip
+/// — a filled box in the titlebar for a state as ordinary as "pinned". React's
+/// product `IconButton` settled on the accent glyph for the same reason.
 class IconActionButton extends StatelessWidget {
   const IconActionButton({
     super.key,
@@ -30,8 +35,8 @@ class IconActionButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   /// Null for a button with no held state at all — not `false`, which would
-  /// say it has one and is currently off, and would draw a toggle's resting
-  /// face instead of a toolbar glyph's.
+  /// say it has one and is currently off, and would announce a toggle to
+  /// assistive tech where there is only a verb.
   final bool? selected;
 
   /// The deck sizes the glyph per call site: 18 in the mini-window toolbar,
@@ -46,27 +51,33 @@ class IconActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // The kit's icon slot is the glyph itself, so the turn is applied to the
     // button rather than to a widget handed in as its icon.
-    final Widget glyph = Icon(icon, size: iconSize);
-    final Widget button = AnimatedRotation(
+    Widget button = AnimatedRotation(
       turns: iconTurns,
       duration: context.vars.motionDuration,
-      child: selected == null
-          ? IconButton(
-              semanticsLabel: tooltip ?? '',
-              iconSize: iconSize,
-              onPressed: onPressed,
-              icon: glyph,
-            )
-          : Toggle(
-              semanticsLabel: tooltip ?? '',
-              // Driven from outside: what the pin is pressed against is the
-              // window's own always-on-top, not a bit the button keeps.
-              pressed: selected,
-              enabled: onPressed != null,
-              onPressedChanged: onPressed == null ? null : (_) => onPressed!(),
-              child: glyph,
-            ),
+      child: IconButton(
+        semanticsLabel: tooltip ?? '',
+        iconSize: iconSize,
+        // Plain either way, so the ground stays transparent. Neutral is the
+        // kit's quiet toolbar chrome; primary leaves the recipes to ink the
+        // glyph in the accent. Driven from outside: what the pin is pressed
+        // against is the window's own always-on-top, not a bit the button
+        // keeps.
+        variant: IconButtonVariant.plain,
+        tint:
+            selected == true ? IconButtonTint.primary : IconButtonTint.neutral,
+        onPressed: onPressed,
+        icon: Icon(icon, size: iconSize),
+      ),
     );
+
+    // The colour alone cannot say the button is held, so the state is
+    // announced as well. Merged, so it lands on the button's own node rather
+    // than on whichever ancestor a loose annotation would fold into.
+    if (selected != null) {
+      button = MergeSemantics(
+        child: Semantics(toggled: selected, child: button),
+      );
+    }
 
     if (tooltip == null) return button;
     return AppTooltip(message: tooltip!, child: button);

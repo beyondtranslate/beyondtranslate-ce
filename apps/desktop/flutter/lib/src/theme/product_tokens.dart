@@ -149,6 +149,37 @@ extension ProductPalette on ThemeVariables {
 
   Color get accentTextStrong => colorPrimary[_ink.hoveredShade!]!;
 
+  /// The current row's fill while its window is not key — AppKit's
+  /// *unemphasized* selection. The key window's row fills with [accent]; see
+  /// `WindowFocus` for where the two are swapped. The ink on it is
+  /// `colorContent`.
+  ///
+  /// The palettes do not share a rule, so each takes the value the React
+  /// themes give `--selection-unemphasized`. The Studio pair draws a fixed
+  /// neutral — a cool ink at 9% on the light paper, white at 13% on the dark
+  /// one — and the Bright pair washes its own ink, 10% light and 13% dark:
+  /// denser than a hover, so a blurred window still says which row is current,
+  /// and hueless, so it stops competing with the window that is key. The
+  /// other four families leave it to the kit and take its subtle surface.
+  ///
+  /// The family is read off the accent ramp, the same signal [_marksInAccent]
+  /// reads — Studio accents in `brand` and the Bright pair in `ink` / `acid`,
+  /// ramps no other family uses — and the brightness off which of the paper
+  /// and the ink is the lighter.
+  Color get selectionUnemphasized {
+    final bool dark =
+        colorContent.computeLuminance() > colorSurface.computeLuminance();
+    if (colorPrimary == Colors.brand) {
+      return dark
+          ? const Color.fromRGBO(255, 255, 255, 0.13)
+          : const Color.fromRGBO(20, 22, 40, 0.09);
+    }
+    if (colorPrimary == Colors.ink || colorPrimary == Colors.acid) {
+      return colorContent.withValues(alpha: dark ? 0.13 : 0.10);
+    }
+    return colorSurfaceSubtle;
+  }
+
   /// A tint laid over the theme's paper — opaque, not a wash.
   ///
   /// The kit washes its own tinted surfaces and lets whatever is behind them

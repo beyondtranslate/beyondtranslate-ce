@@ -1,6 +1,5 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/services.dart'
-    show Clipboard, ClipboardData, LogicalKeyboardKey;
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -31,7 +30,12 @@ import '../../widgets/ui.dart'
         ToastTint,
         WidgetSize;
 import '../../widgets/window_chrome.dart' show WindowFooter;
-import '../../widgets/workbench.dart' show WorkbenchToolbar;
+import '../../widgets/workbench.dart'
+    show
+        WorkbenchSearchButton,
+        WorkbenchSearchFocus,
+        WorkbenchSearchScope,
+        WorkbenchToolbar;
 
 class WorkbenchLibraryPage extends StatefulWidget {
   const WorkbenchLibraryPage({super.key, this.store});
@@ -89,6 +93,19 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   void _toggle(String id) {
     setState(() {
       _selected.contains(id) ? _selected.remove(id) : _selected.add(id);
+    });
+  }
+
+  /// Bumped on every 搜索 ⌘F, so one pressed with the field already open puts
+  /// the caret back in it rather than doing nothing.
+  int _searchRequest = 0;
+
+  /// 搜索 ⌘F, from the titlebar button or the key. Already open, the field
+  /// keeps its query: pressing the key again is no reason to throw it away.
+  void _openSearch() {
+    setState(() {
+      _searching = true;
+      _searchRequest++;
     });
   }
 
@@ -157,62 +174,64 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
   @override
   Widget build(BuildContext context) {
     final strings = t.workbench.history_page;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        WorkbenchToolbar(
-          title: t.workbench.history,
-          children: [
-            const Spacer(),
-            Button(
-                variant: ButtonVariant.recessed,
-                shortcut: const Text('⌘F'),
-                onPressed: () => setState(() => _searching = true),
-                child: Text(strings.search)),
-          ],
-        ),
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return WorkbenchSearchScope(
+      onSearch: _openSearch,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          WorkbenchToolbar(
+            title: t.workbench.history,
             children: [
-              Rail(
-                resizable: true,
-                children: [
-                  RailItem(
-                    active: _store.filter == HistoryFilter.all,
-                    onPressed: () => _setFilter(HistoryFilter.all),
-                    child: Text('${strings.all} ${_store.counts.all}'),
-                  ),
-                  RailItem(
-                    active: _store.filter == HistoryFilter.favorites,
-                    onPressed: () => _setFilter(HistoryFilter.favorites),
-                    child: Text(
-                      '${strings.favorites} ${_store.counts.favorites}',
-                    ),
-                  ),
-                  RailItem(
-                    active: _store.filter == HistoryFilter.edited,
-                    onPressed: () => _setFilter(HistoryFilter.edited),
-                    child: Text(
-                      '${strings.edited} ${_store.counts.edited}',
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildStrip(context),
-                    Expanded(child: _buildFeed(context)),
-                    _buildFooter(context),
-                  ],
-                ),
+              const Spacer(),
+              WorkbenchSearchButton(
+                label: strings.search,
+                onPressed: _openSearch,
               ),
             ],
           ),
-        ),
-      ],
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Rail(
+                  resizable: true,
+                  children: [
+                    RailItem(
+                      active: _store.filter == HistoryFilter.all,
+                      onPressed: () => _setFilter(HistoryFilter.all),
+                      child: Text('${strings.all} ${_store.counts.all}'),
+                    ),
+                    RailItem(
+                      active: _store.filter == HistoryFilter.favorites,
+                      onPressed: () => _setFilter(HistoryFilter.favorites),
+                      child: Text(
+                        '${strings.favorites} ${_store.counts.favorites}',
+                      ),
+                    ),
+                    RailItem(
+                      active: _store.filter == HistoryFilter.edited,
+                      onPressed: () => _setFilter(HistoryFilter.edited),
+                      child: Text(
+                        '${strings.edited} ${_store.counts.edited}',
+                      ),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildStrip(context),
+                      Expanded(child: _buildFeed(context)),
+                      _buildFooter(context),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -237,18 +256,16 @@ class _WorkbenchLibraryPageState extends State<WorkbenchLibraryPage> {
       child: _searching
           ? Semantics(
               label: strings.search_label,
-              child: CallbackShortcuts(
-                bindings: {
-                  const SingleActivator(LogicalKeyboardKey.escape): () {
-                    _searchController.clear();
-                    _store.setQuery('');
-                    setState(() => _searching = false);
-                  },
-                },
+              child: WorkbenchSearchFocus(
+                request: _searchRequest,
                 child: SearchField(
                   controller: _searchController,
                   onChanged: _store.setQuery,
                   placeholder: strings.search_placeholder,
+                  // Escape is the field's own: it clears a query first and
+                  // only dismisses an empty field. A binding above it never
+                  // hears the key, so closing has to be handed in here.
+                  onDismiss: () => setState(() => _searching = false),
                 ),
               ),
             )

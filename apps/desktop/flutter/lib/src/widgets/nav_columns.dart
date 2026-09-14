@@ -13,7 +13,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../theme/product_tokens.dart' show ProductPalette, ProductTypography;
-import 'ui.dart' show Pressable, SidebarGroup, ThemeDataBuildContextProps;
+import 'ui.dart'
+    show NavItem, Pressable, SidebarGroup, ThemeDataBuildContextProps;
+import 'window_focus.dart' show WindowFocus;
 
 /// is meant to serve.
 const double kMinSidebarWidth = 150;
@@ -139,7 +141,12 @@ class _SidebarState extends State<Sidebar> {
           if (widget.header != null)
             Container(
               height: vars.frameTitlebarSize,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              // The leading 16 is the toolbar's own, so whatever starts this
+              // strip starts on the same line with the sidebar open or
+              // collapsed. The trailing edge is the column's 10, the inset
+              // the rows below keep: the toggle parked there lines up with
+              // them rather than with a toolbar that is not beside it.
+              padding: const EdgeInsetsDirectional.only(start: 16, end: 10),
               alignment: AlignmentDirectional.centerStart,
               child: widget.header,
             ),
@@ -159,7 +166,11 @@ class _SidebarState extends State<Sidebar> {
           ),
           if (widget.footer != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 14),
+              // 8 under the card, not the 14 the list keeps at its ends: in
+              // the deck the card is the last thing in the column's content,
+              // pushed down by `mt-auto`, so what sits beneath it is the
+              // content's own `padding-block` — the kit's 8.
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
               child: widget.footer,
             ),
         ],
@@ -460,7 +471,8 @@ class _RailState extends State<Rail> {
           ),
           if (widget.footer != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 14),
+              // The same foot as [Sidebar]'s, for the same reason.
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
               child: widget.footer,
             ),
         ],
@@ -539,6 +551,122 @@ class RailGroup extends StatelessWidget {
   }
 }
 
+/// The current row's fill and ink, in a window that is or is not key.
+///
+/// AppKit fills the current row with the accent while its window is key and
+/// drops it to the unemphasized neutral the moment it is not — React's
+/// `WindowFrame` swaps `--selection` on blur for the same effect. Both rows
+/// below resolve their selection here, so the sidebar and the rail beside it
+/// always lose the accent together.
+({Color surface, Color content}) _selectionOf(BuildContext context) {
+  final vars = context.vars;
+  return WindowFocus.of(context)
+      ? (surface: vars.accent, content: vars.colorOnAccent)
+      : (surface: vars.selectionUnemphasized, content: vars.colorContent);
+}
+
+/// One row of the sidebar — the kit's [NavItem], with a window-aware
+/// selection.
+///
+/// [NavItem] paints its current row with the accent outright, which is the key
+/// window's state stuck on: a blurred workbench would keep shouting its
+/// selection over whatever window is actually in front. That is the kit's to
+/// fix. Until it is, this row carries [NavItem]'s metrics unchanged — padding,
+/// glyph box, gap, radius, type, the accent's quiet hover wash — and takes its
+/// selection from [WindowFocus].
+class SidebarItem extends StatelessWidget {
+  const SidebarItem({
+    super.key,
+    required this.label,
+    this.icon,
+    this.trailing,
+    this.current = false,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData? icon;
+  final Widget? trailing;
+
+  /// The current page. It fills rather than washes.
+  final bool current;
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final vars = context.vars;
+    final radius = BorderRadius.circular(vars.radiusSmall);
+    final enabled = onPressed != null;
+    final selection = _selectionOf(context);
+
+    return Pressable(
+      onPressed: onPressed,
+      enabled: enabled,
+      selected: current,
+      borderRadius: radius,
+      builder: (context, states) {
+        Color? surface;
+        Color content = vars.colorContentNav;
+        if (!enabled) {
+          content = vars.controlColorNormalContent.disabledColor!;
+        } else if (current) {
+          surface = selection.surface;
+          content = selection.content;
+        } else if (states.contains(WidgetState.hovered)) {
+          surface = vars
+              .colorPrimary[vars.controlColorPlainSurface.hoveredShade!]!
+              .withValues(alpha: vars.controlColorPlainSurface.hoveredOpacity);
+          content = vars.colorContent;
+        }
+
+        return AnimatedContainer(
+          duration: vars.motionDuration,
+          curve: vars.motionEasing,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            vertical: vars.spacing2,
+            horizontal: vars.spacing25,
+          ),
+          decoration: BoxDecoration(color: surface, borderRadius: radius),
+          child: Row(
+            spacing: vars.spacing15,
+            children: [
+              if (icon != null)
+                // The glyph is taller than the label, so it is boxed to the
+                // row's line height and allowed to overflow rather than
+                // stretching the row.
+                SizedBox(
+                  width: vars.spacing4,
+                  height: vars.labelQuiet.fontSize,
+                  child: OverflowBox(
+                    maxHeight: vars.spacing4,
+                    child: Icon(icon, size: vars.spacing4, color: content),
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: vars.labelQuiet.copyWith(height: 1, color: content),
+                ),
+              ),
+              if (trailing != null)
+                IconTheme(
+                  data: IconTheme.of(context).copyWith(color: content),
+                  child: trailing!,
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// One row of a [Rail]. Its selection follows the window's key status, the
+/// same as [SidebarItem]'s.
 class RailItem extends StatelessWidget {
   const RailItem({
     super.key,
@@ -555,6 +683,7 @@ class RailItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final vars = context.vars;
     final radius = BorderRadius.circular(vars.radiusSmall);
+    final selection = _selectionOf(context);
 
     return Pressable(
       onPressed: onPressed,
@@ -566,7 +695,7 @@ class RailItem extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         decoration: BoxDecoration(
           color: active
-              ? vars.accent
+              ? selection.surface
               : (states.contains(WidgetState.hovered)
                   ? vars.accent.withValues(alpha: 0.08)
                   : null),
@@ -577,7 +706,7 @@ class RailItem extends StatelessWidget {
             fontSize: 12,
             fontWeight: FontWeight.w500,
             height: 1,
-            color: active ? vars.colorOnAccent : vars.colorContentNav,
+            color: active ? selection.content : vars.colorContentNav,
           ),
           child: child,
         ),

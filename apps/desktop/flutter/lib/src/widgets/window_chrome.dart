@@ -345,14 +345,14 @@ class WindowTitlebar extends StatelessWidget {
     final vars = context.vars;
     final isMac = platform == null || platform == WindowPlatform.macos;
 
-    return Container(
-      height: vars.frameTitlebarSize,
-      // Windows caption strips run to the window's edge and the band's full
-      // height, so the padding is cancelled on that side.
-      padding: EdgeInsetsDirectional.only(
-        start: 16,
-        end: platform == WindowPlatform.windows ? 0 : 16,
-      ),
+    // The hairline is painted, not laid out. A `Container` folds its
+    // decoration's border into its padding, so the row would centre in the
+    // band less the hairline — half a hairline above the true middle — while
+    // the sidebar's header strip, which has no border, centres on it. The
+    // controls riding across the two on a sidebar toggle would hop that half
+    // pixel. A `DecoratedBox` draws the same border without taking its width
+    // out of the child, which is what React's inset shadow does.
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: vars.colorSurfaceChrome,
         border: Border(
@@ -362,56 +362,65 @@ class WindowTitlebar extends StatelessWidget {
           ),
         ),
       ),
-      child: Row(
-        children: [
-          if (isMac && lights) ...[
-            const TrafficLights(),
-            const SizedBox(width: 14),
-          ],
-          if (leading != null) ...[leading!, const SizedBox(width: 14)],
-          if (title != null) ...[
-            DefaultTextStyle(
-              style: vars.displayStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                height: 1,
-                letterSpacing: -0.13,
-                color: vars.colorContent,
+      child: Container(
+        height: vars.frameTitlebarSize,
+        // Windows caption strips run to the window's edge and the band's full
+        // height, so the padding is cancelled on that side.
+        padding: EdgeInsetsDirectional.only(
+          start: 16,
+          end: platform == WindowPlatform.windows ? 0 : 16,
+        ),
+        child: Row(
+          children: [
+            if (isMac && lights) ...[
+              const TrafficLights(),
+              const SizedBox(width: 14),
+            ],
+            if (leading != null) ...[leading!, const SizedBox(width: 14)],
+            if (title != null) ...[
+              DefaultTextStyle(
+                style: vars.displayStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  height: 1,
+                  letterSpacing: -0.13,
+                  color: vars.colorContent,
+                ),
+                child: title!,
               ),
-              child: title!,
-            ),
-            const SizedBox(width: 14),
-          ],
-          if (subtitle != null) ...[
-            DefaultTextStyle(
-              style: vars.sansStyle(
-                fontSize: 12,
-                color: vars.colorContentSubtle,
+              const SizedBox(width: 14),
+            ],
+            if (subtitle != null) ...[
+              DefaultTextStyle(
+                style: vars.sansStyle(
+                  fontSize: 12,
+                  color: vars.colorContentSubtle,
+                ),
+                child: subtitle!,
               ),
-              child: subtitle!,
-            ),
-            const SizedBox(width: 14),
+              const SizedBox(width: 14),
+            ],
+            if (isMac)
+              ...children
+            else ...[
+              // Toolbar content resolves its own trailing Spacer inside this
+              // group, so right-aligned controls stop at the caption cluster
+              // instead of splitting the free space with it.
+              Expanded(child: Row(children: children)),
+              const SizedBox(width: 14),
+              if (platform == WindowPlatform.windows)
+                WindowsCaptionControls(
+                  buttons: buttons,
+                  onPressed: onCaptionPressed,
+                )
+              else
+                LinuxWindowControls(
+                  buttons: buttons,
+                  onPressed: onCaptionPressed,
+                ),
+            ],
           ],
-          if (isMac)
-            ...children
-          else ...[
-            // Toolbar content resolves its own trailing Spacer inside this
-            // group, so right-aligned controls stop at the caption cluster
-            // instead of splitting the free space with it.
-            Expanded(child: Row(children: children)),
-            const SizedBox(width: 14),
-            if (platform == WindowPlatform.windows)
-              WindowsCaptionControls(
-                buttons: buttons,
-                onPressed: onCaptionPressed,
-              )
-            else
-              LinuxWindowControls(
-                buttons: buttons,
-                onPressed: onCaptionPressed,
-              ),
-          ],
-        ],
+        ),
       ),
     );
   }

@@ -12,14 +12,15 @@ import '../../services/app_windows.dart'
 import '../../theme/product_tokens.dart' show ProductTypography;
 import '../../utils/platform_util.dart';
 import '../../utils/utils.dart';
+import '../../widgets/nav_columns.dart' show SidebarItem;
 import '../../widgets/ui.dart'
     show
         Button,
-        NavItem,
         SidebarCard,
         SidebarGroup,
         ThemeDataBuildContextProps,
         WidgetSize;
+import '../../widgets/window_focus.dart' show WindowFocusTracker;
 import '../../widgets/workbench.dart';
 import '../settings/about.dart';
 import '../settings/advanced.dart';
@@ -164,41 +165,47 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: context.vars.colorSurface,
-      child: Workbench(
-        collapsed: _collapsed,
-        onToggleCollapsed: () => setState(() => _collapsed = !_collapsed),
-        sidebarWidth: _sidebarWidth,
-        onSidebarWidthChange: (width) => setState(() => _sidebarWidth = width),
-        windowActions: _windowActions,
-        sidebarFooter: const _SidebarVersion(),
-        sidebar: [
-          SidebarGroup(label: t.workbench.workspace, children: [
-            NavItem(
-                label: t.workbench.translate,
-                icon: FluentIcons.translate_20_regular,
-                current: _selected('/translate'),
-                onPressed: () => context.go('/translate')),
-            if (kGlossaryFeatureEnabled)
-              NavItem(
-                  label: t.workbench.glossary,
-                  icon: FluentIcons.book_20_regular,
-                  current: _selected('/glossary'),
-                  onPressed: () => context.go('/glossary')),
-            NavItem(
-                label: t.workbench.history,
-                icon: FluentIcons.history_20_regular,
-                current: _selected('/history'),
-                onPressed: () => context.go('/history')),
-            NavItem(
-                label: t.settings.layout.title,
-                icon: FluentIcons.settings_20_regular,
-                current: _selected('/settings'),
-                onPressed: () => context.go('/settings/general')),
-          ]),
-        ],
-        child: widget.child,
+    // Over the whole shell, not just the sidebar: the settings, history and
+    // glossary rails ride in `child` and have to lose the accent with it.
+    return WindowFocusTracker(
+      window: workbenchWindowController.window,
+      child: ColoredBox(
+        color: context.vars.colorSurface,
+        child: Workbench(
+          collapsed: _collapsed,
+          onToggleCollapsed: () => setState(() => _collapsed = !_collapsed),
+          sidebarWidth: _sidebarWidth,
+          onSidebarWidthChange: (width) =>
+              setState(() => _sidebarWidth = width),
+          windowActions: _windowActions,
+          sidebarFooter: const _SidebarVersion(),
+          sidebar: [
+            SidebarGroup(label: t.workbench.workspace, children: [
+              SidebarItem(
+                  label: t.workbench.translate,
+                  icon: FluentIcons.translate_20_regular,
+                  current: _selected('/translate'),
+                  onPressed: () => context.go('/translate')),
+              if (kGlossaryFeatureEnabled)
+                SidebarItem(
+                    label: t.workbench.glossary,
+                    icon: FluentIcons.book_20_regular,
+                    current: _selected('/glossary'),
+                    onPressed: () => context.go('/glossary')),
+              SidebarItem(
+                  label: t.workbench.history,
+                  icon: FluentIcons.history_20_regular,
+                  current: _selected('/history'),
+                  onPressed: () => context.go('/history')),
+              SidebarItem(
+                  label: t.settings.layout.title,
+                  icon: FluentIcons.settings_20_regular,
+                  current: _selected('/settings'),
+                  onPressed: () => context.go('/settings/general')),
+            ]),
+          ],
+          child: widget.child,
+        ),
       ),
     );
   }

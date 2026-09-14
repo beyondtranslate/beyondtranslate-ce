@@ -1,4 +1,5 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter/widgets.dart';
 
 import '../theme/product_tokens.dart' show ProductTypography;
@@ -6,7 +7,7 @@ import '../utils/platform_util.dart';
 import 'brand_logo.dart' show BrandLogo;
 import 'icon_action_button.dart';
 import 'nav_columns.dart' show Sidebar;
-import 'ui.dart' show ThemeDataBuildContextProps;
+import 'ui.dart' show Button, ButtonVariant, ThemeDataBuildContextProps;
 import 'window_chrome.dart'
     show CaptionButton, WindowBody, WindowMain, WindowPlatform, WindowTitlebar;
 
@@ -314,6 +315,183 @@ class WorkbenchToolbar extends StatelessWidget {
             : Text(subtitle!, overflow: TextOverflow.ellipsis),
         children: children,
       ),
+    );
+  }
+}
+
+/// The key that opens a view's search. ⌘ is a Mac keyboard's; elsewhere the
+/// key in that position is Ctrl, the same split the input box's submit key
+/// makes, so the chip and the binding are both spelled from the platform.
+SingleActivator get workbenchSearchActivator => SingleActivator(
+      LogicalKeyboardKey.keyF,
+      meta: kIsMacOS,
+      control: !kIsMacOS,
+    );
+
+/// 搜索 ⌘F — the titlebar's way into a view's search field, shared by every
+/// view that has one so they all put it in the same place and draw it alike.
+///
+/// Recessed, the deck's `ghost` on the inset ground: it is chrome that opens
+/// something, not the view's primary action, and the filled button beside it
+/// on 术语库 has to stay the one accent in the band.
+class WorkbenchSearchButton extends StatelessWidget {
+  const WorkbenchSearchButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Button(
+      variant: ButtonVariant.recessed,
+      // The chip names the key [WorkbenchSearchScope] actually binds; a
+      // hint for a key nothing answers is worse than no hint.
+      shortcut: Text(kIsMacOS ? '⌘F' : '⌃F'),
+      onPressed: onPressed,
+      child: Text(label),
+    );
+  }
+}
+
+/// Puts the caret in the search field below it, which the key is opened from
+/// as often as the button and has to be typed into straight after.
+///
+/// The field's own `autofocus` cannot be relied on for this: it only lands
+/// while nothing else in the view has held focus, and a view with its own
+/// inputs — 术语库's draft row — often has. So the field's node is found once
+/// it is attached — on mount, and again each time [request] moves, which is
+/// the key pressed with the field already open and the caret somewhere else.
+class WorkbenchSearchFocus extends StatefulWidget {
+  const WorkbenchSearchFocus({
+    super.key,
+    this.request = 0,
+    required this.child,
+  });
+
+  final int request;
+  final Widget child;
+
+  @override
+  State<WorkbenchSearchFocus> createState() => _WorkbenchSearchFocusState();
+}
+
+class _WorkbenchSearchFocusState extends State<WorkbenchSearchFocus> {
+  /// A marker in the focus tree, never a focus target of its own.
+  final FocusNode _slot = FocusNode(
+    debugLabel: 'WorkbenchSearchFocus',
+    skipTraversal: true,
+    canRequestFocus: false,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _focusField();
+  }
+
+  @override
+  void didUpdateWidget(WorkbenchSearchFocus oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.request != oldWidget.request) _focusField();
+  }
+
+  void _focusField() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _slot.traversalDescendants.firstOrNull?.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _slot.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      Focus(focusNode: _slot, child: widget.child);
+}
+
+/// Binds [workbenchSearchActivator] across a view, so the key the
+/// [WorkbenchSearchButton] advertises does what the button does.
+///
+/// A shortcut only fires for focus inside its subtree, and a click on a row
+/// or on the sidebar moves no focus, so the view holds focus of its own and
+/// takes it whenever it is shown. Shown means the shell's branch went live:
+/// the views stay mounted offstage in an indexed stack, and [TickerMode] is
+/// what flips when the sidebar switches to one — the same signal 翻译 uses to
+/// put the caret back in its source box.
+///
+/// What it holds is a scope rather than a plain node, because a desktop text
+/// field drops its focus on any click outside it, and unfocusing hands focus
+/// to the nearest enclosing scope. Were that the route's, it would sit above
+/// this binding and the key would go dead until the view was shown again; as
+/// this one, focus falls back inside the view and the key keeps working.
+class WorkbenchSearchScope extends StatefulWidget {
+  const WorkbenchSearchScope({
+    super.key,
+    required this.onSearch,
+    required this.child,
+  });
+
+  /// Null while the view has nothing to search — the key is then left to
+  /// whoever else wants it.
+  final VoidCallback? onSearch;
+
+  final Widget child;
+
+  @override
+  State<WorkbenchSearchScope> createState() => _WorkbenchSearchScopeState();
+}
+
+class _WorkbenchSearchScopeState extends State<WorkbenchSearchScope> {
+  /// Skipped by traversal: it is where the view's keys land, not a stop a
+  /// tab should pause on with nothing to show for it.
+  final FocusScopeNode _node = FocusScopeNode(
+    debugLabel: 'WorkbenchSearchScope',
+    skipTraversal: true,
+  );
+
+  bool _shown = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final shown = TickerMode.valuesOf(context).enabled;
+    if (shown && !_shown) {
+      // After the frame: on the first showing the scope is not in the focus
+      // tree yet, and a scope asked for focus before it is attached drops the
+      // request rather than holding it the way a plain node does.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _claimFocus());
+    }
+    _shown = shown;
+  }
+
+  /// A scope asked for focus hands it to whatever in the view held it last —
+  /// the search field, say — before it keeps it for itself, so focus already
+  /// somewhere in the view is left where it is.
+  void _claimFocus() {
+    if (!mounted || !_shown || _node.hasFocus) return;
+    _node.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    _node.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final onSearch = widget.onSearch;
+    return CallbackShortcuts(
+      bindings: {if (onSearch != null) workbenchSearchActivator: onSearch},
+      child: FocusScope(node: _node, child: widget.child),
     );
   }
 }

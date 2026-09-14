@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter/widgets.dart' hide Table, TableCell, TableRow;
 
 import '../../i18n/i18n.dart';
@@ -25,7 +24,12 @@ import '../../widgets/ui.dart'
         ThemeDataBuildContextProps,
         WidgetSize;
 import '../../widgets/window_chrome.dart' show WindowFooter;
-import '../../widgets/workbench.dart' show WorkbenchToolbar;
+import '../../widgets/workbench.dart'
+    show
+        WorkbenchSearchButton,
+        WorkbenchSearchFocus,
+        WorkbenchSearchScope,
+        WorkbenchToolbar;
 import 'glossary_dialogs.dart';
 
 /// Separator between several forbidden translations, in both the input and
@@ -62,6 +66,10 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
   /// The kit's search field is controller-driven, so the query lives here and
   /// the store is told about it on change.
   final TextEditingController _searchController = TextEditingController();
+
+  /// Bumped on every 搜索 ⌘F, so one pressed with the field already open puts
+  /// the caret back in it rather than doing nothing.
+  int _searchRequest = 0;
 
   @override
   void initState() {
@@ -150,6 +158,17 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
   void _openHeader(_HeaderMode mode, {String bookName = ''}) {
     _bookNameController.text = bookName;
     setState(() => _header = mode);
+  }
+
+  /// 搜索 ⌘F, from the titlebar button or the key. It searches the selected
+  /// book, so with none there is nothing to open — and the strip it would
+  /// open in is not on screen either. Already open, the field keeps its query.
+  void _openSearch() {
+    if (glossaryStore.selectedBook == null) return;
+    if (_header != _HeaderMode.searching) {
+      _openHeader(_HeaderMode.searching);
+    }
+    setState(() => _searchRequest++);
   }
 
   void _closeHeader() {
@@ -247,68 +266,81 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
     final book = glossaryStore.selectedBook;
     final entries = glossaryStore.entries;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        WorkbenchToolbar(
-          title: t.workbench.glossary,
-          children: [
-            const Spacer(),
-            // Both ways into a new book, as the deck draws them: the quiet one
-            // here beside 新增条目, and the accent one at the rail's foot.
-            Button(
-                onPressed: _openNewBookDialog,
-                child: Text(t.workbench.glossary_page.new_book)),
-            const SizedBox(width: 14),
-            Button(
-                variant: ButtonVariant.filled,
-                onPressed: book != null ? _openAddTermDialog : null,
-                child: Text(t.workbench.glossary_page.add_entry)),
-          ],
-        ),
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return WorkbenchSearchScope(
+      onSearch: book != null ? _openSearch : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          WorkbenchToolbar(
+            title: t.workbench.glossary,
             children: [
-              Rail(
-                resizable: true,
-                children: [
-                  for (final entry in books)
-                    RailItem(
-                      active: entry.id == book?.id,
-                      onPressed: () => _selectBook(entry),
-                      child: Text(
-                        entry.enabled
-                            ? '${entry.name} ${entry.entryCount}'
-                            : '${entry.name} · '
-                                '${t.workbench.glossary_page.disabled}',
-                      ),
-                    ),
-                  RailAction(
-                    onPressed: _openNewBookDialog,
-                    child: Text('＋ ${t.workbench.glossary_page.new_book}'),
-                  ),
-                ],
+              const Spacer(),
+              // The deck's titlebar owns search here as it does on 历史: the
+              // book strip below only reports what it is showing.
+              WorkbenchSearchButton(
+                label: t.workbench.glossary_page.search,
+                onPressed: book != null ? _openSearch : null,
               ),
-              Expanded(
-                child: book == null && _header != _HeaderMode.creating
-                    ? _NoBooks(
-                        onCreate: _openNewBookDialog,
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _buildHeader(context, book, entries.length),
-                          if (_drafting) _buildDraft(context),
-                          Expanded(child: _buildBody(context, entries)),
-                          _buildFooter(context),
-                        ],
-                      ),
-              ),
+              const SizedBox(width: 14),
+              // Both ways into a new book, as the deck draws them: the quiet one
+              // here beside 新增条目, and the accent one at the rail's foot.
+              // Recessed like 搜索 beside it, so the filled 新增条目 is the one
+              // button in the band that reads as the view's action.
+              Button(
+                  variant: ButtonVariant.recessed,
+                  onPressed: _openNewBookDialog,
+                  child: Text(t.workbench.glossary_page.new_book)),
+              const SizedBox(width: 14),
+              Button(
+                  variant: ButtonVariant.filled,
+                  onPressed: book != null ? _openAddTermDialog : null,
+                  child: Text(t.workbench.glossary_page.add_entry)),
             ],
           ),
-        ),
-      ],
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Rail(
+                  resizable: true,
+                  children: [
+                    for (final entry in books)
+                      RailItem(
+                        active: entry.id == book?.id,
+                        onPressed: () => _selectBook(entry),
+                        child: Text(
+                          entry.enabled
+                              ? '${entry.name} ${entry.entryCount}'
+                              : '${entry.name} · '
+                                  '${t.workbench.glossary_page.disabled}',
+                        ),
+                      ),
+                    RailAction(
+                      onPressed: _openNewBookDialog,
+                      child: Text('＋ ${t.workbench.glossary_page.new_book}'),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: book == null && _header != _HeaderMode.creating
+                      ? _NoBooks(
+                          onCreate: _openNewBookDialog,
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildHeader(context, book, entries.length),
+                            if (_drafting) _buildDraft(context),
+                            Expanded(child: _buildBody(context, entries)),
+                            _buildFooter(context),
+                          ],
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -323,18 +355,15 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
       case _HeaderMode.searching:
         content = Semantics(
           label: strings.search_label,
-          child: CallbackShortcuts(
-            bindings: {
-              const SingleActivator(LogicalKeyboardKey.escape): () {
-                _searchController.clear();
-                glossaryStore.setQuery('');
-                _closeHeader();
-              },
-            },
+          child: WorkbenchSearchFocus(
+            request: _searchRequest,
             child: SearchField(
               controller: _searchController,
               onChanged: glossaryStore.setQuery,
               placeholder: strings.search_placeholder,
+              // Escape is the field's own, as on 历史: it clears first, and
+              // only an empty field reaches this.
+              onDismiss: _closeHeader,
             ),
           ),
         );
@@ -410,12 +439,6 @@ class _WorkbenchGlossaryPageState extends State<WorkbenchGlossaryPage> {
                 variant: ButtonVariant.plain,
                 onPressed: () => _openHeader(_HeaderMode.confirmingDelete),
                 child: Text(t.common.ui.button.delete)),
-            const SizedBox(width: 12),
-            Button(
-                variant: ButtonVariant.plain,
-                shortcut: const Text('⌘F'),
-                onPressed: () => _openHeader(_HeaderMode.searching),
-                child: Text(strings.search)),
           ],
         );
     }
