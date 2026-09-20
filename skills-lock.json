@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "remote-hosts": {
+      "source": "lijy91/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remote-hosts/SKILL.md",
+      "computedHash": "4b7d2d4f14e962e7b5ce58703d0140652657531110db63e4a86bf522f88ce564"
+    }
+  }
+}
