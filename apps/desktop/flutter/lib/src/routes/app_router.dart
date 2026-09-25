@@ -4,10 +4,10 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/src/widgets/_window.dart' as flutter_window
-    show WindowController, WindowEntry, WindowManager, WindowRegistry;
-import 'package:flutter/widgets.dart' hide Image;
+    show RegularWindow, RegularWindowController;
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../i18n/i18n.dart';
@@ -198,7 +198,7 @@ class _RootBodyViewState extends State<_RootBodyView> {
   // Construct the initial controller before initState schedules callbacks.
   // Creating a Win32 window can pump messages, so lazy initialization from
   // build() would allow the callback to re-enter the top-level initializer.
-  final flutter_window.WindowController _workbenchController =
+  final flutter_window.RegularWindowController _workbenchController =
       workbenchWindowController;
   late final TrayIcon _trayIcon;
   late bool _showInMenuBar;
@@ -266,7 +266,7 @@ class _RootBodyViewState extends State<_RootBodyView> {
     _trayIcon.setContextMenuTrigger(ContextMenuTrigger.rightClicked);
     _trayIcon.addListener((event) {
       if (event is TrayIconClickedEvent) {
-        handleTrayIconClick(trayBounds: _trayIcon.getBounds());
+        handleTrayIconClick(trayBounds: _trayIcon.getBounds().toRect());
       }
     });
   }
@@ -353,21 +353,26 @@ class _RootBodyViewState extends State<_RootBodyView> {
 
   @override
   Widget build(BuildContext context) {
-    return flutter_window.WindowManager(
-      initialWindows: [
-        flutter_window.WindowEntry(
-          controller: _workbenchController,
-          builder: (context) {
-            // The mini translator is registered into this same registry on
-            // first use; see `showMiniTranslatorWindow`.
-            attachWindowRegistry(
-              flutter_window.WindowRegistry.of(context),
-              miniTranslatorBuilder: (_) => const MiniTranslatorApp(),
-            );
-            return const WorkbenchApp();
-          },
-        ),
-      ],
+    // `runWidget` gives the app no implicit view to hang a window manager off,
+    // so the windows are the root: one view per native window, each rendered
+    // by the controller that created it. The workbench is always here; the
+    // mini translator joins once something has asked for it, which is the
+    // point its controller — and its native window — comes into being.
+    return ValueListenableBuilder<bool>(
+      valueListenable: miniTranslatorWindowMounted,
+      builder: (context, miniTranslatorMounted, _) => ViewCollection(
+        views: [
+          flutter_window.RegularWindow(
+            controller: _workbenchController,
+            child: const WorkbenchApp(),
+          ),
+          if (miniTranslatorMounted)
+            flutter_window.RegularWindow(
+              controller: miniTranslatorWindowController,
+              child: const MiniTranslatorApp(),
+            ),
+        ],
+      ),
     );
   }
 }

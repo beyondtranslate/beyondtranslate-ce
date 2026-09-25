@@ -2,7 +2,7 @@ import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/services.dart' show KeyDownEvent, LogicalKeyboardKey;
 import 'package:flutter/widgets.dart' hide FormField;
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 import '../../i18n/i18n.dart';
 import '../../services/settings_store.dart';
@@ -941,7 +941,7 @@ class _LanguageField extends StatelessWidget {
 
     final strategy = nativeapi.PositioningStrategy.relativeWithWindowAndOffset(
       window,
-      offset,
+      offset.toNative(),
     );
     if (strategy == null) return;
     menu.open(strategy, nativeapi.Placement.bottomStart);

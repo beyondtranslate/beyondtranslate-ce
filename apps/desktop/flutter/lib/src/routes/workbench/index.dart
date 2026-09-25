@@ -146,12 +146,16 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
   /// The shell draws its own window buttons on Windows and Linux, so they get
   /// the real verbs. Close hides rather than destroys — the app lives on in
   /// the tray, the same answer the window delegate gives the native close.
+  /// Dragging and resizing are not wired here: the shell hands the window
+  /// itself to nativeapi's widgets, which run the OS's own move and resize
+  /// loops.
   WorkbenchWindowActions? get _windowActions {
     if (!kIsWindows && !kIsLinux) return null;
+    final window = workbenchWindowController.window;
     return WorkbenchWindowActions(
-      onMinimize: () => workbenchWindowController.window.minimize(),
+      window: window,
+      onMinimize: window.minimize,
       onToggleMaximize: () {
-        final window = workbenchWindowController.window;
         if (window.isMaximized) {
           window.unmaximize();
         } else {
@@ -159,7 +163,6 @@ class _WorkbenchShellState extends State<WorkbenchShell> {
         }
       },
       onClose: hideWorkbenchWindow,
-      onDragStart: () => workbenchWindowController.window.startDragging(),
     );
   }
 

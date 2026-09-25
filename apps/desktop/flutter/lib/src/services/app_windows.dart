@@ -38,14 +38,15 @@ library;
 import 'dart:io';
 
 import 'package:flutter/src/widgets/_window.dart' as flutter_window
-    show
-        WindowController,
-        WindowControllerDelegate,
-        WindowEntry,
-        WindowRegistry;
-import 'package:flutter/widgets.dart' hide Image;
+    show RegularWindowController, RegularWindowControllerDelegate;
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nativeapi/nativeapi.dart';
+// `Display` is one of the names the Flutter layer withholds so it cannot
+// shadow `dart:ui`'s, so it comes from the core package under a prefix. The
+// placement maths below stays in Flutter's geometry throughout and converts
+// only where it meets a window or a display.
+import 'package:nativeapi/nativeapi.dart' as na;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 import '../extensions/window_controller.dart';
 import '../utils/platform_util.dart';
@@ -61,9 +62,6 @@ const _kMiniTranslatorTrayGap = 10.0;
 
 GoRouter? _workbenchRouter;
 String _pendingWorkbenchLocation = '/translate';
-flutter_window.WindowRegistry? _windowRegistry;
-WidgetBuilder? _miniTranslatorBuilder;
-bool _miniTranslatorWindowRegistered = false;
 bool _miniTranslatorEverPositioned = false;
 bool _workbenchWindowConfigured = false;
 bool _miniTranslatorWindowConfigured = false;
@@ -92,16 +90,15 @@ enum WorkbenchDestination {
 // Wiring from the widget layer
 // ──────────────────────────────────────────────────────────────────────────────
 
-/// Hands over the [registry] the mini translator window is registered with on
-/// first use, and the widget tree to build into it. Called from the workbench
-/// window's builder, which is the only place a registry is reachable from.
-void attachWindowRegistry(
-  flutter_window.WindowRegistry registry, {
-  required WidgetBuilder miniTranslatorBuilder,
-}) {
-  _windowRegistry = registry;
-  _miniTranslatorBuilder = miniTranslatorBuilder;
-}
+/// Whether the mini translator's window is in the view collection the root
+/// view renders.
+///
+/// The workbench is there from the start; the mini translator is built on
+/// first use, so the root view watches this and adds its [RegularWindow] when
+/// it flips. Creating the controller is what creates the native window, so
+/// this stays false — and the controller untouched — until something actually
+/// asks for the window.
+final ValueNotifier<bool> miniTranslatorWindowMounted = ValueNotifier(false);
 
 /// The workbench's live router, so [showWorkbenchWindow] can navigate it.
 /// `WorkbenchApp` attaches it for the lifetime of its state.
@@ -123,18 +120,43 @@ String get pendingWorkbenchLocation => _pendingWorkbenchLocation;
 // Workbench window
 // ──────────────────────────────────────────────────────────────────────────────
 
+/// Clears the way for the chrome the workbench draws itself.
+///
+/// The two platform families want different things of the native frame, and
+/// nativeapi 0.4.0 made that difference explicit. `TitleBarStyle.hidden` now
+/// means the same everywhere — no title bar and no window control buttons —
+/// where macOS used to read it as "transparent bar, keep the traffic lights".
+/// That older reading is exactly what this window wants on macOS: the sidebar
+/// header is sized to the titlebar so the real traffic lights sit in it, and
+/// [Workbench] leaves their corner alone for them. `setContentUnderTitleBar`
+/// is the call that means it now — the bar becomes a transparent overlay, the
+/// buttons stay on it, and the sidebar's colour runs unbroken to the top edge.
+///
+/// Windows and Linux have no traffic lights to keep. They draw their own
+/// caption cluster in the toolbar, so they want the frame gone outright, which
+/// is what the style says.
+void _hideWorkbenchTitleBar(Window window) {
+  if (kIsMacOS && Window.isContentUnderTitleBarSupported()) {
+    window.setContentUnderTitleBar(true);
+    return;
+  }
+  window.titleBarStyle = TitleBarStyle.hidden;
+}
+
 /// Custom delegate that hides the window instead of destroying it when closed.
 /// The app continues running in the system tray.
-class _HideOnCloseDelegate extends flutter_window.WindowControllerDelegate {
+class _HideOnCloseDelegate with flutter_window.RegularWindowControllerDelegate {
   @override
-  void onWindowCloseRequested(flutter_window.WindowController controller) {
-    if (controller.window == workbenchWindowController.window) {
+  void onWindowCloseRequested(
+    flutter_window.RegularWindowController controller,
+  ) {
+    if (controller.window.id == workbenchWindowController.window.id) {
       hideWorkbenchWindow();
     }
   }
 }
 
-final workbenchWindowController = flutter_window.WindowController(
+final workbenchWindowController = flutter_window.RegularWindowController(
   size: _kWorkbenchWindowSize,
   title: kWorkbenchWindowTitle,
   delegate: _HideOnCloseDelegate(),
@@ -144,9 +166,9 @@ final workbenchWindowController = flutter_window.WindowController(
     // sites keeps the two in sync no matter who shows or hides the workbench.
     dockIconController.setWorkbenchWindowVisible(true);
     if (window.isFirstShow) {
-      window.titleBarStyle = TitleBarStyle.hidden;
-      window.minimumSize = _kWorkbenchWindowMinimumSize;
-      window.setSize(_kWorkbenchWindowSize, false);
+      _hideWorkbenchTitleBar(window);
+      window.minimumSize = _kWorkbenchWindowMinimumSize.toNative();
+      window.setSize(_kWorkbenchWindowSize.toNative(), false);
       window.center();
       return true;
     }
@@ -185,8 +207,8 @@ void focusWorkbenchWindow() {
   final window = workbenchWindowController.window;
   if (Platform.isWindows && !_workbenchWindowConfigured) {
     _workbenchWindowConfigured = true;
-    window.titleBarStyle = TitleBarStyle.hidden;
-    window.minimumSize = _kWorkbenchWindowMinimumSize;
+    _hideWorkbenchTitleBar(window);
+    window.minimumSize = _kWorkbenchWindowMinimumSize.toNative();
     window.center();
   }
   // A minimized window is brought front but not out of the Dock by show().
@@ -217,7 +239,7 @@ void hideWorkbenchWindow() {
 // Mini translator window
 // ──────────────────────────────────────────────────────────────────────────────
 
-final miniTranslatorWindowController = flutter_window.WindowController(
+final miniTranslatorWindowController = flutter_window.RegularWindowController(
   // The deck's mini popover width (`--bt-mini-width`).
   size: const Size(396, 420),
   title: kMiniTranslatorWindowTitle,
@@ -242,22 +264,12 @@ Future<void> showMiniTranslatorWindow({
   Offset? position,
   Rect? trayBounds,
 }) async {
-  if (!_miniTranslatorWindowRegistered) {
-    final registry = _windowRegistry;
-    final builder = _miniTranslatorBuilder;
-    if (registry == null || builder == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showMiniTranslatorWindow(position: position, trayBounds: trayBounds);
-      });
-      return;
-    }
-    _miniTranslatorWindowRegistered = true;
-    registry.register(
-      flutter_window.WindowEntry(
-        controller: miniTranslatorWindowController,
-        builder: builder,
-      ),
-    );
+  if (!miniTranslatorWindowMounted.value) {
+    // Flipping this both creates the controller — and with it the native
+    // window — and tells the root view to render into it. The frame has to
+    // land before the window is positioned and shown, or it would come up
+    // empty.
+    miniTranslatorWindowMounted.value = true;
     await WidgetsBinding.instance.endOfFrame;
   }
 
@@ -286,7 +298,7 @@ Future<void> showMiniTranslatorWindow({
   }
   if (newPosition != null) {
     _miniTranslatorEverPositioned = true;
-    window.position = newPosition;
+    window.position = newPosition.toNative();
   }
   window.show();
 }
@@ -295,10 +307,9 @@ Future<void> showMiniTranslatorWindow({
 /// it is already hidden.
 void hideMiniTranslatorWindow() {
   // Nothing to hide until the window exists — and touching the controller
-  // before then would create it (the controller's constructor creates the
-  // native window), while `ExtendedWindowController.window` would bind the
-  // title to whatever unbound window it finds.
-  if (!_miniTranslatorWindowRegistered) return;
+  // before then would create it, since the controller's constructor is what
+  // creates the native window.
+  if (!miniTranslatorWindowMounted.value) return;
   miniTranslatorWindowController.window.hide();
 }
 
@@ -307,7 +318,8 @@ void hideMiniTranslatorWindow() {
 // ──────────────────────────────────────────────────────────────────────────────
 
 Offset? _miniTranslatorPositionBelowTray(Rect trayBounds, {Size? windowSize}) {
-  final size = windowSize ?? miniTranslatorWindowController.window.size;
+  final size =
+      windowSize ?? miniTranslatorWindowController.window.size.toSize();
   final anchor = _resolveTrayAnchor(trayBounds);
   if (anchor == null) return null;
 
@@ -320,8 +332,8 @@ Offset? _miniTranslatorPositionBelowTray(Rect trayBounds, {Size? windowSize}) {
   }
 
   final displayBounds = _displayBounds(anchor.display);
-  final menuBarBottom = anchor.display.workArea.top > displayBounds.top
-      ? anchor.display.workArea.top
+  final menuBarBottom = anchor.display.workArea.toRect().top > displayBounds.top
+      ? anchor.display.workArea.toRect().top
       : displayBounds.top + anchor.bounds.height;
   final position = Offset(
     anchor.bounds.center.dx - size.width / 2,
@@ -333,19 +345,14 @@ Offset? _miniTranslatorPositionBelowTray(Rect trayBounds, {Size? windowSize}) {
 /// Positions the mini translator at the top-right corner (50, 50) of the
 /// display that currently contains the mouse cursor.
 Offset? miniTranslatorPositionAtCursorScreenTopRight({Size? windowSize}) {
-  final cursorPosition = DisplayManager.instance.getCursorPosition();
+  final cursorPosition = DisplayManager.instance.getCursorPosition().toOffset();
   final displays = DisplayManager.instance.getAll();
   if (displays.isEmpty) return null;
 
   // Find the display that contains the cursor position
-  Display? cursorDisplay;
+  na.Display? cursorDisplay;
   for (final display in displays) {
-    final displayRect = Rect.fromLTWH(
-      display.position.dx,
-      display.position.dy,
-      display.size.width,
-      display.size.height,
-    );
+    final displayRect = _displayBounds(display);
     if (displayRect.contains(cursorPosition)) {
       cursorDisplay = display;
       break;
@@ -353,12 +360,14 @@ Offset? miniTranslatorPositionAtCursorScreenTopRight({Size? windowSize}) {
   }
 
   cursorDisplay ??= displays.first;
-  final size = windowSize ?? miniTranslatorWindowController.window.size;
+  final size =
+      windowSize ?? miniTranslatorWindowController.window.size.toSize();
 
   // Top-right corner of the cursor's display, offset by (50, 50)
+  final cursorDisplayBounds = _displayBounds(cursorDisplay);
   final position = Offset(
-    cursorDisplay.position.dx + cursorDisplay.size.width - size.width - 50,
-    cursorDisplay.position.dy + 50,
+    cursorDisplayBounds.right - size.width - 50,
+    cursorDisplayBounds.top + 50,
   );
 
   return _clampPositionToDisplay(position, size, cursorDisplay);
@@ -367,9 +376,9 @@ Offset? miniTranslatorPositionAtCursorScreenTopRight({Size? windowSize}) {
 Offset _clampPositionToDisplay(
   Offset position,
   Size windowSize,
-  Display display,
+  na.Display display,
 ) {
-  final workArea = display.workArea;
+  final workArea = display.workArea.toRect();
   return Offset(
     _clampDouble(position.dx, workArea.left, workArea.right - windowSize.width),
     _clampDouble(
@@ -428,16 +437,13 @@ _TrayAnchor? _resolveTrayAnchor(Rect rawBounds) {
   );
 }
 
-Rect _displayBounds(Display display) {
-  return Rect.fromLTWH(
-    display.position.dx,
-    display.position.dy,
-    display.size.width,
-    display.size.height,
-  );
+Rect _displayBounds(na.Display display) {
+  final position = display.position.toOffset();
+  final size = display.size.toSize();
+  return Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
 }
 
-Rect _trayBoundsOnDisplay(Rect bounds, Display display) {
+Rect _trayBoundsOnDisplay(Rect bounds, na.Display display) {
   return Rect.fromLTWH(
     bounds.left,
     _displayBounds(display).top,
@@ -446,7 +452,7 @@ Rect _trayBoundsOnDisplay(Rect bounds, Display display) {
   );
 }
 
-Rect _normalizeScaledTrayBounds(Rect bounds, Display display) {
+Rect _normalizeScaledTrayBounds(Rect bounds, na.Display display) {
   final scaleFactor = display.scaleFactor;
   if (scaleFactor == 0 || scaleFactor == 1) return bounds;
 
@@ -479,6 +485,6 @@ double _clampDouble(double value, double min, double max) {
 class _TrayAnchor {
   const _TrayAnchor({required this.display, required this.bounds});
 
-  final Display display;
+  final na.Display display;
   final Rect bounds;
 }

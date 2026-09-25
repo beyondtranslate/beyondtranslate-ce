@@ -149,18 +149,18 @@ packages:
     dependency: transitive
     description:
       name: cnativeapi
-      sha256: "14f3e23c2990eae91507e46ce28d251a19a019a1ab214d23a7523c7a9a8ba367"
+      sha256: "4cee4a015b5a503a9ac4bd6d8f91191946f9d944e62cb57f07907bc96b2f523e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.3"
+    version: "0.4.0"
   code_assets:
     dependency: transitive
     description:
       name: code_assets
-      sha256: "83ccdaa064c980b5596c35dd64a8d3ecc68620174ab9b90b6343b753aa721687"
+      sha256: "828110d598123b5ea96c00c9f3c72105bf79f8ee36c20a39b26209ade421ec57"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "2.1.0"
   collection:
     dependency: transitive
     description:
@@ -329,10 +329,10 @@ packages:
     dependency: transitive
     description:
       name: hooks
-      sha256: "025f060e86d2d4c3c47b56e33caf7f93bf9283340f26d23424ebcfccf34f621e"
+      sha256: eaac480a35ec0814146c2c48d96aaa829e0e44a7662c88ae84c9edf4bc35651f
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "2.2.0"
   http:
     dependency: transitive
     description:
@@ -489,26 +489,34 @@ packages:
     dependency: transitive
     description:
       name: native_toolchain_c
-      sha256: "6ba77bb18063eebe9de401f5e6437e95e1438af0a87a3a39084fbd37c90df572"
+      sha256: "90eaad8059ebc2004a63810a4696ea9acdb02473e47ed3b6b3bafb100ac77e31"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.6"
+    version: "0.19.5"
   nativeapi:
     dependency: transitive
     description:
       name: nativeapi
-      sha256: "82262cfe721ad4e7ed6c973937adb5b76ae6c0090e25a816d5ea94ff87a35445"
+      sha256: "75878a79f56e458960ff3c11782f9e6632c04e449296ec4ea2c2773f4b414431"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.3"
+    version: "0.4.0"
+  nativeapi_flutter:
+    dependency: transitive
+    description:
+      name: nativeapi_flutter
+      sha256: "786db4f610f32d18cb4dca6b06ff5568ba9f507343cebb53be50c3111e1fe2c2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
   objective_c:
     dependency: transitive
     description:
       name: objective_c
-      sha256: "100a1c87616ab6ed41ec263b083c0ef3261ee6cd1dc3b0f35f8ddfa4f996fe52"
+      sha256: ad56fd53a78ff6b1472fa59ff2a4e8b8ccabafc586fc263a1dfad0b99b5553e3
       url: "https://pub.dev"
     source: hosted
-    version: "9.3.0"
+    version: "9.6.0"
   package_config:
     dependency: transitive
     description:
@@ -649,10 +657,10 @@ packages:
     dependency: transitive
     description:
       name: record_use
-      sha256: "2551bd8eecfe95d14ae75f6021ad0248be5c27f138c2ec12fcb52b500b3ba1ed"
+      sha256: "1cb8564af8d43b464294411db9217f5ec04891c6f22ee2c32d73ae05e88a6bd2"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0"
+    version: "1.1.1"
   serial_csv:
     dependency: transitive
     description:
@@ -867,5 +875,5 @@ packages:
     source: hosted
     version: "2.2.4"
 sdks:
-  dart: ">=3.11.0-0 <4.0.0"
-  flutter: ">=3.38.4"
+  dart: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"

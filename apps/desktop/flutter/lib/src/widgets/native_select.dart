@@ -1,6 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 import '../theme/product_tokens.dart' show ProductPalette, ProductTypography;
 import 'control_box.dart' show controlDecoration;
@@ -150,7 +150,7 @@ class _NativeSelectState<T> extends State<NativeSelect<T>> {
     setState(() => _open = true);
     final strategy = nativeapi.PositioningStrategy.relativeWithWindowAndOffset(
       window,
-      Offset(origin.dx, origin.dy + box.size.height),
+      Offset(origin.dx, origin.dy + box.size.height).toNative(),
     );
     if (strategy == null) return;
     menu.open(strategy, nativeapi.Placement.bottomStart);

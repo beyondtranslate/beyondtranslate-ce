@@ -1,5 +1,8 @@
+// ignore_for_file: invalid_use_of_internal_member, implementation_imports
+
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart'
     as beyondtranslate_runtime;
+import 'package:flutter/src/foundation/_features.dart' show isWindowingEnabled;
 import 'package:flutter/widgets.dart';
 
 import 'src/extensions/window_controller.dart';
@@ -13,6 +16,12 @@ import 'src/utils/env.dart';
 import 'src/utils/language_util.dart';
 
 Future<void> _ensureInitialized() async {
+  // Every window this app shows is made with Flutter's experimental windowing
+  // API. The stable channel has no `flutter config --enable-windowing` to turn
+  // it on at build time, so the app asks for it itself — before the binding
+  // starts, because that is when the windowing owner is chosen. Without this
+  // the first `RegularWindowController` throws `UnsupportedError`.
+  isWindowingEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   _smokeTestBeyondtranslateRuntime();
   await initRuntime();

@@ -22,7 +22,13 @@ dependencies:
 
   go_router: ^17.2.1
   intl: ^0.20.2
-  nativeapi: ^0.2.3
+  # `nativeapi_flutter` is the Flutter layer: it re-exports `nativeapi` and adds
+  # the widgets, `ImageAsset` and the `dart:ui` conversions. It deliberately
+  # withholds the names that would shadow Flutter's — `Display`, `Size`,
+  # `Image`, `ShortcutManager` and friends — so the core package is imported
+  # directly, and prefixed, at the few call sites that need one of those.
+  nativeapi: ^0.4.0
+  nativeapi_flutter: ^0.4.0
   path: ^1.8.3
   path_provider: ^2.1.1
   slang: ^4.13.0
@@ -39,9 +45,11 @@ dev_dependencies:
 
 # dependency_overrides:
 #   cnativeapi:
-#     path: ../../../../../libnativeapi-workspace/bindings/flutter/packages/cnativeapi
+#     path: ../../../../../nativeapi/bindings/flutter/packages/cnativeapi
 #   nativeapi:
-#     path: ../../../../../libnativeapi-workspace/bindings/flutter/packages/nativeapi
+#     path: ../../../../../nativeapi/bindings/dart
+#   nativeapi_flutter:
+#     path: ../../../../../nativeapi/bindings/flutter/packages/nativeapi_flutter
 
 flutter:
   uses-material-design: false

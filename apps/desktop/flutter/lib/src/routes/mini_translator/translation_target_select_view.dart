@@ -1,7 +1,7 @@
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 import '../../extensions/window_controller.dart';
 import '../../i18n/i18n.dart';

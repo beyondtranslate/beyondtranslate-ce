@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 import '../i18n/i18n.dart';
 import '../utils/language_util.dart';

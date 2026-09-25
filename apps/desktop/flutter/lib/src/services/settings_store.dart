@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:beyondtranslate_runtime/beyondtranslate_runtime.dart';
 import 'package:flutter/foundation.dart';
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 import '../theme/app_theme.dart' show AppThemeMode, DesignThemeFamily;
 import '../utils/language_util.dart';

@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter/widgets.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 import '../theme/product_tokens.dart' show ProductTypography;
 import '../utils/platform_util.dart';
@@ -26,19 +27,23 @@ WindowPlatform? get _shellPlatform => kIsWindows
 /// and the shell stays inert.
 class WorkbenchWindowActions {
   const WorkbenchWindowActions({
+    required this.window,
     this.onMinimize,
     this.onToggleMaximize,
     this.onClose,
-    this.onDragStart,
   });
+
+  /// The native window the shell stands for. Everything a titlebar does by
+  /// being a titlebar — dragging the window, double-tapping to maximize,
+  /// resizing from an edge — is nativeapi's to answer, so the window goes to
+  /// its widgets rather than being wrapped in callbacks here. The buttons the
+  /// shell draws are the part that is ours, and they keep their verbs below:
+  /// close in particular has to hide rather than destroy.
+  final nativeapi.Window window;
 
   final VoidCallback? onMinimize;
   final VoidCallback? onToggleMaximize;
   final VoidCallback? onClose;
-
-  /// Hands the gesture to the OS move loop — the Flutter approximation of a
-  /// titlebar answering `WM_NCHITTEST` with `HTCAPTION`.
-  final VoidCallback? onDragStart;
 }
 
 /// App identity for the platforms that have no menu bar. On macOS the app name
@@ -80,22 +85,24 @@ class _BrandMark extends StatelessWidget {
 }
 
 /// Makes a stretch of chrome behave like the native titlebar: dragging any
-/// point that no control claims moves the window. The detector loses the
-/// arena to every button inside it, so controls keep their taps.
+/// point that no control claims moves the window, and a double tap maximizes
+/// or restores it. Both come from nativeapi's [nativeapi.DragToMoveArea],
+/// which hands the gesture to the OS move loop — the Flutter answer to a
+/// titlebar replying `HTCAPTION` to `WM_NCHITTEST`. It hit-tests translucent
+/// and loses the arena to every button inside it, so controls keep their taps.
+///
+/// With no window — macOS, or a gallery — the band is left as it is rather
+/// than resolving whatever window happens to be current.
 class _TitlebarDragArea extends StatelessWidget {
-  const _TitlebarDragArea({this.onDragStart, required this.child});
+  const _TitlebarDragArea({this.window, required this.child});
 
-  final VoidCallback? onDragStart;
+  final nativeapi.Window? window;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    if (onDragStart == null) return child;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onPanStart: (_) => onDragStart!(),
-      child: child,
-    );
+    if (window == null) return child;
+    return nativeapi.DragToMoveArea(window: window, child: child);
   }
 }
 
@@ -155,52 +162,77 @@ class Workbench extends StatelessWidget {
       windowActions: windowActions,
       // WindowBody is Flexible so it can also live inside WindowFrame in the
       // widget gallery. The app shell supplies the Flex parent here.
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          WindowBody(
-            children: [
-              if (!collapsed)
-                Sidebar(
-                  header: isMacChrome
-                      ? (onToggleCollapsed == null
-                          ? const SizedBox.shrink()
-                          : Row(
-                              children: [
-                                const Spacer(),
-                                IconActionButton(
-                                  icon: FluentIcons
-                                      .panel_left_contract_20_regular,
-                                  iconSize: 16,
-                                  tooltip: '收起侧边栏',
-                                  onPressed: onToggleCollapsed,
-                                ),
-                              ],
-                            ))
-                      // The strip doubles as titlebar on these platforms, so
-                      // the whole band drags, not just the mark.
-                      : _TitlebarDragArea(
-                          onDragStart: windowActions?.onDragStart,
-                          child: const SizedBox(
-                            height: double.infinity,
-                            child: Row(children: [_BrandMark()]),
+      child: _ResizeEdges(
+        window: windowActions?.window,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            WindowBody(
+              children: [
+                if (!collapsed)
+                  Sidebar(
+                    header: isMacChrome
+                        ? (onToggleCollapsed == null
+                            ? const SizedBox.shrink()
+                            : Row(
+                                children: [
+                                  const Spacer(),
+                                  IconActionButton(
+                                    icon: FluentIcons
+                                        .panel_left_contract_20_regular,
+                                    iconSize: 16,
+                                    tooltip: '收起侧边栏',
+                                    onPressed: onToggleCollapsed,
+                                  ),
+                                ],
+                              ))
+                        // The strip doubles as titlebar on these platforms, so
+                        // the whole band drags, not just the mark.
+                        : _TitlebarDragArea(
+                            window: windowActions?.window,
+                            child: const SizedBox(
+                              height: double.infinity,
+                              child: Row(children: [_BrandMark()]),
+                            ),
                           ),
-                        ),
-                  footer: sidebarFooter,
-                  // Dragging the divider past the floor collapses the column,
-                  // which is the same state the header's toggle puts it in.
-                  resizable: true,
-                  width: sidebarWidth,
-                  onWidthChange: onSidebarWidthChange,
-                  onCollapse: onToggleCollapsed,
-                  children: sidebar,
-                ),
-              WindowMain(children: [Expanded(child: child)]),
-            ],
-          ),
-        ],
+                    footer: sidebarFooter,
+                    // Dragging the divider past the floor collapses the column,
+                    // which is the same state the header's toggle puts it in.
+                    resizable: true,
+                    width: sidebarWidth,
+                    onWidthChange: onSidebarWidthChange,
+                    onCollapse: onToggleCollapsed,
+                    children: sidebar,
+                  ),
+                WindowMain(children: [Expanded(child: child)]),
+              ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+}
+
+/// Gives a frameless window its resize borders back.
+///
+/// Hiding the titlebar costs the two platforms different things. Windows keeps
+/// its frame — nativeapi leaves the edges resizable when it takes the caption
+/// away — but a GTK window with its decorations off has no frame left at all,
+/// and with it go the borders the window manager would have resized from. So
+/// Linux gets nativeapi's [nativeapi.DragToResizeArea], which puts the handles
+/// back inside the window and answers them with `startResizing`, and Windows
+/// is left to its own frame rather than carrying a second set over it.
+class _ResizeEdges extends StatelessWidget {
+  const _ResizeEdges({this.window, required this.child});
+
+  final nativeapi.Window? window;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (window == null || !kIsLinux) return child;
+    return nativeapi.DragToResizeArea(window: window, child: child);
   }
 }
 
@@ -292,7 +324,7 @@ class WorkbenchToolbar extends StatelessWidget {
     }
 
     return _TitlebarDragArea(
-      onDragStart: actions?.onDragStart,
+      window: actions?.window,
       child: WindowTitlebar(
         lights: false,
         platform: platform,

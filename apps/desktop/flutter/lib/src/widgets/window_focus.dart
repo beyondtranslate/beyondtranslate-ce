@@ -10,7 +10,7 @@
 library;
 
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 /// Scopes a window's key status to the subtree below it.
 class WindowFocus extends InheritedWidget {

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 import '../../extensions/window_controller.dart';
 import '../../features.dart';
@@ -244,7 +244,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         }
       } else if (kIsMacOS) {
         final position = miniTranslatorPositionAtCursorScreenTopRight(
-          windowSize: _window.size,
+          windowSize: _window.size.toSize(),
         );
         if (position != null) {
           _lastShownPosition = position;
@@ -280,7 +280,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
         nativeapi.WindowManager.instance.addListener((event) {
       if (event is! nativeapi.WindowMovedEvent) return;
       if (event.windowId == _window.id) {
-        _lastShownPosition = event.newPosition;
+        _lastShownPosition = event.newPosition.toOffset();
       }
     });
   }
@@ -307,7 +307,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     // final windowSize = _window.size;
 
     if (kIsLinux) {
-      _window.position = _lastShownPosition;
+      _window.position = _lastShownPosition.toNative();
     }
 
     // if (kIsMacOS && isShowBelowTray) {
@@ -378,13 +378,13 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
     if (context.canPop()) return;
 
     try {
-      final oldSize = _window.size;
+      final oldSize = _window.size.toSize();
       final newHeight = _measureWindowHeight();
       final newSize = Size(oldSize.width, newHeight.clamp(0, _maxWindowHeight));
       if (oldSize.width == newSize.width && oldSize.height == newSize.height) {
         return;
       }
-      _window.setSize(newSize, animate);
+      _window.setSize(newSize.toNative(), animate);
     } catch (error) {
       // ignore
     }
@@ -1058,8 +1058,7 @@ class _MiniTranslatorPageState extends State<MiniTranslatorPage>
 
   Widget _buildBody(BuildContext context) {
     final hasTranslation =
-        preferredTranslation(_translationResultList, _defaultServiceId) !=
-            null;
+        preferredTranslation(_translationResultList, _defaultServiceId) != null;
     final noResult = _querySubmitted &&
         allServicesFailed(_translationResultList, _translationServiceIds);
     // Several targets: 复制 moves onto each block's attribution row, and the

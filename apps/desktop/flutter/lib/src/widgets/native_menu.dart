@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:nativeapi/nativeapi.dart' as nativeapi;
+import 'package:nativeapi_flutter/nativeapi_flutter.dart' as nativeapi;
 
 /// Opens [menu] just under the widget [anchorKey] is attached to.
 ///
@@ -30,7 +30,7 @@ bool openNativeMenuBelow(
 
   final strategy = nativeapi.PositioningStrategy.relativeWithWindowAndOffset(
     target,
-    anchorPosition,
+    anchorPosition.toNative(),
   );
   if (strategy == null) return false;
 

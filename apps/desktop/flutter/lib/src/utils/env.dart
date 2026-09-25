@@ -1,4 +1,4 @@
-import 'package:nativeapi/nativeapi.dart';
+import 'package:nativeapi_flutter/nativeapi_flutter.dart';
 
 void initEnv() {
   const appInfo = AppInfo.instance;

@@ -15,8 +15,8 @@ dependencies:
   # Required by hook/build.dart. Must live under `dependencies` (not
   # `dev_dependencies`) so that the consuming app's package_config resolves
   # them when the Flutter tool compiles the build hook.
-  hooks: ^1.0.0
-  code_assets: ^1.0.0
+  hooks: ^2.2.0
+  code_assets: ^2.1.0
 
 dev_dependencies:
   flutter_test:
