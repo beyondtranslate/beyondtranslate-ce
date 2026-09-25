@@ -1097,7 +1097,6 @@ class _WorkbenchTranslationPageState extends State<WorkbenchTranslationPage> {
   }
 }
 
-
 /// Three shimmering lines standing in for the translation being fetched.
 class _TranslationSkeleton extends StatefulWidget {
   const _TranslationSkeleton();

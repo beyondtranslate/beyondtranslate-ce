@@ -79,7 +79,6 @@ ServiceTranslation? preferredTranslation(
   return null;
 }
 
-
 bool _recordHasText(TranslationResultRecord record) {
   final texts = record.translateResponse?.translations ?? [];
   return texts.isNotEmpty && texts.first.text.isNotEmpty;
@@ -98,10 +97,10 @@ TranslationResultRecord? blockRecord(
   String? preferredServiceId,
   Set<String> translationServiceIds,
 ) {
-  final records = (result.translationResultRecordList ??
-          const <TranslationResultRecord>[])
-      .where((record) =>
-          translationServiceIds.contains(record.translateServiceIdOrEmpty));
+  final records =
+      (result.translationResultRecordList ?? const <TranslationResultRecord>[])
+          .where((record) =>
+              translationServiceIds.contains(record.translateServiceIdOrEmpty));
   if (preferredServiceId != null) {
     return records
         .where((record) => record.translationServiceId == preferredServiceId)
