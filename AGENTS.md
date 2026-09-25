@@ -70,7 +70,7 @@ beyondtranslate/
 
 `packages/ui_flutter` is **not maintained here**. It is a verbatim copy of
 `packages/ui_flutter` from <https://github.com/fastforgedev/ui>, renamed into
-BeyondTranslate's namespace (`fastforge_ui` → `beyondtranslate_ui`). Hand edits
+BeyondTranslate's namespace (`dazzui` → `beyondtranslate_ui`). Hand edits
 are drift; `scripts/sync_ui.py --check` exists to catch them.
 
 ```bash

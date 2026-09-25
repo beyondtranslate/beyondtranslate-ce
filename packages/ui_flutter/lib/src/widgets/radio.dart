@@ -160,7 +160,7 @@ class RadioItem<T> {
   final bool enabled;
 }
 
-/// A column of radios, spaced the way the stylesheet's `.ff-radio-group` is.
+/// A column of radios, spaced the way the stylesheet's `.dz-radio-group` is.
 class RadioGroup<T> extends StatelessWidget {
   const RadioGroup({
     super.key,

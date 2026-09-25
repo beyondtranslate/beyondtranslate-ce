@@ -77,7 +77,7 @@ BoxDecoration fieldBoxDecoration(
   final ThemeVariables vars = Theme.of(context).vars;
   final Color accent = ramp[vars.focusRingShade]!;
   final BorderRadius radius = BorderRadius.circular(
-    grows ? vars.radiusLarge : vars.radiusMedium,
+    grows ? vars.radiusLarge : vars.controlFieldRadius,
   );
 
   if (!enabled) {

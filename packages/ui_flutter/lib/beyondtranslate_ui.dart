@@ -61,6 +61,7 @@ export 'src/widgets/rail.dart';
 export 'src/widgets/search_field.dart';
 export 'src/widgets/section_label.dart';
 export 'src/widgets/segmented_control.dart';
+export 'src/widgets/select.dart';
 export 'src/widgets/sidebar.dart';
 export 'src/widgets/skeleton.dart';
 export 'src/widgets/slider.dart';

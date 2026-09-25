@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vendor the upstream Fastforge UI Flutter package into this repository.
+"""Vendor the upstream DazzUI Flutter package into this repository.
 
 The Flutter design system is not maintained here: it is a copy of
 <https://github.com/fastforgedev/ui>, taken verbatim and renamed into
@@ -82,15 +82,15 @@ TARGETS = (
 
 # The code stays upstream's, byte for byte; only its identity is rewritten —
 # the pub package name and the product name in prose. Applied in order to both
-# file contents and relative paths, which is what moves `lib/fastforge_ui.dart`
-# to `lib/beyondtranslate_ui.dart` without a special case.
+# file contents and relative paths, which is what moves `lib/dazzui.dart` to
+# `lib/beyondtranslate_ui.dart` without a special case.
 #
 # Anything added here is divergence from upstream that has to be re-applied on
 # every sync, so keep the list to names that must change for the code to build
 # and read correctly under BeyondTranslate.
 RENAMES: tuple[tuple[str, str], ...] = (
-    ("fastforge_ui", "beyondtranslate_ui"),
-    ("Fastforge UI", "BeyondTranslate UI"),
+    ("dazzui", "beyondtranslate_ui"),
+    ("DazzUI", "BeyondTranslate UI"),
 )
 
 # The one deliberate addition to upstream's manifest. Upstream's package stands
@@ -554,7 +554,7 @@ def print_next_steps() -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Vendor the upstream Fastforge UI Flutter package into this repository.",
+        description="Vendor the upstream DazzUI Flutter package into this repository.",
     )
     parser.add_argument(
         "--ref",

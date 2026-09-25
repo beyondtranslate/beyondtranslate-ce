@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 import '../foundation/widget_size.dart';
@@ -115,7 +117,8 @@ class SegmentedControl<T> extends StatelessWidget {
           activeStyle: activeStyle,
           tint: tint,
           height: controlSize - 2 * inset,
-          radius: trackRadius - inset,
+          // A square track (Omarchy) leaves the capsule square, not negative.
+          radius: math.max(0, trackRadius - inset),
           face: face,
           onPressed: onChanged == null || !item.enabled
               ? null
