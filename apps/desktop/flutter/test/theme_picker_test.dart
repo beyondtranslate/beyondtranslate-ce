@@ -1,6 +1,8 @@
 // 主题风格 —— the palette is chosen apart from the light/dark pair, so the two
 // have to stay independent: switching one must not disturb the other.
 import 'package:beyondtranslate_desktop/src/theme/app_theme.dart';
+import 'package:beyondtranslate_desktop/src/theme/product_tokens.dart'
+    show ProductPalette;
 import 'package:beyondtranslate_desktop/src/widgets/theme_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,26 +25,23 @@ void main() {
     );
   }
 
-  testWidgets('offers every family, and names each one', (tester) async {
-    await pump(tester, DesignThemeFamily.bright, (_) {});
+  testWidgets('shows the family it is set to', (tester) async {
+    await pump(tester, DesignThemeFamily.omarchyRosePine, (_) {});
 
-    for (final family in DesignThemeFamily.values) {
-      expect(
-        find.bySemanticsLabel(family.label),
-        findsOneWidget,
-        reason: '${family.label} should be offered',
-      );
-    }
+    expect(find.text(DesignThemeFamily.omarchyRosePine.label), findsOneWidget);
   });
 
-  testWidgets('picking a swatch reports its family', (tester) async {
-    final picked = <DesignThemeFamily>[];
-    await pump(tester, DesignThemeFamily.bright, picked.add);
+  test('offers every family once, a separator opening each group', () {
+    final items = ThemeFamilyPicker.items;
 
-    await tester.tap(find.bySemanticsLabel(DesignThemeFamily.ember.label));
-    await tester.pumpAndSettle();
-
-    expect(picked, [DesignThemeFamily.ember]);
+    expect([for (final item in items) item.value], DesignThemeFamily.values);
+    expect(
+      [
+        for (final item in items)
+          if (item.separatorBefore) item.value,
+      ],
+      [DesignThemeFamily.macos27, DesignThemeFamily.omarchyTokyoNight],
+    );
   });
 
   test('a family and a brightness pick exactly one palette', () {
@@ -57,9 +56,39 @@ void main() {
     }
   });
 
+  // The imported themes are derived from a few colours rather than drawn, so
+  // nothing but this says the product's palette still finds every ramp step
+  // it reads under them.
+  test('the product palette resolves under every palette', () {
+    for (final name in AppThemeName.values) {
+      final vars = designThemeFor(name).vars;
+      expect(
+        () => [
+          vars.accent,
+          vars.accentHover,
+          vars.accentText,
+          vars.accentTextStrong,
+          vars.highlight,
+          vars.accentMarkFg,
+          vars.danger,
+          vars.dangerFg,
+          vars.dangerDeep,
+          vars.warnStrong,
+          vars.warnFg,
+          vars.success,
+          vars.successFg,
+        ],
+        returnsNormally,
+        reason: name.name,
+      );
+    }
+  });
+
   test('an id that is no longer a family falls back rather than throwing', () {
     expect(DesignThemeFamily.fromId('studio'), DesignThemeFamily.studio);
     expect(DesignThemeFamily.fromId('ember'), DesignThemeFamily.ember);
+    expect(DesignThemeFamily.fromId('omarchy-rose-pine'),
+        DesignThemeFamily.omarchyRosePine);
     expect(DesignThemeFamily.fromId('nope'), DesignThemeFamily.bright);
   });
 }

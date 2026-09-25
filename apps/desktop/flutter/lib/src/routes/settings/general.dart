@@ -99,7 +99,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                     ),
                   )),
               // The palette and the light/dark pair are two settings, not one
-              // list of ten: pick the character here, and the brightness on the
+              // list of seventy: pick the character here, and the brightness on the
               // row below. Switching to 跟随系统 and back leaves the palette
               // where it was.
               PreferenceRow(

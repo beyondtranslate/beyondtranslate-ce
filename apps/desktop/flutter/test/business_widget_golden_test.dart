@@ -290,8 +290,8 @@ void main() {
       });
     }
 
-    // 外观 › 主题风格, the row that has to say what six palettes look like in
-    // the width of a preference row's trailing slot.
+    // 外观 › 主题风格: a closed menu of the palettes, in the same box as the
+    // display language's beside it.
     testWidgets('theme family picker', (tester) async {
       await expectGolden(
         tester,
@@ -299,8 +299,7 @@ void main() {
         column([
           // Studio selected under Studio: picking a family repaints the
           // window, so the selection and the theme in force are never a
-          // different family, and the ring is always drawn in the accent of
-          // the swatch it is around.
+          // different family.
           ThemeFamilyPicker(
             value: DesignThemeFamily.studio,
             onChanged: (_) {},
